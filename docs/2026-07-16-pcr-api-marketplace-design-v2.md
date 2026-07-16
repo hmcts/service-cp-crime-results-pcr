@@ -2,7 +2,7 @@
 
 **Trigger:** Azure Event Grid's `Hearing_Resulted` notification — the same one the legacy Function App already listens to.
 
-**Repos:** `api-cp-crime-pcr` (OpenAPI spec) + `service-cp-crime-results-pcr` (Spring Boot service), Modern-by-Default pattern, scaffolded from `api-hmcts-crime-template` / `service-hmcts-crime-springboot-template`. Distinct from `api-cp-crime-results-pcr` (already built separately) — that one's a narrower, HMPPS-RaS-specific contract shaped to RaS's own tables; this service exposes the general PCR *source payload*, mirroring what the Function App produces today, for API Marketplace subscribers broadly.
+**Repos:** `api-cp-crime-results-pcr` (OpenAPI spec) + `service-cp-crime-results-pcr` (Spring Boot service), Modern-by-Default pattern, scaffolded from `api-hmcts-crime-template` / `service-hmcts-crime-springboot-template`.
 
 **Status:** Draft, 16 Jul 2026, built from the epic/stories in `2026-07-16-pcr-epic-requirements.md`.
 
