@@ -53,6 +53,8 @@ flowchart TB
     Progression["Progression legacy pipeline<br/>SetPrisonCourtRegister to PDF via Docmosis"] -->|"prison-court-register-generated -v2<br/>correlation-only, not a trigger"| Correlator
 
     API --> Subscription["service-cp-crime-hearing-results-document-subscription<br/>existing - owns subscriber registration and push notification"]
+
+    Subscriber["Subscriber<br/>HMPPS/prison consumer"] -->|"GET pull, after callback URL received"| API
 ```
 
 ### 3b. Sequence — one hearing, end to end
