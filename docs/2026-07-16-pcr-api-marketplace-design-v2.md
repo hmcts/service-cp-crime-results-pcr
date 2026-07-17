@@ -2,9 +2,9 @@
 
 **Trigger:** Azure Event Grid's `Hearing_Resulted` notification — the same one the legacy Function App already listens to.
 
-**Repos:** `api-cp-crime-pcr` (OpenAPI spec) + `service-cp-crime-results-pcr` (Spring Boot service), Modern-by-Default pattern, scaffolded from `api-hmcts-crime-template` / `service-hmcts-crime-springboot-template`. Distinct from `api-cp-crime-results-pcr` (already built separately) — that one's a narrower, HMPPS-RaS-specific contract shaped to RaS's own tables; this service exposes the general PCR *source payload*, mirroring what the Function App produces today, for API Marketplace subscribers broadly.
+**Repos:** `api-cp-crime-results-pcr` (OpenAPI spec) + `service-cp-crime-results-pcr` (Spring Boot service), Modern-by-Default pattern, scaffolded from `api-hmcts-crime-template` / `service-hmcts-crime-springboot-template`.
 
-**Status:** Draft, 16 Jul 2026, built from the epic/stories in `2026-07-16-pcr-epic-requirements.md`.
+**Status:** Draft, 16 Jul 2026, built from the epic/stories.
 
 ---
 
@@ -40,11 +40,13 @@ flowchart TB
         Consumer["Service Bus Consumer<br/>Spring Cloud Stream Binder"] --> Query["Results Query Client<br/>Redis first, REST fallback with retry"]
         Query --> Decision["Decision Engine<br/>ported from SetPrisonCourtRegister, §5a"]
         Decision --> Enrich["Enrichment client<br/>ResultDefinition lookups"]
+        Decision --> OffenceMeta["Reference Data<br/>Offence metadata lookups, e.g. startDate"]
         Enrich --> Transform["Transformer<br/>ported from PrisonCourtRegisterPdfPayloadGenerator"]
+        OffenceMeta --> Transform
         Transform --> Store[("Data Store<br/>immutable version rows")]
         Store --> Correlator["PcrVersionCorrelationHandler<br/>SRP - only thing that knows Progression exists"]
         Store --> API["Query API<br/>GET prison-court-register"]
-        API --> Retention["Retention and Ack state machine"]
+        API --> Retention["Retention state machine"]
     end
 
     Query -.->|"Redis hit"| Redis
@@ -127,9 +129,7 @@ sequenceDiagram
     Store-->>API: PCR payload + versionStatus + materialId
     API-->>Sub: 200 OK, PCR JSON
 
-    Sub->>API: POST acknowledgement (after successful consumption)
-    API->>Store: mark ACKNOWLEDGED
-    Store->>Store: purge on ACKNOWLEDGED (or TTL fallback)
+    Store->>Store: purge automatically at 30-day TTL
 ```
 
 ---
@@ -148,13 +148,19 @@ sequenceDiagram
 
 **Two-step data retrieval.** The event is a pointer, not a payload. This service needs a **Results Query Client** that fetches the actual content after receiving the pointer, before the Decision Engine has anything to run against.
 
-**Redis first, REST as fallback with retry — not something to route around.** Mirrors the Function App's own `HearingResultedCacheQuery` exactly: check Redis first (guaranteed populated), fall back to the REST endpoint above only if the Redis entry has expired (24-hour TTL), and retry that REST call since it can race against the asynchronous viewstore update. Tech arch's own assumption is that the REST fallback fails outright if the data hasn't reached the viewstore yet, rather than returning something partial or stale — worth confirming directly (§13, item 3a) rather than discovering it in production.
+**Redis first, REST as fallback with retry — not something to route around.** Mirrors the Function App's own `HearingResultedCacheQuery` exactly: check Redis first (guaranteed populated), fall back to the REST endpoint above only if the Redis entry has expired (24-hour TTL), and retry that REST call since it can race against the asynchronous viewstore update.
+
+**What that race actually resolves to needs confirming, not assuming.** If the REST call lands inside the window before the viewstore has caught up, there are two very different outcomes, and retry logic can only be built around whichever one is real:
+1. **Fails cleanly** — an error or 404 — so the PCR service knows unambiguously to retry or flag it.
+2. **Returns something anyway** — an incomplete or stale version of the hearing's results, with no error — so the PCR service treats it as good data, builds a PCR from it, and nobody finds out until someone notices the content is wrong.
+
+Tech arch's own words were "I assume that if the data didn't get into the viewstore by then it fails completely" — that's option 1, but "assume" is the operative word: it's an expectation, not something verified against the actual code or confirmed with the Results team. Confirm which one actually happens (§13, item 2) before building retry logic around option 1. If it's option 2, "did the call succeed" isn't sufficient trust for this service's two-step retrieval — the Results Query Client would need a way to tell "got a response" apart from "got a *complete* one."
 
 **How a Spring Boot service actually receives an Event Grid event — decided.** Checked against Microsoft's own guidance: [Use Azure Event Grid in Spring - Java on Azure | Microsoft Learn](https://learn.microsoft.com/en-us/azure/developer/java/spring-framework/configure-spring-boot-initializer-java-app-with-event-grid). Event Grid doesn't offer a "subscribe like JMS" pull model, and there's no reference pattern in that doc (or elsewhere) for a Spring Boot service receiving Event Grid pushes directly via its own HTTPS webhook — Microsoft's own documented pattern is publish-to-Event-Grid, route the Event Grid subscription into a Service Bus queue, and consume from that queue using ordinary Spring Cloud Azure tooling (`spring-cloud-azure-starter-eventgrid` for publishing, `spring-cloud-azure-stream-binder-servicebus` for consuming). Going with that: the Event Grid subscription for `Hearing_Resulted` routes into a Service Bus queue, and this service consumes it via `spring-cloud-azure-stream-binder-servicebus` — the same library family already used elsewhere, no webhook endpoint or validation handshake to build or secure.
 
 **Versioning data source needs investigation.** There's no JMS envelope here to read a `Metadata` interface from. Whatever fills the `sourceEventPosition`/`sharedTime` role has to come from the Results Query Client's response instead (Redis payload or REST fallback), and that response's shape for this purpose hasn't been checked yet — see §7 and §13.
 
-**Two legacy infrastructure dependencies, not one.** Both the Event Grid subscription itself and the Redis cache it relies on are plausibly provisioned as part of the Function App's own Azure resources. If the Function App is retired, this service's trigger *and* its primary data lookup could both disappear at once — worth resolving before this is built on, not after (§13, item 2).
+**Two legacy infrastructure dependencies, not one.** Both the Event Grid subscription itself and the Redis cache it relies on are plausibly provisioned as part of the Function App's own Azure resources. If the Function App is retired, this service's trigger *and* its primary data lookup could both disappear at once — worth resolving before this is built on, not after.
 
 ---
 
@@ -201,13 +207,20 @@ Went through the actual Function App code, not assumptions, to separate genuine 
 ---
 
 ## 7. Versioning: correlating the API payload with the PDF
+- **TBD**
+- **Ruled out: Progression's recorded_date**
+  PrisonCourtRegisterEntity.recordedDate is local to Progression's own persistence — it records when Progression itself recorded the material, not anything about the source event
+  that caused the PDF to exist. It's material-bookkeeping, not cross-context correlation data.
+- **Option A — Propagate sharedTime end-to-end:**
+  Capture it once at the source (Hearing/Results), carry it through Redis (already there) → Function App → Progression's PrisonCourtRegisterDocumentRequest →
+  prison-court-register-generated-v2 (new field) → HRDS.
+    - Needs: a new field on the generated-v2 schema, and the Function App carrying it across its HTTP call to Progression.
+    - Risk: not structurally unique (timestamp collision, however unlikely); reshare-freshness not yet confirmed — still an open item from the last analysis.
+- **Option B — add resultEventId alongside sharedTime and propagate end-to-end**
+  This touches four separate repositories (Hearing, Results, the legacy Function App, Progression) and roughly 9 distinct code locations beyond the 5 schemas, because the framework's own
+  pattern here is "rebuild explicitly at each hop," not "pass the envelope through." It's a real, multi-team propagation effort — not something to scope as "just add a field." Worth being
+  upfront about that scale with whoever owns the estimate, rather than presenting it as a small addition.
 
-- **Join key:** `(hearingId, defendantId)`.
-- **Data model:** every JSON payload is its own immutable version row, in arrival order — not a mutable record overwritten on amendment.
-- **Correlation component (SRP-isolated):** `PcrVersionCorrelationHandler` is the only code allowed to know Progression's event exists. It subscribes to `progression.event.prison-court-register-generated`(-v2) — correlation only, never a trigger — and FIFO-pairs the oldest uncorrelated JSON row with the oldest uncorrelated PDF fact per `(hearingId, defendantId)`. On match: stamps `materialId` + `recordedDate`, sets `versionStatus = CORRELATED`. On a persistent one-sided backlog: `ORPHANED` — a live drift signal, not just a stuck state (§9).
-- **`sourceEventPosition`/`sharedTime` — open, not confirmed.** There's no JMS envelope here to read `Metadata` from. Whatever fills this role has to come from the Results Query Client's response (Redis payload or REST fallback), and that hasn't been checked yet.
-- **Progression-side dependency:** `recorded_date` needs propagating into `prison-court-register-generated`(-v2) — its current timestamp comes from the messaging envelope, not the actual recorded date.
-- **Open question:** should the Query API serve a version before it reaches `CORRELATED`? Needs a decision before the Query API contract is finalised, not assumed either way.
 
 ---
 
@@ -220,21 +233,21 @@ Mapping the above onto the Spring Boot service pattern, not the legacy Azure Fun
 | **Service Bus Consumer** | Receives the `Hearing_Resulted` pointer off the Service Bus queue the Event Grid subscription routes into, via `spring-cloud-azure-stream-binder-servicebus` | New — no equivalent in the legacy pipeline; this is Azure Functions' `EventGridTrigger` binding, which Spring Boot has no direct equivalent of |
 | **Results Query Client** | Follow-up lookup to fetch the actual hearing/results payload — Redis first (guaranteed populated by the time `Hearing_Resulted` fires), REST fallback with retry if the Redis entry has expired (24hr TTL) | New — mirrors what `HearingResultedCacheQuery` does today, Redis-first pattern included |
 | **Decision Engine** | Group-proceedings skip, per-defendant fan-out, `publishedForNows` eligibility filter | `PrisonCourtRegisterOrchestrator` + `SetPrisonCourtRegister` + `RegisterFragmentService` (§5a) |
-| **Enrichment client** | Reference Data calls for `ResultDefinition` fields | New — legacy generator doesn't make this call today |
+| **Enrichment client** | Reference Data calls for `ResultDefinition` fields | To be analysed in the design |
+| **Offence metadata client** | Reference Data calls for offence metadata (e.g. `startDate`) | To be analysed in the design |
 | **Transformer** | Field mapping to the PCR source payload shape | `PrisonCourtRegisterPdfPayloadGenerator`, with the fixes and additions in §6 |
-| **Version/Correlation handler** | FIFO-pairs JSON rows against Progression's PDF-generated event | New — `PcrVersionCorrelationHandler`, SRP-isolated per §7 |
+| **Version/Correlation handler** | Versioning mechanism — TBD, see §7 | New — mechanism TBD pending §7 decision |
 | **Data store** | Immutable version rows, keyed `(hearingId, defendantId)` | New |
 | **Query API (controller)** | `GET` endpoint(s), version history, not a single current blob | New |
-| **Retention/Ack** | Per-subscriber state machine + TTL fallback purge | New |
-| **Drift alerting** | Watches `versionStatus = ORPHANED` and raises it, rather than leaving it as an unread row | New — cheap, since the correlator already produces this state (§9) |
+| **Retention** | Automatic 30-day TTL purge | New |
 
 No component here talks to Progression except the Version/Correlation handler — everything else only ever reads `versionStatus`/`materialId` once set.
 
 ---
 
-## 9. Drift detection
+## 9. Drift detection via Integration test suite
 
-Per `2026-07-16-pcr-epic-requirements.md` Story 7 — this is a reimplementation of existing logic, not a call-through, so drift is possible, but the goal is knowing when it happens, not proving upfront it never will.
+This is a reimplementation of existing logic, not a call-through, so drift is possible, but the goal is knowing when it happens, not proving upfront it never will.
 
 - **Before launch:** golden-master tests in the service's own integration test suite. Pick real past hearings that already have both a `Hearing_Resulted` occurrence and a generated PDF; feed the resulting Results-query payload through the service's real code path; assert the output matches Progression's own stored `prison_court_register.payload` for that hearing. No mandatory dual-running period as a launch gate.
 - **After launch:** the correlator's `ORPHANED` status (§7) is the live version of the same check, for free — a PCR record with no matching PDF fact (or vice versa) is exactly the disagreement the golden-master tests were looking for, just caught automatically. Needs someone actually watching the `ORPHANED` list, not just logging it.
@@ -247,19 +260,15 @@ Per `2026-07-16-pcr-epic-requirements.md` Story 7 — this is a reimplementation
 
 ---
 
-## 11. Retention & acknowledgement
+## 11. Retention
 
-Per the epic's Stories 5/6:
-
-- Per-subscriber acknowledgement: `ISSUED → RETRIEVED → ACKNOWLEDGED → PURGED`, tracked independently per subscriber. One subscriber acking has no effect on another subscriber who hasn't retrieved yet.
-- Acknowledgement is a separate, explicit call — never inferred from the `GET` itself. Collapsing them risks purging a payload before the subscriber has durably confirmed receipt.
-- TTL-based purge as fallback for anything never acknowledged. Exact retention window is an open policy decision, needs sign-off from whoever owns records-management/retention standards.
+- Retention window: **30 days, fixed.** Purge happens automatically once 30 days have passed. API Marketplace does not maintain PCR data beyond that window.
 
 ---
 
 ## 12. MVP scope
 
-Story 3's non-amendment phase-1 slice (mirror the Function App, no amendments) ships first, specifically to get early HMPPS feedback on the payload shape before the full service — including amendment handling, versioning, retention/ack — is built.
+Story 3's non-amendment phase-1 slice (mirror the Function App, no amendments) ships first, specifically to get early HMPPS feedback on the payload shape before the full service — including amendment handling, versioning, retention — is built.
 
 ---
 
@@ -268,16 +277,9 @@ Story 3's non-amendment phase-1 slice (mirror the Function App, no amendments) s
 | # | Item | Owner / needs input from |
 |---|---|---|
 | 1 | Provision the Event Grid subscription to route `Hearing_Resulted` into a Service Bus queue, and set up this service's `spring-cloud-azure-stream-binder-servicebus` consumer against it | This team + platform/Azure infra owner |
-| 2 | Do the Event Grid subscription for `Hearing_Resulted` *and* the Redis cache it depends on survive Function App retirement, or are both provisioned as part of that app's own infra? | Whoever owns the Function App's Azure resources |
-| 3 | Confirm what the Results Query Client's response actually carries for versioning purposes — is there an equivalent to `sourceEventPosition`/`sharedTime` available from either the Redis payload or the REST fallback? | Investigation needed — not yet checked |
-| 3a | Confirm the assumption that the REST fallback fails outright if the data hasn't reached the Results viewstore yet (rather than returning a partial/stale result) — tech arch's own words were "I assume," not confirmed | Results context team |
-| 4 | Propagate `recorded_date` into `prison-court-register-generated`(-v2) | Progression team |
-| 5 | Propagate `resultEventId`/`sharedTime` through Progression and hearing-nows' own processing (not just consume-and-discard) | Progression + hearing-nows teams |
-| 6 | Add `eventId` to HRDS's inbound/outbound notifications | HRDS (Results Subscription Service) owners |
-| 7 | Retention TTL policy | Records-management/retention policy owner |
-| 8 | How the callback payload gets extended to carry this service's URL | `service-cp-crime-hearing-results-document-subscription` owners |
-| 9 | Serve pre-`CORRELATED` (provisional) versions, or withhold until correlated? | Product/tech-arch decision, unresolved |
-| 10 | Carry the confirmed-dead legacy fields through as always-empty, or drop them from this service's model? | Product decision, unresolved |
+| 2 | Confirm whether the REST fallback fails cleanly (error/404) or returns an incomplete/stale result with no error when it lands before the viewstore has caught up — read the Results query API's actual code or ask the Results team directly, don't build retry logic around tech arch's "I assume it fails" without checking. If it's the latter, the Results Query Client needs a way to detect an incomplete result, not just a failed call | Results context team |
+| 3 | Serve pre-`CORRELATED` (provisional) versions, or withhold until correlated? | Product/tech-arch decision, unresolved |
+| 4 | Carry the confirmed-dead legacy fields through as always-empty, or drop them from this service's model? | Product decision, unresolved |
 
 ---
 
