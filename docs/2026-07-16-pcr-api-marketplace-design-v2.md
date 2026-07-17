@@ -31,7 +31,7 @@ The API preserves this end-to-end: Decision Engine emits one candidate per `(hea
 ```mermaid
 flowchart TB
     Hearing["cpp-context-hearing"] -->|"public.events.hearing.hearing-resulted, Artemis"| Results["cpp-context-results<br/>HearingResultedEventProcessor<br/>(§7b: mints source id if showing version history)"]
-    Results -->|"1. backfill via Progression<br/>2. write to Redis - synchronous<br/>keyed by (hearingId, defendantId)"| Redis[("Redis Cache")]
+    Results -->|"1. backfill via Progression<br/>2. write to Redis - synchronous<br/>keyed hearingId"| Redis[("Redis Cache")]
     Results -->|"3. fires Hearing_Resulted pointer"| Grid["Azure Event Grid<br/>topic: Hearing_Resulted"]
     Grid -->|"subscription routes to"| Bus["Azure Service Bus Queue"]
     Bus --> Consumer
@@ -81,7 +81,7 @@ sequenceDiagram
     Hearing-->>Results: public.events.hearing.hearing-resulted (Artemis)
 
     rect rgba(255, 235, 205, 0.5)
-    Note over Results: HearingResultedEventProcessor -<br/>backfills application judicial results via Progression,<br/>writes enriched payload to Redis (synchronous, keyed by hearingId+defendantId)<br/>(§7b also mints a source id if showing version history)
+    Note over Results: HearingResultedEventProcessor -<br/>backfills application judicial results via Progression,<br/>writes enriched payload to Redis (synchronous, keyed by INT_hearingId_hearingDay_result_, whole-hearing payload)<br/>(§7b also mints a source id if showing version history)
     end
 
     Results-->>Grid: "Hearing_Resulted" event<br/>(pointer only: hearingId, hearingDay, userId)
@@ -143,6 +143,7 @@ sequenceDiagram
 - The Progression application-results backfill (`applicationResultsEnricher.enrichIfApplicationResultsMissing`) runs **before** the Redis write and **before** the Event Grid publish, in the same method, synchronously. So by the time `Hearing_Resulted` fires, that backfill is already done — this service does not need to replicate it.
 - **Redis is written synchronously, in the same method that fires the Event Grid event — guaranteed populated by send time.** The Results context viewstore (what the REST query API reads from) is updated *asynchronously*, separately. Confirmed directly with tech arch: "you can guarantee that the data is in redis by the time you receive the event grid event, but you can't guarantee that the data is available via REST." That's a real race, not a theoretical one, if this service queries REST without checking Redis first.
 - Confirmed query endpoint for the REST fallback: `GET {RESULTS_CONTEXT_API_BASE_URI}/results-query-api/query/api/rest/results/hearingDetails/internal/{hearingId}`, `Accept: application/vnd.results.hearing-details-internal+json`.
+- **Confirmed Redis key and TTL, from the actual write and read sides — not `(hearingId, defendantId)`.** Write side: `HearingResultedEventProcessor.java` (`cpp-context-results`) builds `cacheKeyInternal = "INT_" + hearingId + "_" + hearingDay + "_result_"` and calls `RedisCacheService.add(key, internalHearingPayload)`; `RedisCacheService` sets it with `redisInternalCacheKeyTTL` (default `86400` seconds — the 24hr TTL referenced below is correct). Read side: the legacy Function App's `HearingResultedCacheQuery/index.js` derives the identical key (`getCacheKey`) before its `GET`. The key is scoped to `hearingId` (+ `hearingDay`) only — the cached value is the **whole hearing's internal payload** (every prosecution case, every defendant), not partitioned per defendant. Any correlation or lookup reasoning that assumes a defendant-scoped Redis key is working from an incorrect premise — see the correction in §7a.
 
 ### 4b. What this requires
 
@@ -231,9 +232,9 @@ How we correlate depends on whether the API shows amended/past versions or just 
 
 ### 7a. Latest version only
 
-If the API exposes only the latest PCR per `(hearingId, defendantId)`, correlate on that key — no new work:
+If the API exposes only the latest PCR per `(hearingId, defendantId)`, correlate on that key — no new work. **Correction:** Redis itself is not what supplies this key — confirmed against both the write side (`HearingResultedEventProcessor.java`) and read side (`HearingResultedCacheQuery/index.js`), Redis is keyed by `hearingId`(+`hearingDay`) only and caches the whole hearing's payload, every defendant together, not one entry per defendant (§4a). The correlation key below is **this service's own Data Store**, which we control and choose to key by `(hearingId, defendantId)` (§2's unit-of-work) — it doesn't depend on, or need, Redis to already be partitioned that way:
 
-- Redis is already keyed by `(hearingId, defendantId)`, and Progression's `prison-court-register-generated` event already carries the same pair, so the JSON row and the PDF match on the key.
+- This service's Data Store rows are keyed `(hearingId, defendantId)` by design (§2, §8) — the Decision Engine's per-defendant fan-out produces that partitioning itself, after fetching the whole-hearing Redis/REST payload. Progression's `prison-court-register-generated` event independently carries the same `(hearingId, defendantId)` pair, so the stored JSON row and the PDF fact match on a key both sides genuinely have — this reasoning holds regardless of Redis's own key shape.
 - No source-minted id, no new schema field, no correlation handler. `materialId` is stamped when the PDF for that key arrives; `ORPHANED` means one side is present and the other missing (§9).
 
 This works only because there is one version per key. It does not survive amendments — that's §7b.
