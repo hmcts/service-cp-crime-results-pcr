@@ -30,8 +30,8 @@ The API preserves this end-to-end: Decision Engine emits one candidate per `(hea
 
 ```mermaid
 flowchart TB
-    Hearing["cpp-context-hearing"] -->|"public.events.hearing.hearing-resulted, Artemis"| Results["cpp-context-results<br/>HearingResultedEventProcessor"]
-    Results -->|"1. backfill via Progression<br/>2. write to Redis - synchronous"| Redis[("Redis Cache")]
+    Hearing["cpp-context-hearing"] -->|"public.events.hearing.hearing-resulted, Artemis"| Results["cpp-context-results<br/>HearingResultedEventProcessor<br/>mints source correlation id (§7)"]
+    Results -->|"1. backfill via Progression<br/>2. write to Redis - synchronous<br/>(payload carries correlation id)"| Redis[("Redis Cache")]
     Results -->|"3. fires Hearing_Resulted pointer"| Grid["Azure Event Grid<br/>topic: Hearing_Resulted"]
     Grid -->|"subscription routes to"| Bus["Azure Service Bus Queue"]
     Bus --> Consumer
@@ -52,7 +52,7 @@ flowchart TB
     Query -.->|"Redis hit"| Redis
     Query -.->|"Redis miss, REST fallback"| ResultsAPI["Results Query API<br/>hearingDetails/internal/hearingId"]
 
-    Progression["Progression legacy pipeline<br/>SetPrisonCourtRegister to PDF via Docmosis"] -->|"prison-court-register-generated -v2<br/>correlation-only, not a trigger"| Correlator
+    Progression["Progression legacy pipeline<br/>SetPrisonCourtRegister to PDF via Docmosis<br/>carries same correlation id from source"] -->|"prison-court-register-generated -v2 (carries correlation id)<br/>correlation-only, not a trigger"| Correlator
 
     API --> Subscription["service-cp-crime-hearing-results-document-subscription<br/>existing - owns subscriber registration and push notification"]
 
@@ -81,7 +81,7 @@ sequenceDiagram
     Hearing-->>Results: public.events.hearing.hearing-resulted (Artemis)
 
     rect rgba(255, 235, 205, 0.5)
-    Note over Results: HearingResultedEventProcessor -<br/>backfills application judicial results via Progression,<br/>writes enriched payload to Redis (synchronous)
+    Note over Results: HearingResultedEventProcessor -<br/>mints source correlation id,<br/>backfills application judicial results via Progression,<br/>writes enriched payload (incl. correlation id) to Redis (synchronous)
     end
 
     Results-->>Grid: "Hearing_Resulted" event<br/>(pointer only: hearingId, hearingDay, userId)
@@ -114,17 +114,17 @@ sequenceDiagram
         Progression-->>Correlator: progression.event.prison-court-register-generated(-v2)
     end
 
-    Correlator->>Store: look for oldest uncorrelated PCR row,<br/>same (hearingId, defendantId)
+    Correlator->>Store: find PCR row by correlation-id equality<br/>(FIFO fallback only for pre-rollout rows)
 
     alt match found
         Store-->>Correlator: PENDING row found
-        Correlator->>Store: stamp materialId + recordedDate,<br/>set status = CORRELATED
+        Correlator->>Store: stamp materialId,<br/>set status = CORRELATED
     else no match within grace period
         Correlator->>Store: set status = ORPHANED
         Note over Correlator,Store: drift/timing signal — needs a person to look (§9)
     end
 
-    Sub->>API: GET /prison-court-register/{hearingId}/{defendantId}
+    Sub->>API: GET /prison-court-register/{id}
     API->>Store: read version row
     Store-->>API: PCR payload + versionStatus + materialId
     API-->>Sub: 200 OK, PCR JSON
@@ -157,6 +157,20 @@ sequenceDiagram
 Tech arch's own words were "I assume that if the data didn't get into the viewstore by then it fails completely" — that's option 1, but "assume" is the operative word: it's an expectation, not something verified against the actual code or confirmed with the Results team. Confirm which one actually happens (§13, item 2) before building retry logic around option 1. If it's option 2, "did the call succeed" isn't sufficient trust for this service's two-step retrieval — the Results Query Client would need a way to tell "got a response" apart from "got a *complete* one."
 
 **How a Spring Boot service actually receives an Event Grid event — decided.** Checked against Microsoft's own guidance: [Use Azure Event Grid in Spring - Java on Azure | Microsoft Learn](https://learn.microsoft.com/en-us/azure/developer/java/spring-framework/configure-spring-boot-initializer-java-app-with-event-grid). Event Grid doesn't offer a "subscribe like JMS" pull model, and there's no reference pattern in that doc (or elsewhere) for a Spring Boot service receiving Event Grid pushes directly via its own HTTPS webhook — Microsoft's own documented pattern is publish-to-Event-Grid, route the Event Grid subscription into a Service Bus queue, and consume from that queue using ordinary Spring Cloud Azure tooling (`spring-cloud-azure-starter-eventgrid` for publishing, `spring-cloud-azure-stream-binder-servicebus` for consuming). Going with that: the Event Grid subscription for `Hearing_Resulted` routes into a Service Bus queue, and this service consumes it via `spring-cloud-azure-stream-binder-servicebus` — the same library family already used elsewhere, no webhook endpoint or validation handshake to build or secure.
+
+### 4c. Alternatives considered — why not subscribe to Event Grid directly
+
+The obvious "simpler" question is whether this service can subscribe to the `Hearing_Resulted` Event Grid topic directly and drop the Service Bus queue in between. It can't, cleanly — Event Grid is **push-only**, with no JMS/AMQP-style pull subscription. "Direct" therefore has exactly one shape: this service stands up its own public HTTPS webhook and registers it as an Event Grid event handler. That pulls a whole surface *into* the application:
+
+| | Event Grid → Service Bus → consume (chosen) | Direct Event Grid webhook (rejected) |
+|---|---|---|
+| Code in this service | Consume from a Service Bus queue — tooling already used here | New public HTTPS endpoint, owned and secured by this service |
+| Registration | None — infra routing rule (§13 item 1) | Must implement the Event Grid **subscription-validation handshake** |
+| Delivery guarantees | Broker gives durability, buffering, retry, dead-lettering | Event Grid retries on a fixed schedule then drops; no buffering unless you add a queue anyway |
+| Scale-out | Competing-consumer semantics for free | Hand-rolled |
+| New Azure integration | **None** — this service already talks to Service Bus, not Event Grid | New Event Grid integration surface on the consume side |
+
+The decisive point: this service is a **pure consumer** — it never publishes to Event Grid (`cpp-context-results` is the publisher, §4a) — and it already has Service Bus integration established but no Event Grid integration. The Service Bus route therefore needs *zero* Event Grid code in this service; the Event Grid → Service Bus link is a subscription routing rule the platform team configures, not application code. Going direct would trade that routing rule (free) for a webhook/validation/retry surface (not free). The Event Grid topic itself is an upstream dependency either way (§13 item 2), so the intermediary adds no dependency risk. Direct-webhook stays as a fallback only if the Event Grid → Service Bus routing rule can't be provisioned.
 
 **Versioning data source needs investigation.** There's no JMS envelope here to read a `Metadata` interface from. Whatever fills the `sourceEventPosition`/`sharedTime` role has to come from the Results Query Client's response instead (Redis payload or REST fallback), and that response's shape for this purpose hasn't been checked yet — see §7 and §13.
 
@@ -192,6 +206,11 @@ Went through the actual Function App code, not assumptions, to separate genuine 
 
 **Base shape:** ports `PrisonCourtRegisterPdfPayloadGenerator`'s field mapping faithfully — registerDate, court/custody details, defendant details, prosecution/defence counsel, defendant/case results, offences, applications (full field list already documented in `PCR-HMPPS-FIELD-MAPPING.md`). Source of this data is the Results Query Client's response (§4b), not an event-carried payload.
 
+**Identity/correlation fields, alongside the ported content:**
+- Source correlation id (id shape TBC — ULID vs UUID+`sharedResultTime`, §7): the version identifier, read from the source payload — *not* minted by this service (§7b). It is the resource id (`GET /prison-court-register/{id}`), the value carried in the HRDS notification, and the token correlated against Progression's PDF fact. Do not derive, reformat, or regenerate it — carry the source value through verbatim so both branches match. (If Option B is chosen, this is `resultEventId` plus a separate `sharedResultTime` for ordering.)
+- `hearingId`, `defendantId`: the `(hearingId, defendantId)` grouping key for version history (§2).
+- `versionStatus` (`PENDING` / `CORRELATED` / `ORPHANED`) and `materialId`: set by the correlation handler (§7), not the transformer — the transformer writes the row as `PENDING` and never touches these afterwards.
+
 **Fixed on the way in, not carried forward as bugs:**
 - Aliases and counsel names become structured arrays (`{title, firstName, middleName, lastName}` / `{name, status}`), not the legacy generator's pre-joined display strings.
 - `applications[].result[]` becomes `{resultCode, resultText}` pairs, matching every other result block, instead of the legacy shape's plain-string-only inconsistency.
@@ -206,20 +225,56 @@ Went through the actual Function App code, not assumptions, to separate genuine 
 
 ---
 
-## 7. Versioning: correlating the API payload with the PDF
-- **TBD**
-- **Ruled out: Progression's recorded_date**
-  PrisonCourtRegisterEntity.recordedDate is local to Progression's own persistence — it records when Progression itself recorded the material, not anything about the source event
-  that caused the PDF to exist. It's material-bookkeeping, not cross-context correlation data.
-- **Option A — Propagate sharedTime end-to-end:**
-  Capture it once at the source (Hearing/Results), carry it through Redis (already there) → Function App → Progression's PrisonCourtRegisterDocumentRequest →
-  prison-court-register-generated-v2 (new field) → HRDS.
-    - Needs: a new field on the generated-v2 schema, and the Function App carrying it across its HTTP call to Progression.
-    - Risk: not structurally unique (timestamp collision, however unlikely); reshare-freshness not yet confirmed — still an open item from the last analysis.
-- **Option B — add resultEventId alongside sharedTime and propagate end-to-end**
-  This touches four separate repositories (Hearing, Results, the legacy Function App, Progression) and roughly 9 distinct code locations beyond the 5 schemas, because the framework's own
-  pattern here is "rebuild explicitly at each hop," not "pass the envelope through." It's a real, multi-team propagation effort — not something to scope as "just add a field." Worth being
-  upfront about that scale with whoever owns the estimate, rather than presenting it as a small addition.
+## 7. Versioning: correlating the API payload with the PDF(Follow-up to always recent PCRs and no re-sharing)
+
+**Recommended — Option A: a single ULID minted once at the source and propagated down both branches.** (Option B, a UUID `resultEventId` + separate `sharedResultTime`, is kept live in §7c.)
+
+- **Join key for correlation:** the ULID (not `(hearingId, defendantId)`, which stays the resource/version grouping key). `(hearingId, defendantId)` groups a PCR's version history; the ULID identifies one specific version and is the token both branches match on.
+- **Data model:** every JSON payload is its own immutable version row in arrival order — not a mutable record overwritten on amendment.
+- **Correlation component (SRP-isolated):** `PcrVersionCorrelationHandler` is the only code allowed to know Progression's event exists. It subscribes to `prison-court-register-generated-v2` — correlation only, never a trigger — and joins on **ULID equality**. On match: stamps `materialId` + sets `versionStatus = CORRELATED`. On a persistent one-sided backlog: `ORPHANED` — a live drift signal, not just a stuck state (§9).
+
+### 7a. Why a single source-minted ULID
+
+Generated **once at the source, above the fork** (see §7b), the ULID is a valid cross-context correlation token — both this service and Progression receive the *same* value — and it collapses three previously-separate needs into one field:
+
+| Need | ULID provides |
+|---|---|
+| Structural uniqueness | 80 random bits — collision-free, no reliance on timestamp uniqueness |
+| Shared time (`sharedTime`) | 48-bit millisecond timestamp prefix — legit because it's stamped once at source, so both branches read the identical value |
+| Version ordering | Lexicographically sortable = chronological, for free |
+| Resource identity | Doubles as the API resource id (`GET /prison-court-register/{ulid}`) and the field carried in the HRDS notification payload |
+
+Because both branches carry the same ULID, correlation is a **direct equality join**, not a FIFO-pairing of oldest-uncorrelated rows per `(hearingId, defendantId)`. FIFO pairing remains only as a fallback for any record minted before both sides carry the ULID.
+
+### 7b. Propagation path and generation point
+
+Minted at the source and threaded end-to-end: **Hearing/Results → Redis payload → Function App → Progression's `PrisonCourtRegisterDocumentRequest` → `prison-court-register-generated-v2` (new field) → HRDS**. This service reads it out of the Results Query Client's response (Redis payload, or REST fallback); Progression reads it via the Function App's HTTP call, so both branches source the same value.
+
+- **Generation point:** the natural spot is **`cpp-context-results`, where the enriched payload is assembled just before the synchronous Redis write** (`HearingResultedEventProcessor`) — both branches draw from there. Generating it further upstream in Hearing context adds a repo for no gain. Confirm by tracing that the fork to Progression is genuinely downstream of that write.
+- **One ULID per version, minted per emission** — a fresh ULID each time `Hearing_Resulted` fires (including reshare/amendment), *not* a stable per-hearing id, so each version is a distinct row and a distinct join. This resolves the previously-open "reshare-freshness" question — confirm the source mints per emission.
+- **Effort:** this is the same four-repo, ~9-code-location, "rebuild explicitly at each hop" propagation previously scoped (Hearing, Results, the legacy Function App, Progression, plus schemas). The ULID makes it one better-shaped field, not less work — scope it accordingly with whoever owns the estimate.
+- **Minor:** the resource id now encodes a source timestamp in its prefix. Not PII, arguably useful, but document that the id is not fully opaque.
+
+### 7c. Option B — UUID `resultEventId` + separate `sharedResultTime`
+
+The alternative, and the shape the earlier analysis carried: propagate **two** fields end-to-end instead of one — a UUID `resultEventId` for identity/uniqueness, plus a separate `sharedResultTime` timestamp — along the same path as Option A (Results → Redis payload → Function App → Progression's `PrisonCourtRegisterDocumentRequest` → `prison-court-register-generated-v2` → HRDS).
+
+- **Correlation:** join on `resultEventId` equality; `sharedResultTime` carries the shared timestamp separately, and version ordering comes from `sharedResultTime` (or a sequence), not from the id.
+- **vs Option A:** functionally equivalent for correlation. The differences are all in Option A's favour:
+  - **Two fields to propagate and keep in lockstep** across four repos and every schema, versus one — more surface to get wrong at each rebuild-at-each-hop.
+  - **UUID is opaque** — it carries no time and no order, so `sharedResultTime` is not optional here, it's required to recover ordering. Option A's ULID folds identity, time, and order into a single value.
+  - **Resource id:** a UUID makes a fine `GET /prison-court-register/{uuid}` id too, so this isn't a differentiator — but it can't double as the sort key the way a ULID does.
+- **When B is actually preferable:** if there's a reason the correlation id must *not* encode a timestamp (e.g. a hard rule against leaking source event time in an externally-exposed id — the §7b "not fully opaque" caveat), a UUID + internal-only `sharedResultTime` keeps the time off the public id. That's the main scenario worth choosing B for.
+- **Effort:** identical propagation scope to Option A (§7b, §13 item 3) — four repos, ~9 code locations — just two fields instead of one.
+
+### 7d. Ruled-out alternatives
+
+- **Ruled out — service-local id (ULID or UUID minted here).** Minting the correlation id inside this service can't correlate: it lives on one branch of the fork, so Progression never sees it, and a ULID's timestamp would be local write-time, not shared source time. Only a source-minted id (Option A or B) works.
+- **Ruled out — Progression's `recorded_date`.** `PrisonCourtRegisterEntity.recordedDate` is local to Progression's own persistence — when Progression recorded the material, not anything about the source event that caused the PDF. Material-bookkeeping, not cross-context correlation data.
+
+### 7e. Open item
+
+- Should the Query API serve a version before it reaches `CORRELATED` (provisional), or withhold until correlated? Needs a decision before the Query API contract is finalised (§13).
 
 
 ---
@@ -236,7 +291,7 @@ Mapping the above onto the Spring Boot service pattern, not the legacy Azure Fun
 | **Enrichment client** | Reference Data calls for `ResultDefinition` fields | To be analysed in the design |
 | **Offence metadata client** | Reference Data calls for offence metadata (e.g. `startDate`) | To be analysed in the design |
 | **Transformer** | Field mapping to the PCR source payload shape | `PrisonCourtRegisterPdfPayloadGenerator`, with the fixes and additions in §6 |
-| **Version/Correlation handler** | Versioning mechanism — TBD, see §7 | New — mechanism TBD pending §7 decision |
+| **Version/Correlation handler** | Joins the JSON version row to Progression's PDF fact on **source correlation-id equality** (id shape TBC — ULID vs UUID+`sharedResultTime`, §7); stamps `materialId`/`versionStatus` | New — `PcrVersionCorrelationHandler`, SRP-isolated per §7 |
 | **Data store** | Immutable version rows, keyed `(hearingId, defendantId)` | New |
 | **Query API (controller)** | `GET` endpoint(s), version history, not a single current blob | New |
 | **Retention** | Automatic 30-day TTL purge | New |
@@ -256,7 +311,11 @@ This is a reimplementation of existing logic, not a call-through, so drift is po
 
 ## 10. Query API
 
-`GET` endpoint returns the PCR JSON, keyed by `(hearingId, defendantId)`, exposing version history. URL wired into `service-cp-crime-hearing-results-document-subscription`'s existing subscriber callback payload — that service continues to own subscriber registration and push notification.
+`GET` endpoint returns the PCR JSON. Two access shapes:
+- **By version:** `GET /pcrs/{id}` — the source correlation id (§7; id shape TBC) is the version identifier carried in the notification payload, so a subscriber resolves a callback straight to the exact version.
+- **By history:** grouped under `(hearingId, defendantId)`, exposing the full version history — one PCR resource per defendant per hearing, each version tagged with its correlation id and `versionStatus`.
+
+URL wired into `service-cp-crime-hearing-results-document-subscription`'s existing subscriber callback payload — that service continues to own subscriber registration and push notification.
 
 ---
 
@@ -278,8 +337,10 @@ Story 3's non-amendment phase-1 slice (mirror the Function App, no amendments) s
 |---|---|---|
 | 1 | Provision the Event Grid subscription to route `Hearing_Resulted` into a Service Bus queue, and set up this service's `spring-cloud-azure-stream-binder-servicebus` consumer against it | This team + platform/Azure infra owner |
 | 2 | Confirm whether the REST fallback fails cleanly (error/404) or returns an incomplete/stale result with no error when it lands before the viewstore has caught up — read the Results query API's actual code or ask the Results team directly, don't build retry logic around tech arch's "I assume it fails" without checking. If it's the latter, the Results Query Client needs a way to detect an incomplete result, not just a failed call | Results context team |
-| 3 | Serve pre-`CORRELATED` (provisional) versions, or withhold until correlated? | Product/tech-arch decision, unresolved |
-| 4 | Carry the confirmed-dead legacy fields through as always-empty, or drop them from this service's model? | Product decision, unresolved |
+| 3 | Mint a ULID once at source and propagate it end-to-end: Results (source), Redis payload, the legacy Function App, Progression's `PrisonCourtRegisterDocumentRequest` + `prison-court-register-generated-v2` schema, HRDS. Four-repo, ~9-code-location "rebuild at each hop" effort (§7b) — scope as such, not "just add a field" | This team + Results + Progression + Function App owners |
+| 4 | Confirm the source mints a **fresh ULID per `Hearing_Resulted` emission** (incl. reshare/amendment), not a stable per-hearing id — the "reshare-freshness" question (§7b) | Results context team |
+| 5 | Serve pre-`CORRELATED` (provisional) versions, or withhold until correlated? | Product/tech-arch decision, unresolved |
+| 6 | Carry the confirmed-dead legacy fields through as always-empty, or drop them from this service's model? | Product decision, unresolved |
 
 ---
 
