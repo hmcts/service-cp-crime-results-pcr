@@ -30,7 +30,7 @@ The API preserves this end-to-end: Decision Engine emits one candidate per `(hea
 
 ```mermaid
 flowchart TB
-    Hearing["cpp-context-hearing"] -->|"public.events.hearing.hearing-resulted, Artemis"| Results["cpp-context-results<br/>HearingResultedEventProcessor<br/>(Phase 2: mints source correlation id, §7b)"]
+    Hearing["cpp-context-hearing"] -->|"public.events.hearing.hearing-resulted, Artemis"| Results["cpp-context-results<br/>HearingResultedEventProcessor<br/>(§7b: mints source id if showing version history)"]
     Results -->|"1. backfill via Progression<br/>2. write to Redis - synchronous<br/>keyed by (hearingId, defendantId)"| Redis[("Redis Cache")]
     Results -->|"3. fires Hearing_Resulted pointer"| Grid["Azure Event Grid<br/>topic: Hearing_Resulted"]
     Grid -->|"subscription routes to"| Bus["Azure Service Bus Queue"]
@@ -44,7 +44,7 @@ flowchart TB
         Enrich --> Transform["Transformer<br/>ported from PrisonCourtRegisterPdfPayloadGenerator"]
         OffenceMeta --> Transform
         Transform --> Store[("Data Store<br/>immutable version rows")]
-        Store --> Correlator["Correlation<br/>MVP: match on (hearingId, defendantId)<br/>Phase 2: PcrVersionCorrelationHandler on correlation id (§7)"]
+        Store --> Correlator["Correlation<br/>latest-only: match on (hearingId, defendantId)<br/>version history: PcrVersionCorrelationHandler on id (§7b)"]
         Store --> API["Query API<br/>GET prison-court-register"]
         API --> Retention["Retention state machine"]
     end
@@ -52,7 +52,7 @@ flowchart TB
     Query -.->|"Redis hit"| Redis
     Query -.->|"Redis miss, REST fallback"| ResultsAPI["Results Query API<br/>hearingDetails/internal/hearingId"]
 
-    Progression["Progression legacy pipeline<br/>SetPrisonCourtRegister to PDF via Docmosis<br/>(Phase 2: carries same correlation id from source)"] -->|"prison-court-register-generated(-v2)<br/>correlation-only, not a trigger"| Correlator
+    Progression["Progression legacy pipeline<br/>SetPrisonCourtRegister to PDF via Docmosis<br/>(§7b: carries same id from source)"] -->|"prison-court-register-generated(-v2)<br/>correlation-only, not a trigger"| Correlator
 
     API --> Subscription["service-cp-crime-hearing-results-document-subscription<br/>existing - owns subscriber registration and push notification"]
 
@@ -81,7 +81,7 @@ sequenceDiagram
     Hearing-->>Results: public.events.hearing.hearing-resulted (Artemis)
 
     rect rgba(255, 235, 205, 0.5)
-    Note over Results: HearingResultedEventProcessor -<br/>backfills application judicial results via Progression,<br/>writes enriched payload to Redis (synchronous, keyed by hearingId+defendantId)<br/>(Phase 2 also mints a source correlation id, §7b)
+    Note over Results: HearingResultedEventProcessor -<br/>backfills application judicial results via Progression,<br/>writes enriched payload to Redis (synchronous, keyed by hearingId+defendantId)<br/>(§7b also mints a source id if showing version history)
     end
 
     Results-->>Grid: "Hearing_Resulted" event<br/>(pointer only: hearingId, hearingDay, userId)
@@ -114,7 +114,7 @@ sequenceDiagram
         Progression-->>Correlator: progression.event.prison-court-register-generated(-v2)
     end
 
-    Correlator->>Store: MVP: find PCR row by (hearingId, defendantId)<br/>(Phase 2: by correlation-id equality, §7b)
+    Correlator->>Store: latest-only: find PCR row by (hearingId, defendantId)<br/>(version history: by id equality, §7b)
 
     alt match found
         Store-->>Correlator: PENDING row found
@@ -124,7 +124,7 @@ sequenceDiagram
         Note over Correlator,Store: drift/timing signal — needs a person to look (§9)
     end
 
-    Sub->>API: GET /prison-court-register/{hearingId}/{defendantId}<br/>(Phase 2: /{correlation id} for a specific version)
+    Sub->>API: GET /prison-court-register/{hearingId}/{defendantId}<br/>(§7b: /{id} for a specific version)
     API->>Store: read version row
     Store-->>API: PCR payload + versionStatus + materialId
     API-->>Sub: 200 OK, PCR JSON
@@ -207,8 +207,8 @@ Went through the actual Function App code, not assumptions, to separate genuine 
 **Base shape:** ports `PrisonCourtRegisterPdfPayloadGenerator`'s field mapping faithfully — registerDate, court/custody details, defendant details, prosecution/defence counsel, defendant/case results, offences, applications (full field list already documented in `PCR-HMPPS-FIELD-MAPPING.md`). Source of this data is the Results Query Client's response (§4b), not an event-carried payload.
 
 **Identity/correlation fields, alongside the ported content:**
-- `hearingId`, `defendantId`: the grouping key for version history (§2) **and the MVP correlation/resource key** (§7a) — matched against Progression's `prison-court-register-generated` event, which already carries the same pair.
-- Source correlation id — **Phase 2 only** (id shape TBC — ULID vs UUID+`sharedResultTime`, §7b): a per-version identifier read from the source payload, *not* minted by this service. **Absent in the MVP** (Redis carries no such field today). When introduced, it becomes the per-version resource id + HRDS notification value + the token correlated against Progression's PDF fact; carry the source value through verbatim, never derive or regenerate it.
+- `hearingId`, `defendantId`: the grouping key **and the latest-only correlation/resource key** (§7a) — matched against Progression's `prison-court-register-generated` event, which already carries the same pair.
+- Source correlation id — **only when showing version history** (§7b; id shape TBC — ULID vs UUID+`sharedResultTime`): a per-version id read from the source payload, *not* minted by this service. Absent otherwise (Redis carries no such field today). When present, it becomes the per-version resource id, the HRDS notification value, and the correlation token; carry it through verbatim, never derive or regenerate it.
 - `versionStatus` (`PENDING` / `CORRELATED` / `ORPHANED`) and `materialId`: correlation state, not set by the transformer — the transformer writes the row as `PENDING` and never touches these afterwards.
 
 **Fixed on the way in, not carried forward as bugs:**
@@ -227,66 +227,44 @@ Went through the actual Function App code, not assumptions, to separate genuine 
 
 ## 7. Versioning: correlating the API payload with the PDF
 
-Correlation is **phased**, tracking the MVP boundary in §12:
+How we correlate depends on whether the API shows amended/past versions or just the latest.
 
-- **Phase 1 (MVP, no amendments):** correlate on the `(hearingId, defendantId)` key that Redis already carries. No source-minted id, no new cross-repo propagation, no separate correlation handler.
-- **Phase 2 (amendments/versioning):** once a single `(hearingId, defendantId)` can have multiple versions, the key alone can't say which JSON version pairs with which PDF. Only then does a **source-minted correlation id** (§7b) become necessary, along with a dedicated handler.
+### 7a. Latest version only
 
-Nothing in Phase 2 exists today — no id is written into Redis, and there is no `PcrVersionCorrelationHandler`. It is deliberately deferred, not assumed.
+If the API exposes only the latest PCR per `(hearingId, defendantId)`, correlate on that key — no new work:
 
-### 7a. Phase 1 (MVP) — correlate on `(hearingId, defendantId)`
+- Redis is already keyed by `(hearingId, defendantId)`, and Progression's `prison-court-register-generated` event already carries the same pair, so the JSON row and the PDF match on the key.
+- No source-minted id, no new schema field, no correlation handler. `materialId` is stamped when the PDF for that key arrives; `ORPHANED` means one side is present and the other missing (§9).
 
-The MVP mirrors the Function App with no amendments (§12), so there is exactly **one PCR per `(hearingId, defendantId)`** — no versions. That makes correlation to the PDF a straight **key-equality match on `(hearingId, defendantId)`**, using data that already exists:
+This works only because there is one version per key. It does not survive amendments — that's §7b.
 
-- **Redis is keyed by `(hearingId, defendantId)` today** — this service reads the payload by that key (via the Results Query Client, §4b); no new id field is required in the Redis payload.
-- **Progression's `prison-court-register-generated` event already carries `(hearingId, defendantId)`**, so the JSON row and the PDF fact match on the same key.
-- **No new source-side work, no new schema field, no `PcrVersionCorrelationHandler`** — matching is a lookup on the existing key. `materialId` is stamped when the PDF fact for that key arrives; `ORPHANED` still means "one side present, the other missing" and remains the live drift signal (§9).
+### 7b. Showing amended / past versions
 
-This is sufficient *only* because there is one version per key in the MVP. It does **not** survive amendments — that's Phase 2.
+To expose more than the latest version, a key has multiple versions, so the key alone can't say which JSON version matches which PDF. Each version needs its own id that **both branches get from the same source event** — minted once at the source, above the fork, and passed down both paths.
 
-### 7b. Phase 2 (amendments) — why a source-minted correlation id becomes necessary
+Common to both options below:
 
-Once amendments/reshares exist, a single `(hearingId, defendantId)` has **multiple versions**, and key-equality can no longer tell which JSON version corresponds to which PDF. Correlation then needs a per-version token that **both branches derive from the same upstream event** — i.e. minted once at the source, above the fork where the Results/Redis path and the Progression path diverge, and propagated down both.
+- **Data model:** each payload is its own immutable row.
+- **New component:** a `PcrVersionCorrelationHandler` — the only code that knows Progression's event exists — subscribes to `prison-court-register-generated-v2`, joins on id equality, and sets `CORRELATED` or `ORPHANED`.
+- **Propagation:** source → Redis → Function App → Progression → `prison-court-register-generated-v2` (new field) → HRDS. A four-repo effort (§13) — scope it as such.
+- **Generation point:** `cpp-context-results`, just before the Redis write. Confirm the fork to Progression is downstream of it.
+- **Freshness:** a fresh id per `Hearing_Resulted` emission (incl. reshare), not a stable per-hearing id.
 
-- **Data model:** every JSON payload becomes its own immutable version row in arrival order — not a mutable record overwritten on amendment.
-- **New component:** a `PcrVersionCorrelationHandler` (SRP-isolated — the only code that knows Progression's event exists) subscribes to `prison-court-register-generated-v2`, correlation-only, never a trigger, and joins on **correlation-id equality**. On match: stamps `materialId`, sets `versionStatus = CORRELATED`. On a persistent one-sided backlog: `ORPHANED`.
-- **Propagation path:** source → Redis payload → Function App → Progression's `PrisonCourtRegisterDocumentRequest` → `prison-court-register-generated-v2` (new field) → HRDS. A four-repo, ~9-code-location, "rebuild explicitly at each hop" effort (§13) — scope it as such.
-- **Generation point:** the natural spot is `cpp-context-results`, where the enriched payload is assembled just before the synchronous Redis write (`HearingResultedEventProcessor`) — both branches draw from there. Confirm by tracing that the fork to Progression is genuinely downstream of that write.
-- **Freshness:** a fresh id per `Hearing_Resulted` emission (incl. reshare/amendment), *not* a stable per-hearing id — confirm the source mints per emission.
+The id shape is the only open choice:
 
-The id shape is the choice below (Option A vs B); everything above is common to both.
+**Option A (recommended) — ULID.** One field does everything: unique (80 random bits), carries shared time (timestamp prefix), sorts chronologically, and doubles as the resource id. Correlation is a direct equality join on it.
 
-#### Option A (recommended) — a single ULID
+**Option B — UUID `resultEventId` + `sharedResultTime`.** Two fields: a UUID for identity, a separate timestamp for ordering. Same propagation, functionally equivalent. Prefer it only if the public id must not encode a timestamp.
 
-A ULID minted at source collapses three needs into one field:
+### 7c. Ruled out
 
-| Need | ULID provides |
-|---|---|
-| Structural uniqueness | 80 random bits — collision-free, no reliance on timestamp uniqueness |
-| Shared time | 48-bit millisecond timestamp prefix — the same value on both branches, since stamped once at source |
-| Version ordering | Lexicographically sortable = chronological, for free |
-| Resource identity | Doubles as the API resource id and the field carried in the HRDS notification |
-
-Correlation is a direct equality join on the ULID; Phase 1's `(hearingId, defendantId)` matching remains the fallback for any pre-Phase-2 record.
-
-#### Option B — UUID `resultEventId` + separate `sharedResultTime`
-
-Propagate **two** fields instead of one — a UUID `resultEventId` for identity, plus a separate `sharedResultTime` — along the same path.
-
-- **Correlation:** join on `resultEventId` equality; ordering comes from `sharedResultTime` (or a sequence), not from the id.
-- **vs Option A:** functionally equivalent, differences in A's favour — two fields to keep in lockstep across every schema vs one; a UUID is opaque so `sharedResultTime` is mandatory to recover ordering, whereas the ULID folds identity/time/order together; a UUID works as a resource id but can't double as a sort key.
-- **When B is preferable:** if the externally-exposed id must *not* encode a timestamp (a hard rule against leaking source event time), a UUID + internal-only `sharedResultTime` keeps time off the public id.
-- **Effort:** identical propagation scope to Option A — two fields instead of one.
-
-### 7c. Ruled-out alternatives (Phase 2)
-
-- **Ruled out — service-local id (ULID or UUID minted here).** Minting the id inside this service can't correlate: it lives on one branch of the fork, so Progression never sees it, and a ULID's timestamp would be local write-time, not shared source time. Only a source-minted id works.
-- **Ruled out — Progression's `recorded_date`.** `PrisonCourtRegisterEntity.recordedDate` is local to Progression's own persistence — when Progression recorded the material, not anything about the source event that caused the PDF. Material-bookkeeping, not cross-context correlation data.
+- **Service-local id.** An id minted inside this service can't correlate — Progression never sees it.
+- **Progression's `recorded_date`.** Local persistence bookkeeping, not source correlation data.
 
 ### 7d. Open items
 
-- Which id shape for Phase 2 — ULID (Option A) vs UUID + `sharedResultTime` (Option B). Not locked; the rest of the doc stays option-neutral until it is.
-- Should the Query API serve a version before it reaches `CORRELATED` (provisional), or withhold until correlated? Needs a decision before the Query API contract is finalised (§13).
+- Latest-only (§7a) vs version history (§7b); and if history, ULID vs UUID+`sharedResultTime`.
+- Should the API serve a version before it reaches `CORRELATED`, or withhold until correlated? (§13)
 
 
 ---
@@ -303,7 +281,7 @@ Mapping the above onto the Spring Boot service pattern, not the legacy Azure Fun
 | **Enrichment client** | Reference Data calls for `ResultDefinition` fields | To be analysed in the design |
 | **Offence metadata client** | Reference Data calls for offence metadata (e.g. `startDate`) | To be analysed in the design |
 | **Transformer** | Field mapping to the PCR source payload shape | `PrisonCourtRegisterPdfPayloadGenerator`, with the fixes and additions in §6 |
-| **Correlation** | MVP: match the JSON row to Progression's PDF fact on `(hearingId, defendantId)` (§7a) — no dedicated handler. Phase 2 (amendments): join on source correlation-id equality via a new `PcrVersionCorrelationHandler` (id shape TBC, §7b); stamps `materialId`/`versionStatus` | MVP: reuse existing key. Phase 2: new SRP-isolated component per §7 |
+| **Correlation** | Latest-only: match the JSON row to Progression's PDF fact on `(hearingId, defendantId)` (§7a) — no dedicated handler. Version history: join on source id equality via a new `PcrVersionCorrelationHandler` (id shape TBC, §7b); stamps `materialId`/`versionStatus` | Latest-only: reuse existing key. Version history: new SRP-isolated component per §7 |
 | **Data store** | Immutable version rows, keyed `(hearingId, defendantId)` | New |
 | **Query API (controller)** | `GET` endpoint(s), version history, not a single current blob | New |
 | **Retention** | Automatic 30-day TTL purge | New |
@@ -324,8 +302,8 @@ This is a reimplementation of existing logic, not a call-through, so drift is po
 ## 10. Query API
 
 `GET` endpoint returns the PCR JSON. Two access shapes:
-- **MVP:** `GET /pcrs/{hearingId}/{defendantId}` — one PCR per defendant per hearing (no amendments, §12), so the pair fully identifies the resource. This is the URL wired into the notification callback.
-- **Phase 2 (amendments):** add `GET /pcrs/{id}` for a specific version — the source correlation id (§7b; id shape TBC) becomes the per-version identifier carried in the notification, and the `(hearingId, defendantId)` resource exposes the full version history, each version tagged with its correlation id and `versionStatus`.
+- **Latest only (§7a):** `GET /pcrs/{hearingId}/{defendantId}` — the pair fully identifies the resource. This is the URL wired into the notification callback.
+- **Version history (§7b):** add `GET /pcrs/{id}` for a specific version — the source id becomes the per-version identifier carried in the notification, and the `(hearingId, defendantId)` resource exposes the full history, each version tagged with its id and `versionStatus`.
 
 URL wired into `service-cp-crime-hearing-results-document-subscription`'s existing subscriber callback payload — that service continues to own subscriber registration and push notification.
 
@@ -349,9 +327,9 @@ Story 3's non-amendment phase-1 slice (mirror the Function App, no amendments) s
 |---|---|---|
 | 1 | Provision the Event Grid subscription to route `Hearing_Resulted` into a Service Bus queue, and set up this service's `spring-cloud-azure-stream-binder-servicebus` consumer against it | This team + platform/Azure infra owner |
 | 2 | Confirm whether the REST fallback fails cleanly (error/404) or returns an incomplete/stale result with no error when it lands before the viewstore has caught up — read the Results query API's actual code or ask the Results team directly, don't build retry logic around tech arch's "I assume it fails" without checking. If it's the latter, the Results Query Client needs a way to detect an incomplete result, not just a failed call | Results context team |
-| 3 | **Phase 2 only** — mint a source correlation id once at source and propagate it end-to-end: Results (source), Redis payload, the legacy Function App, Progression's `PrisonCourtRegisterDocumentRequest` + `prison-court-register-generated-v2` schema, HRDS. Four-repo, ~9-code-location "rebuild at each hop" effort (§7b) — scope as such, not "just add a field". **Not needed for the MVP**, which correlates on `(hearingId, defendantId)` (§7a) | This team + Results + Progression + Function App owners |
-| 4 | **Phase 2 only** — confirm the source mints a **fresh id per `Hearing_Resulted` emission** (incl. reshare/amendment), not a stable per-hearing id — the "reshare-freshness" question (§7b) | Results context team |
-| 5 | **Phase 2** — id shape: ULID (§7b Option A) vs UUID + `sharedResultTime` (Option B). Not locked | Product/tech-arch decision |
+| 3 | **Only if showing version history (§7b)** — mint a source id once at source and propagate it end-to-end: Results (source), Redis payload, the legacy Function App, Progression's `PrisonCourtRegisterDocumentRequest` + `prison-court-register-generated-v2` schema, HRDS. Four-repo "rebuild at each hop" effort — scope as such, not "just add a field". **Not needed if the API shows only the latest version** (§7a) | This team + Results + Progression + Function App owners |
+| 4 | **Only if showing version history (§7b)** — confirm the source mints a **fresh id per `Hearing_Resulted` emission** (incl. reshare), not a stable per-hearing id | Results context team |
+| 5 | **If showing version history** — id shape: ULID (§7b Option A) vs UUID + `sharedResultTime` (Option B). Not locked | Product/tech-arch decision |
 | 6 | Serve pre-`CORRELATED` (provisional) versions, or withhold until correlated? | Product/tech-arch decision, unresolved |
 | 7 | Carry the confirmed-dead legacy fields through as always-empty, or drop them from this service's model? | Product decision, unresolved |
 
