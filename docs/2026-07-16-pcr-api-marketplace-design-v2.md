@@ -20,7 +20,7 @@ This is **not** a replacement for existing email/post distribution, and does **n
 
 Today's PCR generation is per defendant, per hearing — `SetPrisonCourtRegister` builds one register fragment per defendant present at a hearing, and within that fragment, all of that defendant's cases/applications *at that hearing* are nested together. A hearing with multiple defendants produces multiple, separate PCR records — never one merged record.
 
-The API preserves this end-to-end: Decision Engine emits one candidate per `(hearingId, defendantId)`; the Data Store keys every row the same way; the Query API returns one PCR resource per `(hearingId, defendantId)`, each with its own version history.
+The API preserves this end-to-end: Decision Engine emits one candidate per `(hearingId, defendantId)`; the Data Store keys each version row by `(id, defendantId)` — the actual correlation identity, per §7/§8a — grouped under its `(hearingId, defendantId)` pair; the Query API returns one PCR resource per `(hearingId, defendantId)`, each with its own version history.
 
 ---
 
@@ -205,7 +205,9 @@ Went through the actual Function App code, not assumptions, to separate genuine 
 
 ## 6. Transformation and enrichment
 
-**Base shape:** ports `PrisonCourtRegisterPdfPayloadGenerator`'s field mapping faithfully — registerDate, court/custody details, defendant details, prosecution/defence counsel, defendant/case results, offences, applications (full field list already documented in `PCR-HMPPS-FIELD-MAPPING.md`). Source of this data is the Results Query Client's response (§4b), not an event-carried payload.
+**Base shape:** ports `PrisonCourtRegisterPdfPayloadGenerator`'s field mapping faithfully — court/custody details, defendant details, offences, applications (full field list already documented in `PCR-HMPPS-FIELD-MAPPING.md`). Source of this data is the Results Query Client's response (§4b), not an event-carried payload. `registerDate` is deliberately excluded — a generation timestamp, not a case fact.
+
+**Deliberately not included, despite being confirmed present in CP's real PCR payload** (`PrisonCourtRegisterPdfPayloadGenerator.java`, cross-validated against the Function App's outbound mapper): prosecution/defence counsel, attending solicitor name, `defendantResults[]`/`caseResults[]` (hearing/case-level free-text results), `gender`/`nationality`, `ljaName`/`courtHouseAddress`, `allocationDecision`/`indicatedPleaValue`. Each exists in CP; none has an identified consumer requirement — unlike `name`/`dateOfBirth`/`address`, which are justified by HMPPS's own Core Person Record matching signals. Full decision record in `api-cp-crime-results-pcr`'s `PCR-HMPPS-FIELD-MAPPING.md` §6. Revisit only if a real requirement surfaces.
 
 **Identity/correlation fields, alongside the ported content:**
 - `hearingId`, `defendantId`: the grouping/resource key (§2) — one PCR resource per pair, exposing its full version history.
@@ -213,14 +215,14 @@ Went through the actual Function App code, not assumptions, to separate genuine 
 - `versionStatus` (`PENDING` / `CORRELATED` / `ORPHANED`) and `materialId`: correlation state, not set by the transformer — the transformer writes the row as `PENDING` and never touches these afterwards.
 
 **Fixed on the way in, not carried forward as bugs:**
-- Aliases and counsel names become structured arrays (`{title, firstName, middleName, lastName}` / `{name, status}`), not the legacy generator's pre-joined display strings.
+- Aliases become a structured array (`{title, firstName, middleName, lastName}`), not the legacy generator's pre-joined display string.
 - `applications[].result[]` becomes `{resultCode, resultText}` pairs, matching every other result block, instead of the legacy shape's plain-string-only inconsistency.
 - `pleaDate` exposed as its own field rather than string-concatenated onto `pleaValue`.
 
 **Enrichment beyond what the legacy generator does today** — deliberate additions, not scope creep, each tied to a concrete need already identified in `PCR-HMPPS-FIELD-MAPPING.md`:
 - `postHearingCustodyStatus` / `financial` / `category` / `convicted` per result, from Reference Data's `ResultDefinition`, keyed on `cjsResultCode`. The legacy generator strips these before they reach the document; this service keeps them, since they're the clearest structured signal for anything downstream that needs to classify custodial vs. non-custodial without parsing `resultText`.
 - `judicialResultPrompts[]` (raw label/value/promptReference/type), sourced from the judicial-result domain object directly — not from the legacy generator, which discards prompts entirely. Needed for any consumer building their own logic on top of structured signals like the terrorism/foreign-power/domestic-violence flags, which only exist at this level.
-- `custodyLocation`: include it, but be explicit in the API's own documentation that it's generated today and never actually printed on the register — don't let a consumer assume it's document-verified just because it's present.
+- `custodyLocation`: include it, but be explicit in the API's own documentation that whether it's ever printed on the register could not be independently confirmed — the actual template and its rendering are owned by an external `systemdocgenerator` service, not available for inspection. Don't let a consumer assume it's document-verified just because it's present, and don't assert it's confirmed-unprinted either — both are unverified.
 
 **Decision needed, not yet made:** whether to carry the confirmed-dead legacy fields (`officerInCase`, `parentGuardianName`/`Address1`, and the template's unpopulated `parentGuardianAddress2-5`/`PostCode`) through as permanently-empty fields, or drop them from this service's own model entirely.
 
