@@ -124,7 +124,7 @@ sequenceDiagram
         Note over Correlator,Store: drift/timing signal — needs a person to look (§9)
     end
 
-    Sub->>API: GET /pcrs/{hearingId}/{defendantId}<br/>(full version history) or GET /pcrs/{id}<br/>(a specific version, §10)
+    Sub->>API: GET /pcrs/{hearingId}/{defendantId}<br/>(full version history) or GET /pcrs/{id}/{defendantId}<br/>(a specific version, §10)
     API->>Store: read version row
     Store-->>API: PCR payload + versionStatus + materialId
     API-->>Sub: 200 OK, PCR JSON
