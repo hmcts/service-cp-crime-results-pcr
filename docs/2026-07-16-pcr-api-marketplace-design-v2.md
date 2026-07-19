@@ -235,6 +235,7 @@ The API exposes full version history, not just the latest PCR — a `(hearingId,
 - **Propagation:** source → Redis → Function App → Progression → `prison-court-register-generated-v2` (new field) → HRDS. A four-repo effort (§13) — scope it as such.
 - **Generation point:** `cpp-context-results`, just before the Redis write. Confirm the fork to Progression is downstream of it.
 - **Freshness:** a fresh id per `Hearing_Resulted` emission (incl. reshare), not a stable per-hearing id.
+- **The id is hearing-scoped, not defendant-scoped — every use of it as an identifier must pair it with `defendantId`.** The Redis write it's minted "just before" covers the *whole hearing's payload, every defendant together* (confirmed — one write, not one per defendant), while Progression's PCR generation is genuinely per-defendant (one `add-prison-court-register` command per defendant, singular `defendant` object). So every defendant on a multi-defendant hearing gets the **same** id. The real identity is the composite `(id, defendantId)`, never `id` alone — see §8a and §10.
 
 The id shape is the only open choice:
 
@@ -269,11 +270,38 @@ Mapping the above onto the Spring Boot service pattern, not the legacy Azure Fun
 | **Offence metadata client** | Reference Data calls for offence metadata (e.g. `startDate`) | To be analysed in the design |
 | **Transformer** | Field mapping to the PCR source payload shape | `PrisonCourtRegisterPdfPayloadGenerator`, with the fixes and additions in §6 |
 | **Correlation** | Joins the JSON row to Progression's PDF fact on source correlation id equality via `PcrVersionCorrelationHandler` (id shape TBC, §7); stamps `materialId`/`versionStatus` | New — SRP-isolated component per §7 |
-| **Data store** | Immutable version rows, keyed `(hearingId, defendantId)` | New |
+| **Data store** | Immutable version rows, keyed `(id, defendantId)` — schema in §8a | New |
 | **Query API (controller)** | `GET` endpoint(s), version history, not a single current blob | New |
 | **Retention** | Automatic 30-day TTL purge | New |
 
 No component here talks to Progression except the Version/Correlation handler — everything else only ever reads `versionStatus`/`materialId` once set.
+
+### 8a. Data model — Data Store schema
+
+Normalized, not a JSON blob — matches how CP itself models this domain (`cpp-context-hearing`/`cpp-context-results` use fully normalized JPA entities — `ProsecutionCase`/`Defendant`/`Offence`/`JudicialResult`/`JudicialResultPrompt` are all separate real entity classes there, not JSON columns). The confirmed access patterns (§10) never need partial/granular querying inside a version's content, but normalizing still keeps the schema consistent with CP's own convention and avoids repeating case-level fields identically across every defendant on a hearing.
+
+```mermaid
+erDiagram
+    PCR_CASE_HEARING ||--o{ PCR_CASE_MARKER : has
+    PCR_CASE_HEARING ||--o{ PCR_VERSION : "one per defendant"
+    PCR_VERSION ||--o{ PCR_ALIAS : has
+    PCR_VERSION ||--o{ PCR_OFFENCE : has
+    PCR_VERSION ||--o{ PCR_COURT_APPLICATION : has
+    PCR_OFFENCE ||--o{ PCR_JUDICIAL_RESULT : has
+    PCR_COURT_APPLICATION ||--o{ PCR_JUDICIAL_RESULT : has
+    PCR_JUDICIAL_RESULT ||--o{ PCR_JUDICIAL_RESULT_PROMPT : has
+```
+
+- **`pcr_case_hearing`** — shared "case at a hearing" parent, avoiding repeating `case_urn`/`hearing_id`/`event_id` identically across every defendant on the same hearing. `id` (surrogate PK), `case_urn`, `hearing_id`, `event_id`, `created_at`, `expires_at` — unique on `(case_urn, hearing_id)`.
+- **`pcr_case_marker`** — child of `pcr_case_hearing` (case-level, not per-defendant). `id`, `case_hearing_id` (FK), `code`, `description`.
+- **`pcr_version`** — one row per defendant's PCR version at that case+hearing; the actual "immutable version row" from §7. `id` + `defendant_id` (composite PK, per the identity note above), `case_hearing_id` (FK), `version_status`, `material_id`, `custody_location`, defendant identity fields (`master_defendant_id`, `title`, `first_name`, `middle_name`, `last_name`, `date_of_birth`, `address_1..5`, `post_code` — embedded, genuinely 1:1, no independent lifecycle), next-appearance fields (embedded, nullable, 1:1), `created_at`.
+- **`pcr_alias`** — child of `pcr_version` (many per version). `id`, `version_id`+`defendant_id` (composite FK), `title`, `first_name`, `middle_name`, `last_name`.
+- **`pcr_offence`** — child of `pcr_version` (many per version). `id` (CP's own offence UUID), `version_id`+`defendant_id` (composite FK), `code`, `title`, `wording`, `start_date`, `end_date`, `listing_number`, `conviction_date`, `plea_value`, `plea_date`, `verdict_code`, `terror_related`, `foreign_power_related`.
+- **`pcr_court_application`** — child of `pcr_version` (many per version). `id` (CP's own application UUID), `version_id`+`defendant_id` (composite FK), `reference`, `type`, `decision`, `decision_date`, `response`, `response_date`.
+- **`pcr_judicial_result`** — child of **either** `pcr_offence` **or** `pcr_court_application` (polymorphic, mirroring the OpenAPI spec's own reuse of `JudicialResult` for both). `id` (surrogate PK), `offence_id` (FK, nullable), `court_application_id` (FK, nullable), a `CHECK` that exactly one parent FK is set, `result_code`, `result_text`, `post_hearing_custody_status`, `financial`, `category`, `convicted`, plus the flattened sentence fields (`concurrent`, `consecutive_to_date`, `consecutive_to_court_name`, `fine_amount`, `imprisonment_period`, `total_custodial_period`).
+- **`pcr_judicial_result_prompt`** — child of `pcr_judicial_result` (many per result). `id`, `judicial_result_id` (FK), `label`, `value`, `prompt_reference`, `type`.
+
+**Retention/cascade:** `pcr_version` rows are deleted by their own `expires_at` (§11's TTL-only rule), cascading to their `pcr_alias`/`pcr_offence`/`pcr_court_application`/`pcr_judicial_result`/`pcr_judicial_result_prompt` children. A secondary sweep deletes `pcr_case_hearing` rows once they have zero remaining `pcr_version` children — its lifetime isn't tied to any single defendant's TTL, since siblings on the same hearing may have been generated (and so expire) at slightly different times.
 
 ---
 
@@ -290,7 +318,7 @@ This is a reimplementation of existing logic, not a call-through, so drift is po
 
 `GET` endpoint returns the PCR JSON, exposing full version history:
 - `GET /pcrs/{hearingId}/{defendantId}` — the resource for that pair, with its full version history, each version tagged with its source correlation id (§7) and `versionStatus`.
-- `GET /pcrs/{id}` — a specific version, addressed directly by its source correlation id — this is the identifier carried in the notification callback.
+- `GET /pcrs/{id}/{defendantId}` — a specific version, addressed by the composite `(id, defendantId)` identity (§7, §8a) — `id` alone is ambiguous on a multi-defendant hearing, since every defendant on it shares the same source correlation id. This pair is what's carried in the notification callback.
 
 URL wired into `service-cp-crime-hearing-results-document-subscription`'s existing subscriber callback payload — that service continues to own subscriber registration and push notification.
 
