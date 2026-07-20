@@ -2,7 +2,7 @@
 
 **Status:** Revised, 20 Jul 2026 — retargeted at the corrected API contract
 (PR #5, `docs/simplify-pcr-versioning-model`, merged into
-[`docs/2026-07-16-pcr-api-marketplace-design-v2.md`](../../2026-07-16-pcr-api-marketplace-design-v2.md),
+[`docs/2026-07-16-pcr-api-marketplace-design-v2.md`](2026-07-16-pcr-api-marketplace-design-v2.md),
 v2). The original 17 Jul draft targeted a pre-redesign, HMPPS-shaped contract
 (`ProsecutionCaseResultsApi`, `ProsecutionCaseResultView`/`DefendantResultView`,
 `eventId` query param) that no longer exists — every component below is
