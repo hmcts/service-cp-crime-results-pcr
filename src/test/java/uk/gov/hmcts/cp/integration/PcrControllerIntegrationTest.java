@@ -49,37 +49,8 @@ class PcrControllerIntegrationTest extends IntegrationTestBase {
 
     @Test
     void getLatestPcrVersion_should_returnOk_withMappedFields() throws Exception {
-        stubHearingDetails(HTTP_OK, """
-                {"hearing":{
-                  "courtCentre":{"id":"6b16f870-9dcb-4b62-88a1-b6a5b6e8e6b1","code":"LND001","name":"Central London Crown Court"},
-                  "hearingDays":[{"sittingDay":"2026-06-23"}],
-                  "prosecutionCases":[{
-                    "id":"99999999-9999-9999-9999-999999999999",
-                    "prosecutionCaseIdentifier":{"caseURN":"%s"},
-                    "caseMarkers":[{"markerTypeCode":"DomesticViolence"}],
-                    "defendants":[{
-                      "id":"%s",
-                      "masterDefendantId":"%s",
-                      "personDefendant":{
-                        "personDetails":{"title":"Mr","firstName":"John","lastName":"Doe","dateOfBirth":"1980-01-31",
-                          "address":{"address1":"1 Example Street","postcode":"AB1 2CD"}},
-                        "custodialEstablishment":{"id":"c1","name":"HMP Dovegate","custody":"Prison"}
-                      },
-                      "offences":[{
-                        "offenceCode":"TH68001","listingNumber":1,"startDate":"2026-06-13","convictionDate":"2026-06-23",
-                        "judicialResults":[{
-                          "cjsCode":"1200","label":"Imprisonment","isFinancialResult":false,"isConvictedResult":true,
-                          "judicialResultPrompts":[
-                            {"promptReference":"concurrent","value":"true"},
-                            {"promptReference":"imprisonmentPeriod","value":"6 Months 1 week"}
-                          ]
-                        }]
-                      }]
-                    }]
-                  }],
-                  "courtApplications":[]
-                }}
-                """.formatted(CASE_URN, DEFENDANT_ID, MASTER_DEFENDANT_ID));
+        stubHearingDetails(HTTP_OK, readResourceContents("pcr/hearing-details-full.json")
+                .formatted(CASE_URN, DEFENDANT_ID, MASTER_DEFENDANT_ID));
 
         mockMvc.perform(get("/pcrs/cases/{caseURN}/hearings/{hearingId}/defendants/{defendantId}/versions/latest",
                         CASE_URN, HEARING_ID, DEFENDANT_ID)
@@ -101,9 +72,7 @@ class PcrControllerIntegrationTest extends IntegrationTestBase {
 
     @Test
     void getLatestPcrVersion_should_return404_whenCaseUrnNotFound() throws Exception {
-        stubHearingDetails(HTTP_OK, """
-                {"hearing":{"prosecutionCases":[],"courtApplications":[]}}
-                """);
+        stubHearingDetails(HTTP_OK, readResourceContents("pcr/hearing-details-no-cases.json"));
 
         mockMvc.perform(get("/pcrs/cases/{caseURN}/hearings/{hearingId}/defendants/{defendantId}/versions/latest",
                         UNKNOWN_CASE_URN, HEARING_ID, DEFENDANT_ID)
@@ -114,17 +83,8 @@ class PcrControllerIntegrationTest extends IntegrationTestBase {
 
     @Test
     void getLatestPcrVersion_should_return404_whenDefendantIdNotFound() throws Exception {
-        stubHearingDetails(HTTP_OK, """
-                {"hearing":{
-                  "prosecutionCases":[{
-                    "id":"99999999-9999-9999-9999-999999999999",
-                    "prosecutionCaseIdentifier":{"caseURN":"%s"},
-                    "caseMarkers":[],
-                    "defendants":[]
-                  }],
-                  "courtApplications":[]
-                }}
-                """.formatted(CASE_URN));
+        stubHearingDetails(HTTP_OK, readResourceContents("pcr/hearing-details-no-defendants.json")
+                .formatted(CASE_URN));
 
         mockMvc.perform(get("/pcrs/cases/{caseURN}/hearings/{hearingId}/defendants/{defendantId}/versions/latest",
                         CASE_URN, HEARING_ID, UNKNOWN_DEFENDANT_ID)

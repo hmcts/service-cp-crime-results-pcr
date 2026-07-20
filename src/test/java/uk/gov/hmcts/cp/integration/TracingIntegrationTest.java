@@ -27,6 +27,7 @@ class TracingIntegrationTest extends IntegrationTestBase {
     private static final String CASE_URN = "ABCD1234567";
     private static final UUID HEARING_ID = UUID.fromString("00000000-0000-0000-0000-000000000011");
     private static final UUID DEFENDANT_ID = UUID.fromString("00000000-0000-0000-0000-000000000022");
+    private static final String MASTER_DEFENDANT_ID = "33333333-3333-3333-3333-333333333333";
 
     private WireMockServer wireMockServer;
 
@@ -75,23 +76,7 @@ class TracingIntegrationTest extends IntegrationTestBase {
         stubFor(WireMock.get(urlEqualTo(url)).willReturn(aResponse()
                 .withStatus(HTTP_OK)
                 .withHeader("Content-Type", "application/json")
-                .withBody("""
-                        {"hearing":{
-                          "courtCentre":{"id":"6b16f870-9dcb-4b62-88a1-b6a5b6e8e6b1","code":"LND001","name":"Central London Crown Court"},
-                          "hearingDays":[{"sittingDay":"2026-06-23"}],
-                          "prosecutionCases":[{
-                            "id":"99999999-9999-9999-9999-999999999999",
-                            "prosecutionCaseIdentifier":{"caseURN":"%s"},
-                            "caseMarkers":[],
-                            "defendants":[{
-                              "id":"%s",
-                              "masterDefendantId":"33333333-3333-3333-3333-333333333333",
-                              "personDefendant":{"personDetails":{"firstName":"John","lastName":"Doe"}},
-                              "offences":[]
-                            }]
-                          }],
-                          "courtApplications":[]
-                        }}
-                        """.formatted(CASE_URN, DEFENDANT_ID))));
+                .withBody(readResourceContents("pcr/hearing-details-full.json")
+                        .formatted(CASE_URN, DEFENDANT_ID, MASTER_DEFENDANT_ID))));
     }
 }

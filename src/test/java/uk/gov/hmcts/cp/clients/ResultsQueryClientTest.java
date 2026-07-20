@@ -3,12 +3,16 @@ package uk.gov.hmcts.cp.clients;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
+import lombok.SneakyThrows;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.web.client.RestClient;
 import uk.gov.hmcts.cp.config.AppPropertiesBackend;
 
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.UUID;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
@@ -50,12 +54,18 @@ class ResultsQueryClientTest {
         stubFor(WireMock.get(urlEqualTo(url)).willReturn(aResponse()
                 .withStatus(HTTP_OK)
                 .withHeader("Content-Type", "application/json")
-                .withBody("{\"hearing\":{\"prosecutionCases\":[],\"courtApplications\":[]}}")));
+                .withBody(readResourceContents("pcr/hearing-details-no-cases.json"))));
 
         resultsQueryClient.getHearingDetails(HEARING_ID);
 
         verify(getRequestedFor(urlEqualTo(url))
                 .withHeader("Accept", WireMock.equalTo("application/vnd.results.hearing-details-internal+json"))
                 .withHeader("CJSCPPUID", WireMock.equalTo("00000000-0000-0000-0000-000000000000")));
+    }
+
+    @SneakyThrows
+    private String readResourceContents(final String resourceName) {
+        final URL resource = getClass().getClassLoader().getResource(resourceName);
+        return Files.readString(Path.of(resource.toURI()));
     }
 }
