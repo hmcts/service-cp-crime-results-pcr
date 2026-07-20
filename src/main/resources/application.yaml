@@ -1,6 +1,8 @@
 spring:
   application:
     name: service-cp-crime-results-pcr
+  jackson:
+    default-property-inclusion: non_null
 
 server:
   port: ${SERVER_PORT:8082}
@@ -19,7 +21,16 @@ management:
     health:
       probes:
         enabled: true   # enables liveness / readiness groups
+  tracing:
+    enabled: true
+    sampling:
+      probability: 1.0
 
 logging:
   level:
     root: INFO
+
+results-query-client:
+  url: ${CP_BACKEND_URL:http://localhost:8081}
+  path: /results-query-api/query/api/rest/results/hearingDetails/internal
+  cjscppuid: ${CJSCPPUID:00000000-0000-0000-0000-000000000000}

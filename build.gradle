@@ -25,8 +25,16 @@ apply {
 // We MUST keep all dependencies in the build.gradle to allow dependabot to provide version updates
 // Sadly, dependabot does not track dependencies in the apply-from files
 dependencies {
+  // Api spec — published to mavenLocal from api-cp-crime-results-pcr's feat/cp-native-openapi-redesign
+  // (PR #7, not yet released) — pin to the real release tag once that ships
+  implementation('uk.gov.hmcts.cp:api-cp-crime-results-pcr:0.0.999')
+  // Required at compile time for the generated contract's @Schema annotations (not resolved transitively)
+  implementation 'io.swagger.core.v3:swagger-annotations:2.2.52'
+
   // Java core
   implementation 'net.logstash.logback:logstash-logback-encoder:9.0'
+  // Sanitizes caseURN path input before backend calls and log lines (service-shared.md boundary-validation rule)
+  implementation 'org.owasp.encoder:encoder:1.2.3'
 
   compileOnly 'org.projectlombok:lombok:1.18.46'
   annotationProcessor 'org.projectlombok:lombok:1.18.46'
@@ -40,7 +48,8 @@ dependencies {
     exclude group: 'junit', module: 'junit'
     exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
   }
-
+  // In-process WireMock for controller integration tests (mocks the CP backend on CP_BACKEND_URL's port)
+  testImplementation 'org.wiremock:wiremock-standalone:3.13.2'
 
   // --- Observability / Actuator / OTEL / Prometheus ---
   implementation 'org.springframework.boot:spring-boot-starter-actuator'
