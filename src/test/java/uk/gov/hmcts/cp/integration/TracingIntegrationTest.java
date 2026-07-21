@@ -66,8 +66,9 @@ class TracingIntegrationTest extends IntegrationTestBase {
     }
 
     private MockHttpServletRequestBuilder getLatestPcrVersionRequest() {
-        return get("/pcrs/cases/{caseURN}/hearings/{hearingId}/defendants/{defendantId}/versions/latest",
+        return get("/pcrs/cases/{caseURN}/hearings/{hearingId}/defendants/{defendantId}/versions",
                 CASE_URN, HEARING_ID, DEFENDANT_ID)
+                .param("version", "latest")
                 .accept(MediaType.APPLICATION_JSON);
     }
 

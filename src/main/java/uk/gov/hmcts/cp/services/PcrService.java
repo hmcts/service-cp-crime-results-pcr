@@ -15,10 +15,20 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class PcrService {
 
+    private static final String LATEST = "latest";
+
     private final ResultsQueryClient resultsQueryClient;
     private final PcrVersionMapper mapper;
 
-    public PcrVersion getLatestVersion(final String caseURN, final UUID hearingId, final UUID defendantId) {
+    public PcrVersion getVersion(final String caseURN, final UUID hearingId, final UUID defendantId, final String version) {
+        if (!LATEST.equals(version)) {
+            throw new ResponseStatusException(HttpStatus.NOT_IMPLEMENTED,
+                    "Version lookup by a specific id is not yet supported");
+        }
+        return getLatestVersion(caseURN, hearingId, defendantId);
+    }
+
+    private PcrVersion getLatestVersion(final String caseURN, final UUID hearingId, final UUID defendantId) {
         final HearingDetailsResponse hearingDetails = resultsQueryClient.getHearingDetails(hearingId);
         final HearingDetailsResponse.ProsecutionCase prosecutionCase = findCase(hearingDetails, caseURN);
         final HearingDetailsResponse.Defendant defendant = findDefendant(prosecutionCase, defendantId);

@@ -26,10 +26,10 @@ public class PcrController implements PcrApi {
 
     @Override
     @NonNull
-    public ResponseEntity<PcrVersion> getLatestPcrVersion(final String caseURN, final UUID hearingId, final UUID defendantId) {
-        log.info("Received request to get latest PCR version for caseURN:{} hearingId:{} defendantId:{}",
-                Encode.forJava(caseURN), hearingId, defendantId);
-        final PcrVersion pcrVersion = pcrService.getLatestVersion(validateCaseUrn(caseURN), hearingId, defendantId);
+    public ResponseEntity<PcrVersion> getPcrVersion(final String caseURN, final UUID hearingId, final UUID defendantId, final String version) {
+        log.info("Received request to get PCR version for caseURN:{} hearingId:{} defendantId:{} version:{}",
+                Encode.forJava(caseURN), hearingId, defendantId, Encode.forJava(version));
+        final PcrVersion pcrVersion = pcrService.getVersion(validateCaseUrn(caseURN), hearingId, defendantId, version);
         return ResponseEntity.ok()
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(pcrVersion);

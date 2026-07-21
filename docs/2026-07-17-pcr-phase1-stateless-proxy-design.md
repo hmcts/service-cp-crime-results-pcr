@@ -23,11 +23,23 @@ document only covers what phase 1 changes.
 A synchronous stateless-proxy `service-cp-*` (the same pattern already
 codified in the shared HMCTS APIM standards, with its own pre-defined
 integration test recipe). A subscriber calls **one** operation —
-`getLatestPcrVersion` (`GET .../versions/latest`) — the service calls CP's
+`getPcrVersion` (`GET .../versions?version=latest`) — the service calls CP's
 Results Query API synchronously, maps the response to a `PcrVersion`, and
-returns it. No event consumption, no cache, no persistence, no version
-history, no specific-version-by-id lookup, no correlation with Progression's
-PDF output, no retention job.
+returns it. `version` is a required query parameter; any value other than
+the literal `latest` returns `501` — see §7b/§13 update below. No event
+consumption, no cache, no persistence, no version history, no
+specific-version-by-id lookup, no correlation with Progression's PDF output,
+no retention job.
+
+
+**Update, 21 Jul 2026:** the API contract originally targeted here put the
+specific-version lookup on its own path (`.../versions/{id}`) and latest on
+another (`.../versions/latest`), each a separate operation. Both have since
+been merged into one operation, `getPcrVersion`, keyed by a `version` query
+parameter — `version=latest` for this document's `getLatestVersion` logic
+unchanged, any other value for the (still phase-2) specific-id lookup. Code
+samples below are updated to match; the phase boundary itself (§2) is
+unchanged.
 
 ## 2. What's explicitly out of scope for phase 1
 
@@ -36,12 +48,14 @@ Carried over from v2, not built at all in phase 1:
 - Event Grid `Hearing_Resulted` subscription / Service Bus consumer
 - Redis-first / REST-fallback-with-retry (see §3 for why this is safe to skip, not just defer)
 - Data store, version rows, version history
-- **`getPcrVersionHistory` and `getPcrVersion`** — the base-path (full version
-  history) and `.../versions/{id}` (specific version) operations. Both need
-  real stored version rows to mean anything; there's no "history" without
-  persistence. Only `getLatestPcrVersion` is implemented — the other two
-  inherit `PcrApi`'s generated default (`501 Not Implemented`) until phase 2
-  adds the Data Store.
+- **`getPcrVersionHistory`** (full version history) — needs real stored
+  version rows to mean anything; there's no "history" without persistence.
+  Not overridden — inherits `PcrApi`'s generated default (`501 Not
+  Implemented`) until phase 2 adds the Data Store. **Specific-version-by-id
+  lookup** — `getPcrVersion` is implemented, but only handles `version=latest`;
+  any other `version` value is explicitly rejected with `501` (thrown by
+  `PcrService`, not the generated default) until phase 2 adds real version
+  storage to look up against.
 - `PcrVersionCorrelationHandler` / any correlation with Progression's PDF output
 - 30-day retention / TTL purge
 - `ResultDefinition` reference-data enrichment beyond what CP's hearing-details payload already exposes directly (see §6) — the full `ResultDefinition` lookup only exists via the legacy queue-based messaging system, incompatible with a synchronous REST proxy
@@ -59,7 +73,7 @@ Carried over from v2, not built at all in phase 1:
 
 ```mermaid
 flowchart LR
-    Sub["Subscriber"] -->|"GET /pcrs/cases/{caseURN}/hearings/{hearingId}/defendants/{defendantId}/versions/latest"| Controller
+    Sub["Subscriber"] -->|"GET /pcrs/cases/{caseURN}/hearings/{hearingId}/defendants/{defendantId}/versions?version=latest"| Controller
 
     subgraph PCR["service-cp-crime-results-pcr"]
         Controller["PcrController<br/>implements generated PcrApi"]
@@ -90,19 +104,21 @@ public class PcrController implements PcrApi {
     private final PcrService service;
 
     @Override
-    public ResponseEntity<PcrVersion> getLatestPcrVersion(
-            String caseURN, UUID hearingId, UUID defendantId) {
-        return ResponseEntity.ok(service.getLatestVersion(caseURN, hearingId, defendantId));
+    public ResponseEntity<PcrVersion> getPcrVersion(
+            String caseURN, UUID hearingId, UUID defendantId, String version) {
+        return ResponseEntity.ok(service.getVersion(caseURN, hearingId, defendantId, version));
     }
 }
 ```
 
 No logic beyond delegation — matches the generated-interface rule (implement,
-don't hand-roll `@RequestMapping`s). `getPcrVersionHistory`/`getPcrVersion` are
-**not overridden** — `PcrApi`'s generated default method bodies return `501
-Not Implemented` for both until phase 2 adds the Data Store, so the interface
-is implemented completely (per the layering rule) without pretending to
-support version history that doesn't exist yet.
+don't hand-roll `@RequestMapping`s). `getPcrVersionHistory` is **not
+overridden** — `PcrApi`'s generated default method body returns `501 Not
+Implemented` until phase 2 adds the Data Store. `getPcrVersion` **is**
+overridden, but `PcrService.getVersion` only handles `version=latest` —
+any other value is explicitly rejected with `501` (§10), so the interface is
+implemented completely (per the layering rule) without pretending to support
+version history or specific-id lookup that doesn't exist yet.
 
 ### 4.2 `PcrService`
 
@@ -110,10 +126,20 @@ support version history that doesn't exist yet.
 @Service
 @RequiredArgsConstructor
 public class PcrService {
+    private static final String LATEST = "latest";
+
     private final ResultsQueryClient resultsQueryClient;
     private final PcrVersionMapper mapper;
 
-    public PcrVersion getLatestVersion(String caseURN, UUID hearingId, UUID defendantId) {
+    public PcrVersion getVersion(String caseURN, UUID hearingId, UUID defendantId, String version) {
+        if (!LATEST.equals(version)) {
+            throw new ResponseStatusException(HttpStatus.NOT_IMPLEMENTED,
+                    "Version lookup by a specific id is not yet supported");
+        }
+        return getLatestVersion(caseURN, hearingId, defendantId);
+    }
+
+    private PcrVersion getLatestVersion(String caseURN, UUID hearingId, UUID defendantId) {
         HearingDetailsResponse hearing = resultsQueryClient.getHearingDetails(hearingId);
         ProsecutionCaseResponse prosecutionCase = findCase(hearing, caseURN);
         DefendantResponse defendant = findDefendant(prosecutionCase, defendantId);
@@ -138,8 +164,9 @@ public class PcrService {
 }
 ```
 
-No `eventId` parameter anywhere — the current contract has no query
-parameters at all on `getLatestPcrVersion`, only the three path parameters.
+No `eventId` parameter anywhere — the current contract's only query parameter
+on `getPcrVersion` is the required `version` (§7b/§13 update), alongside the
+three path parameters.
 
 ### 4.3 `ResultsQueryClient`
 
@@ -575,7 +602,7 @@ Standard stateless-proxy integration suite (`shared-code-rules.md`):
 | `IntegrationTestBase` | `@SpringBootTest @AutoConfigureMockMvc`, exposes `appProperties`/`mockMvc` |
 | `SpringLoggingIntegrationTest` | JSON log line shape under a real Spring context |
 | `TracingIntegrationTest` | `TracingFilter` propagates `traceId`/`spanId` — target `PcrController`, confirm `TracingFilter` exists first (port from a sibling repo if not) |
-| `PcrControllerIntegrationTest` | Real controller→service→client→`RestClient` stack against in-process `WireMockServer` on `CP_BACKEND_URL`'s port — happy path (`getLatestPcrVersion`) + CP 404 → service 404; also asserts `getPcrVersionHistory`/`getPcrVersion` return `501` (proves the interface is genuinely fully implemented, not silently broken) |
+| `PcrControllerIntegrationTest` | Real controller→service→client→`RestClient` stack against in-process `WireMockServer` on `CP_BACKEND_URL`'s port — happy path (`getPcrVersion` with `version=latest`) + CP 404 → service 404; asserts `getPcrVersionHistory` returns `501` (proves the interface is genuinely fully implemented, not silently broken); asserts `getPcrVersion` returns `501` for any non-`latest` `version` value; asserts `400` when the required `version` query parameter is missing |
 
 Unit tests:
 
@@ -622,7 +649,7 @@ retention, or correlation code touched, not even stubbed.
 
 A short live demo beats a deck: docker-compose spins up the service +
 WireMock stubbed with one realistic (anonymised) hearing fixture, `curl`/
-Postman hits `getLatestPcrVersion`, and the resulting JSON sits side-by-side
+Postman hits `getPcrVersion` (`version=latest`), and the resulting JSON sits side-by-side
 with the actual historic PCR PDF for that same hearing — making "same
 content, now pull-based" visible in under two minutes. Pair it with the
 published Swagger UI (once `api-cp-crime-results-pcr`'s `publish-api-docs`
@@ -836,7 +863,7 @@ private static final UUID DEFENDANT_ID = UUID.fromString("00000000-0000-0000-000
 private static final String MASTER_DEFENDANT_ID = "00000000-0000-0000-0000-000000000033";
 
 @Test
-void getLatestPcrVersion_should_returnOk_withMappedFields() throws Exception {
+void getPcrVersion_should_returnOk_withMappedFields_whenVersionIsLatest() throws Exception {
     stubHearingDetails(HEARING_ID, HTTP_OK, """
             {"hearing":{
               "courtCentre":{"id":"6b16f870-9dcb-4b62-88a1-b6a5b6e8e6b1","code":"LND001","name":"Central London Crown Court"},
@@ -869,8 +896,9 @@ void getLatestPcrVersion_should_returnOk_withMappedFields() throws Exception {
             }}
             """.formatted(CASE_URN, DEFENDANT_ID, MASTER_DEFENDANT_ID));
 
-    mockMvc.perform(get("/pcrs/cases/{caseURN}/hearings/{hearingId}/defendants/{defendantId}/versions/latest",
+    mockMvc.perform(get("/pcrs/cases/{caseURN}/hearings/{hearingId}/defendants/{defendantId}/versions",
                     CASE_URN, HEARING_ID, DEFENDANT_ID)
+                    .param("version", "latest")
                     .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.id").doesNotExist())
@@ -885,19 +913,22 @@ void getLatestPcrVersion_should_returnOk_withMappedFields() throws Exception {
 }
 
 @Test
-void getLatestPcrVersion_should_return404_whenCaseUrnNotFound() throws Exception { /* case URN absent from stubbed response */ }
+void getPcrVersion_should_return404_whenCaseUrnNotFound() throws Exception { /* case URN absent from stubbed response */ }
 
 @Test
-void getLatestPcrVersion_should_return404_whenDefendantIdNotFound() throws Exception { /* defendantId absent from stubbed defendants[] */ }
+void getPcrVersion_should_return404_whenDefendantIdNotFound() throws Exception { /* defendantId absent from stubbed defendants[] */ }
 
 @Test
-void getLatestPcrVersion_should_return404_whenCpBackendReturns404() throws Exception { /* stubHearingDetailsNotFound(HEARING_ID) */ }
+void getPcrVersion_should_return404_whenCpBackendReturns404() throws Exception { /* stubHearingDetailsNotFound(HEARING_ID) */ }
+
+@Test
+void getPcrVersion_should_return501_notImplemented_whenVersionIsSpecificId() throws Exception { /* ?version=<some-id> — PcrService explicitly rejects, not the generated default */ }
+
+@Test
+void getPcrVersion_should_return400_whenVersionQueryParamMissing() throws Exception { /* no ?version= at all — required query param */ }
 
 @Test
 void getPcrVersionHistory_should_return501_notImplemented() throws Exception { /* proves the interface method is genuinely un-overridden, not silently broken */ }
-
-@Test
-void getPcrVersion_should_return501_notImplemented() throws Exception { /* same, for the specific-version-by-id operation */ }
 ```
 
 ### 9.6 Unit tests — concrete method list

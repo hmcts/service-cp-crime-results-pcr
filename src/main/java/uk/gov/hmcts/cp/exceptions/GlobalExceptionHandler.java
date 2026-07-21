@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.client.HttpClientErrorException;
@@ -30,7 +31,8 @@ public class GlobalExceptionHandler {
         final String errorMessage = responseStatusException.getReason() != null
                 ? responseStatusException.getReason()
                 : responseStatusException.getMessage();
-        if (responseStatusException.getStatusCode().is4xxClientError()) {
+        if (responseStatusException.getStatusCode().is4xxClientError()
+                || responseStatusException.getStatusCode() == HttpStatus.NOT_IMPLEMENTED) {
             log.warn("GlobalExceptionHandler handleResponseStatusException: {}", errorMessage);
         } else {
             log.error("GlobalExceptionHandler handleResponseStatusException", responseStatusException);
@@ -61,6 +63,14 @@ public class GlobalExceptionHandler {
         log.warn("GlobalExceptionHandler handleNoResourceFoundException: {}", e.getMessage());
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
+                .body(buildErrorResponse(e.getMessage()));
+    }
+
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    public ResponseEntity<ErrorResponse> handleMissingServletRequestParameterException(final MissingServletRequestParameterException e) {
+        log.warn("GlobalExceptionHandler handleMissingServletRequestParameterException: {}", e.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
                 .body(buildErrorResponse(e.getMessage()));
     }
 

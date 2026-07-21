@@ -48,12 +48,13 @@ class PcrControllerIntegrationTest extends IntegrationTestBase {
     }
 
     @Test
-    void getLatestPcrVersion_should_returnOk_withMappedFields() throws Exception {
+    void getPcrVersion_should_returnOk_withMappedFields_whenVersionIsLatest() throws Exception {
         stubHearingDetails(HTTP_OK, readResourceContents("pcr/hearing-details-full.json")
                 .formatted(CASE_URN, DEFENDANT_ID, MASTER_DEFENDANT_ID));
 
-        mockMvc.perform(get("/pcrs/cases/{caseURN}/hearings/{hearingId}/defendants/{defendantId}/versions/latest",
+        mockMvc.perform(get("/pcrs/cases/{caseURN}/hearings/{hearingId}/defendants/{defendantId}/versions",
                         CASE_URN, HEARING_ID, DEFENDANT_ID)
+                        .param("version", "latest")
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk())
@@ -71,52 +72,68 @@ class PcrControllerIntegrationTest extends IntegrationTestBase {
     }
 
     @Test
-    void getLatestPcrVersion_should_return404_whenCaseUrnNotFound() throws Exception {
+    void getPcrVersion_should_return404_whenCaseUrnNotFound() throws Exception {
         stubHearingDetails(HTTP_OK, readResourceContents("pcr/hearing-details-no-cases.json"));
 
-        mockMvc.perform(get("/pcrs/cases/{caseURN}/hearings/{hearingId}/defendants/{defendantId}/versions/latest",
+        mockMvc.perform(get("/pcrs/cases/{caseURN}/hearings/{hearingId}/defendants/{defendantId}/versions",
                         UNKNOWN_CASE_URN, HEARING_ID, DEFENDANT_ID)
+                        .param("version", "latest")
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isNotFound());
     }
 
     @Test
-    void getLatestPcrVersion_should_return404_whenDefendantIdNotFound() throws Exception {
+    void getPcrVersion_should_return404_whenDefendantIdNotFound() throws Exception {
         stubHearingDetails(HTTP_OK, readResourceContents("pcr/hearing-details-no-defendants.json")
                 .formatted(CASE_URN));
 
-        mockMvc.perform(get("/pcrs/cases/{caseURN}/hearings/{hearingId}/defendants/{defendantId}/versions/latest",
+        mockMvc.perform(get("/pcrs/cases/{caseURN}/hearings/{hearingId}/defendants/{defendantId}/versions",
                         CASE_URN, HEARING_ID, UNKNOWN_DEFENDANT_ID)
+                        .param("version", "latest")
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isNotFound());
     }
 
     @Test
-    void getLatestPcrVersion_should_return404_whenCpBackendReturns404() throws Exception {
+    void getPcrVersion_should_return404_whenCpBackendReturns404() throws Exception {
         stubHearingDetails(HTTP_NOT_FOUND, "");
 
-        mockMvc.perform(get("/pcrs/cases/{caseURN}/hearings/{hearingId}/defendants/{defendantId}/versions/latest",
+        mockMvc.perform(get("/pcrs/cases/{caseURN}/hearings/{hearingId}/defendants/{defendantId}/versions",
                         CASE_URN, HEARING_ID, DEFENDANT_ID)
+                        .param("version", "latest")
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isNotFound());
     }
 
     @Test
-    void getPcrVersionHistory_should_return501_notImplemented() throws Exception {
-        mockMvc.perform(get("/pcrs/cases/{caseURN}/hearings/{hearingId}/defendants/{defendantId}",
+    void getPcrVersion_should_return501_notImplemented_whenVersionIsSpecificId() throws Exception {
+        mockMvc.perform(get("/pcrs/cases/{caseURN}/hearings/{hearingId}/defendants/{defendantId}/versions",
                         CASE_URN, HEARING_ID, DEFENDANT_ID)
+                        .param("version", "01hxjk8v3xj0e5jz2h1p4c6q7r")
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isNotImplemented());
     }
 
     @Test
-    void getPcrVersion_should_return501_notImplemented() throws Exception {
-        mockMvc.perform(get("/pcrs/cases/{caseURN}/hearings/{hearingId}/defendants/{defendantId}/versions/{id}",
-                        CASE_URN, HEARING_ID, DEFENDANT_ID, "01hxjk8v3xj0e5jz2h1p4c6q7r")
+    void getPcrVersion_should_return400_whenVersionQueryParamMissing() throws Exception {
+        mockMvc.perform(get("/pcrs/cases/{caseURN}/hearings/{hearingId}/defendants/{defendantId}/versions",
+                        CASE_URN, HEARING_ID, DEFENDANT_ID)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").exists())
+                .andExpect(jsonPath("$.timestamp").exists())
+                .andExpect(jsonPath("$.traceId").exists());
+    }
+
+    @Test
+    void getPcrVersionHistory_should_return501_notImplemented() throws Exception {
+        mockMvc.perform(get("/pcrs/cases/{caseURN}/hearings/{hearingId}/defendants/{defendantId}",
+                        CASE_URN, HEARING_ID, DEFENDANT_ID)
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isNotImplemented());

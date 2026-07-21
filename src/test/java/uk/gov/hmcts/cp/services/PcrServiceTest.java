@@ -38,28 +38,28 @@ class PcrServiceTest {
     private PcrService pcrService;
 
     @Test
-    void getLatestVersion_should_throw404_whenCaseUrnNotFound() {
+    void getVersion_should_throw404_whenCaseUrnNotFound_andVersionIsLatest() {
         final HearingDetailsResponse hearingDetails = hearingDetailsWith(List.of());
         when(resultsQueryClient.getHearingDetails(HEARING_ID)).thenReturn(hearingDetails);
 
-        assertThatThrownBy(() -> pcrService.getLatestVersion(CASE_URN, HEARING_ID, DEFENDANT_ID))
+        assertThatThrownBy(() -> pcrService.getVersion(CASE_URN, HEARING_ID, DEFENDANT_ID, "latest"))
                 .isInstanceOf(ResponseStatusException.class)
                 .hasMessageContaining("404");
     }
 
     @Test
-    void getLatestVersion_should_throw404_whenDefendantIdNotFound() {
+    void getVersion_should_throw404_whenDefendantIdNotFound_andVersionIsLatest() {
         final ProsecutionCase prosecutionCase = prosecutionCaseWith(List.of());
         final HearingDetailsResponse hearingDetails = hearingDetailsWith(List.of(prosecutionCase));
         when(resultsQueryClient.getHearingDetails(HEARING_ID)).thenReturn(hearingDetails);
 
-        assertThatThrownBy(() -> pcrService.getLatestVersion(CASE_URN, HEARING_ID, DEFENDANT_ID))
+        assertThatThrownBy(() -> pcrService.getVersion(CASE_URN, HEARING_ID, DEFENDANT_ID, "latest"))
                 .isInstanceOf(ResponseStatusException.class)
                 .hasMessageContaining("404");
     }
 
     @Test
-    void getLatestVersion_should_delegateToMapper_whenDefendantFound() {
+    void getVersion_should_delegateToMapper_whenDefendantFound_andVersionIsLatest() {
         final Defendant defendant = Defendant.builder().id(DEFENDANT_ID.toString()).build();
         final ProsecutionCase prosecutionCase = prosecutionCaseWith(List.of(defendant));
         final HearingDetailsResponse hearingDetails = hearingDetailsWith(List.of(prosecutionCase));
@@ -67,9 +67,16 @@ class PcrServiceTest {
         when(resultsQueryClient.getHearingDetails(HEARING_ID)).thenReturn(hearingDetails);
         when(mapper.toPcrVersion(defendant, prosecutionCase, hearingDetails, HEARING_ID)).thenReturn(expected);
 
-        final PcrVersion result = pcrService.getLatestVersion(CASE_URN, HEARING_ID, DEFENDANT_ID);
+        final PcrVersion result = pcrService.getVersion(CASE_URN, HEARING_ID, DEFENDANT_ID, "latest");
 
         assertThat(result).isEqualTo(expected);
+    }
+
+    @Test
+    void getVersion_should_throw501_whenVersionIsSpecificId() {
+        assertThatThrownBy(() -> pcrService.getVersion(CASE_URN, HEARING_ID, DEFENDANT_ID, "01hxjk8v3xj0e5jz2h1p4c6q7r"))
+                .isInstanceOf(ResponseStatusException.class)
+                .hasMessageContaining("501");
     }
 
     private ProsecutionCase prosecutionCaseWith(final List<Defendant> defendants) {
