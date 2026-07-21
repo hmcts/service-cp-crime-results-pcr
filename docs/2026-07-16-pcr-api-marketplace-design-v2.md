@@ -44,15 +44,12 @@ flowchart TB
         Enrich --> Transform["Transformer<br/>ported from PrisonCourtRegisterPdfPayloadGenerator"]
         OffenceMeta --> Transform
         Transform --> Store[("Data Store<br/>immutable version rows,<br/>keyed by the same propagated id")]
-        Store --> Correlator["PcrVersionCorrelationHandler<br/>joins on the propagated id (§7)"]
         Store --> API["Query API<br/>GET prison-court-register"]
         API --> Retention["Retention state machine"]
     end
 
     Query -.->|"Redis hit"| Redis
     Query -.->|"Redis miss, REST fallback"| ResultsAPI["Results Query API<br/>hearingDetails/internal/hearingId"]
-
-    Progression["Progression legacy pipeline<br/>SetPrisonCourtRegister to PDF via Docmosis<br/>(§7: carries same propagated id)"] -->|"prison-court-register-generated(-v2)<br/>correlation-only, not a trigger"| Correlator
 
     API --> Subscription["service-cp-crime-hearing-results-document-subscription<br/>existing - owns subscriber registration and push notification"]
 
@@ -73,8 +70,6 @@ sequenceDiagram
     participant RefData as Reference Data
     participant Transform as Transformer
     participant Store as Data Store
-    participant Correlator as PcrVersionCorrelationHandler
-    participant Progression as Progression (legacy, unchanged)
     participant API as Query API
     participant Sub as Subscriber
 
@@ -109,23 +104,9 @@ sequenceDiagram
     Decision->>Transform: eligible results + enrichment
     Transform-->>Store: write PCR version row, keyed by the propagated id
 
-    par legacy pipeline runs independently, same hearing, same propagated id
-        Progression->>Progression: SetPrisonCourtRegister → PdfPayloadGenerator → Docmosis → PDF
-        Progression-->>Correlator: progression.event.prison-court-register-generated(-v2)
-    end
-
-    Correlator->>Store: find PCR row by propagated id equality (§7)
-
-    alt match found
-        Store-->>Correlator: row found
-        Correlator->>Store: stamp materialId
-    else no match within grace period
-        Note over Correlator,Store: materialId stays unset — drift/timing signal, needs a person to look (§9)
-    end
-
     Sub->>API: GET .../defendants/{defendantId}<br/>(full version history) or GET .../versions/{id}<br/>(a specific version, §10)
     API->>Store: read version row
-    Store-->>API: PCR payload + materialId
+    Store-->>API: PCR payload
     API-->>Sub: 200 OK, PCR JSON
 
     Store->>Store: purge automatically at 30-day TTL
@@ -198,7 +179,7 @@ Went through the actual Function App code, not assumptions, to separate genuine 
 |---|---|---|
 | `VocabularyService` | Computes ~18 generic flags (custody-location-is-police/prison, appeared-by-video, youth/adult defendant, Welsh/English hearing, CPS-prosecuted, major-creditor lists) | Confirmed by reading `PrisonCourtRegisterPdfPayloadGenerator`: it never reads `vocabulary`. This is shared NOWS document-generation infrastructure computed for many template types, not PCR-specific content. |
 | `PrisonCourtRegisterSubscriptions` | Matches a built PCR fragment against `now_subscriptions.isPrisonCourtRegisterSubscription`, using the vocabulary flags above as match criteria | This is subscriber *matching* — deciding which prisons should be notified — not PCR *content*. Stays owned by whatever already does subscriber matching today; this service's job is to expose content via a URL that gets wired into the existing callback, not to replicate who gets called. |
-| `PrisonCourtRegisterHandler` / `PrisonCourtRegisterEventProcessor` (Progression side) | Aggregate persistence, actually generating the PDF via Docmosis, sending notification emails | Stays in Progression untouched — this service reads Progression's *output* (§7) for version correlation, never its internals. |
+| `PrisonCourtRegisterHandler` / `PrisonCourtRegisterEventProcessor` (Progression side) | Aggregate persistence, actually generating the PDF via Docmosis, sending notification emails | Stays in Progression untouched — this service never reads Progression's internals or output; there is no correlation between the two (§7, §8). |
 
 ---
 
@@ -212,8 +193,7 @@ Went through the actual Function App code, not assumptions, to separate genuine 
 
 **Identity/correlation fields, alongside the ported content:**
 - `hearingId`, `defendantId`: the grouping/resource key (§2) — one PCR resource per pair, exposing its full version history.
-- Source-propagated id (§7; id shape TBC — ULID vs UUID+`sharedResultTime`): a per-version id read from the source payload, *not* minted by this service — not currently present in Redis's payload, propagated in per §7. It's the per-version resource id, the HRDS notification value, and the correlation token; carry it through verbatim, never derive or regenerate it.
-- `materialId`: correlation state, not set by the transformer — the transformer writes the row without it, and `PcrVersionCorrelationHandler` stamps it once Progression's matching PDF fact is found (§7). Stays unset (`null`) until then.
+- Source-propagated id (§7; id shape TBC — ULID vs UUID+`sharedResultTime`): a per-version id read from the source payload, *not* minted by this service — not currently present in Redis's payload, propagated in per §7. It's the per-version resource id and the HRDS notification value; carry it through verbatim, never derive or regenerate it.
 
 **Fixed on the way in, not carried forward as bugs:**
 - `applications[].result[]` becomes `{resultCode, resultText}` pairs, matching every other result block, instead of the legacy shape's plain-string-only inconsistency.
@@ -233,7 +213,6 @@ Went through the actual Function App code, not assumptions, to separate genuine 
 The API exposes full version history, not just the latest PCR — a `(hearingId, defendantId)` key has multiple versions once amendments exist, so the key alone can't say which version is which. Each version uses a single id that is **minted once at the source and propagated through, not invented by this service** — this service never generates its own version identifier.
 
 - **Data model:** each payload is its own immutable row, identified by that propagated id.
-- **New component:** a `PcrVersionCorrelationHandler` — the only code that knows Progression's event exists — subscribes to `prison-court-register-generated-v2`, joins on id equality, and stamps `materialId` once a match is found.
 - **Propagation:** source → Redis → Function App → Progression → `prison-court-register-generated-v2` (new field) → HRDS. A four-repo effort (§13) — scope it as such. This is also how the same id already reaches the existing subscriber callback (via HRDS) — no separate mechanism is needed to tell a consumer which version to fetch.
 - **Generation point:** `cpp-context-results`, just before the Redis write. Confirm the fork to Progression is downstream of it.
 - **Freshness:** a fresh id per `Hearing_Resulted` emission (incl. reshare), not a stable per-hearing id.
@@ -254,7 +233,6 @@ The id shape is the only open choice:
 ### 7b. Open items
 
 - ULID vs UUID+`sharedResultTime` — id shape not locked.
-- Should the API serve a version before `materialId` is set, or withhold until correlated? (§13)
 
 ---
 
@@ -270,12 +248,11 @@ Mapping the above onto the Spring Boot service pattern, not the legacy Azure Fun
 | **Enrichment client** | Reference Data calls for `ResultDefinition` fields | To be analysed in the design |
 | **Offence metadata client** | Reference Data calls for offence metadata (e.g. `startDate`) | To be analysed in the design |
 | **Transformer** | Field mapping to the PCR source payload shape | `PrisonCourtRegisterPdfPayloadGenerator`, with the fixes and additions in §6 |
-| **Correlation** | Joins the JSON row to Progression's PDF fact on source correlation id equality via `PcrVersionCorrelationHandler` (id shape TBC, §7); stamps `materialId` | New — SRP-isolated component per §7 |
 | **Data store** | Immutable version rows, keyed `(id, defendantId)` — schema in §8a | New |
 | **Query API (controller)** | `GET` endpoint(s), version history, not a single current blob | New |
 | **Retention** | Automatic 30-day TTL purge | New |
 
-No component here talks to Progression except the Correlation handler — everything else only ever reads `materialId` once set.
+No component here talks to Progression at all.
 
 ### 8a. Data model — Data Store schema
 
@@ -293,9 +270,9 @@ erDiagram
     PCR_JUDICIAL_RESULT ||--o{ PCR_JUDICIAL_RESULT_PROMPT : has
 ```
 
-- **`pcr_case_hearing`** — shared "case at a hearing" parent, avoiding repeating `case_urn`/`hearing_id`/`event_id` identically across every defendant on the same hearing. Also owns the hearing's own facts (`HearingDetails`, minus `nextHearing` — see below) since those are identical for every defendant at that hearing, same reasoning as `caseMarkers`: `id` (surrogate PK), `case_urn`, `hearing_id`, `event_id`, `court_house_code`, `court_house_name`, `hearing_date`, `hearing_outcome`, `warrant_type`, `overall_conviction_date`, `created_at`, `expires_at` — unique on `(case_urn, hearing_id)`. Note: `hearing_outcome`/`warrant_type`/`overall_conviction_date` still have no confirmed CP source (§1's original mapping showed `—` for all three) — these columns exist to match the current API contract, but if that's ever corrected to drop the fields, drop the columns with it.
+- **`pcr_case_hearing`** — shared "case at a hearing" parent, avoiding repeating `case_urn`/`hearing_id` identically across every defendant on the same hearing. Also owns the hearing's own facts (`HearingDetails`, minus `nextHearing` — see below) since those are identical for every defendant at that hearing, same reasoning as `caseMarkers`: `id` (surrogate PK), `case_urn`, `hearing_id`, `court_house_code`, `court_house_name`, `hearing_date`, `hearing_outcome`, `warrant_type`, `created_at`, `expires_at` — unique on `(case_urn, hearing_id)`. Note: `hearing_outcome`/`warrant_type` still have no confirmed CP source (§1's original mapping showed `—` for both) — these columns exist to match the current API contract, but if that's ever corrected to drop the fields, drop the columns with it. No `overall_conviction_date` column — resolved in `PCR-HMPPS-FIELD-MAPPING.md`: it derives from `offences[].convictionDate` and CP need not send it, so `conviction_date` lives only on `pcr_offence`.
 - **`pcr_case_marker`** — child of `pcr_case_hearing` (case-level, not per-defendant). `id`, `case_hearing_id` (FK), `code`, `description`.
-- **`pcr_version`** — one row per defendant's PCR version at that case+hearing; the actual "immutable version row" from §7. `id` + `defendant_id` (composite PK — `id` is the source-propagated id from §7, not generated by this service), `case_hearing_id` (FK), `material_id`, `custody_location`, defendant identity fields (`master_defendant_id`, `title`, `first_name`, `middle_name`, `last_name`, `date_of_birth`, `address_1..5`, `post_code` — embedded, genuinely 1:1, no independent lifecycle), next-appearance fields (embedded, nullable, 1:1 — kept per-defendant rather than promoted to `pcr_case_hearing`, since which offence's next appearance wins is still unconfirmed and may genuinely vary — see §7 of the original field-mapping analysis), `created_at`.
+- **`pcr_version`** — one row per defendant's PCR version at that case+hearing; the actual "immutable version row" from §7. `id` + `defendant_id` (composite PK — `id` is the source-propagated id from §7, not generated by this service), `case_hearing_id` (FK), `custody_location`, defendant identity fields (`master_defendant_id`, `title`, `first_name`, `middle_name`, `last_name`, `date_of_birth`, `address_1..5`, `post_code` — embedded, genuinely 1:1, no independent lifecycle), `next_hearing` fields (embedded, nullable, 1:1 — CP's own name, `nextHearing`, not a consumer-facing "next appearance" term; kept per-defendant rather than promoted to `pcr_case_hearing`, since which offence's `nextHearing` wins is still unconfirmed and may genuinely vary — see §7 of the original field-mapping analysis), `created_at`.
 - **`pcr_offence`** — child of **either** `pcr_version` (case-level, direct — a defendant's own offences) **or** `pcr_court_application` (linked/cloned — CP's `courtApplicationCases[].offences[]` and `courtOrder.courtOrderOffences[].offence`, folded together per product decision, since consumers don't need to distinguish how an offence came to be linked). Polymorphic, same pattern as `pcr_judicial_result` below: `id` (CP's own offence UUID), `version_id`+`defendant_id` (composite FK, nullable), `court_application_id` (FK, nullable), a `CHECK` that exactly one parent is set, `code`, `title`, `wording`, `start_date`, `end_date`, `listing_number`, `conviction_date`, `plea_value`, `plea_date`, `verdict_code`. (`terrorRelated`/`foreignPowerRelated` deliberately have no column — dropped from the API contract as derived duplicates of `judicialResultPrompts[]`; the raw signal lives only in `pcr_judicial_result_prompt`.) Confirmed via `DefendantContextBaseService.getDefendantContextBaseList()` (the Function App): PCR eligibility (`!publishedForNows`) is checked uniformly across case offences, application-level results, and both these linked-offence sources — there's no source-specific branching, so the schema doesn't need one either.
 - **`pcr_court_application`** — child of `pcr_version` (many per version). `id` (CP's own application UUID), `version_id`+`defendant_id` (composite FK), `reference`, `type`, `decision`, `decision_date`, `response`, `response_date`.
 - **`pcr_judicial_result`** — child of **either** `pcr_offence` **or** `pcr_court_application` (polymorphic, mirroring the OpenAPI spec's own reuse of `JudicialResult` for both). `id` (surrogate PK), `offence_id` (FK, nullable), `court_application_id` (FK, nullable), a `CHECK` that exactly one parent FK is set, `result_code`, `result_text`, `post_hearing_custody_status`, `financial`, `category`, `convicted`, plus the flattened sentence fields (`concurrent`, `consecutive_to_date`, `consecutive_to_court_name`, `fine_amount`, `imprisonment_period`, `total_custodial_period`). Because `pcr_offence` is now itself polymorphic, this one table already covers all four of CP's real result sources — a result on a `pcr_offence` row parented by `pcr_court_application` is exactly a "linked-offence result," with no schema change needed here.
@@ -309,19 +286,21 @@ erDiagram
 
 This is a reimplementation of existing logic, not a call-through, so drift is possible, but the goal is knowing when it happens, not proving upfront it never will.
 
-- **Before launch:** golden-master tests in the service's own integration test suite. Pick real past hearings that already have both a `Hearing_Resulted` occurrence and a generated PDF; feed the resulting Results-query payload through the service's real code path; assert the output matches Progression's own stored `prison_court_register.payload` for that hearing. No mandatory dual-running period as a launch gate.
-- **After launch:** the correlator's unset `materialId` is the live version of the same check, for free — a PCR record whose `materialId` never gets stamped (or vice versa) is exactly the disagreement the golden-master tests were looking for, just caught automatically. Needs someone actually watching for stale unset `materialId` rows, not just logging it.
+One mechanism, run on two cadences — golden-master tests in the service's own integration test suite: pick real hearings that already have both a `Hearing_Resulted` occurrence and a generated PDF; feed the resulting Results-query payload through the service's real code path; assert the output matches Progression's own stored `prison_court_register.payload` for that hearing.
+- **Before launch:** run against historical hearings, as a one-time check before this service ships. No mandatory dual-running period as a launch gate.
+- **After launch:** the same suite keeps running on an ongoing/scheduled basis (e.g. nightly), fed by newly-resulted hearings as they occur, rather than a separate live production-monitoring signal.
 
 ---
 
 ## 10. Query API
 
-`GET` endpoints return the PCR JSON, exposing full version history or a single version:
-- `GET /pcrs/cases/{caseURN}/hearings/{hearingId}/defendants/{defendantId}` — the resource for that pair, with its full version history, each version tagged with its source-propagated id (§7) and `materialId`.
-- `GET /pcrs/cases/{caseURN}/hearings/{hearingId}/defendants/{defendantId}/versions/{id}` — a specific version, addressed by the composite `(id, defendantId)` identity (§7, §8a) — `id` alone is ambiguous on a multi-defendant hearing, since every defendant on it shares the same source-propagated id.
-- `GET /pcrs/cases/{caseURN}/hearings/{hearingId}/defendants/{defendantId}/versions/latest` — the most recently recorded version, so a consumer doesn't need to already know the id.
+`GET` endpoints return the PCR JSON, exposing full version history or a single version. Superseded from the two separate specific-version/latest paths originally described here — `api-cp-crime-results-pcr` PR #10 merged them into one operation, keyed by a required `version` query parameter, not a path segment:
+- `GET /pcrs/cases/{caseURN}/hearings/{hearingId}/defendants/{defendantId}` — the resource for that pair, with its full version history, each version tagged with its source-propagated id (§7).
+- `GET /pcrs/cases/{caseURN}/hearings/{hearingId}/defendants/{defendantId}/versions?version={value}` — a single version, selected by `version`. `version=latest` returns the most recently recorded version, so a consumer doesn't need to already know the id. Any other value is treated as a specific version's source correlation id, addressed by the composite `(id, defendantId)` identity (§7, §8a) — `id` alone is ambiguous on a multi-defendant hearing, since every defendant on it shares the same source-propagated id. Specific-id lookup has no implementation yet (phase 1 is a stateless proxy with no data store — see `service-cp-crime-results-pcr`'s phase 1 and phase 2 design docs) and currently returns `501`.
 
 The same id is already carried through the existing subscriber callback payload (via Progression → HRDS, §7) — `service-cp-crime-hearing-results-document-subscription` continues to own subscriber registration and push notification; no new integration point is needed to get the id to a consumer.
+
+**Consumer usage pattern:** if the callback payload carries a non-null id, the consumer queries that specific version (`version=<id>`) to get the exact document the callback referred to. If the id is null — propagation hasn't completed for that hop, or isn't confirmed yet (§13 item 3) — the consumer falls back to `version=latest` instead of being blocked on a missing id.
 
 ---
 
@@ -346,8 +325,7 @@ Story 3's non-amendment phase-1 slice (mirror the Function App, no amendments) s
 | 3 | Mint a source-propagated id once at source and propagate it end-to-end: Results (source), Redis payload, the legacy Function App, Progression's `PrisonCourtRegisterDocumentRequest` + `prison-court-register-generated-v2` schema, HRDS. Four-repo "rebuild at each hop" effort (§7) — scope as such, not "just add a field" | This team + Results + Progression + Function App owners |
 | 4 | Confirm the source mints a **fresh id per `Hearing_Resulted` emission** (incl. reshare), not a stable per-hearing id | Results context team |
 | 5 | Id shape: ULID (§7 Option A) vs UUID + `sharedResultTime` (Option B). Not locked | Product/tech-arch decision |
-| 6 | Serve a version before `materialId` is stamped (provisional), or withhold until correlated? | Product/tech-arch decision, unresolved |
-| 7 | Carry the confirmed-dead legacy fields through as always-empty, or drop them from this service's model? | Product decision, unresolved |
+| 6 | Carry the confirmed-dead legacy fields through as always-empty, or drop them from this service's model? | Product decision, unresolved |
 
 ---
 
