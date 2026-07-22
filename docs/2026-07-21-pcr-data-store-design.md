@@ -190,17 +190,6 @@ triplicate all of this).
 - **Owns:** the hearing-level facts from `HearingDetails` (minus
   `nextHearing` — see `pcr_version` below) — `court_house_code`,
   `court_house_name`, `hearing_date`, `hearing_outcome`, `warrant_type`.
-- **No `overall_conviction_date` column.** `PCR-HMPPS-FIELD-MAPPING.md` has
-  since resolved this: the hearing-level aggregate derives from
-  `offences[].convictionDate` and CP need not send it, so there is nothing
-  for this table to store — `conviction_date` lives only on `pcr_offence`
-  (§3 below). Dropped here accordingly, rather than carried forward as a
-  column with no source.
-- **Open item carried from v2:** `hearing_outcome`/`warrant_type` still have
-  no confirmed CP source (the original field-mapping analysis showed `—` for
-  both). These columns exist only to match the current API contract — if
-  that contract field is ever dropped, drop the column with it, don't leave
-  it as permanent dead weight.
 - **Lifecycle:** not tied to any single defendant's retention clock — see §5.
 
 ### `pcr_case_marker`
