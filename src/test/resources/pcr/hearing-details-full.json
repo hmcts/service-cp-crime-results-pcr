@@ -1,0 +1,29 @@
+{"hearing":{
+  "courtCentre":{"id":"6b16f870-9dcb-4b62-88a1-b6a5b6e8e6b1","code":"LND001","name":"Central London Crown Court"},
+  "hearingDays":[{"sittingDay":"2026-06-23"}],
+  "prosecutionCases":[{
+    "id":"99999999-9999-9999-9999-999999999999",
+    "prosecutionCaseIdentifier":{"caseURN":"%s"},
+    "caseMarkers":[{"markerTypeCode":"DomesticViolence"}],
+    "defendants":[{
+      "id":"%s",
+      "masterDefendantId":"%s",
+      "personDefendant":{
+        "personDetails":{"title":"Mr","firstName":"John","lastName":"Doe","dateOfBirth":"1980-01-31",
+          "address":{"address1":"1 Example Street","postcode":"AB1 2CD"}},
+        "custodialEstablishment":{"id":"c1","name":"HMP Dovegate","custody":"Prison"}
+      },
+      "offences":[{
+        "offenceCode":"TH68001","listingNumber":1,"startDate":"2026-06-13","convictionDate":"2026-06-23",
+        "judicialResults":[{
+          "cjsCode":"1200","label":"Imprisonment","isFinancialResult":false,"isConvictedResult":true,
+          "judicialResultPrompts":[
+            {"promptReference":"concurrent","value":"true"},
+            {"promptReference":"imprisonmentPeriod","value":"6 Months 1 week"}
+          ]
+        }]
+      }]
+    }]
+  }],
+  "courtApplications":[]
+}}
