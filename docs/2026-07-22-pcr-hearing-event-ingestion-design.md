@@ -280,6 +280,22 @@ it's the Event Grid envelope, with the pointer fields nested under
 event-type filter must match `Hearing_Resulted` exactly, not loosely, or
 SJP events would land in this queue too.
 
+**`INT_`/`EXT_` is a separate axis from the above, and not an Event Grid
+concern at all.** `HearingResultedEventProcessor.java` writes *both* an
+`INT_` and an `EXT_` cache entry for the same hearingId/hearingDay under
+the *same* `Hearing_Resulted` eventType — the prefix is never carried in
+the event payload or in any Event Grid subscription filter; there is no
+`function.json`/ARM/Bicep filter anywhere in the legacy app that
+references it. It's purely a downstream *reader's* choice of which cached
+variant to fetch: `PrisonCourtRegisterOrchestrator` — the legacy analogue
+to this service's decision-making — hardcodes `payloadPrefix: "INT_"`
+when calling its cache-query activity, because `INT_` carries the
+internal-shape payload PCR decision logic needs. `EXT_` is a different
+payload shape (adds `cpsProsecutorIds`/`policeCases`, drops nothing
+internal) read only by unrelated LAA/probation orchestrators. §3.2's
+`cacheKey()` hardcoding `"INT_"` matches that same legacy choice, for the
+same reason — not an arbitrary pick.
+
 That legacy trigger receives events via Azure Functions' native
 `EventGridTrigger` binding, which auto-deserializes the envelope for the
 caller — a convenience specific to that binding, not something a Service
