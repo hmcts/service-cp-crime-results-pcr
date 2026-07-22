@@ -67,7 +67,6 @@ erDiagram
         string court_house_name
         date hearing_date
         string hearing_outcome "no confirmed CP source — see §3"
-        string warrant_type "no confirmed CP source — see §3"
         timestamp created_at
         timestamp expires_at
     }
@@ -189,7 +188,7 @@ triplicate all of this).
 - **Key:** `id` (surrogate PK), unique on `(case_urn, hearing_id)`.
 - **Owns:** the hearing-level facts from `HearingDetails` (minus
   `nextHearing` — see `pcr_version` below) — `court_house_code`,
-  `court_house_name`, `hearing_date`, `hearing_outcome`, `warrant_type`.
+  `court_house_name`, `hearing_date`, `hearing_outcome`.
 - **Lifecycle:** not tied to any single defendant's retention clock — see §5.
 
 ### `pcr_case_marker`
