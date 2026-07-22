@@ -145,18 +145,7 @@ itself — Event Grid subscriptions are managed on the publisher/topic side
 (`cpp-context-results`'s topic, confirmed below), not something a consumer
 can self-serve.
 
-**HRDS's own queues are not reusable.** `hrds.notifications.inbound`/
-`hrds.notifications.outbound` are dedicated, self-provisioned by HRDS, and
-both produced *and* consumed by HRDS itself (`NotificationController` →
-inbound queue → `NotificationManager`; `CallbackDeliveryService` →
-outbound queue → `CallbackClient`). No Event Grid feeds either of them —
-HRDS's actual inbound trigger is a synchronous REST call from
-Progression/HearingNows (`NotificationController.createNotification`),
-not an event subscription. The message envelope
-(`ServiceBusWrappedMessage`, carrying a callback `targetUrl` and HRDS's
-own retry semantics) is specific to HRDS's domain — not a generic
-envelope this service could plug into. This service needs its own queue,
-not HRDS's.
+**This service needs its own queue**
 
 **Topic:** `cpp-context-results`'s own WildFly config (the publisher
 side) names the real `Hearing_Resulted` topic: host
