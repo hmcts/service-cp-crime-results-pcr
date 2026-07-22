@@ -6,7 +6,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.server.ResponseStatusException;
-import uk.gov.hmcts.cp.clients.ResultsQueryClient;
+import uk.gov.hmcts.cp.clients.ResultsClient;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.Defendant;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.HearingDetail;
@@ -30,7 +30,7 @@ class PcrServiceTest {
     private static final UUID DEFENDANT_ID = UUID.fromString("00000000-0000-0000-0000-000000000022");
 
     @Mock
-    private ResultsQueryClient resultsQueryClient;
+    private ResultsClient resultsClient;
     @Mock
     private PcrVersionMapper mapper;
 
@@ -40,7 +40,7 @@ class PcrServiceTest {
     @Test
     void getVersion_should_throw404_whenCaseUrnNotFound_andVersionIsLatest() {
         final HearingDetailsResponse hearingDetails = hearingDetailsWith(List.of());
-        when(resultsQueryClient.getHearingDetails(HEARING_ID)).thenReturn(hearingDetails);
+        when(resultsClient.getHearingDetails(HEARING_ID)).thenReturn(hearingDetails);
 
         assertThatThrownBy(() -> pcrService.getVersion(CASE_URN, HEARING_ID, DEFENDANT_ID, "latest"))
                 .isInstanceOf(ResponseStatusException.class)
@@ -51,7 +51,7 @@ class PcrServiceTest {
     void getVersion_should_throw404_whenDefendantIdNotFound_andVersionIsLatest() {
         final ProsecutionCase prosecutionCase = prosecutionCaseWith(List.of());
         final HearingDetailsResponse hearingDetails = hearingDetailsWith(List.of(prosecutionCase));
-        when(resultsQueryClient.getHearingDetails(HEARING_ID)).thenReturn(hearingDetails);
+        when(resultsClient.getHearingDetails(HEARING_ID)).thenReturn(hearingDetails);
 
         assertThatThrownBy(() -> pcrService.getVersion(CASE_URN, HEARING_ID, DEFENDANT_ID, "latest"))
                 .isInstanceOf(ResponseStatusException.class)
@@ -64,7 +64,7 @@ class PcrServiceTest {
         final ProsecutionCase prosecutionCase = prosecutionCaseWith(List.of(defendant));
         final HearingDetailsResponse hearingDetails = hearingDetailsWith(List.of(prosecutionCase));
         final PcrVersion expected = PcrVersion.builder().hearingId(HEARING_ID).build();
-        when(resultsQueryClient.getHearingDetails(HEARING_ID)).thenReturn(hearingDetails);
+        when(resultsClient.getHearingDetails(HEARING_ID)).thenReturn(hearingDetails);
         when(mapper.toPcrVersion(defendant, prosecutionCase, hearingDetails, HEARING_ID)).thenReturn(expected);
 
         final PcrVersion result = pcrService.getVersion(CASE_URN, HEARING_ID, DEFENDANT_ID, "latest");

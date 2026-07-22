@@ -13,7 +13,7 @@ import java.util.UUID;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class ResultsQueryClient {
+public class ResultsClient {
 
     private static final String ACCEPT_HEARING_DETAILS_INTERNAL =
             "application/vnd.results.hearing-details-internal+json";

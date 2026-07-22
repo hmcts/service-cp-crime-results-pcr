@@ -39,10 +39,7 @@ flowchart TB
     subgraph PCR["service-cp-crime-results-pcr"]
         Consumer["Service Bus Consumer<br/>Spring Cloud Stream Binder"] --> Query["Results Query Client<br/>Redis first, REST fallback with retry"]
         Query --> Decision["Decision Engine<br/>ported from SetPrisonCourtRegister, §5a"]
-        Decision --> Enrich["Enrichment client<br/>ResultDefinition lookups"]
-        Decision --> OffenceMeta["Reference Data<br/>Offence metadata lookups, e.g. startDate"]
-        Enrich --> Transform["Transformer<br/>ported from PrisonCourtRegisterPdfPayloadGenerator"]
-        OffenceMeta --> Transform
+        Decision --> Transform["Transformer<br/>ported from PrisonCourtRegisterPdfPayloadGenerator"]
         Transform --> Store[("Data Store<br/>immutable version rows,<br/>keyed by the same propagated id")]
         Store --> API["Query API<br/>GET prison-court-register"]
         API --> Retention["Retention state machine"]
@@ -245,8 +242,6 @@ Mapping the above onto the Spring Boot service pattern, not the legacy Azure Fun
 | **Service Bus Consumer** | Receives the `Hearing_Resulted` pointer off the Service Bus queue the Event Grid subscription routes into, via `spring-cloud-azure-stream-binder-servicebus` | New — no equivalent in the legacy pipeline; this is Azure Functions' `EventGridTrigger` binding, which Spring Boot has no direct equivalent of |
 | **Results Query Client** | Follow-up lookup to fetch the actual hearing/results payload — Redis first (guaranteed populated by the time `Hearing_Resulted` fires), REST fallback with retry if the Redis entry has expired (24hr TTL) | New — mirrors what `HearingResultedCacheQuery` does today, Redis-first pattern included |
 | **Decision Engine** | Group-proceedings skip, per-defendant fan-out, `publishedForNows` eligibility filter | `PrisonCourtRegisterOrchestrator` + `SetPrisonCourtRegister` + `RegisterFragmentService` (§5a) |
-| **Enrichment client** | Reference Data calls for `ResultDefinition` fields | To be analysed in the design |
-| **Offence metadata client** | Reference Data calls for offence metadata (e.g. `startDate`) | To be analysed in the design |
 | **Transformer** | Field mapping to the PCR source payload shape | `PrisonCourtRegisterPdfPayloadGenerator`, with the fixes and additions in §6 |
 | **Data store** | Immutable version rows, keyed `(id, defendantId)` — schema in §8a | New |
 | **Query API (controller)** | `GET` endpoint(s), version history, not a single current blob | New |
