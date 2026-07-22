@@ -241,7 +241,9 @@ public class HearingResultedConsumer {
     }
 
     private void onMessage(final ServiceBusReceivedMessageContext context) {
-        final HearingResultedPointer pointer = deserialize(context.getMessage());
+        // §3.1a — the message body is the Event Grid envelope, not a flat
+        // pointer payload. Unwrap before use.
+        final HearingResultedPointer pointer = unwrap(context.getMessage());
         try {
             ingestionService.ingest(pointer.hearingId(), pointer.hearingDay());
             context.complete();
@@ -263,6 +265,57 @@ public class HearingResultedConsumer {
 // no PCR content on the event itself.
 record HearingResultedPointer(UUID hearingId, String hearingDay, String userId) {}
 ```
+
+### 3.1a Event Grid envelope — unwrap before use
+
+The Service Bus message body is not the flat pointer payload directly —
+it's the Event Grid envelope, with the pointer fields nested under
+`.data`. Confirmed from both sides of the real event:
+
+- **Publisher** (`EventGridPublisher.java`, `cpp-context-results`): built
+  via `.buildEventGridEventPublisherClient()` — the `EventGridEvent`/
+  **EventGridSchema** client, not `CloudEvent`/CloudEventSchemaV1_0.
+  `sendEventToGrid(...)` (`HearingResultedEventProcessor.java`) always
+  publishes via the with-`hearingDay` payload
+  (`HearingResultedForDayEventData{hearingId, userId, hearingDay}`) for
+  the `Hearing_Resulted` event type specifically — `hearingDay` is always
+  present, not optional.
+- **Consumer** (legacy, `PrisonCourtRegisterEventGridTrigger/index.js`):
+  reads `eventGridEvent.data.hearingId`/`.data.hearingDay`/`.data.userId`
+  alongside top-level `eventGridEvent.subject`/`.eventTime` — the pointer
+  fields are nested under `.data`, with `subject`/`eventTime`/`eventType`
+  at the envelope's top level.
+
+**The same topic carries a sibling event type, `SJP_Hearing_Resulted`**
+(Single Justice Procedure hearings) — the Event Grid subscription's
+event-type filter must match `Hearing_Resulted` exactly, not loosely, or
+SJP events would land in this queue too.
+
+That legacy trigger receives events via Azure Functions' native
+`EventGridTrigger` binding, which auto-deserializes the envelope for the
+caller — a convenience specific to that binding, not something a Service
+Bus queue destination provides for free. This service's
+`ServiceBusProcessorClient` receives the raw envelope JSON as the message
+body and has to unwrap it itself:
+
+```java
+private HearingResultedPointer unwrap(final ServiceBusReceivedMessage message) {
+    final EventGridEnvelope envelope = jsonMapper.fromJson(
+            message.getBody().toString(), EventGridEnvelope.class);
+    return new HearingResultedPointer(
+            envelope.data().hearingId(), envelope.data().hearingDay(), envelope.data().userId());
+}
+
+record EventGridEnvelope(String eventType, String subject, String eventTime, EventGridData data) {}
+record EventGridData(UUID hearingId, String hearingDay, String userId) {}
+```
+
+**Not independently confirmed:** whether a Service-Bus-queue
+*destination* delivers one envelope object per message or an array of
+envelopes per message — a subscription-level delivery detail, not a
+publisher-side one, so the publisher-client evidence above doesn't settle
+it. Capture a real message once the subscription exists (§6) and confirm
+`unwrap()` against it before relying on the single-object shape above.
 
 ### 3.2 Redis cache client
 
@@ -562,6 +615,16 @@ null `hearing`, null/empty `prosecutionCases`, genuinely complete),
 
 ## 6. Open items — not resolved here
 
+- **Single-envelope vs. array delivery to the Service Bus queue (§3.1a) —
+  not independently confirmed.** The envelope schema itself is confirmed
+  (EventGridSchema, `.data`-nested pointer fields, `hearingDay` always
+  present) from both the publisher (`EventGridPublisher.java`) and legacy
+  consumer (`PrisonCourtRegisterEventGridTrigger/index.js`) sides. What's
+  still unconfirmed is a subscription-level delivery detail neither side
+  settles: whether a Service-Bus-queue *destination* delivers one envelope
+  object per message or an array of envelopes per message. Capture a real
+  message once the subscription (Jira ticket, §3.1) exists and confirm
+  `unwrap()` against it.
 - **Event Grid subscription provisioning (v2 §13 item 1) — the Service Bus
   queue itself doesn't need a platform/infra request** (§3.1) — this
   service can self-provision it in the already-shared per-environment
