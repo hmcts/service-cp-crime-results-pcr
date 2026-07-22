@@ -68,7 +68,6 @@ erDiagram
         date hearing_date
         string hearing_outcome "no confirmed CP source — see §3"
         timestamp created_at
-        timestamp expires_at
     }
 
     PCR_CASE_MARKER {
@@ -355,14 +354,13 @@ depend only on this service's derived fields.
 - **`pcr_case_marker` cascades with its `pcr_case_hearing` parent** (not
   called out separately in v2, but follows the same secondary-sweep timing
   since it has no TTL of its own).
-- **Inherited inconsistency, not resolved here:** v2 §8a gives
-  `pcr_case_hearing` its own `expires_at` column, but also describes its
-  deletion as a "secondary sweep once zero remaining `pcr_version`
-  children" (v2 §8a's retention/cascade paragraph) rather than a direct TTL
-  read off that column. Both statements are carried forward as-is; whether
-  `pcr_case_hearing.expires_at` is actually load-bearing or redundant with
-  the zero-children sweep is worth settling before phase 2 migrations are
-  written.
+- **Resolved inconsistency:** v2 §8a gave `pcr_case_hearing` its own
+  `expires_at` column, while also describing its deletion as a "secondary
+  sweep once zero remaining `pcr_version` children" — the column was
+  redundant with that sweep, never actually read for the delete decision.
+  Dropped from `pcr_case_hearing` here (§2/§3) accordingly; the
+  zero-remaining-children sweep is the only deletion mechanism for this
+  table.
 
 ---
 
