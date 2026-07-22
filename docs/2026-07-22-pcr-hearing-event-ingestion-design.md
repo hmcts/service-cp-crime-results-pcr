@@ -75,11 +75,13 @@ flowchart TB
         Consumer --> Ingestion["ResultsIngestionService"]
         Ingestion -.->|"1. check"| Redis[("Redis Cache<br/>key: INT_&lt;hearingId&gt;_&lt;hearingDay&gt;_result_")]
         Ingestion -.->|"2. miss/expired: fallback + completeness-check retry"| RQC["ResultsClient<br/>(existing, phase 1)"]
+        Ingestion --> GroupCheck{"isGroupProceedings?<br/>§3.3a — whole-hearing filter"}
     end
 
     RQC -->|"GET hearingDetails/internal/{hearingId}"| ResultsAPI["Results Query API"]
 
-    Ingestion --> Downstream["Decision Engine<br/>(not yet designed — out of scope here)"]
+    GroupCheck -->|"true"| NoPcr["404 — no PCR for any defendant<br/>on this hearing, §3.3a"]
+    GroupCheck -->|"false/null"| Downstream["PcrOrchestrator<br/>(orchestrator doc)"]
 ```
 
 Sequence for one hearing:
@@ -126,15 +128,59 @@ sequenceDiagram
 
 ## 3. Component design
 
-### 3.1 Event Grid → Service Bus (infra dependency, not app code)
+### 3.1 Event Grid → Service Bus (narrower dependency than it looks)
 
-Same cross-team dependency as v2 §13 item 1 — platform/infra provisions the
-Event Grid subscription that routes `Hearing_Resulted` into a Service Bus
-queue. Nothing in this service can provision that subscription itself; it
-only consumes from the queue once the route exists. The concrete ask for
-that team: an Event Grid subscription on the `Hearing_Resulted` topic,
-routing into a new Service Bus queue (`hearing-resulted-queue` below is a
-placeholder name, not a confirmed one).
+**Corrected — this isn't "ask platform/infra for a Service Bus queue," it's
+just "ask for the Event Grid subscription."** Verified against
+`cp-vp-aks-deploy` (the shared AKS deploy repo) and
+`service-cp-crime-hearing-results-document-subscription` ("HRDS," a live
+sibling `service-cp-*` already using Service Bus): Azure Service Bus is
+**one shared namespace per environment** (`sbdevamp01`, `sbsitamp01`,
+`sbprdamp01`, `sbprpamp01` — `cp-vp-aks-deploy/vp-config/*_values.yml`),
+not one namespace per service. Every onboarded service gets
+`AZURE_SERVICE_BUS_URI` and `Service Bus Data Owner` RBAC on that shared
+namespace automatically, via the standard deploy pipeline
+(`vp-deploy.yml`'s "Shared lookups (same for all services)" step) — no
+per-service provisioning request. HRDS is a live example: once onboarded,
+it self-creates its own queues at startup via the Service Bus
+Administration SDK (`ServiceBusProcessorService.initialiseServiceBus()`,
+`ServiceBusAdminBase.createQueue()`) against that same shared namespace —
+this service can do exactly the same for its own queue, once onboarded to
+`cp-vp-aks-deploy` the normal way (no code sample repeated here — same SDK
+call, different queue name).
+
+**What's actually left as a genuine cross-team ask**, per v2 §13 item 1:
+the **Event Grid subscription** routing `Hearing_Resulted` into whichever
+queue this service creates. This service has no way to create that
+subscription itself — Event Grid subscriptions are managed on the
+publisher/topic side (`cpp-context-results`'s topic, confirmed below), not
+something a consumer can self-serve.
+
+**HRDS's own queues are not reusable, checked directly — don't try.**
+`hrds.notifications.inbound`/`hrds.notifications.outbound` are dedicated,
+self-provisioned by HRDS, and both produced *and* consumed by HRDS itself
+(`NotificationController` → inbound queue → `NotificationManager`;
+`CallbackDeliveryService` → outbound queue → `CallbackClient`). No Event
+Grid feeds either of them — HRDS's actual inbound trigger is a synchronous
+REST call from Progression/HearingNows
+(`NotificationController.createNotification`), not an event subscription.
+The message envelope (`ServiceBusWrappedMessage`, carrying a callback
+`targetUrl` and HRDS's own retry semantics) is specific to HRDS's
+domain — not a generic envelope this service could plug into. This
+service needs its own queue, not HRDS's.
+
+**Topic confirmed** — `cpp-context-results`'s own WildFly config (the
+publisher side) names the real `Hearing_Resulted` topic: host
+`eg-ste-ccp0121-hearingres.uksouth-1.eventgrid.azure.net` (nonlive/"ste"
+environment, `uksouth-1`), endpoint `https://eg-ste-ccp0121-hearingres.uksouth-1.eventgrid.azure.net/api/events`.
+The access key is never written here — it's a live secret and belongs in
+whatever this org's services already use for secret management (Key
+Vault, or an env var injected at deploy time), referenced only by name —
+same pattern as `${SERVICEBUS_CONNECTION_STRING}` below, e.g.
+`${EVENTGRID_TOPIC_KEY}`. This service is a Grid *subscriber* via the
+Service Bus queue (§3.1's whole point), not a direct Event Grid client —
+so it doesn't actually need this key itself; recorded here only to
+confirm which topic platform/infra needs to route.
 
 App-side consumer config (Spring Cloud Azure Stream Binder for Service Bus —
 confirmed as the correct pattern against Microsoft's own guidance in v2
@@ -298,6 +344,63 @@ loop is the completeness-specific retry §1 found missing everywhere else;
 transport-level retry (on the `RestClient` call itself) is a separate,
 already-standard concern and isn't duplicated here.
 
+### 3.3a Whole-hearing filters — the boundary this document owns
+
+Verified against the full legacy orchestrator
+(`PrisonCourtRegisterOrchestrator/index.js`) and activity 1
+(`HearingResultedCacheQuery/index.js`) — **exactly two** whole-hearing
+filters exist, both evaluated immediately after the hearing payload is
+retrieved and before any per-defendant work starts. Nothing else does —
+confirmed by reading the full orchestrator (no other guard anywhere) and
+the start of `SetPrisonCourtRegister.build()`, which goes straight into
+per-defendant fan-out with no guard of its own. This is the correct home
+for both checks — `PcrOrchestrator` (the orchestrator design doc) begins
+*after* per-defendant fan-out has already happened, so it structurally
+cannot apply a whole-hearing filter; it would have to apply the same check
+once per defendant, redundantly.
+
+1. **`isGroupProceedings`** — `PrisonCourtRegisterOrchestrator/index.js:20-22`:
+   `if (isGroupProceedings == null || isGroupProceedings == false)` gates
+   everything downstream (loose `==`, not `===` — legacy's own semantics,
+   worth replicating exactly: only a literal `true` skips, `null`/`false`/
+   anything else proceeds). Not yet modeled anywhere — `HearingDetailsResponse.HearingDetail`
+   (phase 1) has no `isGroupProceedings` field today; see §6.
+2. **The hearing payload must resolve to something non-null** — already
+   handled by this service's own completeness-check retry (§3.3), but the
+   legacy source of "null" is wider than just a Redis miss: `getHearing`
+   (`HearingResultedCacheQuery/index.js`, ~lines 168–183) also returns
+   `null` outright, skipping the REST fallback *entirely*, if `cjscppuid`
+   or `hearingId` is missing on the request — not a case this service
+   should hit in practice, since `CJSCPPUID` is service-level config here
+   (`AppPropertiesBackend`), not a per-request value that can go missing —
+   but worth recording as reviewed, not overlooked.
+
+**Where this sits in `ingest`:** the `isGroupProceedings` check belongs
+right after the payload is retrieved (Redis or REST) and before handing
+off downstream — the exact position the legacy orchestrator places it:
+
+```java
+public HearingDetailsResponse ingest(final UUID hearingId, final String hearingDay) {
+    final HearingDetailsResponse response = cacheClient.get(hearingId, hearingDay)
+            .map(this::deserializeCachedPayload)
+            .orElseGet(() -> fetchViaRestWithCompletenessCheck(hearingId));
+    if (isGroupProceedings(response)) {
+        // Matches legacy exactly: a group-proceedings hearing produces no
+        // PCR content for any defendant on it, not an error — same "no
+        // content exists" outcome as the orchestrator doc's subscription
+        // no-match case (404), just at the whole-hearing level instead of
+        // per-defendant.
+        throw new ResponseStatusException(HttpStatus.NOT_FOUND,
+                "No PCR version found for the supplied identifiers");
+    }
+    return response;
+}
+
+private boolean isGroupProceedings(final HearingDetailsResponse response) {
+    return Boolean.TRUE.equals(response.getHearing().isGroupProceedings()); // new field — §6
+}
+```
+
 ### 3.4 Retry escalation — bounded in-process, then message-level
 
 Two different kinds of retry, deliberately not conflated:
@@ -356,15 +459,37 @@ null `hearing`, null/empty `prosecutionCases`, genuinely complete),
 
 ## 6. Open items — carried forward from v2, not resolved here
 
-- **Event Grid subscription provisioning (v2 §13 item 1):** cross-team,
-  platform/infra dependency — this service consumes from a queue that must
-  already exist.
+- **Event Grid subscription provisioning (v2 §13 item 1) — narrowed, not
+  eliminated (§3.1).** The Service Bus queue itself doesn't need a
+  platform/infra request — this service can self-provision it in the
+  already-shared per-environment namespace once onboarded to
+  `cp-vp-aks-deploy`, same as HRDS does. Only the Event Grid subscription
+  routing `Hearing_Resulted` into that queue remains a genuine cross-team
+  ask, since this service can't create that subscription itself.
 - **Confirm the queue's own max-delivery-count/backoff policy** with
   platform/infra once provisioned (§3.4) — not decided here, since it's
   the same ownership boundary as the subscription itself.
+- **HRDS's own docs (README/CLAUDE.md) describe "topics" — its actual code
+  uses plain queues exclusively**, no topics anywhere. Found while
+  checking whether HRDS's Service Bus setup was reusable (§3.1) — a doc/code
+  drift in a different repo, not this one's to fix, but worth flagging to
+  that team since it could mislead the next person who reads it instead of
+  the code.
 - **Completeness-check thresholds (3 attempts, 2s/4s/8s) are a starting
   point, not measured.** Worth revisiting once real production timing data
   exists for how long the viewstore actually takes to catch up after a
   Redis miss.
 - **Idempotency (§4)** is flagged, not designed — belongs with whichever
   document eventually covers the Decision Engine/persistence integration.
+- **`isGroupProceedings` has no field yet (§3.3a).** `HearingDetailsResponse.HearingDetail`
+  (phase 1) doesn't model it. Confirm it's actually present on a real
+  `hearingDetails/internal` response before adding it — same rigor
+  standard as every other unconfirmed field in this doc series.
+- **Phase 1's already-shipped code doesn't check this at all.** Separate
+  from the design gap above: `PcrService`/`PcrController` (live today) has
+  no `isGroupProceedings` check anywhere — a synchronous `version=latest`
+  request against a group-proceedings hearing currently returns PCR
+  content the legacy system would never have generated. This is a real
+  functional gap in shipped code, not just a documentation gap for a
+  future phase — worth prioritizing as its own fix, independent of when
+  the rest of this ingestion pipeline gets built.

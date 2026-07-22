@@ -76,7 +76,7 @@ see the naming note below):
    `filterJudicialResultsApplicableForRegisters` step.
 3. **Determine whether a PCR is required**
    (`PcrOrchestrator.isPrisonCourtRegisterRequired`, §4) —
-   the subscription-match gate (outer gate + vocabulary rules via
+   the subscription-match gate (vocabulary rules via
    `NowSubscriptionMatcher`, backed by `ReferenceDataClient`), replicating
    legacy activity 3 (`PrisonCourtRegisterSubscriptions`).
 
@@ -107,7 +107,7 @@ honest about being an orchestrating component.
 flowchart LR
     Ingestion["Ingestion<br/>(ingestion doc)<br/>raw hearing payload"] --> Vocab["VocabularyService<br/>§2 — per-defendant facts, full result set"]
     Vocab --> Filter["publishedForNows filter<br/>§3 — plain field, no lookup"]
-    Filter --> Gate["NowSubscriptionMatcher<br/>§4 — outer gate + vocabulary rules"]
+    Filter --> Gate["NowSubscriptionMatcher<br/>§4 — vocabulary rules only, no outer gate for PCR subscriptions"]
     Gate -->|"matched"| Transform["Transformer<br/>§6 — mostly already built (phase 1's PcrVersionMapper)"]
     Gate -->|"zero matches"| NoPcr["404 — no PCR for this defendant<br/>§7"]
     Transform --> Persist["Persist<br/>(data-store doc)<br/>one pcr_version row per eligible defendant"]
@@ -237,28 +237,55 @@ fidelity against live Reference Data — a narrower approximation risks this
 API disagreeing with the legacy system about whether a PCR exists at all,
 which is exactly the gap this document exists to close.
 
-**Corrected — a missing outer layer.** The original version of this
-section only modeled what the legacy code calls "vocabulary rules"
-(attendance/language/age/custody/custodial-outcome/include-exclude
-lists). Verified against `SubscriptionsService.js`: there's a whole
-**outer gate evaluated first**, independent of vocabulary — court-house
-match, prosecutor match, and NOW-subscription include/exclude-list checks
-(`matchCourtHouse`/`matchProsecutor`/`matchSubscriptionRules` in the real
-code). A subscription that fails the outer gate never reaches vocabulary
-matching at all. `NowSubscriptionMatcher.matches` below needs both layers,
-not just the one originally documented — code below adds the outer gate;
-the vocabulary-rule layer is otherwise unchanged from the original draft.
+**Corrected again — the "outer gate" doesn't apply to PCR subscriptions at
+all.** The previous correction assumed court-house match, prosecutor
+match, and NOW include/exclude lists gate every subscription before
+vocabulary matching. Reading the actual dispatcher
+(`SubscriptionsService.getSubscriptions`) disproves that for this specific
+use case — it has **four independent, unrelated branches**, one per
+subscription kind:
+
+```js
+if (matchCourtHouse(subscription, ouCode) && matchVocabularyRules(...)) { push; return; }
+if (matchProsecutor(subscription, ouCode) && matchVocabularyRules(...)) { push; return; }
+if ((subscription.isNowSubscription || subscription.isEDTSubscription) && matchSubscriptionRules(...)) { push; ... }
+if (subscription.isPrisonCourtRegisterSubscription && matchVocabularyRules(...)) { push; }
+```
+
+The court-house/prosecutor gate (branches 1–2) and the NOW include/exclude
+list check inside `matchSubscriptionRules` (branch 3) belong to *different
+subscription kinds* — regular NOW/EDT subscriptions — not PCR ones. **PCR
+subscriptions (branch 4) are matched by `matchVocabularyRules` alone,
+nothing else.** `requiredCourtHouseId`/`requiredProsecutorId`/
+`includedNows`/`excludedNows` and `outerGateMatches` from the previous
+draft don't apply here and are removed.
+
+**A second, real correction found while fixing this:** reading
+`matchVocabularyRules` in full turned up two rule dimensions this document
+never modeled (`checkIfMajorCreditorTypeMatch`, and a *vocabulary-level*
+`checkIfCourtHouseMatch` — distinct from the unrelated top-level
+`matchCourtHouse` above, and confirmed real) — and cast doubt on one this
+document assumed existed: no distinct English/Welsh **language** check
+appears anywhere in the real function. `languageMatches`/`CourtLanguage`
+below may not correspond to a real rule at all. None of this is resolved
+here — flagged in §7, not silently fixed, since modeling major-creditor-type
+and vocabulary-level court-house correctly needs the same fixture-level
+confirmation this whole document series insists on elsewhere, not a guess.
+
+**Confirmed default/fail-open behaviour**, reading the function's actual
+control flow: if `!subscription.applySubscriptionRules`, or if
+`subscription.subscriptionVocabulary` itself is unset, none of the checks
+run and the function returns `true` — a subscription with no rules
+configured matches by default, not by failing safe. Kept from the
+original draft; the reasoning was right even though it was attributed to
+a nonexistent outer gate.
 
 ```java
 public record NowSubscription(
         boolean isPrisonCourtRegisterSubscription,
-        String requiredCourtHouseId,                  // nullable — outer gate
-        String requiredProsecutorId,                  // nullable — outer gate
-        List<String> includedNows,                     // outer gate — empty = no restriction
-        List<String> excludedNows,                      // outer gate
-        boolean applySubscriptionRules,                 // gates whether vocabulary rules run at all
+        boolean applySubscriptionRules,                 // false, or no subscriptionVocabulary at all -> matches by default (confirmed)
         AttendanceType requiredAttendanceType,       // nullable — unset means "any"
-        CourtLanguage requiredCourtLanguage,          // nullable
+        CourtLanguage requiredCourtLanguage,          // nullable — real rule unconfirmed, see §7
         AgeGroup requiredAgeGroup,                    // nullable
         CustodyRequirement custodyRequirement,        // NONE, IN_CUSTODY, PRISON_ONLY, POLICE_ONLY
         boolean ignoreCustody,
@@ -268,55 +295,39 @@ public record NowSubscription(
         List<String> excludedResultTypes,
         List<String> includedPrompts,
         List<String> excludedPrompts) {}
+        // majorCreditorType / vocabulary-level courtHouse requirements: real
+        // dimensions found, not modeled here yet — see §7.
 ```
 
 ```java
 @Component
 public class NowSubscriptionMatcher {
 
-    public boolean matches(final NowSubscription subscription, final String courtHouseId,
-                            final String prosecutorId, final Vocabulary vocabulary,
+    public boolean matches(final NowSubscription subscription, final Vocabulary vocabulary,
                             final List<JudicialResultResponse> eligibleResults) {
-        if (!outerGateMatches(subscription, courtHouseId, prosecutorId)) {
-            return false;
-        }
         if (!subscription.applySubscriptionRules()) {
-            // Confirmed from SubscriptionsService.js: a subscription that
-            // doesn't opt into vocabulary rules matches on the outer gate alone.
+            // Confirmed from SubscriptionsService.js: no rules configured -> matches by default.
             return true;
         }
         return matchesVocabularyRules(subscription, vocabulary, eligibleResults);
     }
 
-    private boolean outerGateMatches(final NowSubscription subscription, final String courtHouseId, final String prosecutorId) {
-        final boolean courtHouseOk = subscription.requiredCourtHouseId() == null
-                || subscription.requiredCourtHouseId().equals(courtHouseId);
-        final boolean prosecutorOk = subscription.requiredProsecutorId() == null
-                || subscription.requiredProsecutorId().equals(prosecutorId);
-        // includedNows/excludedNows: same include/exclude shape as the
-        // result-type lists below, checked against this NOW's own type —
-        // omitted here for brevity.
-        return courtHouseOk && prosecutorOk;
-    }
-
     private boolean matchesVocabularyRules(final NowSubscription subscription, final Vocabulary vocabulary,
                                              final List<JudicialResultResponse> eligibleResults) {
         // CPS short-circuit — confirmed from SubscriptionsService.js: bypasses
-        // every rule in THIS method (attendance/language/age/custody/
-        // custodial-outcome/include-exclude lists) once both the subscription
-        // requires CPS and the vocabulary is CPS-prosecuted. Does NOT bypass
-        // the outer gate above — that's already been checked by the time this
-        // method runs.
+        // every other rule in this method once both the subscription requires
+        // CPS and the vocabulary is CPS-prosecuted.
         if (subscription.requiresCpsProsecuted() && vocabulary.cpsProsecuted()) {
             return true;
         }
         return attendanceMatches(subscription, vocabulary)
-                && languageMatches(subscription, vocabulary)
+                && languageMatches(subscription, vocabulary) // unconfirmed real rule — §7
                 && ageGroupMatches(subscription, vocabulary)
                 && custodyMatches(subscription, vocabulary)
                 && custodialOutcomeMatches(subscription, vocabulary)
                 && resultTypeListsMatch(subscription, eligibleResults)
                 && promptListsMatch(subscription, eligibleResults);
+                // majorCreditorType / vocabulary-level courtHouse checks: missing — §7
     }
 
     private boolean custodyMatches(final NowSubscription subscription, final Vocabulary vocabulary) {
@@ -357,11 +368,10 @@ public class PcrOrchestrator {
     private final NowSubscriptionMatcher nowSubscriptionMatcher;
     private final ReferenceDataClient referenceDataClient; // new — Reference Data
 
-    public boolean isPrisonCourtRegisterRequired(final String courtHouseId, final String prosecutorId,
-                                                  final Vocabulary vocabulary, final List<JudicialResultResponse> eligibleResults) {
+    public boolean isPrisonCourtRegisterRequired(final Vocabulary vocabulary, final List<JudicialResultResponse> eligibleResults) {
         final List<NowSubscription> subscriptions = referenceDataClient.getPrisonCourtRegisterSubscriptions();
         return subscriptions.stream()
-                .anyMatch(s -> nowSubscriptionMatcher.matches(s, courtHouseId, prosecutorId, vocabulary, eligibleResults));
+                .anyMatch(s -> nowSubscriptionMatcher.matches(s, vocabulary, eligibleResults));
     }
 
     public List<JudicialResultResponse> excludePublishedForNows(final List<JudicialResultResponse> results) {
@@ -468,15 +478,29 @@ this document.
   `PcrService.getLatestVersion`: fail the same way, for the same reason —
   "nothing here to return."
 - **Several `Vocabulary`/`NowSubscription` fields have no confirmed CP
-  source path yet** — `ageGroup` (youth/adult), `courtLanguage`
-  (English/Welsh), `attendanceType` (in-person/video), and the exact value
-  vocabulary for `CustodialEstablishment.custody` (e.g. whether it's
-  literally `"Prison"`/`"Police"` or some other coded value). None of
-  these exist in phase 1's `HearingDetailsResponse` today. Same rigor
-  standard as the rest of this doc series: confirm each against a real
-  hearing-details fixture before implementing, don't guess a shape.
-  (`cpsProsecuted`'s source *is* now confirmed — §2 — just not yet modeled
-  on our DTO.)
+  source path yet** — `ageGroup` (youth/adult), `attendanceType`
+  (in-person/video), and the exact value vocabulary for
+  `CustodialEstablishment.custody` (e.g. whether it's literally
+  `"Prison"`/`"Police"` or some other coded value). None of these exist in
+  phase 1's `HearingDetailsResponse` today. Same rigor standard as the rest
+  of this doc series: confirm each against a real hearing-details fixture
+  before implementing, don't guess a shape. (`cpsProsecuted`'s source *is*
+  now confirmed — §2 — just not yet modeled on our DTO.)
+- **`courtLanguage`/`languageMatches` may not correspond to a real rule at
+  all (§4).** Reading `matchVocabularyRules` in full found no distinct
+  English/Welsh check anywhere in its actual sequence of comparisons
+  (attendance, major-creditor-type, court-house, defendant/age, custody,
+  custodial-result, then prompt/result lists). Stronger flag than the
+  other unconfirmed fields above — this one may need removing entirely
+  rather than just sourcing, pending confirmation.
+- **Two real rule dimensions found, not modeled (§4):**
+  `checkIfMajorCreditorTypeMatch` and a *vocabulary-level*
+  `checkIfCourtHouseMatch` (distinct from the unrelated top-level
+  `matchCourtHouse` used by a different subscription kind) both run inside
+  `matchVocabularyRules` for PCR subscriptions. Neither has a corresponding
+  field on `Vocabulary`/`NowSubscription` in this document yet. Needs
+  reading `checkIfMajorCreditorTypeMatch`/`checkIfCourtHouseMatch`'s actual
+  implementations before modeling — not attempted here to avoid guessing.
 - **`publishedForNows`/`postHearingCustodyStatus` need a real fixture
   check** (§3/§5, corrected) — confirm both are actually present on a live
   `hearingDetails/internal` response before adding them as fields.
