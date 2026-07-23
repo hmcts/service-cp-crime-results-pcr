@@ -1,10 +1,12 @@
 # PCROrchestrator (Decision Engine, Enrichment, and Transformer) Design
 
-**Status:** Draft, 22 Jul 2026. Deep-dive of v2 §5a/§6/§8's Decision Engine,
-Enrichment, and Transformer components, grounded in a direct read-through of
-the legacy `PrisonCourtRegisterOrchestrator`'s five Durable Functions
-activities and the `SubscriptionsService`/`VocabularyService` modules it
-calls. Companion to
+**Status:** Draft, 22 Jul 2026, cross-checked file-by-file against the
+`cpp-context-azure-legalaidagency` source on 23 Jul 2026. Deep-dive of v2
+§5a/§6/§8's Decision Engine, Enrichment, and Transformer components,
+grounded in a direct read-through of the legacy
+`PrisonCourtRegisterOrchestrator`'s five Durable Functions activities and
+the `SubscriptionsService`/`VocabularyService` modules it calls —
+`file:line` citations throughout point into that repo. Companion to
 [`2026-07-22-pcr-hearing-event-ingestion-design.md`](2026-07-22-pcr-hearing-event-ingestion-design.md)
 ("the ingestion doc") and
 [`2026-07-21-pcr-data-store-design.md`](2026-07-21-pcr-data-store-design.md)
@@ -37,10 +39,12 @@ which is about *delivery*, not content or eligibility:
   `recipientFromResults`/`recipientFromSubscription` paths) — this service
   reads and serves content; it doesn't route or send registers anywhere.
 - Submission to Progression (legacy activity 5) — same reason.
-- The group-proceedings whole-hearing skip (legacy activity 1's
-  `isGroupProceedings` check) — belongs with the ingestion doc's boundary
-  (it's a whole-hearing filter, evaluated before per-defendant fan-out even
-  starts).
+- The group-proceedings whole-hearing skip (`isGroupProceedings`) — belongs
+  with the ingestion doc's boundary (it's a whole-hearing filter, evaluated
+  before per-defendant fan-out even starts). It runs in the orchestrator
+  itself, immediately after activity 1 returns and before activity 2 is
+  invoked (`PrisonCourtRegisterOrchestrator/index.js:20-22`), not inside
+  activity 1 (`HearingResultedCacheQuery`).
 
 ---
 
@@ -100,6 +104,20 @@ is exactly equivalent to this design's `PcrOrchestrator.isPrisonCourtRegisterReq
 service has no reason to build the rest of activity 4's recipient/payload
 machinery first.
 
+A second, separate orchestrator-level gate does exist: activities 3–5 are
+skipped entirely when `if (prisonCourtRegisters.length)` is false
+(`PrisonCourtRegisterOrchestrator/index.js:32`) — i.e. activity 2
+(`SetPrisonCourtRegister`) produced zero fragments for the whole hearing
+(no eligible defendant/case/application at all), not "this defendant failed
+subscription matching." For this service that's simply "no defendants to
+iterate" and needs no separate modelling, but activities 3–5 are not
+unconditionally reached just because activity 1 succeeded. A second,
+narrower discard also exists per-fragment inside activity 4
+(`if (!hearingJson.prosecutionCases && !hearingJson.courtApplications) return null;`,
+`OutboundPrisonCourtRegister/index.js:30-33`) — likely unreachable in
+practice since a fragment can't exist without cases/applications, noted for
+completeness only.
+
 ---
 
 ## 2. `VocabularyService` — per-defendant fact computation
@@ -109,15 +127,80 @@ before any filtering — it's used by the subscription matcher (§4), so it
 must reflect everything the defendant actually has, not what's left after
 `publishedForNows` stripping.
 
+The real `VocabularyService` is constructed with
+`(hearingObj, defendantContextBase, majorCreditorMap, complianceEnforcementList)`
+(`VocabularyService.js:137`) and its `getVocabularyInfo()` returns the
+following fields that matter for PCR (`VocabularyService.js:9-29`):
+`custodyLocationIsPolice`, `custodyLocationIsPrison` (from which `inCustody`
+is derived), `atleastOneCustodialResult`, `allNonCustodialResults`,
+`atleastOneNonCustodialResult`, `appearedInPerson`, `appearedByVideoLink`,
+`anyAppearance`, `isCpsProsecuted`, `youthDefendant`, `adultDefendant`,
+`welshCourtHearing`, `englishCourtHearing`, `prosecutorMajorCreditor`
+(array), `nonProsecutorMajorCreditor` (array). §4's
+`checkIfCustodialResultMatch` reads `allNonCustodialResults`/
+`atleastOneNonCustodialResult` directly, so both are needed alongside the
+single custodial-result boolean, not instead of it.
+
+- **Custody location is a hearing-wide `masterDefendantId` scan, not a read
+  of the defendant's own object.** `getCustodyLocationInfo()`
+  (`VocabularyService.js:194-243`) scans every defendant across every
+  `prosecutionCase` sharing the same `masterDefendantId`, plus every
+  `courtApplication.subject.masterDefendant` matching it — the same pattern
+  as `cpsProsecuted` below. A defendant appearing in more than one
+  case/application on one hearing can have `custodyLocationIsPolice` and
+  `custodyLocationIsPrison` both `true`, so these are modelled as two
+  independent booleans rather than one mutually-exclusive enum.
+- **`inCustody` is derived, and doesn't cover every custody value.**
+  `LocationTypeEnum.js:1-5` defines three custody values —
+  `'Police Station'`, `'Prison'`, `'DETENTIONCENTRE'` — but the
+  custody-location `switch` only has `case`s for the first two
+  (`VocabularyService.js:207-214,227-234`); `'DETENTIONCENTRE'` is
+  unhandled, so `inCustody = custodyLocationIsPrison || custodyLocationIsPolice`
+  (line 167) is `false` for a defendant held in a detention centre even
+  though `custodialEstablishment` is present. This service models
+  `inCustody` as the OR of the two booleans, faithfully including the
+  detention-centre gap rather than "fixing" it with a broader
+  `establishment != null` check — confirm with whoever owns the legacy
+  logic before changing this.
+- **`attendanceType` is not a plain per-defendant field.**
+  `getAttendanceInfo()` (`VocabularyService.js:245-274`) loops
+  `hearing.defendantAttendance[]`, keeps only entries whose `defendantId` is
+  in the defendant's merged `defendantIds` list, and only counts a day if
+  `attendanceDay.day` matches one of the defendant's own
+  `judicialResult.orderedDate`s — only then does it set
+  `appearedInPerson`/`appearedByVideoLink` from the literal strings
+  `'IN_PERSON'`/`'BY_VIDEO'`. Both are independently settable (a defendant
+  can appear in person on one day and by video on another within the same
+  hearing); `anyAppearance` is a third, derived field.
+- **`courtLanguage` is real and hearing-level, and is the same rule as §4's
+  vocabulary-level `checkIfCourtHouseMatch`** — one dimension, not two:
+  `welshCourtHearing = !!hearing.courtCentre.welshCourtCentre`
+  (`VocabularyService.js:164`), `englishCourtHearing = !welshCourtHearing`.
+- **`prosecutorMajorCreditor`/`nonProsecutorMajorCreditor` are always empty
+  for PCR.** `majorCreditorMap`/`complianceEnforcementList` are never
+  passed to `VocabularyService` in the PCR pipeline
+  (`SetPrisonCourtRegister/index.js:29` only passes the first two
+  constructor args), so both arrays are always `[]` — modelled as
+  always-empty, not as a lookup this service needs to build (§4).
+
 ```java
 public record Vocabulary(
-        boolean inCustody,
-        CustodyLocationType custodyLocationType, // PRISON, POLICE, NONE
-        boolean hadCustodialResult,
-        AgeGroup ageGroup,                        // YOUTH, ADULT
-        CourtLanguage courtLanguage,               // ENGLISH, WELSH
-        AttendanceType attendanceType,              // IN_PERSON, VIDEO_LINK
-        boolean cpsProsecuted) {}
+        boolean custodyLocationIsPolice,
+        boolean custodyLocationIsPrison,      // both may be true together — see above
+        boolean inCustody,                    // = custodyLocationIsPolice || custodyLocationIsPrison
+        boolean atleastOneCustodialResult,
+        boolean allNonCustodialResults,
+        boolean atleastOneNonCustodialResult,
+        boolean appearedInPerson,
+        boolean appearedByVideoLink,
+        boolean anyAppearance,
+        boolean cpsProsecuted,
+        boolean youthDefendant,
+        boolean adultDefendant,
+        boolean welshCourtHearing,
+        boolean englishCourtHearing,
+        List<String> prosecutorMajorCreditor,     // always [] for PCR — see above
+        List<String> nonProsecutorMajorCreditor) {}  // always [] for PCR — see above
 ```
 
 ```java
@@ -126,16 +209,30 @@ public class VocabularyService {
 
     private static final String CUSTODIAL_RESULT_PROMPT = "prisonOrganisationName";
 
+    // Real VocabularyService also merges across every prosecutionCase/courtApplication
+    // sharing the same masterDefendantId (§2 above) — this signature assumes that merge
+    // has already happened upstream (see §7's structural note on masterDefendantId
+    // merging vs this service's per-(hearingId, defendantId) model).
     public Vocabulary compute(final DefendantResponse defendant, final HearingResponse hearing) {
-        final CustodialEstablishmentResponse establishment = defendant.personDefendant().custodialEstablishment();
+        final boolean custodyLocationIsPolice = custodyLocationIsPolice(defendant, hearing);
+        final boolean custodyLocationIsPrison = custodyLocationIsPrison(defendant, hearing);
         return new Vocabulary(
-                establishment != null,
-                custodyLocationType(establishment),
+                custodyLocationIsPolice,
+                custodyLocationIsPrison,
+                custodyLocationIsPolice || custodyLocationIsPrison,
                 hasCustodialResult(defendant),
-                ageGroup(defendant),           // see open items §7 — field not yet modeled
-                courtLanguage(hearing),        // see open items §7 — field not yet modeled
-                attendanceType(defendant),     // see open items §7 — field not yet modeled
-                cpsProsecuted(hearing));
+                allNonCustodialResults(defendant),           // negation of per-result custodial check
+                atleastOneNonCustodialResult(defendant),
+                appearedInPerson(defendant, hearing),
+                appearedByVideoLink(defendant, hearing),
+                appearedInPerson(defendant, hearing) || appearedByVideoLink(defendant, hearing),
+                cpsProsecuted(hearing),
+                defendant.isYouth(),                          // see §7 — ageGroup source resolved
+                !defendant.isYouth(),
+                hearing.courtCentre().welshCourtCentre(),     // see §7 — merged with courtLanguage open item
+                !hearing.courtCentre().welshCourtCentre(),
+                List.of(),                                    // prosecutorMajorCreditor — always empty for PCR
+                List.of());                                   // nonProsecutorMajorCreditor — always empty for PCR
     }
 
     private boolean cpsProsecuted(final HearingResponse hearing) {
@@ -146,15 +243,15 @@ public class VocabularyService {
                 .anyMatch(c -> c.prosecutor() != null && c.prosecutor().isCps());
     }
 
-    private CustodyLocationType custodyLocationType(final CustodialEstablishmentResponse establishment) {
-        if (establishment == null) {
-            return CustodyLocationType.NONE;
-        }
-        // "custody" field confirmed present on CustodialEstablishmentResponse
-        // (already modeled, phase 1) — exact value vocabulary (e.g. "Prison"
-        // vs "Police") not yet confirmed against a real fixture; see §7.
-        return CustodyLocationType.from(establishment.custody());
-    }
+    // custodyLocationIsPolice/custodyLocationIsPrison: each scans every prosecutionCase's
+    // defendants AND every courtApplication.subject.masterDefendant sharing this
+    // defendant's masterDefendantId, matching establishment.custody() against
+    // "Police Station"/"Prison" respectively (DETENTIONCENTRE unhandled, see above) —
+    // omitted here for brevity, same hearing-wide scan shape as cpsProsecuted.
+
+    // appearedInPerson/appearedByVideoLink: scan hearing.defendantAttendance() filtered to
+    // this defendant's merged defendantIds and cross-referenced against this defendant's
+    // own judicialResult orderedDates — omitted here for brevity, see prose above.
 
     private boolean hasCustodialResult(final DefendantResponse defendant) {
         return defendant.offences().stream()
@@ -162,12 +259,26 @@ public class VocabularyService {
                 .flatMap(r -> r.judicialResultPrompts().stream())
                 .anyMatch(p -> CUSTODIAL_RESULT_PROMPT.equals(p.promptReference()));
     }
+
+    // allNonCustodialResults/atleastOneNonCustodialResult: derived from the same
+    // per-result CUSTODIAL_RESULT_PROMPT scan as hasCustodialResult, over all vs. any
+    // of the defendant's results — needed by §4's checkIfCustodialResultMatch.
 }
 ```
 
 `hasCustodialResult` is directly portable — `JudicialResultPromptParser`
 already scans `judicialResultPrompts[]` by `promptReference` for six other
 prompts (phase 1). This is the same pattern, one more prompt reference.
+
+None of `Vocabulary`'s fields belong in `PcrVersion` (the API schema) or
+`pcr_version` (the data store) — cross-checked against both, correctly:
+`Vocabulary` exists only to decide *whether* a PCR is generated (§4), not
+to describe its content. Don't add a `pcr_version` column or an API field
+for any of `custodyLocationIsPolice`/`inCustody`/`appearedInPerson`/
+`welshCourtHearing`/etc. — `custodyLocation` (content, sourced separately,
+§5) and `custody_location` (the data-store column) are a different,
+correctly-separate concept from `Vocabulary.custodyLocationIsPolice`/
+`custodyLocationIsPrison` (eligibility only).
 
 ---
 
@@ -220,42 +331,83 @@ subscriptions (branch 4) are matched by `matchVocabularyRules` alone,
 nothing else.** No court-house/prosecutor/NOW-list gate applies to this
 service's use case at all.
 
-**`matchVocabularyRules` itself covers more ground than the vocabulary
-dimensions in v2's original description.** Reading it in full: it runs
-`checkIfAttendanceTypeMatch`, `checkIfMajorCreditorTypeMatch`, a
-*vocabulary-level* `checkIfCourtHouseMatch` (distinct from the unrelated
-top-level `matchCourtHouse` above), `checkIfDefendantMatch` (age group),
-`checkIfCustodyMatch`, `checkIfCustodialResultMatch`, then the
-prompt/result include/exclude lists, with a CPS-prosecuted short-circuit
-ahead of all of them. Two of these — major-creditor-type and the
-vocabulary-level court-house check — have no corresponding field on
-`Vocabulary`/`NowSubscription` below yet (§7). No distinct English/Welsh
-**language** check appears anywhere in the actual sequence, which means
-`languageMatches`/`CourtLanguage` below may not correspond to a real rule
-at all (§7).
+**`matchVocabularyRules` covers more ground than the vocabulary dimensions
+in v2's original description.** Reading it in full
+(`SubscriptionsService.js:125-205`): it runs `checkIfAttendanceTypeMatch`,
+`checkIfMajorCreditorTypeMatch`, a *vocabulary-level* `checkIfCourtHouseMatch`
+(distinct from the unrelated top-level `matchCourtHouse` above),
+`checkIfDefendantMatch` (age group), `checkIfCustodyMatch`,
+`checkIfCustodialResultMatch`, then the prompt/result include/exclude
+lists (prompts first, then results), with a CPS-prosecuted short-circuit
+ahead of all of them.
 
-**Default/fail-open behaviour:** if `!subscription.applySubscriptionRules`,
-or if `subscription.subscriptionVocabulary` itself is unset, none of the
-checks run and the function returns `true` — a subscription with no rules
-configured matches by default, not by failing safe.
+**Vocabulary-level `checkIfCourtHouseMatch` is the English/Welsh language
+check, not a separate dimension** (`SubscriptionsService.js:313-326`,
+reading `welshCourtHearing`/`englishCourtHearing` off §2's `Vocabulary`) —
+modelled below as `courtLanguageMatches`, the same rule as
+`checkIfCourtHouseMatch`.
+
+**`checkIfMajorCreditorTypeMatch` resolves to a fixed outcome for PCR.**
+Because §2 established `prosecutorMajorCreditor`/`nonProsecutorMajorCreditor`
+are always `[]` for PCR, the real function's name-match helpers
+(`SubscriptionsService.js:258-278`) can never succeed against those arrays:
+if a subscription requires prosecutor/non-prosecutor major-creditor
+matching without also setting `anyMajorCreditor`, it can never match any
+PCR defendant — a permanent, config-level dead end, not something this
+service computes creditor names for. `majorCreditorTypeMatches` below
+models exactly that: pass unless the subscription sets
+`requiresProsecutorMajorCreditor`/`requiresNonProsecutorMajorCreditor`
+without `anyMajorCreditor`, in which case always fail.
+
+**Every check below requires an explicit "any"/"ignore" flag to pass when
+unconfigured — a bare `null` does not mean "any."** Reading
+`checkIfAttendanceTypeMatch` (`SubscriptionsService.js:240-256`),
+`checkIfCustodyMatch` (`:343-365`), and `checkIfCustodialResultMatch`
+(`:367-380`): each requires its own explicit flag on the subscription side
+(`anyAppearance`, `ignoreCustody`, `ignoreResults`) to bypass its
+comparison; with no flag set and no specific requirement set, the function
+falls through to its final `return`, which evaluates to `false` (the
+subscription fails). Only `checkIfMajorCreditorTypeMatch` has a genuine
+unconditional-pass early return when unconfigured (`anyMajorCreditor`
+above). `NowSubscription`'s fields below are modelled as an explicit
+(any-flag, specific-requirement) pair per dimension for this reason, not a
+single nullable enum where "null" silently means "any."
+
+**Default/fail-open behaviour is at the subscription-configuration level,
+separate from the per-check flags above:** if
+`!subscription.applySubscriptionRules`, or if
+`subscription.subscriptionVocabulary` itself is unset, none of the checks
+run and the function returns `true` — a subscription with no rules
+configured matches by default. This is the one place "defaults to pass" is
+correct; the per-check any-flags above are a different, narrower mechanism.
+
+One further asymmetry worth knowing: `if (subscriptionObject.vocabulary === undefined) return false`
+(`SubscriptionsService.js:117-121`) fails closed if the *defendant's own*
+vocabulary is missing — practically unreachable here since vocabulary is
+always computed unconditionally before this gate runs (§2), but noted for
+completeness against the subscription-side fail-open above.
 
 ```java
 public record NowSubscription(
         boolean isPrisonCourtRegisterSubscription,
-        boolean applySubscriptionRules,                 // false, or no subscriptionVocabulary at all -> matches by default
-        AttendanceType requiredAttendanceType,       // nullable — unset means "any"
-        CourtLanguage requiredCourtLanguage,          // nullable — real rule unconfirmed, see §7
-        AgeGroup requiredAgeGroup,                    // nullable
-        CustodyRequirement custodyRequirement,        // NONE, IN_CUSTODY, PRISON_ONLY, POLICE_ONLY
-        boolean ignoreCustody,
+        boolean applySubscriptionRules,             // false, or no subscriptionVocabulary at all -> matches by default (only true default-pass case)
+        boolean anyAppearance,                       // explicit "any" flag — false + no requirement below -> FAILS, not passes
+        AttendanceType requiredAttendanceType,       // IN_PERSON, VIDEO_LINK — only consulted if anyAppearance is false
+        boolean anyCourtLanguage,                    // explicit "any" flag for the language/court-house rule above
+        CourtLanguage requiredCourtLanguage,         // ENGLISH, WELSH — same rule as checkIfCourtHouseMatch, see prose above
+        AgeGroup requiredAgeGroup,                   // nullable
+        boolean ignoreCustody,                       // explicit "any" flag — false + no requirement below -> FAILS
+        CustodyRequirement custodyRequirement,       // NONE, IN_CUSTODY, PRISON_ONLY, POLICE_ONLY
+        boolean ignoreResults,                       // explicit "any" flag — false + no requirement below -> FAILS
         CustodialOutcomeRequirement custodialOutcomeRequirement, // ANY, CUSTODIAL_ONLY, NON_CUSTODIAL_ONLY
         boolean requiresCpsProsecuted,
-        List<String> includedResultTypes,             // empty = no restriction
+        boolean anyMajorCreditor,                    // only dimension that genuinely defaults to pass when false
+        boolean requiresProsecutorMajorCreditor,     // always fails for PCR unless anyMajorCreditor is also true — see prose above
+        boolean requiresNonProsecutorMajorCreditor,  // same
+        List<String> includedResultTypes,            // empty = no restriction
         List<String> excludedResultTypes,
         List<String> includedPrompts,
         List<String> excludedPrompts) {}
-        // majorCreditorType / vocabulary-level courtHouse requirements: real
-        // dimensions found, not modeled here yet — see §7.
 ```
 
 ```java
@@ -279,30 +431,43 @@ public class NowSubscriptionMatcher {
             return true;
         }
         return attendanceMatches(subscription, vocabulary)
-                && languageMatches(subscription, vocabulary) // unconfirmed real rule — §7
+                && majorCreditorTypeMatches(subscription, vocabulary)
+                && courtLanguageMatches(subscription, vocabulary) // = checkIfCourtHouseMatch, see prose above
                 && ageGroupMatches(subscription, vocabulary)
                 && custodyMatches(subscription, vocabulary)
                 && custodialOutcomeMatches(subscription, vocabulary)
-                && resultTypeListsMatch(subscription, eligibleResults)
-                && promptListsMatch(subscription, eligibleResults);
-                // majorCreditorType / vocabulary-level courtHouse checks: missing — §7
+                && promptListsMatch(subscription, eligibleResults)   // real order: prompts before results
+                && resultTypeListsMatch(subscription, eligibleResults);
     }
 
     private boolean custodyMatches(final NowSubscription subscription, final Vocabulary vocabulary) {
         if (subscription.ignoreCustody()) {
             return true;
         }
+        // No ignoreCustody AND no specific requirement below -> falls through to FAILS,
+        // matching the real checkIfCustodyMatch — not a null-means-any default.
         return switch (subscription.custodyRequirement()) {
             case NONE -> true;
             case IN_CUSTODY -> vocabulary.inCustody();
-            case PRISON_ONLY -> vocabulary.custodyLocationType() == CustodyLocationType.PRISON;
-            case POLICE_ONLY -> vocabulary.custodyLocationType() == CustodyLocationType.POLICE;
+            case PRISON_ONLY -> vocabulary.custodyLocationIsPrison();
+            case POLICE_ONLY -> vocabulary.custodyLocationIsPolice();
         };
     }
 
-    // attendanceMatches / languageMatches / ageGroupMatches / custodialOutcomeMatches:
-    // each a null-means-"any" comparison against the corresponding Vocabulary
-    // field — omitted here for brevity, same shape as custodyMatches above.
+    private boolean majorCreditorTypeMatches(final NowSubscription subscription, final Vocabulary vocabulary) {
+        if (subscription.anyMajorCreditor()) {
+            return true; // the one dimension that genuinely defaults to pass
+        }
+        // vocabulary.prosecutorMajorCreditor()/nonProsecutorMajorCreditor() are always
+        // empty for PCR (§2) -> any specific requirement below can never be satisfied.
+        return !subscription.requiresProsecutorMajorCreditor()
+                && !subscription.requiresNonProsecutorMajorCreditor();
+    }
+
+    // attendanceMatches / courtLanguageMatches / ageGroupMatches / custodialOutcomeMatches:
+    // each requires its own explicit any-flag (anyAppearance/anyCourtLanguage/ignoreResults)
+    // to bypass — no flag set and no requirement set FAILS, mirroring custodyMatches above.
+    // Omitted here for brevity, same shape.
 
     private boolean resultTypeListsMatch(final NowSubscription subscription, final List<JudicialResultResponse> results) {
         final List<String> resultCodes = results.stream().map(JudicialResultResponse::cjsCode).toList();
@@ -327,6 +492,8 @@ public class PcrOrchestrator {
     private final ReferenceDataClient referenceDataClient;
 
     public boolean isPrisonCourtRegisterRequired(final Vocabulary vocabulary, final List<JudicialResultResponse> eligibleResults) {
+        // See §7 — the real endpoint (getSubscriptionsMetadata) is date-scoped (?on=<date>);
+        // this signature doesn't yet account for that, resolve before implementing.
         final List<NowSubscription> subscriptions = referenceDataClient.getPrisonCourtRegisterSubscriptions();
         return subscriptions.stream()
                 .anyMatch(s -> nowSubscriptionMatcher.matches(s, vocabulary, eligibleResults));
@@ -347,42 +514,79 @@ subscription config today.
 
 ---
 
-## 5. Enrichment — a DTO gap, not a new client
+## 5. Enrichment — one real Reference Data client, plus a DTO gap
 
 Phase 1's `PcrVersionMapper` leaves `postHearingCustodyStatus`/`category`
-`null`. Checked against the legacy source:
+`null`. Checked against the legacy source, this splits into a genuine
+reference-data lookup and a set of plain-field DTO gaps:
 
-- `postHearingCustodyStatus` is read directly off the payload elsewhere in
-  the Function App family (e.g. `DefendantMapper.js`:
-  `filteredCustodyStatuses[0].postHearingCustodyStatus`) — a plain field,
-  not a lookup result.
-- An exhaustive read of the Function App's only Reference Data client
-  (`ReferenceDataService.js`, all live endpoints: NOW metadata, NOW
-  subscriptions metadata — used in §4, organisation unit, major creditors,
-  enforcement area, prisons-custody-suites) found **no**
-  `ResultDefinition`/`cjsResultCode`-keyed endpoint at all.
-- `financial`/`category`/`convicted` produced **zero** hits anywhere in
-  the Function App's PCR-relevant code. Unlike `postHearingCustodyStatus`/
-  `publishedForNows`, there's no evidence either way that the legacy PCR
-  pipeline uses these fields — not confirmed present, not confirmed
-  absent.
+**`custodyLocation`'s printed name is a real Reference Data enrichment
+lookup, not a plain field — its email is not this API's concern.**
+`CustodyLocationMapper.js:12-28` resolves `custodialEstablishment.id`
+against `ReferenceDataService.getPrisonsCustodySuites()` to produce both
+`custodyLocation.name` (content) and `custodyAddress.email` (used only by
+`RecipientMapper` for delivery routing — legacy activity 4, out of this
+document's scope, §1). This service needs
+`ReferenceDataClient.getPrisonsCustodySuites()` for the `name` only, to
+enrich the `PcrVersion.custodyLocation` string beyond the raw id already on
+the Results payload — the same client the subscription-matching gate (§4)
+would also depend on if this service ever needs Reference Data config, so
+both can share one `ReferenceDataClient`. `CustodyLocationMapper.getDefendant()`
+(lines 30-40) uses the same hearing-wide, `masterDefendantId`-scanning
+pattern as `VocabularyService`'s custody-location lookup (§2) — a third
+independent occurrence of that pattern in this codebase.
 
-**There is no enrichment *client* to build here.** The real gap is that
-`HearingDetailsResponse.JudicialResult` (phase 1) simply doesn't model
-`postHearingCustodyStatus`/`publishedForNows` as fields yet, even though
-CP's Results Query API response family plausibly already carries them —
-they'd be silently dropped today by `@JsonIgnoreProperties(ignoreUnknown =
-true)` if present. This needs a real fixture check (§7), not a
-lookup-client design, before anything is implemented.
+**`postHearingCustodyStatus` is a plain field, sourced with a "first case
+wins" precedence.** Read via
+`filteredCustodyStatuses[0].postHearingCustodyStatus`
+(`DefendantMapper.js:51`) from `defendant.defendantCaseJudicialResults`
+(case-level results only), filtered to exclude the literal string
+`"Not Applicable"`, taking the first remaining entry
+(`DefendantMapper.js:11,46-55`) — and `defendant` here is the first raw
+case-level defendant record matching this person's merged `defendantIds`,
+by `prosecutionCases` array order (`DefendantMapper.js:22-23,92-102`;
+`DefendantContextBaseService.js:63-133` does the merging). For a defendant
+appearing in more than one prosecution case on the same hearing, the
+legacy system sources this field only from whichever case comes first in
+the array — it is not aggregated or reconciled across cases. This depends
+on the same `masterDefendantId` merge behaviour §7 discusses, which this
+service doesn't currently replicate.
+
+**`financial`/`category`/`convicted` are real fields, sourced upstream of
+this service's own boundary — not something this service looks up itself
+via a new client.** An exhaustive read of the Function App's only Reference Data
+client (`ReferenceDataService.js` — NOW metadata, NOW subscriptions
+metadata used in §4, organisation unit, major creditors, enforcement area,
+prisons-custody-suites) found no `ResultDefinition`/`cjsResultCode`-keyed
+endpoint, and none of these three fields are referenced anywhere in the
+Function App's own code. `PCR-HMPPS-FIELD-MAPPING.md` (the field-mapping
+doc in the `api-cp-crime-results-pcr` spec repo) independently states they
+come from `ResultDefinition` reference data keyed on `cjsResultCode` — both
+are correct at different layers: that join happens upstream (in
+`cpp-context-results`, before the Results Query API response this service
+and the Function App both consume), so by the time either sees the
+payload, `financial`/`category`/`convicted`/`postHearingCustodyStatus` are
+already plain fields on the judicial result object, not something to
+look up via a new client here.
+
+**`financial`/`convicted` are already implemented — the remaining DTO gap
+is narrower than it looks.** `HearingDetailsResponse.JudicialResult`
+already has `isFinancialResult`/`isConvictedResult`, and
+`PcrVersionMapper.toJudicialResult` already maps them to the API's
+`financial`/`convicted` enum fields. What's still missing is
+`postHearingCustodyStatus`, `category`, and `publishedForNows` — none of
+these three exist on `HearingDetailsResponse.JudicialResult` today, even
+though the Results Query API response family already carries them
+(§3/§7) — they're silently dropped by `@JsonIgnoreProperties(ignoreUnknown
+= true)`. Confirm each is actually present on a real `hearingDetails/internal`
+response (§7), then add them as plain fields:
 
 ```java
-// If confirmed present on a real hearingDetails/internal response:
-// add directly to HearingDetailsResponse.JudicialResult (phase 1's
-// existing DTO), no new client:
+// Add to HearingDetailsResponse.JudicialResult (phase 1's existing DTO),
+// once confirmed present on a real response — no new client needed:
 private boolean publishedForNows;
 private String postHearingCustodyStatus;
-// financial/category/convicted: add only if a real fixture confirms
-// the legacy PCR pipeline actually reads them — no evidence yet either way.
+private String category;
 ```
 
 ---
@@ -400,72 +604,233 @@ new here, on top of the existing mapper:
    phase 1, which has no eligibility concept at all). Once §3's filter
    exists, the mapper needs to run against the filtered result list, not
    `defendant.offences()` directly.
-2. **Read `postHearingCustodyStatus` (and `publishedForNows`) directly**,
-   once §5's fixture check confirms they're present on the real payload —
-   replace the `null` default for `postHearingCustodyStatus`. No enrichment
-   client to wire in — a DTO field addition (§5).
+2. **Read `postHearingCustodyStatus`/`publishedForNows`/`financial`/
+   `category`/`convicted` directly**, once §5's fixture check confirms
+   they're present on the real payload — replace the `null` defaults. Call
+   `ReferenceDataClient.getPrisonsCustodySuites()` to enrich
+   `custodyLocation`'s name/email (§5) — the one genuine new client call
+   this component needs.
 3. **Only run per eligible defendant** — the mapper today runs
    unconditionally for whichever defendant a synchronous phase-1 request
    asks for. Once §4's gate exists, it only runs for defendants that passed
    it — ineligible defendants never reach the mapper at all.
 
-No other change to the existing mapper's field-mapping logic is implied by
-this document.
+`DefendantMapper.getResultMapper()`
+(`OutboundPrisonCourtRegister/PrisonCourtRegisterRequest/Mapper/Defendant/DefendantMapper.js:83-86`)
+filters to `r.level === LEVEL_TYPE.DEFENDANT` only, confirming the legacy
+system routes its four result "levels" (CASE, OFFENCE, APPLICATION,
+DEFENDANT) to different parts of the outbound content rather than
+flattening them uniformly — consistent with the existing mapper's separate
+offence/court-application handling.
+
+**A register-specific content-routing rule the mapper needs to replicate.**
+`DefendantContextBaseService`'s `setJudicialResultsAtEachCourtApplicationCasesLevel`
+reclassifies application-linked, case-offence-level judicial results from
+`LEVEL_TYPE.APPLICATION` to `LEVEL_TYPE.OFFENCE` specifically when
+`isRegister` is `true` (confirmed by `DefendantContextBaseService.test.js`,
+comparing register vs non-register runs over the same fixture) — i.e.
+PCR generation routes these results into `offence.results[]`, not
+`application.results[]`, purely because it's a register, not because the
+underlying data differs. `PcrVersionMapper` needs to apply the same
+register-specific routing, not the general-purpose routing a non-register
+consumer of the same payload would use.
+
+**Content fields found in the legacy mapper tree, cross-checked against
+this API's own schema and data-store columns (`api-cp-crime-results-pcr`'s
+`openapi-spec.yml`, and the phase-2 Flyway migrations) — most already have
+a home:**
+- **`arrestSummonsNumber` (ASN) and `prosecutorName` — confirmed not
+  needed, resolved.** Both exist in the legacy source
+  (`personDefendant.arrestSummonsNumber`, first match by `masterDefendantId`,
+  `ProsecutionCaseOrApplicationMapper.js:51-60,76-81`;
+  `prosecutionCase.prosecutionCaseIdentifier.prosecutionAuthorityName` for
+  a case, or only the first linked case's name for a court application —
+  an undocumented precedence rule, `ProsecutionCaseOrApplicationMapper.js:30,172-178`)
+  but not needed by this API's consumers. Not modeled anywhere — no field
+  in `Offence`/`ProsecutionCase`/`Defendant`, no column in
+  `pcr_offence`/`pcr_case_hearing` — and deliberately staying that way, same
+  resolution pattern as the other confirmed-not-needed fields in
+  `PCR-HMPPS-FIELD-MAPPING.md` §2c/§6.
+- **`applicationType` is already fully modeled — not a gap.**
+  `CourtApplication.type` exists in the schema, `pcr_court_application.type`
+  exists in the data store, and `PcrVersionMapper.toCourtApplication`
+  already maps it. `CourtApplication.reference` is likewise already modeled
+  end-to-end from `courtApplication.applicationReference`
+  (`ProsecutionCaseOrApplicationMapper.js:88`) — no action needed for
+  either. The one open nuance: `ProsecutionCase.caseURN` is declared
+  non-nullable in the schema, but the legacy mapper falls back to
+  `prosecutionAuthorityReference` when `caseURN` is absent
+  (`ProsecutionCaseOrApplicationMapper.js:31-32`) — worth a quick
+  confirmation that `caseURN` is genuinely always present on this
+  service's own payload rather than assuming the schema's non-nullability
+  is safe.
+- **`courtHouseName` already has a source, but `PcrVersionMapper` doesn't
+  wire it.** `HearingDetailsResponse.CourtCentre.name` already exists on
+  the upstream DTO — `toHearingDetails` maps `courtHouseCode` from
+  `courtCentre.getCode()` but leaves `courtHouseName` `null` with a comment
+  citing "no confirmed CP source," which is out of date: the source is
+  already there, just not read. This is a real, easy-to-fix gap, not an
+  open design question.
+- **Youth-court venue name override has no source or field yet, and only
+  matters once `courtHouseName` above is wired.** If a defendant's id is in
+  the hearing-level `youthCourtDefendantIds[]` array, the legacy printed
+  venue name is `youthCourt.name` instead of `courtCentre.name`
+  (`HearingVenueMapper.js:22-30`, confirmed by a dedicated legacy test) —
+  a *second*, independent youth signal alongside `defendant.isYouth` (§2's
+  `ageGroup` source), never cross-checked against it anywhere in the
+  legacy codebase. Neither `youthCourtDefendantIds` nor a youth court
+  name/code exists on `HearingDetailsResponse` today — needs its own DTO
+  addition alongside the `courtHouseName` fix above, not assumed to fall
+  out of it automatically.
+- Offence `wording` is a literal `wording + '####' + offenceLegislation`
+  concatenation in the legacy output (`OffenceMapper.js:24`) — moot until
+  `wording` itself is wired, since neither `wording` nor a legislation
+  field exists on `HearingDetailsResponse.Offence` today (only `offenceCode`/
+  `listingNumber`/`startDate`/`endDate`/`convictionDate` are modeled,
+  matching `PcrVersionMapper.toOffence`'s existing `null` defaults for
+  `title`/`wording`/`pleaValue`/`pleaDate`/`verdictCode`). Recorded here so
+  the `####` convention and the missing legislation field aren't discovered
+  again from scratch whenever this DTO gap is finally closed.
+- `applicationDecision`/`applicationDecisionDate` are declared on the
+  legacy output model but never populated by any mapper
+  (`ProsecutionCaseOrApplicationMapper.js` never sets them) — nothing to
+  port for these two; source them fresh from the Results/Hearing payload
+  if HMPPS needs them. Likewise `ethnicity` is declared but never set by
+  `DefendantMapper.build()` — no ethnicity data flows through this
+  pipeline at all, legacy or otherwise.
+- **Hearing-level attendance/appearance detail has no field anywhere in
+  this contract, and given the bug below, may not be worth adding.** The
+  legacy `hearing.defendantPresent`/`hearing.defendantAppearanceDetails`
+  content has no equivalent on `HearingDetails` in this API or in
+  `pcr_version`/`pcr_case_hearing`. Low priority to add given the confirmed
+  bug immediately below makes the legacy source data unreliable anyway.
+
+**A confirmed legacy bug, needing an explicit replicate-or-diverge
+decision.** `HearingMapper.js:13,22` reads
+`this.hearingJson.defendantAttendance.find(d => d.defendantId = defendantId)`
+— an assignment (`=`) inside the predicate, not a comparison (`===`). Since
+the assignment's value is truthy, `.find()` always returns the array's
+first element regardless of which defendant is being mapped, and as a side
+effect overwrites that first element's `defendantId`. In practice, the
+outbound `hearing.defendantPresent`/`hearing.defendantAppearanceDetails`
+fields on every defendant's content are not actually scoped to that
+defendant at all — they always reflect `defendantAttendance[0]`, mutated
+on each call. Given the goal of this branch behaving exactly like Common
+Platform, this needs an explicit decision from whoever owns the outcome:
+replicate the bug for byte-for-byte parity, or knowingly diverge and
+correct it — it should not be silently "fixed" as an incidental side effect
+of porting this logic, nor silently missed.
 
 ---
 
-## 7. Open items — not resolved here
+## 7. Open items
 
-- **No-match behaviour: `404`.** When
-  `PcrOrchestrator.isPrisonCourtRegisterRequired` returns `false`, this
-  service treats it exactly like "no PCR version found for the supplied
-  identifiers" — the same `404` `PcrService` already returns for a
-  case/defendant that doesn't exist (phase 1). No new error shape, no
-  partial/flagged response — the defendant genuinely has no PCR, matching
-  the legacy system exactly. Concretely, the eligibility check sits
-  alongside the existing case/defendant lookups in
-  `PcrService.getLatestVersion`: fail the same way, for the same reason —
-  "nothing here to return."
-- **Several `Vocabulary`/`NowSubscription` fields have no confirmed CP
-  source path yet** — `ageGroup` (youth/adult), `attendanceType`
-  (in-person/video), and the exact value vocabulary for
-  `CustodialEstablishment.custody` (e.g. whether it's literally
-  `"Prison"`/`"Police"` or some other coded value). None of these exist in
-  phase 1's `HearingDetailsResponse` today. Confirm each against a real
-  hearing-details fixture before implementing, don't guess a shape.
-  `cpsProsecuted`'s source is confirmed (§2), just not yet modeled on our
-  DTO.
-- **`courtLanguage`/`languageMatches` may not correspond to a real rule at
-  all (§4).** The actual sequence of comparisons in `matchVocabularyRules`
-  (attendance, major-creditor-type, court-house, defendant/age, custody,
-  custodial-result, then prompt/result lists) has no distinct English/
-  Welsh check anywhere in it. This may need removing entirely rather than
-  just sourcing, pending confirmation.
-- **Two real rule dimensions found, not modeled (§4):**
-  `checkIfMajorCreditorTypeMatch` and a *vocabulary-level*
-  `checkIfCourtHouseMatch` (distinct from the unrelated top-level
-  `matchCourtHouse` used by a different subscription kind) both run inside
-  `matchVocabularyRules` for PCR subscriptions. Neither has a corresponding
-  field on `Vocabulary`/`NowSubscription` in this document yet. Needs
-  reading `checkIfMajorCreditorTypeMatch`/`checkIfCourtHouseMatch`'s actual
-  implementations before modeling.
-- **`publishedForNows`/`postHearingCustodyStatus` need a real fixture
-  check** (§3/§5) — confirm both are actually present on a live
-  `hearingDetails/internal` response before adding them as fields.
-  `financial`/`category`/`convicted` have no evidence either way in the
-  legacy PCR pipeline specifically — don't add them speculatively.
+### Structural gap — legacy merges by `masterDefendantId` across cases; this service doesn't
+
+This is the single most significant structural finding in this document and
+needs an explicit decision, not silent divergence.
+`DefendantContextBaseService.getDefendantContextBaseList()`
+(`DefendantContextBaseService.js:63-133`) groups and **merges** results by
+`masterDefendantId` across **multiple** `prosecutionCases`, court
+applications (gated on `subject.masterDefendant !== undefined`, lines
+141,179-187), and hearing-level `defendantJudicialResults` — spanning four
+distinct result "levels" (CASE, OFFENCE, APPLICATION, DEFENDANT). A single
+legacy PCR fragment can represent one physical person's presence across
+**multiple** prosecution-case `defendantId`s and court applications within
+one hearing, not a single `defendantId`. Every vocabulary field that scans
+"the whole hearing by `masterDefendantId`" (custody location, §2; CPS
+scope, below) and `postHearingCustodyStatus`'s "first case wins" sourcing
+(§5) are direct consequences of this merge.
+
+This is in real tension with this repo's own `CLAUDE.md` architecture rule,
+**"One PCR record per `(hearingId, defendantId)`, never merged across
+defendants."** That's a deliberate, already-settled design decision for
+this service, not something to walk back here — but it means: if this
+service computes vocabulary/eligibility per raw `defendantId`/per-case
+rather than per merged `masterDefendantId`, its eligibility and content
+outcome **will diverge from the legacy system** for any defendant who
+appears in more than one prosecution case (or a linked court application)
+within the same hearing. This needs an explicit reconciliation decision —
+e.g. computing vocabulary against the `masterDefendantId`-merged view even
+though the persisted `pcr_version` row stays keyed per `(hearingId,
+defendantId)` — before §2's `VocabularyService.compute` can be implemented
+as sketched. Flagging for the tech lead/whoever owns this decision, not
+resolving it unilaterally here.
+
+### No-match behaviour: `404`
+
+When `PcrOrchestrator.isPrisonCourtRegisterRequired` returns `false`, this
+service treats it exactly like "no PCR version found for the supplied
+identifiers" — the same `404` `PcrService` already returns for a
+case/defendant that doesn't exist (phase 1). No new error shape, no
+partial/flagged response — the defendant genuinely has no PCR, matching
+the legacy system exactly. Concretely, the eligibility check sits
+alongside the existing case/defendant lookups in
+`PcrService.getLatestVersion`: fail the same way, for the same reason —
+"nothing here to return."
+
+### Genuinely still open
+
+- **`publishedForNows`/`postHearingCustodyStatus`/`financial`/`category`/
+  `convicted` need a real fixture check** (§3/§5) — confirm all five are
+  actually present on a live `hearingDetails/internal` response before
+  adding them as fields. Their upstream source (`ResultDefinition`
+  reference data joined at `cpp-context-results`, §5) is established; what's
+  unconfirmed is only whether that join has already happened by the time
+  this service's own payload arrives.
 - **CPS scan scope (§2):** the legacy vocabulary computation checks
   `prosecutor.isCps` across *every* `prosecutionCase` on the hearing, not
-  scoped to the defendant's own case — replicated as-is here, but worth
-  confirming with whoever owns the legacy logic whether that's intentional
-  (a hearing-wide CPS flag) or an existing bug being faithfully carried
-  forward. Not something to silently "fix" without asking.
-- **`isGroupProceedings`** — the legacy activity-1 whole-hearing skip.
-  Belongs to the ingestion doc's boundary (it's evaluated before
-  per-defendant fan-out), not this one.
+  scoped to the defendant's own case. Can't confirm *intent*, but the same
+  hearing-wide, `masterDefendantId`-scoped scan shape recurs independently
+  in custody-location lookups (§2) and `CustodyLocationMapper` (§5) — three
+  occurrences is reasonable evidence this is house style rather than a
+  one-off bug, though not proof. Worth confirming with whoever owns the
+  legacy logic before silently "fixing" it.
 - **`ReferenceDataClient`'s Reference Data integration shape** — a new
-  dependency with no confirmed endpoint contract yet (per-code lookup vs
-  batch, caching needs, whether Reference Data even exposes NOW-subscription
-  config to a consumer outside the legacy Function App). Needs its own
-  investigation before implementation, not assumed from this document's
-  illustrative code.
+  dependency, needed for both the subscription-match gate (§4) and
+  `custodyLocation` enrichment (§5). The real subscription endpoint
+  (`getSubscriptionsMetadata`) is a simple `GET` with an `Accept` vendor
+  media type and `CJSCPPUID`, retried via a wrapper, but is date-scoped
+  (`?on=<date>`) — resolved via
+  `PrisonCourtRegisterSubscriptions/index.js:52-57` (`getOrderedDate`),
+  which takes the first `prisonCourtRegister` fragment in array order with
+  any dated result, then that fragment's first result's `orderedDate` —
+  not sorted, not the latest, not computed per-defendant. A single,
+  somewhat arbitrarily-chosen date is used to fetch subscription config
+  for every defendant on the hearing. This date-versioning behaviour isn't
+  modeled by `ReferenceDataClient.getPrisonCourtRegisterSubscriptions()`
+  above and needs a decision before implementation: reproduce the same
+  first-fragment-wins date selection, or something more principled.
+  Whether Reference Data even exposes either endpoint to a consumer outside
+  the Function App is still unconfirmed and needs its own investigation.
+
+### Other findings, outside this document's scope but worth recording
+
+- **The orchestrator has no visible retry policy or idempotency check
+  beyond whatever Durable Functions provides implicitly.**
+  `PrisonCourtRegisterOrchestrator/index.js:73-78` wraps everything in one
+  `try/catch`; on any exception it logs and returns
+  `{Success: false, Error: err}` rather than throwing or scheduling a
+  retry, and there's no dedupe on `hearingId`/event replay visible in this
+  file or in activity 1 (`HearingResultedCacheQuery`, which has its own
+  retry only around the Redis/REST calls, not the pipeline as a whole).
+  This service shouldn't assume the legacy system has a safety net here
+  beyond what's actually in these files — cross-reference against the
+  ingestion doc's own retry/idempotency design rather than assuming legacy
+  parity implies one exists.
+- **The Redis cache key format matches this service's own read — confirmed,
+  no action needed.** `HearingResultedCacheQuery` builds its key as
+  `payloadPrefix + hearingId + "_" + hearingDate + "_result_"` (with a
+  hearing date) or `payloadPrefix + hearingId + "_result_"` (without) —
+  exactly the template `HearingResultedCacheClient.cacheKey()` already uses
+  (`"INT_" + hearingId + "_" + hearingDay + "_result_"`). Noted here only
+  because it surfaced during this pass; the canonical key format itself
+  belongs to the ingestion doc.
+- **PII warning, not to be ported.** `ProcessOutboundPrisonCourtRegister/index.js:25-26`
+  logs the full outbound payload (`JSON.stringify(prisonCourtRegisterRequest)`,
+  including defendant name/DOB/address) at error level on a Progression-
+  submission failure. This is legacy activity 5, explicitly out of this
+  document's scope (see "Explicitly not in scope" above) — but flagging
+  loudly given this repo's PII-logging rules (`shared-code-rules.md`): if
+  any future work ever touches that boundary, this specific behaviour must
+  not be replicated.
