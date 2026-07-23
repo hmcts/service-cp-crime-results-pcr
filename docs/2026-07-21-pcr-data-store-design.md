@@ -88,17 +88,6 @@ erDiagram
         uuid case_hearing_id FK
         string custody_location "unconfirmed whether ever printed — see v2 §6"
         uuid master_defendant_id
-        string title "PII — API-suppression decision open, see §3"
-        string first_name "PII — API-suppression decision open, see §3"
-        string middle_name "PII — API-suppression decision open, see §3"
-        string last_name "PII — API-suppression decision open, see §3"
-        date date_of_birth "PII — API-suppression decision open, see §3"
-        string address_1 "PII — API-suppression decision open, see §3"
-        string address_2 "PII — API-suppression decision open, see §3"
-        string address_3 "PII — API-suppression decision open, see §3"
-        string address_4 "PII — API-suppression decision open, see §3"
-        string address_5 "PII — API-suppression decision open, see §3"
-        string post_code "PII — API-suppression decision open, see §3"
         date next_hearing_date "embedded, nullable — see §3, CP's own nextHearing name"
         string next_hearing_time
         string next_hearing_court_house_code
@@ -231,26 +220,19 @@ case+hearing.
 - **FK:** `case_hearing_id` → `pcr_case_hearing.id`.
 - **`expires_at`:** the retention anchor for this row (§4) — purge is a TTL
   sweep read off this column directly, not an event-driven delete.
-- **Defendant identity fields:** `master_defendant_id`, `title`,
-  `first_name`, `middle_name`, `last_name`, `date_of_birth`, `address_1`
-  through `address_5`, `post_code` — embedded directly on this table rather
-  than a separate `pcr_defendant` table, because they are genuinely 1:1 with
-  a version and have no independent lifecycle of their own.
-- **Open decision, not yet made: whether to suppress these PII fields from
-  the API response entirely.** HMPPS's actual consumption path looks these
-  same defendant details up against NOMIS independently — the API surfacing
-  `title`/`first_name`/`middle_name`/`last_name`/`date_of_birth`/
-  `address_1..5`/`post_code` may be redundant with that lookup, not
-  additive. They're carried here today because they're printed on the
-  physical PCR PDF and this service mirrors that content faithfully (v2 §6)
-  — but "printed on the PDF" and "needed in this API" aren't automatically
-  the same requirement. Needs a product/security call: keep as-is (accept
-  the duplication with HMPPS's NOMIS lookup), or suppress some/all of these
-  fields from the API response — a data-minimisation question (OFFICIAL-
-  SENSITIVE PII, UK GDPR/DPA 2018) independent of whether the *storage*
-  schema keeps them. If suppressed at the API layer, these columns would
-  likely still exist here (this service's data store mirrors CP's source
-  content), with the cut made in the Query API/response mapping instead.
+- **Defendant identity field:** `master_defendant_id` only — embedded
+  directly on this table rather than a separate `pcr_defendant` table,
+  because it's genuinely 1:1 with a version and has no independent
+  lifecycle of its own.
+- **Resolved — defendant PII (name, DOB, address) is not carried at all,
+  neither here nor in the API response.** Previously an open decision
+  (suppress at the API layer only, or drop entirely) pending confirmation
+  of HMPPS's actual consumption path. HMPPS confirmed they resolve the
+  defendant entirely via `defendantId`/`masterDefendantId` against NOMIS —
+  no name/DOB/address lookup happens through this API at all, so there's
+  no data-minimisation tradeoff to make: these fields are absent from the
+  `Defendant`/`Address` OpenAPI schemas, never parsed from the upstream
+  Results API response, and never reach this table.
 - **`next_hearing_*` fields:** named after CP's own `nextHearing`, not a
   consumer-facing "next appearance" term. Embedded, nullable, 1:1 — kept
   per-defendant on `pcr_version` rather than promoted to `pcr_case_hearing`,
@@ -358,11 +340,10 @@ depend only on this service's derived fields.
   type and whether a separate ordering column is needed alongside it — it
   does not affect the PK, since `pcr_version_pk` (§3) is the surrogate key
   and `source_id` is a plain nullable column.
-- **Dead legacy fields (v2 §6, §13 item 6):** whether to carry
-  `officerInCase`, `parentGuardianName`/`Address1`, and the always-empty
-  `parentGuardianAddress2-5`/`PostCode` through as permanently-empty columns,
-  or drop them from this service's model entirely. No column for these
-  exists in §2/§3 above pending that decision.
+- **Dead legacy fields (v2 §6, §13 item 6) — resolved, dropped.**
+  `officerInCase`, `parentGuardianName`/`Address1-5`/`PostCode`: HMPPS
+  confirmed no parent/guardian concept is needed from this API. Not
+  modelled — no column for these exists anywhere in §2/§3 above.
 
 ---
 

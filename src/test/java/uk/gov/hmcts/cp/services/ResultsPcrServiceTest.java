@@ -23,7 +23,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class PcrServiceTest {
+class ResultsPcrServiceTest {
 
     private static final String CASE_URN = "ABCD1234567";
     private static final UUID HEARING_ID = UUID.fromString("00000000-0000-0000-0000-000000000011");
@@ -35,14 +35,14 @@ class PcrServiceTest {
     private PcrVersionMapper mapper;
 
     @InjectMocks
-    private PcrService pcrService;
+    private ResultsPcrService resultsPcrService;
 
     @Test
     void getVersion_should_throw404_whenCaseUrnNotFound_andVersionIsLatest() {
         final HearingDetailsResponse hearingDetails = hearingDetailsWith(List.of());
         when(resultsClient.getHearingDetails(HEARING_ID)).thenReturn(hearingDetails);
 
-        assertThatThrownBy(() -> pcrService.getVersion(CASE_URN, HEARING_ID, DEFENDANT_ID, "latest"))
+        assertThatThrownBy(() -> resultsPcrService.getVersion(CASE_URN, HEARING_ID, DEFENDANT_ID, "latest"))
                 .isInstanceOf(ResponseStatusException.class)
                 .hasMessageContaining("404");
     }
@@ -53,7 +53,7 @@ class PcrServiceTest {
         final HearingDetailsResponse hearingDetails = hearingDetailsWith(List.of(prosecutionCase));
         when(resultsClient.getHearingDetails(HEARING_ID)).thenReturn(hearingDetails);
 
-        assertThatThrownBy(() -> pcrService.getVersion(CASE_URN, HEARING_ID, DEFENDANT_ID, "latest"))
+        assertThatThrownBy(() -> resultsPcrService.getVersion(CASE_URN, HEARING_ID, DEFENDANT_ID, "latest"))
                 .isInstanceOf(ResponseStatusException.class)
                 .hasMessageContaining("404");
     }
@@ -67,14 +67,14 @@ class PcrServiceTest {
         when(resultsClient.getHearingDetails(HEARING_ID)).thenReturn(hearingDetails);
         when(mapper.toPcrVersion(defendant, prosecutionCase, hearingDetails, HEARING_ID)).thenReturn(expected);
 
-        final PcrVersion result = pcrService.getVersion(CASE_URN, HEARING_ID, DEFENDANT_ID, "latest");
+        final PcrVersion result = resultsPcrService.getVersion(CASE_URN, HEARING_ID, DEFENDANT_ID, "latest");
 
         assertThat(result).isEqualTo(expected);
     }
 
     @Test
     void getVersion_should_throw501_whenVersionIsSpecificId() {
-        assertThatThrownBy(() -> pcrService.getVersion(CASE_URN, HEARING_ID, DEFENDANT_ID, "01hxjk8v3xj0e5jz2h1p4c6q7r"))
+        assertThatThrownBy(() -> resultsPcrService.getVersion(CASE_URN, HEARING_ID, DEFENDANT_ID, "01hxjk8v3xj0e5jz2h1p4c6q7r"))
                 .isInstanceOf(ResponseStatusException.class)
                 .hasMessageContaining("501");
     }

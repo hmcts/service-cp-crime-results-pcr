@@ -60,10 +60,13 @@ architecture source; read it in full before adding any component, not just this 
 - **Do not port `VocabularyService` or `PrisonCourtRegisterSubscriptions`** — confirmed
   out-of-scope (design §5b/§14); subscriber matching stays owned by
   `service-cp-crime-hearing-results-document-subscription` and `now_subscriptions`.
-- **Open decision, not yet made**: whether confirmed-dead legacy fields (`officerInCase`,
-  `parentGuardianName`/`Address1`/`Address2-5`/`PostCode`) get carried through as
-  permanently-empty fields or dropped from this service's model (design §6, item 4 in §13
-  cross-team dependencies).
+- **Resolved — dropped.** Confirmed-dead legacy fields (`officerInCase`,
+  `parentGuardianName`/`Address1-5`/`PostCode`) are not carried through — HMPPS confirmed no
+  parent/guardian concept is needed from this API. Same resolution covers defendant name/DOB/
+  address (`title`/`firstName`/`middleName`/`lastName`/`dateOfBirth`/`address`) and
+  prosecution/defence counsel/aliases — HMPPS resolves the defendant entirely via
+  `defendantId`/`masterDefendantId` against NOMIS, so none of this is modelled anywhere in
+  this service or the `Defendant`/`Address` API schemas.
 - Field-level mapping detail (base shape, aliasing fixes, enrichment additions) lives in
   `PCR-HMPPS-FIELD-MAPPING.md` in the `api-cp-crime-results-pcr` spec repo, not duplicated here.
 

@@ -13,7 +13,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-public class PcrService {
+public class ResultsPcrService {
 
     private static final String LATEST = "latest";
 

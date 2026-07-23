@@ -5,8 +5,6 @@ import org.springframework.stereotype.Component;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.CustodialEstablishment;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.HearingDetail;
-import uk.gov.hmcts.cp.domain.HearingDetailsResponse.PersonDetails;
-import uk.gov.hmcts.cp.openapi.model.Address;
 import uk.gov.hmcts.cp.openapi.model.CaseMarker;
 import uk.gov.hmcts.cp.openapi.model.CourtApplication;
 import uk.gov.hmcts.cp.openapi.model.Defendant;
@@ -60,28 +58,10 @@ public class PcrVersionMapper {
     }
 
     private Defendant toDefendant(final HearingDetailsResponse.Defendant defendant) {
-        final PersonDetails personDetails = defendant.getPersonDefendant().getPersonDetails();
         return Defendant.builder()
                 .id(UUID.fromString(defendant.getId()))
                 .masterDefendantId(defendant.getMasterDefendantId() == null ? null
                         : UUID.fromString(defendant.getMasterDefendantId()))
-                .title(personDetails.getTitle())
-                .firstName(personDetails.getFirstName())
-                .middleName(personDetails.getMiddleName())
-                .lastName(personDetails.getLastName())
-                .dateOfBirth(personDetails.getDateOfBirth())
-                .address(toAddress(personDetails.getAddress()))
-                .build();
-    }
-
-    private Address toAddress(final HearingDetailsResponse.Address address) {
-        return address == null ? null : Address.builder()
-                .address1(address.getAddress1())
-                .address2(address.getAddress2())
-                .address3(address.getAddress3())
-                .address4(address.getAddress4())
-                .address5(address.getAddress5())
-                .postCode(address.getPostcode())
                 .build();
     }
 

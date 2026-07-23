@@ -6,7 +6,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse;
-import uk.gov.hmcts.cp.domain.HearingDetailsResponse.Address;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.CaseMarker;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.CourtApplication;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.CourtCentre;
@@ -17,7 +16,6 @@ import uk.gov.hmcts.cp.domain.HearingDetailsResponse.HearingDetail;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.JudicialResult;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.Offence;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.PersonDefendant;
-import uk.gov.hmcts.cp.domain.HearingDetailsResponse.PersonDetails;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.ProsecutionCase;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.ProsecutionCaseIdentifier;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.Respondent;
@@ -66,31 +64,6 @@ class PcrVersionMapperTest {
     }
 
     @Test
-    void toDefendant_should_mapPersonDetailsAndAddress() {
-        final Defendant defendant = Defendant.builder()
-                .id(DEFENDANT_ID.toString())
-                .masterDefendantId(MASTER_DEFENDANT_ID)
-                .personDefendant(PersonDefendant.builder()
-                        .personDetails(PersonDetails.builder()
-                                .title("Mr").firstName("John").middleName("Middle").lastName("Doe")
-                                .dateOfBirth(LocalDate.of(1980, 1, 31))
-                                .address(Address.builder().address1("1 Example Street").postcode("AB1 2CD").build())
-                                .build())
-                        .build())
-                .offences(List.of())
-                .build();
-
-        final PcrVersion result = mapper.toPcrVersion(defendant, minimalProsecutionCase(), minimalHearingDetails(), HEARING_ID);
-
-        assertThat(result.getDefendant().getId()).isEqualTo(DEFENDANT_ID);
-        assertThat(result.getDefendant().getFirstName()).isEqualTo("John");
-        assertThat(result.getDefendant().getLastName()).isEqualTo("Doe");
-        assertThat(result.getDefendant().getDateOfBirth()).isEqualTo(LocalDate.of(1980, 1, 31));
-        assertThat(result.getDefendant().getAddress().getAddress1()).isEqualTo("1 Example Street");
-        assertThat(result.getDefendant().getAddress().getPostCode()).isEqualTo("AB1 2CD");
-    }
-
-    @Test
     void toDefendant_should_mapMasterDefendantId() {
         final Defendant defendant = defendantWithMasterId(MASTER_DEFENDANT_ID);
 
@@ -104,7 +77,6 @@ class PcrVersionMapperTest {
         final Defendant defendant = Defendant.builder()
                 .id(DEFENDANT_ID.toString())
                 .personDefendant(PersonDefendant.builder()
-                        .personDetails(PersonDetails.builder().build())
                         .custodialEstablishment(CustodialEstablishment.builder().name("HMP Dovegate").custody("Prison").build())
                         .build())
                 .offences(List.of())
@@ -141,7 +113,7 @@ class PcrVersionMapperTest {
         final Offence offence = Offence.builder().judicialResults(List.of(resultWithNextHearing)).build();
         final Defendant defendant = Defendant.builder()
                 .id(DEFENDANT_ID.toString())
-                .personDefendant(PersonDefendant.builder().personDetails(PersonDetails.builder().build()).build())
+                .personDefendant(PersonDefendant.builder().build())
                 .offences(List.of(offence))
                 .build();
         final ProsecutionCase prosecutionCase = ProsecutionCase.builder()
@@ -171,7 +143,7 @@ class PcrVersionMapperTest {
                 .build();
         final Defendant defendant = Defendant.builder()
                 .id(DEFENDANT_ID.toString())
-                .personDefendant(PersonDefendant.builder().personDetails(PersonDetails.builder().build()).build())
+                .personDefendant(PersonDefendant.builder().build())
                 .offences(List.of(offence))
                 .build();
 
@@ -190,7 +162,7 @@ class PcrVersionMapperTest {
         final Offence offence = Offence.builder().judicialResults(List.of(judicialResult)).build();
         final Defendant defendant = Defendant.builder()
                 .id(DEFENDANT_ID.toString())
-                .personDefendant(PersonDefendant.builder().personDetails(PersonDetails.builder().build()).build())
+                .personDefendant(PersonDefendant.builder().build())
                 .offences(List.of(offence))
                 .build();
 
@@ -234,7 +206,7 @@ class PcrVersionMapperTest {
     private Defendant minimalDefendant() {
         return Defendant.builder()
                 .id(DEFENDANT_ID.toString())
-                .personDefendant(PersonDefendant.builder().personDetails(PersonDetails.builder().build()).build())
+                .personDefendant(PersonDefendant.builder().build())
                 .offences(List.of())
                 .build();
     }
@@ -243,7 +215,7 @@ class PcrVersionMapperTest {
         return Defendant.builder()
                 .id(DEFENDANT_ID.toString())
                 .masterDefendantId(masterDefendantId)
-                .personDefendant(PersonDefendant.builder().personDetails(PersonDetails.builder().build()).build())
+                .personDefendant(PersonDefendant.builder().build())
                 .offences(List.of())
                 .build();
     }
