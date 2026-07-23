@@ -39,6 +39,10 @@ public class HearingDetailsResponse {
         private String id;
         private String code;
         private String name;
+        // Boxed, not primitive — not yet confirmed present on every real
+        // hearingDetails/internal response (design doc §2/§7); a missing field must not
+        // fail deserialization of the whole payload.
+        private Boolean welshCourtCentre;
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
@@ -60,6 +64,7 @@ public class HearingDetailsResponse {
         private ProsecutionCaseIdentifier prosecutionCaseIdentifier;
         private List<CaseMarker> caseMarkers;
         private List<Defendant> defendants;
+        private Prosecutor prosecutor;
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
@@ -69,6 +74,16 @@ public class HearingDetailsResponse {
     @Getter
     public static class ProsecutionCaseIdentifier {
         private String caseURN;
+    }
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Getter
+    public static class Prosecutor {
+        // Boxed, not primitive — see CourtCentre.welshCourtCentre for why.
+        private Boolean isCps;
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
@@ -88,6 +103,9 @@ public class HearingDetailsResponse {
     public static class Defendant {
         private String id;
         private String masterDefendantId;
+        // Youth/adult vocabulary source (design doc §2/§7) — boxed, not primitive, see
+        // CourtCentre.welshCourtCentre for why.
+        private Boolean isYouth;
         private PersonDefendant personDefendant;
         private List<Offence> offences;
     }
@@ -138,6 +156,9 @@ public class HearingDetailsResponse {
         private String label;
         private boolean isFinancialResult;
         private boolean isConvictedResult;
+        // publishedForNows: the PCR eligibility flag (orchestrator design doc §3) — boxed,
+        // not primitive, see CourtCentre.welshCourtCentre for why.
+        private Boolean publishedForNows;
         private NextHearing nextHearing;
         private List<JudicialResultPrompt> judicialResultPrompts;
     }
