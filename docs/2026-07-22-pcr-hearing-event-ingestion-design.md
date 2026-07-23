@@ -75,7 +75,7 @@ flowchart TB
     RQC -->|"GET hearingDetails/internal/{hearingId}"| ResultsAPI["Results Query API"]
 
     GroupCheck -->|"true"| NoPcr["404 — no PCR for any defendant<br/>on this hearing, §3.3a"]
-    GroupCheck -->|"false/null"| Downstream["PcrOrchestrator<br/>(orchestrator doc)"]
+    GroupCheck -->|"false/null"| Downstream["ResultsPcrOrchestrator<br/>(orchestrator doc)"]
 ```
 
 Sequence for one hearing:
@@ -90,7 +90,7 @@ sequenceDiagram
     participant Redis as Redis Cache
     participant RQC as ResultsClient
     participant API as Results Query API
-    participant Downstream as PcrOrchestrator
+    participant Downstream as ResultsPcrOrchestrator
 
     Results-->>Grid: Hearing_Resulted (pointer only)
     Grid-->>Bus: routed by Event Grid subscription
@@ -437,7 +437,7 @@ any per-defendant work starts — confirmed by reading the full legacy
 orchestrator (`PrisonCourtRegisterOrchestrator/index.js`, no other guard
 anywhere) and the start of `SetPrisonCourtRegister.build()`, which goes
 straight into per-defendant fan-out with no guard of its own. This is the
-correct home for both checks — `PcrOrchestrator` (the orchestrator design
+correct home for both checks — `ResultsPcrOrchestrator` (the orchestrator design
 doc) begins *after* per-defendant fan-out has already happened, so it
 structurally cannot apply a whole-hearing filter; it would have to apply
 the same check once per defendant, redundantly.
@@ -590,7 +590,7 @@ item; this is a new, separate thing to watch).
 Service Bus is at-least-once delivery. A redelivered message means
 `ResultsIngestionService.ingest(...)` runs again for the same hearing,
 producing the same (or a refreshed) payload a second time. Whatever
-consumes that payload downstream (`PcrOrchestrator`, ultimately writing to
+consumes that payload downstream (`ResultsPcrOrchestrator`, ultimately writing to
 `pcr_version`) needs to tolerate that — e.g. deduping by
 `(source_id, defendant_id)` once `source_id` is populated (data-store doc
 §3), or by some other means for the interim rows written before it is.
