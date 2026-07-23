@@ -50,17 +50,17 @@ which is about *delivery*, not content or eligibility:
 
 ## 1. Pipeline position
 
-`PcrOrchestrator` performs the decision-relevant subset of the legacy
+`ResultsPcrOrchestrator` performs the decision-relevant subset of the legacy
 orchestrator's five activities — activities 2 and 3 only:
 
 1. **Compute vocabulary** (`VocabularyService.compute`, §2) — per-defendant
    fact computation from the full, unfiltered result set.
 2. **Exclude `publishedForNows` results**
-   (`PcrOrchestrator.excludePublishedForNows`, §3) — the content filter,
+   (`ResultsPcrOrchestrator.excludePublishedForNows`, §3) — the content filter,
    replicating legacy activity 2's `filterJudicialResultsApplicableForRegisters`
    step.
 3. **Determine whether a PCR is required**
-   (`PcrOrchestrator.isPrisonCourtRegisterRequired`, §4) — the
+   (`ResultsPcrOrchestrator.isPrisonCourtRegisterRequired`, §4) — the
    subscription-match gate (vocabulary rules via `NowSubscriptionMatcher`,
    backed by `ReferenceDataClient`), replicating legacy activity 3
    (`PrisonCourtRegisterSubscriptions`).
@@ -70,16 +70,17 @@ touch them: building the register fragment's non-decision content, and
 anything from activities 4–5 (recipients, payload assembly, Progression
 submission) — see "Explicitly not in scope" above.
 
-**Naming — `PcrOrchestrator`, not the legacy name.** The legacy top-level
-coordinator, `PrisonCourtRegisterOrchestrator`, is an Azure Durable
-Functions orchestrator function with checkpointing/replay semantics,
-coordinating all five activities including delivery. A plain Spring
-`@Component` coordinating only the decision-relevant subset (activities
-2–3) isn't the same thing, so this class follows this service's own
-naming convention instead — `PcrController`, `PcrService`,
-`PcrVersionMapper` are all `Pcr`-prefixed — while still naming the class
-for what it does: coordinate `VocabularyService`, the `publishedForNows`
-filter, and `NowSubscriptionMatcher`/`ReferenceDataClient` in sequence.
+**Naming — `ResultsPcrOrchestrator`, not the legacy name.** The legacy
+top-level coordinator, `PrisonCourtRegisterOrchestrator`, is an Azure
+Durable Functions orchestrator function with checkpointing/replay
+semantics, coordinating all five activities including delivery. A plain
+Spring `@Component` coordinating only the decision-relevant subset
+(activities 2–3) isn't the same thing, so this class follows this
+service's own naming convention instead — `ResultsPcrController`,
+`ResultsPcrService`, `ResultsClient` are all `Results`-prefixed — while
+still naming the class for what it does: coordinate `VocabularyService`,
+the `publishedForNows` filter, and `NowSubscriptionMatcher`/
+`ReferenceDataClient` in sequence.
 
 ```mermaid
 flowchart LR
@@ -99,7 +100,7 @@ activity 4 (`OutboundPrisonCourtRegister`, which discards fragments with no
 `matchedSubscriptions` before building payloads) — a detail that only
 matters to delivery-routing machinery this service doesn't replicate. The
 determination itself (`matchedSubscriptions.length > 0`, legacy activity 4)
-is exactly equivalent to this design's `PcrOrchestrator.isPrisonCourtRegisterRequired`
+is exactly equivalent to this design's `ResultsPcrOrchestrator.isPrisonCourtRegisterRequired`
 (§4) — same check, just relocated earlier in the pipeline since this
 service has no reason to build the rest of activity 4's recipient/payload
 machinery first.
@@ -299,7 +300,7 @@ own `hearingDetails/internal` call too, since both consume the same
 Results Query API family. It is **not yet modeled** on
 `HearingDetailsResponse.JudicialResult` (phase 1). Confirm it's actually
 present on a real `hearingDetails/internal` response (§7), then add it as
-a plain field. The filter itself is `PcrOrchestrator.excludePublishedForNows`
+a plain field. The filter itself is `ResultsPcrOrchestrator.excludePublishedForNows`
 (§4) — deliberately named to avoid reusing "eligible"/"eligibility," which
 already means something different in this document (§4's subscription-
 match gate).
@@ -486,15 +487,17 @@ public class NowSubscriptionMatcher {
 ```java
 @Component
 @RequiredArgsConstructor
-public class PcrOrchestrator {
+public class ResultsPcrOrchestrator {
 
     private final NowSubscriptionMatcher nowSubscriptionMatcher;
     private final ReferenceDataClient referenceDataClient;
 
-    public boolean isPrisonCourtRegisterRequired(final Vocabulary vocabulary, final List<JudicialResultResponse> eligibleResults) {
-        // See §7 — the real endpoint (getSubscriptionsMetadata) is date-scoped (?on=<date>);
-        // this signature doesn't yet account for that, resolve before implementing.
-        final List<NowSubscription> subscriptions = referenceDataClient.getPrisonCourtRegisterSubscriptions();
+    public boolean isPrisonCourtRegisterRequired(final Vocabulary vocabulary, final List<JudicialResultResponse> eligibleResults,
+                                                   final LocalDate on) {
+        // See §7 for the confirmed contract — GET .../now-subscriptions?on=<date>,
+        // CJSCPPUID + Accept vendor header, no other auth. `on` still needs a decided
+        // date-selection strategy (§7) before this can be called for real.
+        final List<NowSubscription> subscriptions = referenceDataClient.getPrisonCourtRegisterSubscriptions(on);
         return subscriptions.stream()
                 .anyMatch(s -> nowSubscriptionMatcher.matches(s, vocabulary, eligibleResults));
     }
@@ -510,7 +513,12 @@ public class PcrOrchestrator {
 
 `ReferenceDataClient` is the only new external client this document
 needs — nothing in phase 1 or the ingestion doc calls Reference Data for
-subscription config today.
+subscription config today. Its contract is now confirmed (§7): a `GET`
+to `.../now-subscriptions?on=<date>` with `CJSCPPUID` + `Accept:
+application/vnd.referencedata.query.get-now-subscriptions+json`, no other
+auth, calling the same `referencedata-query-api` family
+`service-cp-refdata-courthearing-courthouses` already calls directly from
+this org's AKS-hosted `service-cp-*` fleet.
 
 ---
 
@@ -759,7 +767,7 @@ resolving it unilaterally here.
 
 ### No-match behaviour: `404`
 
-When `PcrOrchestrator.isPrisonCourtRegisterRequired` returns `false`, this
+When `ResultsPcrOrchestrator.isPrisonCourtRegisterRequired` returns `false`, this
 service treats it exactly like "no PCR version found for the supplied
 identifiers" — the same `404` `PcrService` already returns for a
 case/defendant that doesn't exist (phase 1). No new error shape, no
@@ -786,23 +794,72 @@ alongside the existing case/defendant lookups in
   occurrences is reasonable evidence this is house style rather than a
   one-off bug, though not proof. Worth confirming with whoever owns the
   legacy logic before silently "fixing" it.
-- **`ReferenceDataClient`'s Reference Data integration shape** — a new
-  dependency, needed for both the subscription-match gate (§4) and
-  `custodyLocation` enrichment (§5). The real subscription endpoint
-  (`getSubscriptionsMetadata`) is a simple `GET` with an `Accept` vendor
-  media type and `CJSCPPUID`, retried via a wrapper, but is date-scoped
-  (`?on=<date>`) — resolved via
-  `PrisonCourtRegisterSubscriptions/index.js:52-57` (`getOrderedDate`),
-  which takes the first `prisonCourtRegister` fragment in array order with
-  any dated result, then that fragment's first result's `orderedDate` —
-  not sorted, not the latest, not computed per-defendant. A single,
-  somewhat arbitrarily-chosen date is used to fetch subscription config
-  for every defendant on the hearing. This date-versioning behaviour isn't
-  modeled by `ReferenceDataClient.getPrisonCourtRegisterSubscriptions()`
-  above and needs a decision before implementation: reproduce the same
-  first-fragment-wins date selection, or something more principled.
-  Whether Reference Data even exposes either endpoint to a consumer outside
-  the Function App is still unconfirmed and needs its own investigation.
+- **`ReferenceDataClient`'s Reference Data integration shape — resolved,
+  contract confirmed directly against source, retry wrapper, and response
+  fixtures.** `getSubscriptionsMetadata` (`ReferenceDataService.js:33-54`):
+
+  ```
+  GET ${REFERENCE_DATA_CONTEXT_API_BASE_URI}/referencedata-query-api/query/api/rest/referencedata/now-subscriptions?on=<YYYY-MM-DD>
+  Headers: CJSCPPUID: <cjscppuid>, Accept: application/vnd.referencedata.query.get-now-subscriptions+json
+  ```
+
+  No API key, bearer token, or subscription key anywhere in the request —
+  `CJSCPPUID` + the `Accept` vendor header is the entire request identity.
+  `on` is truncated to a bare date (`new Date(on).toISOString().slice(0,
+  10)`, line 38) — any time component is discarded before the call is
+  made. Retried via `AxiosRetryWrapper.js` — 3 attempts, 1000ms fixed
+  interval (`DEFAULT_PUBLISH_RETRY_COUNT`/`DEFAULT_PUBLISH_RETRY_INTERVAL`,
+  lines 10-11), but it does **not** retry a response it already received
+  with status ≤429 (line 34's `error.response && status <= 429` check) —
+  only a genuine 5xx or a connection failure (no response at all) gets
+  retried. On any final failure the whole call is swallowed and `null`
+  returned (`ReferenceDataService.js:50-53`) — the Function App never
+  propagates a Reference Data failure as an exception.
+
+  Response shape (`PrisonCourtRegisterSubscriptions/test/reference-data-service-result-1-3-true.json`):
+  a top-level `nowSubscriptions` array; each element carries
+  `isPrisonCourtRegisterSubscription`, `applySubscriptionRules` (a
+  **top-level** field, sibling to `subscriptionVocabulary`, confirmed via
+  `NowsHelper/service/test/Subscriptions.json:10` — not nested inside
+  `subscriptionVocabulary`), a nested `recipient` object (delivery-only,
+  out of scope, §1), and `subscriptionVocabulary` whose field names match
+  this document's `Vocabulary` record almost verbatim —
+  `custodyLocationIsPrison`/`custodyLocationIsPolice`,
+  `atleastOneCustodialResult`/`allNonCustodialResults`/`atleastOneNonCustodialResult`,
+  `youthDefendant`/`adultDefendant`, `welshCourtHearing`/`englishCourtHearing`,
+  plus the deferred `appearedInPerson`/`appearedByVideoLink`/`anyAppearance`
+  trio (§2) — direct confirmation those three are real, current, and worth
+  building once their `HearingDetailsResponse` source is fixture-confirmed.
+
+  The date-scoping's *selection* logic (which date to pass) is still as
+  originally found: `PrisonCourtRegisterSubscriptions/index.js:52-57`
+  (`getOrderedDate`) takes the first `prisonCourtRegister` fragment in
+  array order with any dated result, then that fragment's first result's
+  `orderedDate` — not sorted, not the latest, not computed per-defendant.
+  `ReferenceDataClient.getPrisonCourtRegisterSubscriptions()` above needs
+  updating to take an explicit date parameter and a decision on whether to
+  reproduce that same first-fragment-wins selection or do something more
+  principled — the endpoint contract itself is no longer the blocker.
+
+  **One item genuinely remains unconfirmed, and it's a deployment
+  question, not a code one:** no non-`localhost` value for
+  `REFERENCE_DATA_CONTEXT_API_BASE_URI` exists anywhere in
+  `cpp-context-azure-legalaidagency` (`local.settings.json:10`,
+  `Integration-Test/config.json:3` both hardcode `http://localhost:8080`)
+  — no ARM/Bicep/App Service networking config is checked into this repo
+  either, so the real dev/SIT host and any network reachability
+  constraints can't be confirmed from source alone. That said, calling
+  Reference Data directly from a `service-cp-*` (rather than only from
+  this Function App) is an already-established pattern, not a new one
+  needing an ADR: `service-cp-refdata-courthearing-courthouses` calls the
+  same `referencedata-query-api` family directly today
+  (`CourtHousesClient.java`, same `CJSCPPUID` + `Accept:
+  application/vnd.referencedata.*+json` convention), and a separate POC
+  (`cpp-case-aggregator-poc`) already has a working, if unwired, Spring
+  `RestClient` calling this exact `now-subscriptions` endpoint. Whatever
+  `CP_BACKEND_URL` resolves to for this service in dev/SIT should reach
+  the same host `service-cp-refdata-courthearing-courthouses` already
+  reaches.
 
 ### Other findings, outside this document's scope but worth recording
 
