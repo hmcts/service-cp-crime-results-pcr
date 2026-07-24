@@ -14,10 +14,12 @@ by-id branch of `getPcrVersion` both return `501` today because there is
 nothing here yet to query. This document describes the schema those
 operations will read from once phase 2 is built.
 
-**Database engine:** PostgreSQL, via Flyway migrations (§7). Column types
-below are still the *logical* model — the shape phase 2 implementation
-will map onto — not final SQL; actual Flyway migration DDL is out of
-scope here and gets written when phase 2 implementation starts.
+**Database engine:** PostgreSQL, via Flyway migrations (§7) — see
+[`docs/pipeline/adrs/003-AMP-890-postgresql-flyway-pcr-data-store.md`](pipeline/adrs/003-AMP-890-postgresql-flyway-pcr-data-store.md)
+for the dependency-adoption decision. Column types below are still the
+*logical* model — the shape phase 2 implementation will map onto — not
+final SQL; actual Flyway migration DDL is out of scope here and gets
+written when phase 2 implementation starts.
 
 ---
 

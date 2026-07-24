@@ -1,6 +1,7 @@
 # 002. Carry defendant PII, encrypted at rest
 
 **Status:** Accepted, 24 Jul 2026
+**Jira:** AMP-891 — PII redaction/encryption
 **Design docs:** this decision changes the contract/persistence shape described in
 [`2026-07-16-pcr-api-marketplace-design-v2.md`](../../2026-07-16-pcr-api-marketplace-design-v2.md),
 [`2026-07-17-pcr-stateless-proxy-design.md`](../../2026-07-17-pcr-stateless-proxy-design.md), and
