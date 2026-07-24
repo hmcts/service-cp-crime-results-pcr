@@ -1,14 +1,14 @@
-package uk.gov.hmcts.cp.services;
+package uk.gov.hmcts.cp.services.orchestrator;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.gov.hmcts.cp.clients.ReferenceDataClient;
+import uk.gov.hmcts.cp.clients.orchestrator.ReferenceDataClient;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.JudicialResult;
-import uk.gov.hmcts.cp.domain.NowSubscription;
-import uk.gov.hmcts.cp.domain.Vocabulary;
+import uk.gov.hmcts.cp.domain.orchestrator.NowSubscription;
+import uk.gov.hmcts.cp.domain.orchestrator.Vocabulary;
 
 import java.time.LocalDate;
 import java.util.List;

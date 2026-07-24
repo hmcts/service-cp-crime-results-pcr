@@ -1,4 +1,4 @@
-package uk.gov.hmcts.cp.services;
+package uk.gov.hmcts.cp.services.orchestrator;
 
 import org.junit.jupiter.api.Test;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.CourtApplication;
@@ -14,7 +14,7 @@ import uk.gov.hmcts.cp.domain.HearingDetailsResponse.ProsecutionCase;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.ProsecutionCaseIdentifier;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.Prosecutor;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.Respondent;
-import uk.gov.hmcts.cp.domain.Vocabulary;
+import uk.gov.hmcts.cp.domain.orchestrator.Vocabulary;
 
 import java.util.List;
 

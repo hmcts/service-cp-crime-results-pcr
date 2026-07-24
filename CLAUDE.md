@@ -16,7 +16,7 @@ version store (Postgres/Flyway, immutable `pcr_version` rows) is phase 2 and des
 **Spring Boot version**: 4.1.0
 **Implements**: `api-cp-crime-results-pcr` v1.0.3 (`PcrApi` — see `build.gradle`)
 
-**Status**: Two independent code paths exist and do not yet talk to each other:
+**Status**: Three independent code paths exist and do not yet talk to each other:
 - `GET /pcr/.../{version}` (`ResultsPcrController` → `ResultsPcrService`) calls `ResultsClient`
   synchronously on every request. It never reads Redis, never goes through the ingestion
   listener, and has no completeness gate — it returns whatever the Results Query API has *right
@@ -25,11 +25,19 @@ version store (Postgres/Flyway, immutable `pcr_version` rows) is phase 2 and des
   consumes `Hearing_Resulted`, checks Redis-then-REST for complete hearing data, and
   retries/dead-letters on incompleteness — but **does not persist anything**. There is no data
   store yet for it to write a `pcr_version` row into.
+- The orchestrator (`VocabularyService`, `ResultsPcrOrchestrator`, `NowSubscriptionMatcher`,
+  `ReferenceDataClient`) is fully implemented and unit-tested but **not called from anywhere**
+  — no controller, service, or listener constructs a `Vocabulary` or invokes
+  `isPrisonCourtRegisterRequired` yet. It exists ahead of wiring, same pattern as the phase-2
+  Flyway migrations.
 
 Read `docs/designs/2026-07-16-pcr-api-marketplace-design-v2.md` (authoritative architecture) plus the
-three dated follow-on design docs in `docs/designs/` before adding any component, not just this file —
+four dated follow-on design docs in `docs/designs/` before adding any component, not just this file —
 each one is a deeper design pass on one layer (stateless-proxy phase 1, data store phase 2,
 hearing-event ingestion, orchestrator) and states its own scope/status at the top.
+`docs/pipeline/adrs/` records the decisions behind each layer, tagged with their Jira ticket
+(AMP-888 parent epic through AMP-943) — read the relevant ADR before revisiting a decision
+that looks arbitrary; it likely isn't.
 
 ## Infrastructure
 
@@ -38,7 +46,9 @@ hearing-event ingestion, orchestrator) and states its own scope/status at the to
 | Ingestion trigger | Azure Event Grid `Hearing_Resulted` → self-provisioned Service Bus queue (`pcr.hearing-resulted`, `HearingResultedQueueProvisioner`) → `HearingResultedProcessorService` (raw `ServiceBusProcessorClient`, **not** `spring-cloud-azure-stream-binder-servicebus` — ADR-002/AMP-889) | Pointer-only event (`hearingId`/`hearingDay`/`userId`), unwrapped from an `EventGridEnvelope`; malformed payloads are dead-lettered, not retried |
 | Results Query Client | `HearingResultedCacheClient` (Redis, read-only `StringRedisTemplate`) first, `ResultsClient` (`RestClient`) REST fallback against `results-query-api/.../hearingDetails/internal/{hearingId}` | Two-step retrieval per design §4a/4b — **ingestion path only**; the synchronous `GET /pcr` path skips Redis entirely |
 | Retry/escalation | `RetryServiceConfig` (`service-bus.retry-durations`/`max-tries`) + `ResultsIngestionService.escalateOrDeadLetter` | On `IncompleteHearingDetailsException`, schedules Service Bus redelivery (`ServiceBusSenderClient`) with increasing backoff; dead-letters once `max-tries` is exceeded |
-| Reference Data | `ResultDefinition` lookups, offence metadata (e.g. `startDate`) | Not yet built — "to be analysed" per design §8 |
+| Reference Data — `ResultDefinition` | Lookups, offence metadata (e.g. `startDate`) | Not yet built — "to be analysed" per design §8 |
+| Reference Data — `now-subscriptions` | `ReferenceDataClient` (`RestClient`) → `.../referencedata-query-api/.../now-subscriptions?on=<date>`; `NowSubscriptionMatcher` matches the PCR-flagged subset against a `Vocabulary` | Built, unit-tested, **not called** — no caller passes a real `on` date yet (design §7's date-selection strategy is still open) |
+| Generation-gate orchestrator | `VocabularyService` (fact computation) + `ResultsPcrOrchestrator` (`excludePublishedForNows`, `isPrisonCourtRegisterRequired`) | Design §4 scope, confirmed with Common Platform TA per ADR-005/AMP-943 — generation-gate logic only; recipient resolution and Progression submission are explicitly out of scope |
 | Data store | **Not implemented.** `docs/designs/2026-07-21-pcr-data-store-design.md` specifies Postgres/Flyway, immutable `pcr_version` rows keyed `(hearingId, defendantId)` | Phase 2 — no Flyway migration, JPA entity, or repository exists in `src/main` yet |
 | Version lookup / retention | Not implemented | Depends on the phase-2 data store + the still-undecided version-correlation mechanism (§7) |
 
@@ -69,7 +79,45 @@ hearing-event ingestion, orchestrator) and states its own scope/status at the to
 - `mappers/JudicialResultPromptParser` — extracts sentencing detail (`concurrent`, `fineAmount`,
   `imprisonmentPeriod`, etc.) from `judicialResultPrompts` by `promptReference` string lookup
 - `config/RetryServiceConfig`, `ServiceBusProperties`, `AppPropertiesBackend` — `@Value`-backed
-  config records/beans for retry schedule, Service Bus connection, and backend URL respectively
+  config records/beans for retry schedule, Service Bus connection, and backend URLs
+  (results-query-client, reference-data-client)
+
+### The `orchestrator` sub-package (`services/orchestrator/`, `clients/orchestrator/`, `domain/orchestrator/`)
+
+Every class here is built and unit-tested but **not called from `ResultsPcrController`,
+`ResultsPcrService`, or the Service Bus listener** — it exists ahead of wiring, same status as
+the phase-2 Flyway migrations. It's sub-packaged (not a new top-level layer — every sibling
+`service-cp-*` repo's `controllers/services/clients/domain` shape stays intact) specifically so
+this "not wired in yet" boundary is visible in the directory listing and import statements
+instead of only living in this file's prose:
+
+- `services/orchestrator/VocabularyService` — computes `Vocabulary` (custody, custodial-result,
+  CPS, age-group, court-language facts) from a defendant + hearing; merges custody/CPS scan
+  across every `prosecutionCase`/`courtApplication` sharing the defendant's `masterDefendantId`
+  on the same hearing (a real merge scenario, not a data-model bug — see repo architecture rules
+  below)
+- `services/orchestrator/NowSubscriptionMatcher` — matches a `NowSubscription`'s vocabulary
+  requirements against a computed `Vocabulary` + eligible `JudicialResult`s; every dimension
+  fails closed when unconfigured except `applySubscriptionRules == false`; attendance matching
+  is stubbed (any-flag-only) pending a confirmed `hearing.defendantAttendance` source
+- `services/orchestrator/ResultsPcrOrchestrator` — `excludePublishedForNows` (plain-field content
+  filter) and `isPrisonCourtRegisterRequired` (the generation gate: fetches subscriptions via
+  `ReferenceDataClient`, filters to `isPrisonCourtRegisterSubscription`, matches via
+  `NowSubscriptionMatcher`)
+- `clients/orchestrator/ReferenceDataClient` — `RestClient` call to Reference Data's
+  `now-subscriptions` endpoint; deliberately generic (`NowSubscription`/`SubscriptionVocabulary`),
+  not PCR-specific — the same config backs other distribution-channel kinds (NOW/EDT/informant/
+  court register), per ADR-005
+- `domain/orchestrator/NowSubscription`/`NowSubscriptionsResponse` — wire shape for the
+  `now-subscriptions` response; every `SubscriptionVocabulary` field is boxed `Boolean`, not
+  primitive — a real subscription omits a dimension's keys entirely rather than sending `false`
+  when it doesn't configure that dimension
+- `domain/orchestrator/Vocabulary` — the eligibility-fact record `VocabularyService` computes;
+  never surfaces in `PcrVersion`/`pcr_version` — it exists only to decide *whether* a PCR is
+  generated, not to describe its content (design doc §2)
+
+`HearingDetailsResponse`/`HearingResultedPointer` stay in top-level `domain/` — they're genuinely
+shared across all three code paths, unlike the orchestrator-only types above.
 
 ## Environment Variables
 
@@ -92,6 +140,14 @@ hearing-event ingestion, orchestrator) and states its own scope/status at the to
 - **One PCR record per `(hearingId, defendantId)`, never merged across defendants** — this is
   load-bearing throughout the design (decision engine fan-out, data store keying, Query API
   shape). Do not "simplify" to one row per hearing.
+- **`VocabularyService` computes facts across every case/application sharing a
+  `masterDefendantId`, not scoped to one `defendantId`'s own case — this is a real, confirmed
+  scenario, not a data-model bug.** One physical defendant can have multiple `defendantId`s
+  (one per prosecution case) and appear on multiple court applications within the same hearing,
+  all sharing one `masterDefendantId`. Custody location and CPS-prosecuted scan the whole
+  hearing by `masterDefendantId` for this reason (orchestrator design doc §2/§7). This is
+  orthogonal to the point above: computing *eligibility* against the merged view does not mean
+  the *persisted* `pcr_version` row merges — it stays keyed per `(hearingId, defendantId)`.
 - **Redis-first, REST-fallback-with-retry is mandatory, not an optimisation** — Redis is written
   synchronously before `Hearing_Resulted` fires (guaranteed populated); the REST viewstore is
   updated asynchronously and can race. Skipping the Redis check reintroduces a real, confirmed
@@ -110,9 +166,15 @@ hearing-event ingestion, orchestrator) and states its own scope/status at the to
 - **`PcrVersionCorrelationHandler` is the only component allowed to know Progression exists** —
   every other layer only ever reads `versionStatus`/`materialId` once the correlator has set them.
   (Not yet implemented — this rule takes effect whenever it is.)
-- **Do not port `VocabularyService` or `PrisonCourtRegisterSubscriptions`** — confirmed
-  out-of-scope (design §5b/§14); subscriber matching stays owned by
-  `service-cp-crime-hearing-results-document-subscription` and `now_subscriptions`.
+- **`VocabularyService`/`NowSubscriptionMatcher` are in scope; `PrisonCourtRegisterSubscriptions`
+  (recipient/email resolution) and Progression PDF submission are not — confirmed with the
+  Common Platform TA, see ADR-005/AMP-943.** This service's generation gate
+  (`ResultsPcrOrchestrator.isPrisonCourtRegisterRequired`) only answers "would a PCR have been
+  generated" — it never resolves *who* receives it. Subscriber registration and push
+  notification stay owned by `service-cp-crime-hearing-results-document-subscription` and
+  `now_subscriptions`. Long-term direction (agreed, not scheduled) is folding the remaining
+  Function App/Progression logic into this same service — don't build against that as if
+  already decided-and-scoped.
 - **Confirmed dead, dropped.** `officerInCase` and `parentGuardianName`/`Address1-5`/`PostCode`
   are hardcoded blank in the legacy generator and have no real source data — not carried
   through. This is a "the data doesn't exist" exclusion, unrelated to the point below.
@@ -121,7 +183,7 @@ hearing-event ingestion, orchestrator) and states its own scope/status at the to
   the basis that one consumer resolved defendant identity via `defendantId`/`masterDefendantId`
   against their own systems and didn't need this data from this API. A confirmed new requirement
   now needs it carried through, so it's back in scope — see
-  `docs/pipeline/adrs/002-carry-defendant-pii-encrypted-at-rest.md` for the reversal and the
+  `docs/pipeline/adrs/004-AMP-891-carry-defendant-pii-encrypted-at-rest.md` for the reversal and the
   encryption-at-rest approach. The `api-cp-crime-results-pcr` `Defendant` schema (v1.0.3, already
   pinned in `build.gradle`) already declares these fields; nothing in the spec needs to change.
   What's still missing: the upstream `HearingDetailsResponse` DTO has no fields to source this

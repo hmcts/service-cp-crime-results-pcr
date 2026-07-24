@@ -1,4 +1,4 @@
-package uk.gov.hmcts.cp.domain;
+package uk.gov.hmcts.cp.domain.orchestrator;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;

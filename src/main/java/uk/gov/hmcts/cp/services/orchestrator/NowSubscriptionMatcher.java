@@ -1,11 +1,11 @@
-package uk.gov.hmcts.cp.services;
+package uk.gov.hmcts.cp.services.orchestrator;
 
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.JudicialResult;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.JudicialResultPrompt;
-import uk.gov.hmcts.cp.domain.NowSubscription;
-import uk.gov.hmcts.cp.domain.NowSubscription.SubscriptionVocabulary;
-import uk.gov.hmcts.cp.domain.Vocabulary;
+import uk.gov.hmcts.cp.domain.orchestrator.NowSubscription;
+import uk.gov.hmcts.cp.domain.orchestrator.NowSubscription.SubscriptionVocabulary;
+import uk.gov.hmcts.cp.domain.orchestrator.Vocabulary;
 
 import java.util.List;
 
