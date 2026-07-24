@@ -1,11 +1,11 @@
-# 001. Event-driven hearing ingestion via Azure Service Bus and Redis
+# 002. Event-driven hearing ingestion via Azure Service Bus and Redis
 
 **Status:** Accepted, 23 Jul 2026
 **Jira:** AMP-889 — inbound contract via Event Grid
 
 ## Context
 
-Implementing
+Implementing,
 [`2026-07-22-pcr-hearing-event-ingestion-design.md`](../../2026-07-22-pcr-hearing-event-ingestion-design.md)
 introduces this service's first event-driven ingestion path, triggered by Azure Event Grid's
 `Hearing_Resulted` event, and its first read of a cache another service owns. Both require new

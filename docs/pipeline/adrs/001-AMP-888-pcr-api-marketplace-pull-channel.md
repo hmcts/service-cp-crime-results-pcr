@@ -1,4 +1,4 @@
-# 004. New pull-based API Marketplace channel for Prison Court Register data
+# 001. New pull-based API Marketplace channel for Prison Court Register data
 
 **Status:** Accepted, 16 Jul 2026
 **Jira:** AMP-888 — parent epic for this PCR API (AMP-889 event ingestion, AMP-890 data
@@ -38,7 +38,7 @@ already working:
   engine fan-out, data-store keying, Query API shape).
 - **Event-driven ingestion, not synchronous generation on request** — triggered by the same
   Azure Event Grid `Hearing_Resulted` notification the legacy Function App already listens to
-  (see ADR-001/AMP-889 for the ingestion mechanics).
+  (see ADR-002/AMP-889 for the ingestion mechanics).
 - Scaffolded from `api-hmcts-crime-template`/`service-hmcts-crime-springboot-template`, the
   standard template pair for a new API Marketplace capability — no deviation from the template
   needing its own ADR.

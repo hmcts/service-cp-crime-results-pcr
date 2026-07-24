@@ -4,7 +4,7 @@
 Grid trigger and Results Query Client sections — the same target architecture,
 written out with concrete Spring/Azure wiring instead of prose-only.
 **Jira:** AMP-889 — inbound contract via Event Grid. See
-[`docs/pipeline/adrs/001-AMP-889-event-driven-hearing-ingestion-servicebus-redis.md`](pipeline/adrs/001-AMP-889-event-driven-hearing-ingestion-servicebus-redis.md)
+[`docs/pipeline/adrs/002-AMP-889-event-driven-hearing-ingestion-servicebus-redis.md`](pipeline/adrs/002-AMP-889-event-driven-hearing-ingestion-servicebus-redis.md)
 for the dependency-adoption decision this design doc drove.
 Companion to
 [`2026-07-21-pcr-data-store-design.md`](2026-07-21-pcr-data-store-design.md)

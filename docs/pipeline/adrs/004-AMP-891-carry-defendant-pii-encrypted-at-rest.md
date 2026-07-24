@@ -1,4 +1,4 @@
-# 002. Carry defendant PII, encrypted at rest
+# 004. Carry defendant PII, encrypted at rest
 
 **Status:** Accepted, 24 Jul 2026
 **Jira:** AMP-891 — PII redaction/encryption

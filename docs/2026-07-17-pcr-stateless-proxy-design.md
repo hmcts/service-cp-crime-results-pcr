@@ -239,8 +239,8 @@ record DefendantResponse(
         PersonDefendantResponse personDefendant,
         List<OffenceResponse> offences) {}
 
-// name/DOB/address: carried, encrypted at rest — see ADR-002
-// (docs/pipeline/adrs/002-carry-defendant-pii-encrypted-at-rest.md). This illustrative
+// name/DOB/address: carried, encrypted at rest — see ADR-004
+// (docs/pipeline/adrs/004-AMP-891-carry-defendant-pii-encrypted-at-rest.md). This illustrative
 // sketch predates that decision; the real DTO has since gained these fields.
 record PersonDefendantResponse(CustodialEstablishmentResponse custodialEstablishment) {}
 

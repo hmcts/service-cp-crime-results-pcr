@@ -26,7 +26,7 @@ introduces four: `org.postgresql:postgresql`, `org.flywaydb:flyway-core`,
   auto-run on `bootRun`/test startup per `service-shared.md`'s standard convention.
 - **`spring-boot-starter-jdbc`, not `spring-boot-starter-data-jpa`, at this stage.** Only the
   schema and datasource config exist so far — no JPA entities or repositories yet (that lands
-  with the encryption work in ADR-002, which specifically needs Hibernate's event-listener
+  with the encryption work in ADR-004, which specifically needs Hibernate's event-listener
   system). `starter-jdbc` gives Flyway a `DataSource` to run migrations against without pulling
   in Hibernate ahead of any code that would actually use it.
 - Schema itself — normalized tables, immutable version rows, surrogate `pcr_version_pk` vs.
@@ -59,6 +59,6 @@ introduces four: `org.postgresql:postgresql`, `org.flywaydb:flyway-core`,
 
 ## Compliance notes
 
-- This datastore will carry OFFICIAL-SENSITIVE case/hearing data and, per ADR-002, encrypted
+- This datastore will carry OFFICIAL-SENSITIVE case/hearing data and, per ADR-004, encrypted
   defendant PII — retention is enforced via the 30-day TTL purge already specified in the
   design doc (§11), not by this ADR.
