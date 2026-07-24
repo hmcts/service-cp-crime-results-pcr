@@ -11,9 +11,11 @@ import java.util.List;
 
 // Matches design doc §4 / SubscriptionsService.js's matchVocabularyRules — PCR subscriptions
 // (isPrisonCourtRegisterSubscription) are matched by this alone, no court-house/prosecutor/
-// NOW-list gate applies. Every dimension below fails closed when unconfigured; only
-// applySubscriptionRules == false (or no subscriptionVocabulary at all) genuinely defaults to
-// pass.
+// NOW-list gate applies. Every dimension below fails closed when unconfigured — a boxed
+// Boolean field on SubscriptionVocabulary that is null (dimension not sent on this
+// subscription, confirmed real per the fixture) is treated identically to an explicit false.
+// Only applySubscriptionRules == false (or no subscriptionVocabulary at all) genuinely
+// defaults to pass.
 @Component
 public class NowSubscriptionMatcher {
 
@@ -27,7 +29,7 @@ public class NowSubscriptionMatcher {
 
     private boolean matchesVocabularyRules(final SubscriptionVocabulary subVoc, final Vocabulary vocabulary,
                                             final List<JudicialResult> eligibleResults) {
-        return (subVoc.isCpsProsecuted() && vocabulary.cpsProsecuted())
+        return (isTrue(subVoc.getIsCpsProsecuted()) && vocabulary.cpsProsecuted())
                 || (attendanceMatches(subVoc)
                         && majorCreditorTypeMatches(subVoc)
                         && courtLanguageMatches(subVoc, vocabulary)
@@ -43,45 +45,49 @@ public class NowSubscriptionMatcher {
     // attendance facts yet. anyAppearance still bypasses per real behaviour; a specific
     // requirement without it can never be satisfied until that fixture gap is closed.
     private boolean attendanceMatches(final SubscriptionVocabulary subVoc) {
-        return subVoc.isAnyAppearance();
+        return isTrue(subVoc.getAnyAppearance());
     }
 
     private boolean majorCreditorTypeMatches(final SubscriptionVocabulary subVoc) {
         // Vocabulary.prosecutorMajorCreditor()/nonProsecutorMajorCreditor() are always empty,
         // non-null lists for PCR (design doc §2) — a specific requirement without
         // anyMajorCreditor can never be satisfied.
-        return subVoc.isAnyMajorCreditor()
-                || (!subVoc.isRequiresProsecutorMajorCreditor() && !subVoc.isRequiresNonProsecutorMajorCreditor());
+        return isTrue(subVoc.getAnyMajorCreditor())
+                || (!isTrue(subVoc.getRequiresProsecutorMajorCreditor())
+                        && !isTrue(subVoc.getRequiresNonProsecutorMajorCreditor()));
     }
 
     private boolean courtLanguageMatches(final SubscriptionVocabulary subVoc, final Vocabulary vocabulary) {
-        return subVoc.isAnyCourtHearing()
-                || (subVoc.isEnglishCourtHearing() && vocabulary.englishCourtHearing())
-                || (subVoc.isWelshCourtHearing() && vocabulary.welshCourtHearing());
+        return isTrue(subVoc.getAnyCourtHearing())
+                || (isTrue(subVoc.getEnglishCourtHearing()) && vocabulary.englishCourtHearing())
+                || (isTrue(subVoc.getWelshCourtHearing()) && vocabulary.welshCourtHearing());
     }
 
     private boolean ageGroupMatches(final SubscriptionVocabulary subVoc, final Vocabulary vocabulary) {
-        return subVoc.isAdultOrYouthDefendant()
-                || (subVoc.isYouthDefendant() && vocabulary.youthDefendant())
-                || (subVoc.isAdultDefendant() && vocabulary.adultDefendant());
+        return isTrue(subVoc.getAdultOrYouthDefendant())
+                || (isTrue(subVoc.getYouthDefendant()) && vocabulary.youthDefendant())
+                || (isTrue(subVoc.getAdultDefendant()) && vocabulary.adultDefendant());
     }
 
     private boolean custodyMatches(final SubscriptionVocabulary subVoc, final Vocabulary vocabulary) {
-        return subVoc.isIgnoreCustody()
-                || (subVoc.isInCustody() && !subVoc.isCustodyLocationIsPolice() && !subVoc.isCustodyLocationIsPrison()
-                        && vocabulary.inCustody())
-                || (subVoc.isInCustody() && subVoc.isCustodyLocationIsPolice() && !subVoc.isCustodyLocationIsPrison()
+        final boolean custodyLocationIsPolice = isTrue(subVoc.getCustodyLocationIsPolice());
+        final boolean custodyLocationIsPrison = isTrue(subVoc.getCustodyLocationIsPrison());
+        final boolean inCustody = isTrue(subVoc.getInCustody());
+        return isTrue(subVoc.getIgnoreCustody())
+                || (inCustody && !custodyLocationIsPolice && !custodyLocationIsPrison && vocabulary.inCustody())
+                || (inCustody && custodyLocationIsPolice && !custodyLocationIsPrison
                         && vocabulary.custodyLocationIsPolice())
-                || (subVoc.isInCustody() && !subVoc.isCustodyLocationIsPolice() && subVoc.isCustodyLocationIsPrison()
+                || (inCustody && !custodyLocationIsPolice && custodyLocationIsPrison
                         && vocabulary.custodyLocationIsPrison());
     }
 
     private boolean custodialOutcomeMatches(final SubscriptionVocabulary subVoc, final Vocabulary vocabulary) {
         final boolean custodialOutcomeMatches =
-                subVoc.isAtleastOneCustodialResult() == vocabulary.atleastOneCustodialResult();
-        return subVoc.isIgnoreResults()
-                || (subVoc.isAllNonCustodialResults() && vocabulary.allNonCustodialResults() && custodialOutcomeMatches)
-                || (subVoc.isAtleastOneNonCustodialResult() && vocabulary.atleastOneNonCustodialResult()
+                isTrue(subVoc.getAtleastOneCustodialResult()) == vocabulary.atleastOneCustodialResult();
+        return isTrue(subVoc.getIgnoreResults())
+                || (isTrue(subVoc.getAllNonCustodialResults()) && vocabulary.allNonCustodialResults()
+                        && custodialOutcomeMatches)
+                || (isTrue(subVoc.getAtleastOneNonCustodialResult()) && vocabulary.atleastOneNonCustodialResult()
                         && custodialOutcomeMatches);
     }
 
@@ -109,5 +115,9 @@ public class NowSubscriptionMatcher {
 
     private boolean containsIgnoreCase(final List<String> values, final String candidate) {
         return values.stream().anyMatch(value -> value.equalsIgnoreCase(candidate));
+    }
+
+    private boolean isTrue(final Boolean value) {
+        return Boolean.TRUE.equals(value);
     }
 }

@@ -29,47 +29,54 @@ public class NowSubscription {
     @Getter
     public static class SubscriptionVocabulary {
 
+        // Every field below is Boolean, not boolean — the confirmed real fixture
+        // (reference-data-service-result-1-3-true.json) only includes the dimensions a given
+        // subscription actually configures; a PCR subscription with no major-creditor or
+        // custody-ignore requirement simply omits those keys rather than sending false.
+        // Boxed null is treated as "not configured" (unset), same fail-closed default as an
+        // explicit false, via the isTrue()/isSet() helpers in NowSubscriptionMatcher.
+
         // CPS short-circuit — bypasses every other dimension below once both this and the
         // defendant's own Vocabulary.cpsProsecuted are true (checkIfCpsProsecuted).
-        private boolean isCpsProsecuted;
+        private Boolean isCpsProsecuted;
 
         // Attendance — matched against SubscriptionsService.js:240-256's checkIfAttendanceTypeMatch,
         // but Vocabulary has no real appearedInPerson/appearedByVideoLink source yet (design doc §7 —
         // hearing.defendantAttendance is unconfirmed by fixture). anyAppearance still bypasses per
         // real behaviour; a specific requirement without it can never be satisfied today.
-        private boolean anyAppearance;
-        private boolean appearedInPerson;
-        private boolean appearedByVideoLink;
+        private Boolean anyAppearance;
+        private Boolean appearedInPerson;
+        private Boolean appearedByVideoLink;
 
         // Vocabulary.prosecutorMajorCreditor/nonProsecutorMajorCreditor are always empty,
         // non-null lists for PCR (design doc §2) — requiresProsecutorMajorCreditor/
         // requiresNonProsecutorMajorCreditor can therefore never be satisfied on their own;
         // only anyMajorCreditor genuinely defaults to pass (checkIfMajorCreditorTypeMatch).
-        private boolean anyMajorCreditor;
-        private boolean requiresProsecutorMajorCreditor;
-        private boolean requiresNonProsecutorMajorCreditor;
+        private Boolean anyMajorCreditor;
+        private Boolean requiresProsecutorMajorCreditor;
+        private Boolean requiresNonProsecutorMajorCreditor;
 
         // Court language — same rule as checkIfCourtHouseMatch (SubscriptionsService.js:313-326).
-        private boolean anyCourtHearing;
-        private boolean englishCourtHearing;
-        private boolean welshCourtHearing;
+        private Boolean anyCourtHearing;
+        private Boolean englishCourtHearing;
+        private Boolean welshCourtHearing;
 
         // Age group — checkIfDefendantMatch (SubscriptionsService.js:328-341).
-        private boolean adultOrYouthDefendant;
-        private boolean youthDefendant;
-        private boolean adultDefendant;
+        private Boolean adultOrYouthDefendant;
+        private Boolean youthDefendant;
+        private Boolean adultDefendant;
 
         // Custody — checkIfCustodyMatch (SubscriptionsService.js:343-365).
-        private boolean ignoreCustody;
-        private boolean inCustody;
-        private boolean custodyLocationIsPolice;
-        private boolean custodyLocationIsPrison;
+        private Boolean ignoreCustody;
+        private Boolean inCustody;
+        private Boolean custodyLocationIsPolice;
+        private Boolean custodyLocationIsPrison;
 
         // Custodial outcome — checkIfCustodialResultMatch (SubscriptionsService.js:367-380).
-        private boolean ignoreResults;
-        private boolean allNonCustodialResults;
-        private boolean atleastOneCustodialResult;
-        private boolean atleastOneNonCustodialResult;
+        private Boolean ignoreResults;
+        private Boolean allNonCustodialResults;
+        private Boolean atleastOneCustodialResult;
+        private Boolean atleastOneNonCustodialResult;
 
         // Prompt/result include-exclude lists — matched by exact promptReference/cjsCode value
         // (SubscriptionsService.js:212-238's NAMEADDRESS substring-match nuance is not modelled).

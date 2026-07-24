@@ -77,7 +77,8 @@ hearing-event ingestion, orchestrator) and states its own scope/status at the to
 |---|---|---|
 | `SERVER_PORT` | HTTP port | `8082` |
 | `CP_BACKEND_URL` | Results Query API base URL | `http://localhost:8081` |
-| `CJSCPPUID` | Client identity header sent to the Results Query API | `00000000-0000-0000-0000-000000000000` |
+| `CJSCPPUID` | Client identity header sent to the Results Query API and Reference Data | `00000000-0000-0000-0000-000000000000` |
+| `REFERENCE_DATA_URL` | Reference Data (`now-subscriptions`) base URL — real dev/SIT value unconfirmed, see design doc §7 | falls back to `CP_BACKEND_URL` |
 | `REDIS_HOST` / `REDIS_PORT` | Hearing-result cache (read-only) | `localhost` / `6379` |
 | `AZURE_SERVICE_BUS_ADMIN_URI` | Service Bus admin/management connection (queue provisioning) | local emulator connection string |
 | `AZURE_SERVICE_BUS_URI` | Service Bus data-plane connection — `sb://` selects emulator auth, `https` selects managed identity | local emulator connection string |

@@ -37,7 +37,9 @@ class ResultsClientTest {
         WireMock.configureFor("localhost", 8081);
 
         final AppPropertiesBackend appProperties = new AppPropertiesBackend(
-                "http://localhost:8081", RESULTS_QUERY_PATH, "00000000-0000-0000-0000-000000000000");
+                "http://localhost:8081", RESULTS_QUERY_PATH, "00000000-0000-0000-0000-000000000000",
+                "http://localhost:8081", "/referencedata-query-api/query/api/rest/referencedata/now-subscriptions",
+                "00000000-0000-0000-0000-000000000000");
         resultsClient = new ResultsClient(appProperties, RestClient.create());
     }
 
