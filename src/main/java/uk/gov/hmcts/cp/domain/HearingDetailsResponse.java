@@ -98,36 +98,9 @@ public class HearingDetailsResponse {
     @NoArgsConstructor
     @Getter
     public static class PersonDefendant {
-        private PersonDetails personDetails;
+        // Deliberately no name/DOB/address here — consumers resolve defendant identity
+        // via defendantId/masterDefendantId against their own systems (e.g. NOMIS).
         private CustodialEstablishment custodialEstablishment;
-    }
-
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    @Builder
-    @AllArgsConstructor
-    @NoArgsConstructor
-    @Getter
-    public static class PersonDetails {
-        private String title;
-        private String firstName;
-        private String middleName;
-        private String lastName;
-        private LocalDate dateOfBirth;
-        private Address address;
-    }
-
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    @Builder
-    @AllArgsConstructor
-    @NoArgsConstructor
-    @Getter
-    public static class Address {
-        private String address1;
-        private String address2;
-        private String address3;
-        private String address4;
-        private String address5;
-        private String postcode;
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)

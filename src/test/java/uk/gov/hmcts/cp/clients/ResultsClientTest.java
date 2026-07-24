@@ -22,13 +22,13 @@ import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.verify;
 import static java.net.HttpURLConnection.HTTP_OK;
 
-class ResultsQueryClientTest {
+class ResultsClientTest {
 
     private static final UUID HEARING_ID = UUID.fromString("00000000-0000-0000-0000-000000000011");
     private static final String RESULTS_QUERY_PATH = "/results-query-api/query/api/rest/results/hearingDetails/internal";
 
     private WireMockServer wireMockServer;
-    private ResultsQueryClient resultsQueryClient;
+    private ResultsClient resultsClient;
 
     @BeforeEach
     void beforeEach() {
@@ -38,7 +38,7 @@ class ResultsQueryClientTest {
 
         final AppPropertiesBackend appProperties = new AppPropertiesBackend(
                 "http://localhost:8081", RESULTS_QUERY_PATH, "00000000-0000-0000-0000-000000000000");
-        resultsQueryClient = new ResultsQueryClient(appProperties, RestClient.create());
+        resultsClient = new ResultsClient(appProperties, RestClient.create());
     }
 
     @AfterEach
@@ -56,7 +56,7 @@ class ResultsQueryClientTest {
                 .withHeader("Content-Type", "application/json")
                 .withBody(readResourceContents("pcr/hearing-details-no-cases.json"))));
 
-        resultsQueryClient.getHearingDetails(HEARING_ID);
+        resultsClient.getHearingDetails(HEARING_ID);
 
         verify(getRequestedFor(urlEqualTo(url))
                 .withHeader("Accept", WireMock.equalTo("application/vnd.results.hearing-details-internal+json"))

@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
-import uk.gov.hmcts.cp.clients.ResultsQueryClient;
+import uk.gov.hmcts.cp.clients.ResultsClient;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse;
 import uk.gov.hmcts.cp.mappers.PcrVersionMapper;
 import uk.gov.hmcts.cp.openapi.model.PcrVersion;
@@ -13,11 +13,11 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-public class PcrService {
+public class ResultsPcrService {
 
     private static final String LATEST = "latest";
 
-    private final ResultsQueryClient resultsQueryClient;
+    private final ResultsClient resultsClient;
     private final PcrVersionMapper mapper;
 
     public PcrVersion getVersion(final String caseURN, final UUID hearingId, final UUID defendantId, final String version) {
@@ -29,7 +29,7 @@ public class PcrService {
     }
 
     private PcrVersion getLatestVersion(final String caseURN, final UUID hearingId, final UUID defendantId) {
-        final HearingDetailsResponse hearingDetails = resultsQueryClient.getHearingDetails(hearingId);
+        final HearingDetailsResponse hearingDetails = resultsClient.getHearingDetails(hearingId);
         final HearingDetailsResponse.ProsecutionCase prosecutionCase = findCase(hearingDetails, caseURN);
         final HearingDetailsResponse.Defendant defendant = findDefendant(prosecutionCase, defendantId);
         return mapper.toPcrVersion(defendant, prosecutionCase, hearingDetails, hearingId);

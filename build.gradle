@@ -57,4 +57,15 @@ dependencies {
   // Security: pin transitive tomcat-embed-core to patched version (CVE-2026-41293, -43512, et al.)
   // Brought in transitively via spring-boot-starter-web; >=11.0.0-M1,<11.0.22 are vulnerable
   implementation 'org.apache.tomcat.embed:tomcat-embed-core:11.0.24'
+
+  // --- Hearing event ingestion (docs/2026-07-22-pcr-hearing-event-ingestion-design.md) ---
+  // Raw Azure SDK Service Bus client — consumes Hearing_Resulted off the self-provisioned
+  // pcr.hearing-resulted queue and owns the scheduled-retry escalation. Same client-construction
+  // pattern already used by service-cp-crime-hearing-results-document-subscription.
+  implementation 'com.azure:azure-messaging-servicebus:7.17.18'
+  // Passwordless managed-identity auth to Service Bus in Azure (DefaultAzureCredentialBuilder)
+  implementation 'com.azure:azure-identity:1.18.3'
+  // Redis-first read of the hearing-result cache cpp-context-results already writes to —
+  // read-only from this service's side, no new cache write path introduced
+  implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 }

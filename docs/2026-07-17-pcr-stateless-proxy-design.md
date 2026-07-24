@@ -78,7 +78,7 @@ flowchart LR
     subgraph PCR["service-cp-crime-results-pcr"]
         Controller["PcrController<br/>implements generated PcrApi"]
         Controller --> Service["PcrService<br/>lookup + 404 handling"]
-        Service --> Client["ResultsQueryClient<br/>RestClient, CJSCPPUID default header"]
+        Service --> Client["ResultsClient<br/>RestClient, CJSCPPUID default header"]
         Service --> Mapper["PcrVersionMapper<br/>+ JudicialResultPromptParser"]
     end
 
@@ -128,7 +128,7 @@ version history or specific-id lookup that doesn't exist yet.
 public class PcrService {
     private static final String LATEST = "latest";
 
-    private final ResultsQueryClient resultsQueryClient;
+    private final ResultsClient resultsClient;
     private final PcrVersionMapper mapper;
 
     public PcrVersion getVersion(String caseURN, UUID hearingId, UUID defendantId, String version) {
@@ -140,7 +140,7 @@ public class PcrService {
     }
 
     private PcrVersion getLatestVersion(String caseURN, UUID hearingId, UUID defendantId) {
-        HearingDetailsResponse hearing = resultsQueryClient.getHearingDetails(hearingId);
+        HearingDetailsResponse hearing = resultsClient.getHearingDetails(hearingId);
         ProsecutionCaseResponse prosecutionCase = findCase(hearing, caseURN);
         DefendantResponse defendant = findDefendant(prosecutionCase, defendantId);
         return mapper.toPcrVersion(defendant, prosecutionCase, hearing, hearingId);
@@ -168,12 +168,12 @@ No `eventId` parameter anywhere — the current contract's only query parameter
 on `getPcrVersion` is the required `version` (§7b/§13 update), alongside the
 three path parameters.
 
-### 4.3 `ResultsQueryClient`
+### 4.3 `ResultsClient`
 
 ```java
 @Component
 @RequiredArgsConstructor
-public class ResultsQueryClient {
+public class ResultsClient {
     private static final String ACCEPT_HEARING_DETAILS_INTERNAL =
             "application/vnd.results.hearing-details-internal+json";
 
@@ -239,13 +239,9 @@ record DefendantResponse(
         PersonDefendantResponse personDefendant,
         List<OffenceResponse> offences) {}
 
-record PersonDefendantResponse(PersonDetailsResponse personDetails, CustodialEstablishmentResponse custodialEstablishment) {}
-
-record PersonDetailsResponse(
-        String title, String firstName, String middleName, String lastName,
-        LocalDate dateOfBirth, AddressResponse address) {}
-
-record AddressResponse(String address1, String address2, String address3, String address4, String address5, String postcode) {}
+// Deliberately no name/DOB/address here — HMPPS resolves defendant identity via
+// defendantId/masterDefendantId against NOMIS; this API never carries that PII.
+record PersonDefendantResponse(CustodialEstablishmentResponse custodialEstablishment) {}
 
 record CustodialEstablishmentResponse(String id, String name, String custody) {}
 
@@ -340,31 +336,12 @@ public class PcrVersionMapper {
     }
 
     private Defendant toDefendant(DefendantResponse defendant) {
-        PersonDetailsResponse personDetails = defendant.personDefendant().personDetails();
+        // Deliberately no name/DOB/address — consumers resolve identity via
+        // defendantId/masterDefendantId against their own systems (e.g. NOMIS).
         return Defendant.builder()
                 .id(UUID.fromString(defendant.id()))
                 .masterDefendantId(defendant.masterDefendantId() == null ? null
                         : UUID.fromString(defendant.masterDefendantId()))
-                .title(personDetails.title())
-                .firstName(personDetails.firstName())
-                .middleName(personDetails.middleName())
-                .lastName(personDetails.lastName())
-                .dateOfBirth(personDetails.dateOfBirth())
-                .address(toAddress(personDetails.address()))
-                .build();
-    }
-
-    private Address toAddress(AddressResponse address) {
-        if (address == null) {
-            return null;
-        }
-        return Address.builder()
-                .address1(address.address1())
-                .address2(address.address2())
-                .address3(address.address3())
-                .address4(address.address4())
-                .address5(address.address5())
-                .postCode(address.postcode())
                 .build();
     }
 
@@ -611,7 +588,7 @@ Unit tests:
 | `PcrServiceTest` | Case-not-found / defendant-not-found → `ResponseStatusException(404)`; happy path delegates to mapper |
 | `PcrVersionMapperTest` | Every mapped field asserted with contract-realistic fixtures (not placeholders); every intentionally-null field asserted null, one test per; court-application-to-defendant filtering by `masterDefendantId` |
 | `JudicialResultPromptParserTest` | One test per prompt: `concurrent`, `consecutiveToDate`, `consecutiveToCourtName`, `fineAmount`, `imprisonmentPeriod`, `totalCustodialPeriod`, plus one "prompt absent → null" case |
-| `ResultsQueryClientTest` | Correct URL/`Accept` header built |
+| `ResultsClientTest` | Correct URL/`Accept` header built |
 
 Test fixtures use fixed `UUID.fromString(...)` constants throughout, never
 `UUID.randomUUID()`, per `shared-code-rules.md`.
@@ -622,7 +599,7 @@ Test fixtures use fixed `UUID.fromString(...)` constants throughout, never
 2. `TracingFilter` — confirm exists in this repo; port from a sibling `service-cp-*` if missing
 3. `GlobalExceptionHandler` — baseline set (§4.8)
 4. `HearingDetailsResponse` DTO family (§4.4)
-5. `ResultsQueryClient` (§4.3)
+5. `ResultsClient` (§4.3)
 6. `PcrService` (§4.2)
 7. `JudicialResultPromptParser` (§4.6)
 8. `PcrVersionMapper` (§4.5)
@@ -876,8 +853,6 @@ void getPcrVersion_should_returnOk_withMappedFields_whenVersionIsLatest() throws
                   "id":"%s",
                   "masterDefendantId":"%s",
                   "personDefendant":{
-                    "personDetails":{"title":"Mr","firstName":"John","lastName":"Doe","dateOfBirth":"1980-01-31",
-                      "address":{"address1":"1 Example Street","postcode":"AB1 2CD"}},
                     "custodialEstablishment":{"id":"c1","name":"HMP Dovegate","custody":"Prison"}
                   },
                   "offences":[{
@@ -903,7 +878,8 @@ void getPcrVersion_should_returnOk_withMappedFields_whenVersionIsLatest() throws
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.id").doesNotExist())
             .andExpect(jsonPath("$.prosecutionCase.caseURN").value(CASE_URN))
-            .andExpect(jsonPath("$.defendant.firstName").value("John"))
+            .andExpect(jsonPath("$.defendant.masterDefendantId").value(MASTER_DEFENDANT_ID))
+            .andExpect(jsonPath("$.defendant.firstName").doesNotExist())
             .andExpect(jsonPath("$.custodyLocation").value("HMP Dovegate"))
             .andExpect(jsonPath("$.offences[0].code").value("TH68001"))
             .andExpect(jsonPath("$.offences[0].results[0].resultCode").value("1200"))
@@ -936,9 +912,9 @@ void getPcrVersionHistory_should_return501_notImplemented() throws Exception { /
 | Class | Test methods |
 |---|---|
 | `PcrServiceTest` | `getLatestVersion_should_throw404_whenCaseUrnNotFound`, `getLatestVersion_should_throw404_whenDefendantIdNotFound`, `getLatestVersion_should_delegateToMapper_whenDefendantFound` |
-| `PcrVersionMapperTest` | `toPcrVersion_should_leaveIdNull`, `toPcrVersion_should_mapProsecutionCaseAndCaseMarkers`, `toDefendant_should_mapPersonDetailsAndAddress`, `toDefendant_should_mapMasterDefendantId`, `toCustodyLocation_should_mapCustodialEstablishmentName`, `toCustodyLocation_should_returnNull_whenNoEstablishment`, `toHearingDetails_should_leaveOpenFieldsNull`, `findNextHearing_should_returnFirstNonNull_acrossOffencesAndResults`, `toOffence_should_mapListingNumber`, `toJudicialResult_should_mapFinancialAndConvictedAsYN`, `toCourtApplications_should_filterByMasterDefendantId` |
+| `PcrVersionMapperTest` | `toPcrVersion_should_leaveIdNull`, `toPcrVersion_should_mapProsecutionCaseAndCaseMarkers`, `toDefendant_should_mapMasterDefendantId`, `toCustodyLocation_should_mapCustodialEstablishmentName`, `toCustodyLocation_should_returnNull_whenNoEstablishment`, `toHearingDetails_should_leaveOpenFieldsNull`, `findNextHearing_should_returnFirstNonNull_acrossOffencesAndResults`, `toOffence_should_mapListingNumber`, `toJudicialResult_should_mapFinancialAndConvictedAsYN`, `toCourtApplications_should_filterByMasterDefendantId` |
 | `JudicialResultPromptParserTest` | `concurrent_should_parseBoolean_whenPromptPresent`, `consecutiveToDate_should_parseDate_whenPromptPresent`, `consecutiveToCourtName_should_returnValue_whenPromptPresent`, `fineAmount_should_stripCurrencySymbolAndParse`, `imprisonmentPeriod_should_returnRawValue`, `totalCustodialPeriod_should_returnRawValue`, `concurrent_should_returnNull_whenPromptAbsent` |
-| `ResultsQueryClientTest` | `getHearingDetails_should_callCorrectUrlAndAcceptHeader` |
+| `ResultsClientTest` | `getHearingDetails_should_callCorrectUrlAndAcceptHeader` |
 
 One test per branch, per `shared-code-rules.md` — no duplicate tests for the
 same linear path.

@@ -22,7 +22,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @Slf4j
-class PcrControllerIntegrationTest extends IntegrationTestBase {
+class ResultsPcrControllerIntegrationTest extends IntegrationTestBase {
 
     private static final String CASE_URN = "ABCD1234567";
     private static final UUID HEARING_ID = UUID.fromString("00000000-0000-0000-0000-000000000011");
@@ -60,7 +60,8 @@ class PcrControllerIntegrationTest extends IntegrationTestBase {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").doesNotExist())
                 .andExpect(jsonPath("$.prosecutionCase.caseURN").value(CASE_URN))
-                .andExpect(jsonPath("$.defendant.firstName").value("John"))
+                .andExpect(jsonPath("$.defendant.masterDefendantId").value(MASTER_DEFENDANT_ID))
+                .andExpect(jsonPath("$.defendant.firstName").doesNotExist())
                 .andExpect(jsonPath("$.custodyLocation").value("HMP Dovegate"))
                 .andExpect(jsonPath("$.caseMarkers[0].code").value("DomesticViolence"))
                 .andExpect(jsonPath("$.offences[0].code").value("TH68001"))

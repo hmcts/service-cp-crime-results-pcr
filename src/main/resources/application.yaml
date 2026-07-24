@@ -3,6 +3,10 @@ spring:
     name: service-cp-crime-results-pcr
   jackson:
     default-property-inclusion: non_null
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
 
 server:
   port: ${SERVER_PORT:8082}
@@ -21,6 +25,12 @@ management:
     health:
       probes:
         enabled: true   # enables liveness / readiness groups
+  health:
+    redis:
+      # Redis is a read-optimisation this service falls back off of (§3.3 completeness
+      # check) — a Redis outage degrades hearing ingestion but shouldn't take the
+      # synchronous PCR API's readiness probe down with it.
+      enabled: false
   tracing:
     enabled: true
     sampling:
@@ -34,3 +44,11 @@ results-query-client:
   url: ${CP_BACKEND_URL:http://localhost:8081}
   path: /results-query-api/query/api/rest/results/hearingDetails/internal
   cjscppuid: ${CJSCPPUID:00000000-0000-0000-0000-000000000000}
+
+service-bus:
+  # Emulator vs Azure detected from the connection string (https = Azure, sb:// = emulator) —
+  admin-connection: ${AZURE_SERVICE_BUS_ADMIN_URI:Endpoint=sb://localhost:5300;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;}
+  connection: ${AZURE_SERVICE_BUS_URI:Endpoint=sb://localhost;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;}
+  queue-name: ${PCR_HEARING_RESULTED_QUEUE:pcr.hearing-resulted}
+  retry-durations: ${SERVICE_BUS_RETRY_DURATION:30s,1m,2m,3m}
+  max-tries: ${SERVICE_BUS_MAX_TRIES:3}
