@@ -398,7 +398,7 @@ public record NowSubscription(
         CourtLanguage requiredCourtLanguage,         // ENGLISH, WELSH — same rule as checkIfCourtHouseMatch, see prose above
         AgeGroup requiredAgeGroup,                   // nullable
         boolean ignoreCustody,                       // explicit "any" flag — false + no requirement below -> FAILS
-        CustodyRequirement custodyRequirement,       // NONE, IN_CUSTODY, PRISON_ONLY, POLICE_ONLY
+        CustodyRequirement custodyRequirement,       // NONE (fails unless ignoreCustody), IN_CUSTODY, PRISON_ONLY, POLICE_ONLY
         boolean ignoreResults,                       // explicit "any" flag — false + no requirement below -> FAILS
         CustodialOutcomeRequirement custodialOutcomeRequirement, // ANY, CUSTODIAL_ONLY, NON_CUSTODIAL_ONLY
         boolean requiresCpsProsecuted,
@@ -445,10 +445,14 @@ public class NowSubscriptionMatcher {
         if (subscription.ignoreCustody()) {
             return true;
         }
-        // No ignoreCustody AND no specific requirement below -> falls through to FAILS,
-        // matching the real checkIfCustodyMatch — not a null-means-any default.
+        // Corrected against checkIfCustodyMatch (SubscriptionsService.js:343-365) — there is
+        // no "no requirement configured" case that passes. Every branch below requires
+        // subscription.custodyRequirement() != NONE; NONE (no custody requirement, no
+        // ignoreCustody) FAILS, same fail-closed shape as every other dimension in this
+        // matcher. An earlier draft of this pseudocode had `case NONE -> true`, which was
+        // wrong — verified directly against source.
         return switch (subscription.custodyRequirement()) {
-            case NONE -> true;
+            case NONE -> false;
             case IN_CUSTODY -> vocabulary.inCustody();
             case PRISON_ONLY -> vocabulary.custodyLocationIsPrison();
             case POLICE_ONLY -> vocabulary.custodyLocationIsPolice();
