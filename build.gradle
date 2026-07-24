@@ -62,9 +62,9 @@ dependencies {
   // Raw Azure SDK Service Bus client — consumes Hearing_Resulted off the self-provisioned
   // pcr.hearing-resulted queue and owns the scheduled-retry escalation. Same client-construction
   // pattern already used by service-cp-crime-hearing-results-document-subscription.
-  implementation 'com.azure:azure-messaging-servicebus:7.17.18'
+  implementation 'com.azure:azure-messaging-servicebus:7.17.19'
   // Passwordless managed-identity auth to Service Bus in Azure (DefaultAzureCredentialBuilder)
-  implementation 'com.azure:azure-identity:1.18.3'
+  implementation 'com.azure:azure-identity:1.18.4'
   // Redis-first read of the hearing-result cache cpp-context-results already writes to —
   // read-only from this service's side, no new cache write path introduced
   implementation 'org.springframework.boot:spring-boot-starter-data-redis'
