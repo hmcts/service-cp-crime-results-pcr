@@ -1,11 +1,11 @@
 # 001. Event-driven hearing ingestion via Azure Service Bus and Redis
 
 **Status:** Accepted, 23 Jul 2026
+**Jira:** AMP-889 — inbound contract via Event Grid
 
 ## Context
 
-Phase 1 of this service is a stateless, synchronous proxy — no event consumption, no cache,
-no message broker. Implementing
+Implementing
 [`2026-07-22-pcr-hearing-event-ingestion-design.md`](../../2026-07-22-pcr-hearing-event-ingestion-design.md)
 introduces this service's first event-driven ingestion path, triggered by Azure Event Grid's
 `Hearing_Resulted` event, and its first read of a cache another service owns. Both require new
@@ -50,7 +50,7 @@ service:
   emulator-based integration tests land (design doc §5).
 - The one genuine cross-team dependency this introduces is the Event Grid subscription itself
   (routing `Hearing_Resulted` into this service's self-provisioned queue) — tracked separately as
-  a Jira ticket, not part of this ADR.
+  **AMP-889**, not part of this ADR.
 
 ## Alternatives considered
 
