@@ -1,5 +1,8 @@
 # PCROrchestrator (Decision Engine, Enrichment, and Transformer) Design
 
+**Jira:** AMP-892 — API contract + service + orchestrator implementation (part of the
+AMP-888 epic; see `docs/pipeline/adrs/001-AMP-888-pcr-api-marketplace-pull-channel.md`).
+Retention and drift-detection are split into their own AMP-888 child stories, not this one.
 **Status:** Draft, 22 Jul 2026, cross-checked file-by-file against the
 `cpp-context-azure-legalaidagency` source on 23 Jul 2026. Deep-dive of v2
 §5a/§6/§8's Decision Engine, Enrichment, and Transformer components,

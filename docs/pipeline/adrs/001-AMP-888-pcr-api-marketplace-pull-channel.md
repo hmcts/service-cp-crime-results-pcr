@@ -1,8 +1,10 @@
 # 001. New pull-based API Marketplace channel for Prison Court Register data
 
 **Status:** Accepted, 16 Jul 2026
-**Jira:** AMP-888 — parent epic for this PCR API (AMP-889 event ingestion, AMP-890 data
-modelling, AMP-891 PII redaction/encryption are child tickets under this decision)
+**Jira:** AMP-888 — parent epic for this PCR API. Child tickets under this decision: AMP-889
+(event ingestion), AMP-890 (data modelling), AMP-891 (PII redaction/encryption), AMP-892
+(API contract + service + orchestrator implementation — retention and drift-detection split
+into their own stories, both still under this same epic).
 **Design docs:** [`2026-07-16-pcr-api-marketplace-design-v2.md`](../../designs/2026-07-16-pcr-api-marketplace-design-v2.md)
 is the full architecture this ADR authorises; every other design doc in this repo (stateless
 proxy, data store, hearing event ingestion, orchestrator) is a deep-dive expansion of one
