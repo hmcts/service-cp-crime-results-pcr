@@ -239,8 +239,9 @@ record DefendantResponse(
         PersonDefendantResponse personDefendant,
         List<OffenceResponse> offences) {}
 
-// Deliberately no name/DOB/address here — HMPPS resolves defendant identity via
-// defendantId/masterDefendantId against NOMIS; this API never carries that PII.
+// name/DOB/address: carried, encrypted at rest — see ADR-002
+// (docs/pipeline/adrs/002-carry-defendant-pii-encrypted-at-rest.md). This illustrative
+// sketch predates that decision; the real DTO has since gained these fields.
 record PersonDefendantResponse(CustodialEstablishmentResponse custodialEstablishment) {}
 
 record CustodialEstablishmentResponse(String id, String name, String custody) {}
@@ -358,7 +359,7 @@ public class PcrVersionMapper {
                 .nextHearing(findNextHearing(hearing))
                 .build();
         // courtHouseName/hearingOutcome/warrantType/overallConvictionDate:
-        // left unset (null) — no confirmed CP source, per PCR-HMPPS-FIELD-MAPPING.md
+        // left unset (null) — no confirmed CP source, per the field-mapping doc
     }
 
     private NextHearing findNextHearing(HearingResponse hearing) {
@@ -949,10 +950,10 @@ same linear path.
   for phase 1 completion or an explicit phase-2 pickup.
   - `nextHearing` per-offence-per-judicialResult ambiguity: phase 1's
   "first non-null found" choice (§4.5) is provisional, stated explicitly —
-  revisit once product/HMPPS confirms which offence's `nextHearing` should
+  revisit once product confirms which offence's `nextHearing` should
   win when several diverge.
 - `HearingDetails.courtHouseName`/`hearingOutcome`/`warrantType`/`overallConvictionDate`,
   `Offence.title`/`wording`/`pleaValue`/`pleaDate`/`verdictCode`,
   `JudicialResult.postHearingCustodyStatus`/`category`: no confirmed CP source
   for a synchronous lookup — left `null`, consistent with
-  `PCR-HMPPS-FIELD-MAPPING.md`'s existing findings.
+  the field-mapping doc's existing findings.

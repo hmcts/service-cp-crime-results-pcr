@@ -220,19 +220,19 @@ case+hearing.
 - **FK:** `case_hearing_id` → `pcr_case_hearing.id`.
 - **`expires_at`:** the retention anchor for this row (§4) — purge is a TTL
   sweep read off this column directly, not an event-driven delete.
-- **Defendant identity field:** `master_defendant_id` only — embedded
-  directly on this table rather than a separate `pcr_defendant` table,
-  because it's genuinely 1:1 with a version and has no independent
-  lifecycle of its own.
-- **Resolved — defendant PII (name, DOB, address) is not carried at all,
-  neither here nor in the API response.** Previously an open decision
-  (suppress at the API layer only, or drop entirely) pending confirmation
-  of HMPPS's actual consumption path. HMPPS confirmed they resolve the
-  defendant entirely via `defendantId`/`masterDefendantId` against NOMIS —
-  no name/DOB/address lookup happens through this API at all, so there's
-  no data-minimisation tradeoff to make: these fields are absent from the
-  `Defendant`/`Address` OpenAPI schemas, never parsed from the upstream
-  Results API response, and never reach this table.
+- **Defendant identity fields:** `master_defendant_id`, embedded directly
+  on this table rather than a separate `pcr_defendant` table, because it's
+  genuinely 1:1 with a version and has no independent lifecycle of its
+  own — plus, per ADR-002, `title`/`first_name`/`middle_name`/`last_name`/
+  `date_of_birth`/`address_line_1`-`5`/`post_code`, same 1:1 reasoning.
+- **Superseded — defendant PII (name, DOB, address) is now carried,
+  encrypted at rest.** This table previously excluded it entirely, on the
+  basis that no consumer needed a name/DOB/address lookup through this
+  API. A confirmed new requirement reverses that — see
+  `docs/pipeline/adrs/002-carry-defendant-pii-encrypted-at-rest.md` for
+  the reversal and the encryption mechanism (transparent field-level
+  encryption via a Hibernate event listener, not a native Postgres type —
+  every PII column here is `varchar`, holding ciphertext).
 - **`next_hearing_*` fields:** named after CP's own `nextHearing`, not a
   consumer-facing "next appearance" term. Embedded, nullable, 1:1 — kept
   per-defendant on `pcr_version` rather than promoted to `pcr_case_hearing`,
@@ -341,9 +341,10 @@ depend only on this service's derived fields.
   does not affect the PK, since `pcr_version_pk` (§3) is the surrogate key
   and `source_id` is a plain nullable column.
 - **Dead legacy fields (v2 §6, §13 item 6) — resolved, dropped.**
-  `officerInCase`, `parentGuardianName`/`Address1-5`/`PostCode`: HMPPS
-  confirmed no parent/guardian concept is needed from this API. Not
-  modelled — no column for these exists anywhere in §2/§3 above.
+  `officerInCase`, `parentGuardianName`/`Address1-5`/`PostCode`: hardcoded
+  blank in the legacy generator, no real source data, no confirmed need
+  for a parent/guardian concept in this API. Not modelled — no column for
+  these exists anywhere in §2/§3 above.
 
 ---
 

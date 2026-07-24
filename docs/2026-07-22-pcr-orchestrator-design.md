@@ -567,8 +567,8 @@ client (`ReferenceDataService.js` — NOW metadata, NOW subscriptions
 metadata used in §4, organisation unit, major creditors, enforcement area,
 prisons-custody-suites) found no `ResultDefinition`/`cjsResultCode`-keyed
 endpoint, and none of these three fields are referenced anywhere in the
-Function App's own code. `PCR-HMPPS-FIELD-MAPPING.md` (the field-mapping
-doc in the `api-cp-crime-results-pcr` spec repo) independently states they
+Function App's own code. The field-mapping doc (in the `api-cp-crime-results-pcr`
+spec repo) independently states they
 come from `ResultDefinition` reference data keyed on `cjsResultCode` — both
 are correct at different layers: that join happens upstream (in
 `cpp-context-results`, before the Results Query API response this service
@@ -657,8 +657,8 @@ a home:**
   but not needed by this API's consumers. Not modeled anywhere — no field
   in `Offence`/`ProsecutionCase`/`Defendant`, no column in
   `pcr_offence`/`pcr_case_hearing` — and deliberately staying that way, same
-  resolution pattern as the other confirmed-not-needed fields in
-  `PCR-HMPPS-FIELD-MAPPING.md` §2c/§6.
+  resolution pattern as the other confirmed-not-needed fields in the
+  field-mapping doc §2c/§6.
 - **`applicationType` is already fully modeled — not a gap.**
   `CourtApplication.type` exists in the schema, `pcr_court_application.type`
   exists in the data store, and `PcrVersionMapper.toCourtApplication`
@@ -703,7 +703,7 @@ a home:**
   legacy output model but never populated by any mapper
   (`ProsecutionCaseOrApplicationMapper.js` never sets them) — nothing to
   port for these two; source them fresh from the Results/Hearing payload
-  if HMPPS needs them. Likewise `ethnicity` is declared but never set by
+  if a real consumer need surfaces. Likewise `ethnicity` is declared but never set by
   `DefendantMapper.build()` — no ethnicity data flows through this
   pipeline at all, legacy or otherwise.
 - **Hearing-level attendance/appearance detail has no field anywhere in
