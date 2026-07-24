@@ -2,7 +2,7 @@
 
 **Status:** Accepted, 24 Jul 2026
 **Jira:** AMP-890 — data modelling
-**Design docs:** [`2026-07-21-pcr-data-store-design.md`](../../2026-07-21-pcr-data-store-design.md)
+**Design docs:** [`2026-07-21-pcr-data-store-design.md`](../../designs/2026-07-21-pcr-data-store-design.md)
 describes the schema this ADR adopts the engine and migration tool for; that doc links back
 here at its **Database engine** line.
 

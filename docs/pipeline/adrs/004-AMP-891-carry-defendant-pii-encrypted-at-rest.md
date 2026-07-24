@@ -3,9 +3,9 @@
 **Status:** Accepted, 24 Jul 2026
 **Jira:** AMP-891 — PII redaction/encryption
 **Design docs:** this decision changes the contract/persistence shape described in
-[`2026-07-16-pcr-api-marketplace-design-v2.md`](../../2026-07-16-pcr-api-marketplace-design-v2.md),
-[`2026-07-17-pcr-stateless-proxy-design.md`](../../2026-07-17-pcr-stateless-proxy-design.md), and
-[`2026-07-21-pcr-data-store-design.md`](../../2026-07-21-pcr-data-store-design.md) — each links
+[`2026-07-16-pcr-api-marketplace-design-v2.md`](../../designs/2026-07-16-pcr-api-marketplace-design-v2.md),
+[`2026-07-17-pcr-stateless-proxy-design.md`](../../designs/2026-07-17-pcr-stateless-proxy-design.md), and
+[`2026-07-21-pcr-data-store-design.md`](../../designs/2026-07-21-pcr-data-store-design.md) — each links
 back to this ADR at the point it carries an encrypted PII field.
 
 ## Context
@@ -47,7 +47,7 @@ field-level encryption pattern already demonstrated in
 
 - A custom `@Encrypted` field annotation on the JPA entity (a new `PcrDefendant`-shaped entity
   or fields added to the existing `pcr_version` entity once the JPA layer exists — this service
-  has no JPA entities yet, see `docs/2026-07-21-pcr-data-store-design.md`; adding this pattern
+  has no JPA entities yet, see `docs/designs/2026-07-21-pcr-data-store-design.md`; adding this pattern
   and adding the phase-2 JPA layer are naturally sequenced together, not two independent efforts).
 - A Hibernate `PreInsert`/`PreUpdate`/`PostLoad` event listener
   (`EncryptionEventListener`/`HibernateListenerRegistrar` in the demo) that encrypts/decrypts

@@ -26,8 +26,8 @@ version store (Postgres/Flyway, immutable `pcr_version` rows) is phase 2 and des
   retries/dead-letters on incompleteness — but **does not persist anything**. There is no data
   store yet for it to write a `pcr_version` row into.
 
-Read `docs/2026-07-16-pcr-api-marketplace-design-v2.md` (authoritative architecture) plus the
-three dated follow-on design docs in `docs/` before adding any component, not just this file —
+Read `docs/designs/2026-07-16-pcr-api-marketplace-design-v2.md` (authoritative architecture) plus the
+three dated follow-on design docs in `docs/designs/` before adding any component, not just this file —
 each one is a deeper design pass on one layer (stateless-proxy phase 1, data store phase 2,
 hearing-event ingestion, orchestrator) and states its own scope/status at the top.
 
@@ -35,11 +35,11 @@ hearing-event ingestion, orchestrator) and states its own scope/status at the to
 
 | Component | Technology | Purpose |
 |---|---|---|
-| Ingestion trigger | Azure Event Grid `Hearing_Resulted` → self-provisioned Service Bus queue (`pcr.hearing-resulted`, `HearingResultedQueueProvisioner`) → `HearingResultedProcessorService` (raw `ServiceBusProcessorClient`, **not** `spring-cloud-azure-stream-binder-servicebus` — ADR 001) | Pointer-only event (`hearingId`/`hearingDay`/`userId`), unwrapped from an `EventGridEnvelope`; malformed payloads are dead-lettered, not retried |
+| Ingestion trigger | Azure Event Grid `Hearing_Resulted` → self-provisioned Service Bus queue (`pcr.hearing-resulted`, `HearingResultedQueueProvisioner`) → `HearingResultedProcessorService` (raw `ServiceBusProcessorClient`, **not** `spring-cloud-azure-stream-binder-servicebus` — ADR-002/AMP-889) | Pointer-only event (`hearingId`/`hearingDay`/`userId`), unwrapped from an `EventGridEnvelope`; malformed payloads are dead-lettered, not retried |
 | Results Query Client | `HearingResultedCacheClient` (Redis, read-only `StringRedisTemplate`) first, `ResultsClient` (`RestClient`) REST fallback against `results-query-api/.../hearingDetails/internal/{hearingId}` | Two-step retrieval per design §4a/4b — **ingestion path only**; the synchronous `GET /pcr` path skips Redis entirely |
 | Retry/escalation | `RetryServiceConfig` (`service-bus.retry-durations`/`max-tries`) + `ResultsIngestionService.escalateOrDeadLetter` | On `IncompleteHearingDetailsException`, schedules Service Bus redelivery (`ServiceBusSenderClient`) with increasing backoff; dead-letters once `max-tries` is exceeded |
 | Reference Data | `ResultDefinition` lookups, offence metadata (e.g. `startDate`) | Not yet built — "to be analysed" per design §8 |
-| Data store | **Not implemented.** `docs/2026-07-21-pcr-data-store-design.md` specifies Postgres/Flyway, immutable `pcr_version` rows keyed `(hearingId, defendantId)` | Phase 2 — no Flyway migration, JPA entity, or repository exists in `src/main` yet |
+| Data store | **Not implemented.** `docs/designs/2026-07-21-pcr-data-store-design.md` specifies Postgres/Flyway, immutable `pcr_version` rows keyed `(hearingId, defendantId)` | Phase 2 — no Flyway migration, JPA entity, or repository exists in `src/main` yet |
 | Version lookup / retention | Not implemented | Depends on the phase-2 data store + the still-undecided version-correlation mechanism (§7) |
 
 ## Source Structure
@@ -101,7 +101,7 @@ hearing-event ingestion, orchestrator) and states its own scope/status at the to
 - **The ingestion listener does not persist anything today.** A successful
   `ResultsIngestionService.ingestHearingResults` call only proves the hearing data is complete
   and retryable-safe — it does not mean a `pcr_version` row now exists, because there is no data
-  store to write to until phase 2 (`docs/2026-07-21-pcr-data-store-design.md`) is implemented.
+  store to write to until phase 2 (`docs/designs/2026-07-21-pcr-data-store-design.md`) is implemented.
   Don't wire `GET /pcr` to "whatever the listener last saw" as a shortcut.
 - **Version correlation mechanism is still TBD** (design §7) — three options considered
   (`recorded_date` ruled out, `sharedTime` propagation, `resultEventId` propagation), none
@@ -115,7 +115,7 @@ hearing-event ingestion, orchestrator) and states its own scope/status at the to
 - **Confirmed dead, dropped.** `officerInCase` and `parentGuardianName`/`Address1-5`/`PostCode`
   are hardcoded blank in the legacy generator and have no real source data — not carried
   through. This is a "the data doesn't exist" exclusion, unrelated to the point below.
-- **Defendant PII is carried and encrypted, per ADR-002 — this reverses an earlier decision.**
+- **Defendant PII is carried and encrypted, per ADR-004 — this reverses an earlier decision.**
   `title`/`firstName`/`middleName`/`lastName`/`dateOfBirth`/`address` were previously dropped on
   the basis that one consumer resolved defendant identity via `defendantId`/`masterDefendantId`
   against their own systems and didn't need this data from this API. A confirmed new requirement
@@ -136,7 +136,7 @@ hearing-event ingestion, orchestrator) and states its own scope/status at the to
 |---|---|
 | `GET /pcr` returns an incomplete or empty `prosecutionCases` hearing | Expected today — `ResultsPcrService` has no completeness gate or retry; only the async ingestion listener (`ResultsIngestionService.isComplete`) guards against viewstore lag, and the two paths are independent (see Status above) |
 | Retry logic assumes REST fallback fails cleanly on a race | Unconfirmed assumption per design §4b/§13 item 2 — verify against the Results team's actual code before relying on it |
-| Service Bus emulator / Redis not available locally | Not yet wired into `docker-compose.yml` or an `apitest.gradle` project (ADR 001 consequence) — `docker-compose.yml` only starts the `app` container today |
+| Service Bus emulator / Redis not available locally | Not yet wired into `docker-compose.yml` or an `apitest.gradle` project (ADR-002 consequence) — `docker-compose.yml` only starts the `app` container today |
 
 ## Repo-Specific Notes
 

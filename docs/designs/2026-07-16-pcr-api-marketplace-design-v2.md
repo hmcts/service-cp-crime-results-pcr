@@ -5,7 +5,7 @@
 **Repos:** `api-cp-crime-results-pcr` (OpenAPI spec) + `service-cp-crime-results-pcr` (Spring Boot service), Modern-by-Default pattern, scaffolded from `api-hmcts-crime-template` / `service-hmcts-crime-springboot-template`.
 
 **Status:** Draft, 16 Jul 2026, built from the epic/stories.
-**Jira:** AMP-888 — see [`docs/pipeline/adrs/001-AMP-888-pcr-api-marketplace-pull-channel.md`](pipeline/adrs/001-AMP-888-pcr-api-marketplace-pull-channel.md)
+**Jira:** AMP-888 — see [`docs/pipeline/adrs/001-AMP-888-pcr-api-marketplace-pull-channel.md`](../pipeline/adrs/001-AMP-888-pcr-api-marketplace-pull-channel.md)
 for the decision this design doc's architecture was accepted under.
 
 ---

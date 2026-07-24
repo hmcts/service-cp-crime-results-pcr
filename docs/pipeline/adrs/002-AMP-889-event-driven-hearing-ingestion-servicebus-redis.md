@@ -6,7 +6,7 @@
 ## Context
 
 Implementing,
-[`2026-07-22-pcr-hearing-event-ingestion-design.md`](../../2026-07-22-pcr-hearing-event-ingestion-design.md)
+[`2026-07-22-pcr-hearing-event-ingestion-design.md`](../../designs/2026-07-22-pcr-hearing-event-ingestion-design.md)
 introduces this service's first event-driven ingestion path, triggered by Azure Event Grid's
 `Hearing_Resulted` event, and its first read of a cache another service owns. Both require new
 external dependencies not previously used anywhere in this repo:
