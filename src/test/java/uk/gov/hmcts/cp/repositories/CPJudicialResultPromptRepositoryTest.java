@@ -2,6 +2,7 @@ package uk.gov.hmcts.cp.repositories;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 import uk.gov.hmcts.cp.entities.CPCaseHearingEntity;
 import uk.gov.hmcts.cp.entities.CPJudicialResultEntity;
 import uk.gov.hmcts.cp.entities.CPJudicialResultPromptEntity;
@@ -24,20 +25,21 @@ class CPJudicialResultPromptRepositoryTest extends RepositoryIntegrationTestBase
     private static final UUID PROMPT_ID = UUID.fromString("00000000-0000-0000-0000-000000000011");
 
     @Autowired
-    private CPCaseHearingRepository pcrCaseHearingRepository;
+    private CPCaseHearingRepository cpCaseHearingRepository;
 
     @Autowired
-    private CPVersionRepository pcrVersionRepository;
+    private CPVersionRepository cpVersionRepository;
 
     @Autowired
-    private CPOffenceRepository pcrOffenceRepository;
+    private CPOffenceRepository cpOffenceRepository;
 
     @Autowired
-    private CPJudicialResultRepository pcrJudicialResultRepository;
+    private CPJudicialResultRepository cpJudicialResultRepository;
 
     @Autowired
-    private CPJudicialResultPromptRepository pcrJudicialResultPromptRepository;
+    private CPJudicialResultPromptRepository cpJudicialResultPromptRepository;
 
+    @Transactional
     @Test
     void save_should_persistAndReturnEveryField_whenFindById() {
         saveParents();
@@ -51,10 +53,9 @@ class CPJudicialResultPromptRepositoryTest extends RepositoryIntegrationTestBase
                 .type("TEXT")
                 .build();
 
-        pcrJudicialResultPromptRepository.save(entity);
-        flushAndClear();
+        cpJudicialResultPromptRepository.save(entity);
 
-        final Optional<CPJudicialResultPromptEntity> found = pcrJudicialResultPromptRepository.findById(PROMPT_ID);
+        final Optional<CPJudicialResultPromptEntity> found = cpJudicialResultPromptRepository.findById(PROMPT_ID);
         assertThat(found).isPresent();
         assertThat(found.get().getJudicialResultId()).isEqualTo(JUDICIAL_RESULT_ID);
         assertThat(found.get().getLabel()).isEqualTo("Prison");
@@ -64,25 +65,25 @@ class CPJudicialResultPromptRepositoryTest extends RepositoryIntegrationTestBase
     }
 
     private void saveParents() {
-        pcrCaseHearingRepository.save(CPCaseHearingEntity.builder()
+        cpCaseHearingRepository.save(CPCaseHearingEntity.builder()
                 .id(CASE_HEARING_ID)
                 .caseUrn("ABCD1234567")
                 .hearingId(UUID.fromString("00000000-0000-0000-0000-000000000002"))
                 .createdAt(OffsetDateTime.now(ZoneOffset.UTC))
                 .build());
-        pcrVersionRepository.save(CPVersionEntity.builder()
+        cpVersionRepository.save(CPVersionEntity.builder()
                 .cpVersionPk(VERSION_PK)
                 .defendantId(UUID.fromString("00000000-0000-0000-0000-000000000005"))
                 .caseHearingId(CASE_HEARING_ID)
                 .createdAt(OffsetDateTime.now(ZoneOffset.UTC))
                 .expiresAt(OffsetDateTime.now(ZoneOffset.UTC).plusDays(30))
                 .build());
-        pcrOffenceRepository.save(CPOffenceEntity.builder()
+        cpOffenceRepository.save(CPOffenceEntity.builder()
                 .id(OFFENCE_ID)
                 .versionPk(VERSION_PK)
                 .code("TH68001")
                 .build());
-        pcrJudicialResultRepository.save(CPJudicialResultEntity.builder()
+        cpJudicialResultRepository.save(CPJudicialResultEntity.builder()
                 .id(JUDICIAL_RESULT_ID)
                 .offenceId(OFFENCE_ID)
                 .resultCode("3120")

@@ -2,6 +2,7 @@ package uk.gov.hmcts.cp.repositories;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 import uk.gov.hmcts.cp.entities.CPCaseHearingEntity;
 import uk.gov.hmcts.cp.entities.CPCourtApplicationEntity;
 import uk.gov.hmcts.cp.entities.CPVersionEntity;
@@ -21,14 +22,15 @@ class CPCourtApplicationRepositoryTest extends RepositoryIntegrationTestBase {
     private static final UUID COURT_APPLICATION_ID = UUID.fromString("00000000-0000-0000-0000-000000000008");
 
     @Autowired
-    private CPCaseHearingRepository pcrCaseHearingRepository;
+    private CPCaseHearingRepository cpCaseHearingRepository;
 
     @Autowired
-    private CPVersionRepository pcrVersionRepository;
+    private CPVersionRepository cpVersionRepository;
 
     @Autowired
-    private CPCourtApplicationRepository pcrCourtApplicationRepository;
+    private CPCourtApplicationRepository cpCourtApplicationRepository;
 
+    @Transactional
     @Test
     void save_should_persistAndReturnEveryField_whenFindById() {
         saveParents();
@@ -44,10 +46,9 @@ class CPCourtApplicationRepositoryTest extends RepositoryIntegrationTestBase {
                 .responseDate(LocalDate.of(2026, 7, 21))
                 .build();
 
-        pcrCourtApplicationRepository.save(entity);
-        flushAndClear();
+        cpCourtApplicationRepository.save(entity);
 
-        final Optional<CPCourtApplicationEntity> found = pcrCourtApplicationRepository.findById(COURT_APPLICATION_ID);
+        final Optional<CPCourtApplicationEntity> found = cpCourtApplicationRepository.findById(COURT_APPLICATION_ID);
         assertThat(found).isPresent();
         assertThat(found.get().getVersionPk()).isEqualTo(VERSION_PK);
         assertThat(found.get().getReference()).isEqualTo("APP-1");
@@ -59,13 +60,13 @@ class CPCourtApplicationRepositoryTest extends RepositoryIntegrationTestBase {
     }
 
     private void saveParents() {
-        pcrCaseHearingRepository.save(CPCaseHearingEntity.builder()
+        cpCaseHearingRepository.save(CPCaseHearingEntity.builder()
                 .id(CASE_HEARING_ID)
                 .caseUrn("ABCD1234567")
                 .hearingId(UUID.fromString("00000000-0000-0000-0000-000000000002"))
                 .createdAt(OffsetDateTime.now(ZoneOffset.UTC))
                 .build());
-        pcrVersionRepository.save(CPVersionEntity.builder()
+        cpVersionRepository.save(CPVersionEntity.builder()
                 .cpVersionPk(VERSION_PK)
                 .defendantId(UUID.fromString("00000000-0000-0000-0000-000000000005"))
                 .caseHearingId(CASE_HEARING_ID)

@@ -2,6 +2,7 @@ package uk.gov.hmcts.cp.repositories;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 import uk.gov.hmcts.cp.entities.CPCaseHearingEntity;
 import uk.gov.hmcts.cp.entities.CPOffenceEntity;
 import uk.gov.hmcts.cp.entities.CPVersionEntity;
@@ -21,23 +22,24 @@ class CPOffenceRepositoryTest extends RepositoryIntegrationTestBase {
     private static final UUID OFFENCE_ID = UUID.fromString("00000000-0000-0000-0000-000000000009");
 
     @Autowired
-    private CPCaseHearingRepository pcrCaseHearingRepository;
+    private CPCaseHearingRepository cpCaseHearingRepository;
 
     @Autowired
-    private CPVersionRepository pcrVersionRepository;
+    private CPVersionRepository cpVersionRepository;
 
     @Autowired
-    private CPOffenceRepository pcrOffenceRepository;
+    private CPOffenceRepository cpOffenceRepository;
 
+    @Transactional
     @Test
     void save_should_persistAndReturnEveryField_whenParentedByVersion() {
-        pcrCaseHearingRepository.save(CPCaseHearingEntity.builder()
+        cpCaseHearingRepository.save(CPCaseHearingEntity.builder()
                 .id(CASE_HEARING_ID)
                 .caseUrn("ABCD1234567")
                 .hearingId(UUID.fromString("00000000-0000-0000-0000-000000000002"))
                 .createdAt(OffsetDateTime.now(ZoneOffset.UTC))
                 .build());
-        pcrVersionRepository.save(CPVersionEntity.builder()
+        cpVersionRepository.save(CPVersionEntity.builder()
                 .cpVersionPk(VERSION_PK)
                 .defendantId(UUID.fromString("00000000-0000-0000-0000-000000000005"))
                 .caseHearingId(CASE_HEARING_ID)
@@ -60,10 +62,9 @@ class CPOffenceRepositoryTest extends RepositoryIntegrationTestBase {
                 .verdictCode("G")
                 .build();
 
-        pcrOffenceRepository.save(entity);
-        flushAndClear();
+        cpOffenceRepository.save(entity);
 
-        final Optional<CPOffenceEntity> found = pcrOffenceRepository.findById(OFFENCE_ID);
+        final Optional<CPOffenceEntity> found = cpOffenceRepository.findById(OFFENCE_ID);
         assertThat(found).isPresent();
         assertThat(found.get().getVersionPk()).isEqualTo(VERSION_PK);
         assertThat(found.get().getCourtApplicationId()).isNull();
