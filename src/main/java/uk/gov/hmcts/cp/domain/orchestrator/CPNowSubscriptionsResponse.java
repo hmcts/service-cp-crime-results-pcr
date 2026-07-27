@@ -13,7 +13,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
-public class NowSubscriptionsResponse {
+public class CPNowSubscriptionsResponse {
 
-    private List<NowSubscription> nowSubscriptions;
+    private List<CPNowSubscription> nowSubscriptions;
 }

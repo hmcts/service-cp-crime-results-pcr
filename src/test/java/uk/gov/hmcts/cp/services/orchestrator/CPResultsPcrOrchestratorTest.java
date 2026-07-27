@@ -7,8 +7,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.cp.clients.orchestrator.ReferenceDataClient;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.JudicialResult;
-import uk.gov.hmcts.cp.domain.orchestrator.NowSubscription;
-import uk.gov.hmcts.cp.domain.orchestrator.Vocabulary;
+import uk.gov.hmcts.cp.domain.orchestrator.CPNowSubscription;
+import uk.gov.hmcts.cp.domain.orchestrator.CPVocabulary;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -20,17 +20,17 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class ResultsPcrOrchestratorTest {
+class CPResultsPcrOrchestratorTest {
 
     private static final LocalDate ON_DATE = LocalDate.of(2026, 7, 23);
 
     @Mock
-    private NowSubscriptionMatcher nowSubscriptionMatcher;
+    private CPNowSubscriptionMatcher nowSubscriptionMatcher;
     @Mock
     private ReferenceDataClient referenceDataClient;
 
     @InjectMocks
-    private ResultsPcrOrchestrator resultsPcrOrchestrator;
+    private CPResultsPcrOrchestrator resultsPcrOrchestrator;
 
     @Test
     void excludePublishedForNows_should_removeResultsMarkedPublishedForNows() {
@@ -53,8 +53,8 @@ class ResultsPcrOrchestratorTest {
 
     @Test
     void isPrisonCourtRegisterRequired_should_returnTrue_whenPcrSubscriptionMatches() {
-        final Vocabulary vocabulary = vocabulary();
-        final NowSubscription pcrSubscription = NowSubscription.builder()
+        final CPVocabulary vocabulary = vocabulary();
+        final CPNowSubscription pcrSubscription = CPNowSubscription.builder()
                 .isPrisonCourtRegisterSubscription(true)
                 .build();
         when(referenceDataClient.getPrisonCourtRegisterSubscriptions(ON_DATE)).thenReturn(List.of(pcrSubscription));
@@ -65,7 +65,7 @@ class ResultsPcrOrchestratorTest {
 
     @Test
     void isPrisonCourtRegisterRequired_should_returnFalse_whenNoSubscriptionMatches() {
-        final NowSubscription pcrSubscription = NowSubscription.builder()
+        final CPNowSubscription pcrSubscription = CPNowSubscription.builder()
                 .isPrisonCourtRegisterSubscription(true)
                 .build();
         when(referenceDataClient.getPrisonCourtRegisterSubscriptions(ON_DATE)).thenReturn(List.of(pcrSubscription));
@@ -76,7 +76,7 @@ class ResultsPcrOrchestratorTest {
 
     @Test
     void isPrisonCourtRegisterRequired_should_ignoreNonPcrSubscriptions() {
-        final NowSubscription nonPcrSubscription = NowSubscription.builder()
+        final CPNowSubscription nonPcrSubscription = CPNowSubscription.builder()
                 .isPrisonCourtRegisterSubscription(false)
                 .build();
         when(referenceDataClient.getPrisonCourtRegisterSubscriptions(ON_DATE)).thenReturn(List.of(nonPcrSubscription));
@@ -85,8 +85,8 @@ class ResultsPcrOrchestratorTest {
         verify(nowSubscriptionMatcher, never()).matches(any(), any(), any());
     }
 
-    private static Vocabulary vocabulary() {
-        return new Vocabulary(
+    private static CPVocabulary vocabulary() {
+        return new CPVocabulary(
                 false, false, false,
                 false, false, false,
                 false,

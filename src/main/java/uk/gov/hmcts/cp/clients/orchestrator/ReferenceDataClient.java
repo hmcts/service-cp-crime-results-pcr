@@ -7,8 +7,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.util.UriComponentsBuilder;
 import uk.gov.hmcts.cp.config.AppPropertiesBackend;
-import uk.gov.hmcts.cp.domain.orchestrator.NowSubscription;
-import uk.gov.hmcts.cp.domain.orchestrator.NowSubscriptionsResponse;
+import uk.gov.hmcts.cp.domain.orchestrator.CPNowSubscription;
+import uk.gov.hmcts.cp.domain.orchestrator.CPNowSubscriptionsResponse;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -20,28 +20,30 @@ public class ReferenceDataClient {
 
     private static final String ACCEPT_NOW_SUBSCRIPTIONS =
             "application/vnd.referencedata.query.get-now-subscriptions+json";
+    public static final String REFERENCE_DATA_PATH =
+            "/referencedata-query-api/query/api/rest/referencedata/now-subscriptions";
 
     private final AppPropertiesBackend appProperties;
     private final RestClient restClient;
 
-    public List<NowSubscription> getPrisonCourtRegisterSubscriptions(final LocalDate on) {
-        final String url = buildUrl(on);
+    public List<CPNowSubscription> getPrisonCourtRegisterSubscriptions(final LocalDate activeAt) {
+        final String url = buildUrl(activeAt);
         log.info("Getting now-subscriptions from {}", Encode.forJava(url));
-        final NowSubscriptionsResponse response = restClient.get()
+        final CPNowSubscriptionsResponse response = restClient.get()
                 .uri(url)
                 .header("Accept", ACCEPT_NOW_SUBSCRIPTIONS)
                 .header("CJSCPPUID", appProperties.getReferenceDataCjscppuid())
                 .retrieve()
-                .body(NowSubscriptionsResponse.class);
+                .body(CPNowSubscriptionsResponse.class);
         return response == null || response.getNowSubscriptions() == null
                 ? List.of()
                 : response.getNowSubscriptions();
     }
 
-    private String buildUrl(final LocalDate on) {
+    private String buildUrl(final LocalDate activeAt) {
         return UriComponentsBuilder
-                .fromUriString(appProperties.getReferenceDataUrl() + appProperties.getReferenceDataPath())
-                .queryParam("on", on)
+                .fromUriString(appProperties.getReferenceDataUrl() + REFERENCE_DATA_PATH)
+                .queryParam("on", activeAt)
                 .toUriString();
     }
 }

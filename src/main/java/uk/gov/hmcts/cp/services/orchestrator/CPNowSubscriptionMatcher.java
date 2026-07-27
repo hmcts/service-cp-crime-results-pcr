@@ -3,9 +3,9 @@ package uk.gov.hmcts.cp.services.orchestrator;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.JudicialResult;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.JudicialResultPrompt;
-import uk.gov.hmcts.cp.domain.orchestrator.NowSubscription;
-import uk.gov.hmcts.cp.domain.orchestrator.NowSubscription.SubscriptionVocabulary;
-import uk.gov.hmcts.cp.domain.orchestrator.Vocabulary;
+import uk.gov.hmcts.cp.domain.orchestrator.CPNowSubscription;
+import uk.gov.hmcts.cp.domain.orchestrator.CPNowSubscription.SubscriptionVocabulary;
+import uk.gov.hmcts.cp.domain.orchestrator.CPVocabulary;
 
 import java.util.List;
 
@@ -17,9 +17,9 @@ import java.util.List;
 // Only applySubscriptionRules == false (or no subscriptionVocabulary at all) genuinely
 // defaults to pass.
 @Component
-public class NowSubscriptionMatcher {
+public class CPNowSubscriptionMatcher {
 
-    public boolean matches(final NowSubscription subscription, final Vocabulary vocabulary,
+    public boolean matches(final CPNowSubscription subscription, final CPVocabulary vocabulary,
                             final List<JudicialResult> eligibleResults) {
         final SubscriptionVocabulary subVoc = subscription.getSubscriptionVocabulary();
         return !subscription.isApplySubscriptionRules()
@@ -27,7 +27,7 @@ public class NowSubscriptionMatcher {
                 || matchesVocabularyRules(subVoc, vocabulary, eligibleResults);
     }
 
-    private boolean matchesVocabularyRules(final SubscriptionVocabulary subVoc, final Vocabulary vocabulary,
+    private boolean matchesVocabularyRules(final SubscriptionVocabulary subVoc, final CPVocabulary vocabulary,
                                             final List<JudicialResult> eligibleResults) {
         return (isTrue(subVoc.getIsCpsProsecuted()) && vocabulary.cpsProsecuted())
                 || (attendanceMatches(subVoc)
@@ -41,7 +41,7 @@ public class NowSubscriptionMatcher {
     }
 
     // Real appearedInPerson/appearedByVideoLink source (hearing.defendantAttendance) is
-    // unconfirmed on our own HearingDetailsResponse (design doc §7) — Vocabulary carries no
+    // unconfirmed on our own HearingDetailsResponse (design doc §7) — CPVocabulary carries no
     // attendance facts yet. anyAppearance still bypasses per real behaviour; a specific
     // requirement without it can never be satisfied until that fixture gap is closed.
     private boolean attendanceMatches(final SubscriptionVocabulary subVoc) {
@@ -49,7 +49,7 @@ public class NowSubscriptionMatcher {
     }
 
     private boolean majorCreditorTypeMatches(final SubscriptionVocabulary subVoc) {
-        // Vocabulary.prosecutorMajorCreditor()/nonProsecutorMajorCreditor() are always empty,
+        // CPVocabulary.prosecutorMajorCreditor()/nonProsecutorMajorCreditor() are always empty,
         // non-null lists for PCR (design doc §2) — a specific requirement without
         // anyMajorCreditor can never be satisfied.
         return isTrue(subVoc.getAnyMajorCreditor())
@@ -57,19 +57,19 @@ public class NowSubscriptionMatcher {
                         && !isTrue(subVoc.getRequiresNonProsecutorMajorCreditor()));
     }
 
-    private boolean courtLanguageMatches(final SubscriptionVocabulary subVoc, final Vocabulary vocabulary) {
+    private boolean courtLanguageMatches(final SubscriptionVocabulary subVoc, final CPVocabulary vocabulary) {
         return isTrue(subVoc.getAnyCourtHearing())
                 || (isTrue(subVoc.getEnglishCourtHearing()) && vocabulary.englishCourtHearing())
                 || (isTrue(subVoc.getWelshCourtHearing()) && vocabulary.welshCourtHearing());
     }
 
-    private boolean ageGroupMatches(final SubscriptionVocabulary subVoc, final Vocabulary vocabulary) {
+    private boolean ageGroupMatches(final SubscriptionVocabulary subVoc, final CPVocabulary vocabulary) {
         return isTrue(subVoc.getAdultOrYouthDefendant())
                 || (isTrue(subVoc.getYouthDefendant()) && vocabulary.youthDefendant())
                 || (isTrue(subVoc.getAdultDefendant()) && vocabulary.adultDefendant());
     }
 
-    private boolean custodyMatches(final SubscriptionVocabulary subVoc, final Vocabulary vocabulary) {
+    private boolean custodyMatches(final SubscriptionVocabulary subVoc, final CPVocabulary vocabulary) {
         final boolean custodyLocationIsPolice = isTrue(subVoc.getCustodyLocationIsPolice());
         final boolean custodyLocationIsPrison = isTrue(subVoc.getCustodyLocationIsPrison());
         final boolean inCustody = isTrue(subVoc.getInCustody());
@@ -81,7 +81,7 @@ public class NowSubscriptionMatcher {
                         && vocabulary.custodyLocationIsPrison());
     }
 
-    private boolean custodialOutcomeMatches(final SubscriptionVocabulary subVoc, final Vocabulary vocabulary) {
+    private boolean custodialOutcomeMatches(final SubscriptionVocabulary subVoc, final CPVocabulary vocabulary) {
         final boolean custodialOutcomeMatches =
                 isTrue(subVoc.getAtleastOneCustodialResult()) == vocabulary.atleastOneCustodialResult();
         return isTrue(subVoc.getIgnoreResults())

@@ -9,7 +9,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.web.client.RestClient;
 import uk.gov.hmcts.cp.config.AppPropertiesBackend;
-import uk.gov.hmcts.cp.domain.orchestrator.NowSubscription;
+import uk.gov.hmcts.cp.domain.orchestrator.CPNowSubscription;
 
 import java.net.URL;
 import java.nio.file.Files;
@@ -26,8 +26,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class ReferenceDataClientTest {
 
-    private static final String REFERENCE_DATA_PATH =
-            "/referencedata-query-api/query/api/rest/referencedata/now-subscriptions";
     private static final LocalDate ON_DATE = LocalDate.of(2026, 7, 23);
 
     private WireMockServer wireMockServer;
@@ -40,9 +38,8 @@ class ReferenceDataClientTest {
         WireMock.configureFor("localhost", 8081);
 
         final AppPropertiesBackend appProperties = new AppPropertiesBackend(
-                "http://localhost:8081", "/results-query-api/query/api/rest/results/hearingDetails/internal",
-                "00000000-0000-0000-0000-000000000000",
-                "http://localhost:8081", REFERENCE_DATA_PATH, "00000000-0000-0000-0000-000000000000");
+                "http://localhost:8081", "00000000-0000-0000-0000-000000000000",
+                "http://localhost:8081", "00000000-0000-0000-0000-000000000000");
         referenceDataClient = new ReferenceDataClient(appProperties, RestClient.create());
     }
 
@@ -59,7 +56,7 @@ class ReferenceDataClientTest {
 
         referenceDataClient.getPrisonCourtRegisterSubscriptions(ON_DATE);
 
-        verify(getRequestedFor(urlPathEqualTo(REFERENCE_DATA_PATH))
+        verify(getRequestedFor(urlPathEqualTo(ReferenceDataClient.REFERENCE_DATA_PATH))
                 .withQueryParam("on", WireMock.equalTo("2026-07-23"))
                 .withHeader("Accept",
                         WireMock.equalTo("application/vnd.referencedata.query.get-now-subscriptions+json"))
@@ -70,14 +67,14 @@ class ReferenceDataClientTest {
     void getPrisonCourtRegisterSubscriptions_should_returnParsedSubscriptions() {
         stubFor(readResourceContents("referencedata/now-subscriptions-one-pcr.json"));
 
-        final List<NowSubscription> subscriptions = referenceDataClient.getPrisonCourtRegisterSubscriptions(ON_DATE);
+        final List<CPNowSubscription> subscriptions = referenceDataClient.getPrisonCourtRegisterSubscriptions(ON_DATE);
 
         assertThat(subscriptions).hasSize(1);
         assertThat(subscriptions.get(0).isPrisonCourtRegisterSubscription()).isTrue();
     }
 
     private void stubFor(final String body) {
-        WireMock.stubFor(WireMock.get(WireMock.urlPathEqualTo(REFERENCE_DATA_PATH)).willReturn(aResponse()
+        WireMock.stubFor(WireMock.get(WireMock.urlPathEqualTo(ReferenceDataClient.REFERENCE_DATA_PATH)).willReturn(aResponse()
                 .withStatus(HTTP_OK)
                 .withHeader("Content-Type", "application/json")
                 .withBody(body)));

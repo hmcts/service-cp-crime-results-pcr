@@ -1,8 +1,11 @@
 package uk.gov.hmcts.cp.domain.orchestrator;
 
+import lombok.Builder;
+
 import java.util.List;
 
-public record Vocabulary(
+@Builder
+public record CPVocabulary(
         boolean custodyLocationIsPolice,
         boolean custodyLocationIsPrison,
         boolean inCustody,

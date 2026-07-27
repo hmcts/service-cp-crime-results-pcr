@@ -14,13 +14,13 @@ import uk.gov.hmcts.cp.domain.HearingDetailsResponse.ProsecutionCase;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.ProsecutionCaseIdentifier;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.Prosecutor;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.Respondent;
-import uk.gov.hmcts.cp.domain.orchestrator.Vocabulary;
+import uk.gov.hmcts.cp.domain.orchestrator.CPVocabulary;
 
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class VocabularyServiceTest {
+class CPVocabularyServiceTest {
 
     private static final String DEFENDANT_ID = "00000000-0000-0000-0000-000000000022";
     private static final String OTHER_DEFENDANT_ID = "00000000-0000-0000-0000-000000000033";
@@ -28,14 +28,14 @@ class VocabularyServiceTest {
     private static final String OTHER_MASTER_DEFENDANT_ID = "44444444-4444-4444-4444-444444444444";
     private static final String CUSTODIAL_RESULT_PROMPT = "prisonOrganisationName";
 
-    private final VocabularyService vocabularyService = new VocabularyService();
+    private final CPVocabularyService vocabularyService = new CPVocabularyService();
 
     @Test
     void compute_should_setCustodyLocationIsPrison_whenOwnEstablishmentIsPrison() {
         final Defendant defendant = defendantWithEstablishment(DEFENDANT_ID, MASTER_DEFENDANT_ID, "Prison");
         final HearingDetail hearing = hearingWith(List.of(caseWith(defendant)), List.of());
 
-        final Vocabulary vocabulary = vocabularyService.compute(defendant, hearing);
+        final CPVocabulary vocabulary = vocabularyService.compute(defendant, hearing);
 
         assertThat(vocabulary.custodyLocationIsPrison()).isTrue();
         assertThat(vocabulary.custodyLocationIsPolice()).isFalse();
@@ -46,7 +46,7 @@ class VocabularyServiceTest {
         final Defendant defendant = defendantWithEstablishment(DEFENDANT_ID, MASTER_DEFENDANT_ID, "Police Station");
         final HearingDetail hearing = hearingWith(List.of(caseWith(defendant)), List.of());
 
-        final Vocabulary vocabulary = vocabularyService.compute(defendant, hearing);
+        final CPVocabulary vocabulary = vocabularyService.compute(defendant, hearing);
 
         assertThat(vocabulary.custodyLocationIsPolice()).isTrue();
         assertThat(vocabulary.custodyLocationIsPrison()).isFalse();
@@ -57,7 +57,7 @@ class VocabularyServiceTest {
         final Defendant defendant = defendantWithEstablishment(DEFENDANT_ID, MASTER_DEFENDANT_ID, "Prison");
         final HearingDetail hearing = hearingWith(List.of(caseWith(defendant)), List.of());
 
-        final Vocabulary vocabulary = vocabularyService.compute(defendant, hearing);
+        final CPVocabulary vocabulary = vocabularyService.compute(defendant, hearing);
 
         assertThat(vocabulary.inCustody()).isTrue();
     }
@@ -67,7 +67,7 @@ class VocabularyServiceTest {
         final Defendant defendant = defendantWithNoOffences(DEFENDANT_ID, MASTER_DEFENDANT_ID);
         final HearingDetail hearing = hearingWith(List.of(caseWith(defendant)), List.of());
 
-        final Vocabulary vocabulary = vocabularyService.compute(defendant, hearing);
+        final CPVocabulary vocabulary = vocabularyService.compute(defendant, hearing);
 
         assertThat(vocabulary.inCustody()).isFalse();
     }
@@ -80,7 +80,7 @@ class VocabularyServiceTest {
         final Defendant otherCaseDefendant = defendantWithEstablishment(OTHER_DEFENDANT_ID, MASTER_DEFENDANT_ID, "Prison");
         final HearingDetail hearing = hearingWith(List.of(caseWith(ownCaseDefendant), caseWith(otherCaseDefendant)), List.of());
 
-        final Vocabulary vocabulary = vocabularyService.compute(ownCaseDefendant, hearing);
+        final CPVocabulary vocabulary = vocabularyService.compute(ownCaseDefendant, hearing);
 
         assertThat(vocabulary.custodyLocationIsPrison()).isTrue();
     }
@@ -91,7 +91,7 @@ class VocabularyServiceTest {
         final Defendant unrelatedDefendant = defendantWithEstablishment(OTHER_DEFENDANT_ID, OTHER_MASTER_DEFENDANT_ID, "Prison");
         final HearingDetail hearing = hearingWith(List.of(caseWith(ownCaseDefendant), caseWith(unrelatedDefendant)), List.of());
 
-        final Vocabulary vocabulary = vocabularyService.compute(ownCaseDefendant, hearing);
+        final CPVocabulary vocabulary = vocabularyService.compute(ownCaseDefendant, hearing);
 
         assertThat(vocabulary.custodyLocationIsPrison()).isFalse();
     }
@@ -107,7 +107,7 @@ class VocabularyServiceTest {
                 .build();
         final HearingDetail hearing = hearingWith(List.of(caseWith(defendant)), List.of(application));
 
-        final Vocabulary vocabulary = vocabularyService.compute(defendant, hearing);
+        final CPVocabulary vocabulary = vocabularyService.compute(defendant, hearing);
 
         assertThat(vocabulary.atleastOneCustodialResult()).isTrue();
     }
@@ -118,7 +118,7 @@ class VocabularyServiceTest {
         final Defendant defendant = defendantWithOffences(DEFENDANT_ID, MASTER_DEFENDANT_ID, List.of(offence));
         final HearingDetail hearing = hearingWith(List.of(caseWith(defendant)), List.of());
 
-        final Vocabulary vocabulary = vocabularyService.compute(defendant, hearing);
+        final CPVocabulary vocabulary = vocabularyService.compute(defendant, hearing);
 
         assertThat(vocabulary.atleastOneCustodialResult()).isTrue();
         assertThat(vocabulary.allNonCustodialResults()).isFalse();
@@ -130,7 +130,7 @@ class VocabularyServiceTest {
         final Defendant defendant = defendantWithOffences(DEFENDANT_ID, MASTER_DEFENDANT_ID, List.of(offence));
         final HearingDetail hearing = hearingWith(List.of(caseWith(defendant)), List.of());
 
-        final Vocabulary vocabulary = vocabularyService.compute(defendant, hearing);
+        final CPVocabulary vocabulary = vocabularyService.compute(defendant, hearing);
 
         assertThat(vocabulary.allNonCustodialResults()).isTrue();
         assertThat(vocabulary.atleastOneNonCustodialResult()).isTrue();
@@ -140,7 +140,7 @@ class VocabularyServiceTest {
     @Test
     void compute_should_setCpsProsecutedTrue_whenAnyProsecutionCaseOnHearingIsCps() {
         // Scans ALL prosecutionCases on the hearing, not scoped to the defendant's own case —
-        // replicates legacy VocabularyService.js behaviour exactly (design doc §2).
+        // replicates legacy CPVocabularyService.js behaviour exactly (design doc §2).
         final Defendant ownCaseDefendant = defendantWithNoOffences(DEFENDANT_ID, MASTER_DEFENDANT_ID);
         final Defendant otherCaseDefendant = defendantWithNoOffences(OTHER_DEFENDANT_ID, OTHER_MASTER_DEFENDANT_ID);
         final ProsecutionCase ownCase = caseWith(ownCaseDefendant);
@@ -152,7 +152,7 @@ class VocabularyServiceTest {
                 .build();
         final HearingDetail hearing = hearingWith(List.of(ownCase, cpsCase), List.of());
 
-        final Vocabulary vocabulary = vocabularyService.compute(ownCaseDefendant, hearing);
+        final CPVocabulary vocabulary = vocabularyService.compute(ownCaseDefendant, hearing);
 
         assertThat(vocabulary.cpsProsecuted()).isTrue();
     }
@@ -162,7 +162,7 @@ class VocabularyServiceTest {
         final Defendant defendant = defendantWithNoOffences(DEFENDANT_ID, MASTER_DEFENDANT_ID);
         final HearingDetail hearing = hearingWith(List.of(caseWith(defendant)), List.of());
 
-        final Vocabulary vocabulary = vocabularyService.compute(defendant, hearing);
+        final CPVocabulary vocabulary = vocabularyService.compute(defendant, hearing);
 
         assertThat(vocabulary.cpsProsecuted()).isFalse();
     }
@@ -178,7 +178,7 @@ class VocabularyServiceTest {
                 .build();
         final HearingDetail hearing = hearingWith(List.of(caseWith(defendant)), List.of());
 
-        final Vocabulary vocabulary = vocabularyService.compute(defendant, hearing);
+        final CPVocabulary vocabulary = vocabularyService.compute(defendant, hearing);
 
         assertThat(vocabulary.youthDefendant()).isTrue();
         assertThat(vocabulary.adultDefendant()).isFalse();
@@ -194,7 +194,7 @@ class VocabularyServiceTest {
                 .courtApplications(List.of())
                 .build();
 
-        final Vocabulary vocabulary = vocabularyService.compute(defendant, hearing);
+        final CPVocabulary vocabulary = vocabularyService.compute(defendant, hearing);
 
         assertThat(vocabulary.welshCourtHearing()).isTrue();
         assertThat(vocabulary.englishCourtHearing()).isFalse();
@@ -205,7 +205,7 @@ class VocabularyServiceTest {
         final Defendant defendant = defendantWithNoOffences(DEFENDANT_ID, MASTER_DEFENDANT_ID);
         final HearingDetail hearing = hearingWith(List.of(caseWith(defendant)), List.of());
 
-        final Vocabulary vocabulary = vocabularyService.compute(defendant, hearing);
+        final CPVocabulary vocabulary = vocabularyService.compute(defendant, hearing);
 
         assertThat(vocabulary.prosecutorMajorCreditor()).isEmpty();
         assertThat(vocabulary.nonProsecutorMajorCreditor()).isEmpty();

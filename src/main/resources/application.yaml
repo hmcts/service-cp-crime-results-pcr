@@ -4,8 +4,6 @@ environment:
 spring:
   application:
     name: service-cp-crime-results-pcr
-  jackson:
-    default-property-inclusion: non_null
   data:
     redis:
       host: ${REDIS_HOST:localhost}
@@ -62,7 +60,6 @@ logging:
 
 results-query-client:
   url: ${CP_BACKEND_URL:http://localhost:8081}
-  path: /results-query-api/query/api/rest/results/hearingDetails/internal
   cjscppuid: ${CJSCPPUID:00000000-0000-0000-0000-000000000000}
 
 reference-data-client:
@@ -71,7 +68,6 @@ reference-data-client:
   # service-cp-refdata-courthearing-courthouses already reaches referencedata-query-api from
   # this org's AKS fleet; confirm the real value before this reaches a live environment.
   url: ${REFERENCE_DATA_URL:${CP_BACKEND_URL:http://localhost:8081}}
-  path: /referencedata-query-api/query/api/rest/referencedata/now-subscriptions
   cjscppuid: ${CJSCPPUID:00000000-0000-0000-0000-000000000000}
 
 service-bus:

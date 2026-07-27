@@ -8,6 +8,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
+import uk.gov.hmcts.cp.clients.ResultsClient;
 
 import java.util.UUID;
 
@@ -141,7 +142,7 @@ class ResultsPcrControllerIntegrationTest extends IntegrationTestBase {
     }
 
     private void stubHearingDetails(final int status, final String body) {
-        final String url = String.format("%s/%s", appProperties.getResultsQueryPath(), HEARING_ID);
+        final String url = String.format("%s/%s", ResultsClient.RESULTS_QUERY_PATH, HEARING_ID);
         log.info("Stubbing results-query-api url:{}", url);
         stubFor(WireMock.get(urlEqualTo(url)).willReturn(aResponse()
                 .withStatus(status)

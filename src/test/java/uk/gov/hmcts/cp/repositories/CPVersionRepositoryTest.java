@@ -3,7 +3,7 @@ package uk.gov.hmcts.cp.repositories;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
-import uk.gov.hmcts.cp.entities.NextHearingEmbeddable;
+import uk.gov.hmcts.cp.entities.CPNextHearingEmbeddable;
 import uk.gov.hmcts.cp.entities.CPCaseHearingEntity;
 import uk.gov.hmcts.cp.entities.CPVersionEntity;
 
@@ -48,7 +48,7 @@ class CPVersionRepositoryTest extends RepositoryIntegrationTestBase {
                 .caseHearingId(CASE_HEARING_ID)
                 .custodyLocation("Prison")
                 .masterDefendantId(MASTER_DEFENDANT_ID)
-                .nextHearing(NextHearingEmbeddable.builder()
+                .nextHearing(CPNextHearingEmbeddable.builder()
                         .date(LocalDate.of(2026, 8, 1))
                         .time("10:00")
                         .courtHouseCode("B01LY")

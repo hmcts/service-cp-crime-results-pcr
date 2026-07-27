@@ -23,8 +23,8 @@ Function App/Progression pipeline vs.
 
 Confirmed with the Common Platform TA:
 
-- **In scope for this API: the generation gate only** — `VocabularyService` (fact
-  computation), `excludePublishedForNows` (content filter), and `NowSubscriptionMatcher`
+- **In scope for this API: the generation gate only** — `CPVocabularyService` (fact
+  computation), `excludePublishedForNows` (content filter), and `CPNowSubscriptionMatcher`
   (subscription matching). Together these determine whether a PCR *would have been
   generated* in the existing Function App flow — the same question this service's
   `isPrisonCourtRegisterRequired` answers.
@@ -33,12 +33,12 @@ Confirmed with the Common Platform TA:
   `service-cp-crime-hearing-results-document-subscription`'s subscriber/callback
   infrastructure — unchanged by this ADR (see also ADR-001/AMP-888's "does not rebuild
   subscriber management" decision, which this reaffirms rather than revisits).
-- **`ReferenceDataClient`/`NowSubscription` stay generic, not PCR-specific.** The
+- **`ReferenceDataClient`/`CPNowSubscription` stay generic, not PCR-specific.** The
   `now-subscriptions` configuration this service reads is shared across other
   distribution-channel kinds (NOW, EDT, informant register, court register subscriptions) —
   same underlying Reference Data source, not a PCR-only dataset. This service only ever
   consumes the `isPrisonCourtRegisterSubscription`-flagged subset
-  (`ResultsPcrOrchestrator.isPrisonCourtRegisterRequired` filters to it), but the client and
+  (`CPResultsPcrOrchestrator.isPrisonCourtRegisterRequired` filters to it), but the client and
   domain model themselves make no PCR-specific assumption about the response shape —
   confirms the modelling choice already made, not a change driven by this ADR.
 - **Long-term direction (not this phase):** moving the remaining Function App logic and
@@ -48,7 +48,7 @@ Confirmed with the Common Platform TA:
 
 ## Consequences
 
-- `ResultsPcrOrchestrator`/`VocabularyService`/`NowSubscriptionMatcher` are now confirmed as
+- `CPResultsPcrOrchestrator`/`CPVocabularyService`/`CPNowSubscriptionMatcher` are now confirmed as
   the full intended scope of "the orchestrator" for this phase — no further build-out
   (recipient resolution, Progression submission) should be added under this same umbrella
   without a new scope conversation.
@@ -57,7 +57,7 @@ Confirmed with the Common Platform TA:
   gate are two independent implementations of the same logic until the long-term
   consolidation happens; golden-master drift detection (design doc §9) is the safeguard
   against them silently diverging in the meantime.
-- `ReferenceDataClient`/`NowSubscription` are safe to reuse as-is if this service's scope
+- `ReferenceDataClient`/`CPNowSubscription` are safe to reuse as-is if this service's scope
   ever grows to consume other subscription kinds — no rework anticipated on that account.
 
 ## Alternatives considered
@@ -65,7 +65,7 @@ Confirmed with the Common Platform TA:
 - **Build the full pipeline (generation + recipient resolution + Progression submission) now**
   — rejected; out of proportion to this phase's confirmed requirement, and duplicates
   functionality Progression/the Function App already provide correctly today.
-- **Model `NowSubscription` as PCR-only** (e.g. drop the other subscription-kind flags
+- **Model `CPNowSubscription` as PCR-only** (e.g. drop the other subscription-kind flags
   entirely, assume every response row is a PCR subscription) — rejected per the TA
   discussion; the same Reference Data source serves other distribution channels, and a
   narrower model would need rework the moment this service (or another) needs a second kind.

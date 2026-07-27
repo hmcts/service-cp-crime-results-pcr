@@ -13,7 +13,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
-public class NowSubscription {
+public class CPNowSubscription {
 
     private boolean isPrisonCourtRegisterSubscription;
     // false, or subscriptionVocabulary absent -> matches by default (checkIfCustodyMatch et al
@@ -34,21 +34,21 @@ public class NowSubscription {
         // subscription actually configures; a PCR subscription with no major-creditor or
         // custody-ignore requirement simply omits those keys rather than sending false.
         // Boxed null is treated as "not configured" (unset), same fail-closed default as an
-        // explicit false, via the isTrue()/isSet() helpers in NowSubscriptionMatcher.
+        // explicit false, via the isTrue()/isSet() helpers in CPNowSubscriptionMatcher.
 
         // CPS short-circuit — bypasses every other dimension below once both this and the
-        // defendant's own Vocabulary.cpsProsecuted are true (checkIfCpsProsecuted).
+        // defendant's own CPVocabulary.cpsProsecuted are true (checkIfCpsProsecuted).
         private Boolean isCpsProsecuted;
 
         // Attendance — matched against SubscriptionsService.js:240-256's checkIfAttendanceTypeMatch,
-        // but Vocabulary has no real appearedInPerson/appearedByVideoLink source yet (design doc §7 —
+        // but CPVocabulary has no real appearedInPerson/appearedByVideoLink source yet (design doc §7 —
         // hearing.defendantAttendance is unconfirmed by fixture). anyAppearance still bypasses per
         // real behaviour; a specific requirement without it can never be satisfied today.
         private Boolean anyAppearance;
         private Boolean appearedInPerson;
         private Boolean appearedByVideoLink;
 
-        // Vocabulary.prosecutorMajorCreditor/nonProsecutorMajorCreditor are always empty,
+        // CPVocabulary.prosecutorMajorCreditor/nonProsecutorMajorCreditor are always empty,
         // non-null lists for PCR (design doc §2) — requiresProsecutorMajorCreditor/
         // requiresNonProsecutorMajorCreditor can therefore never be satisfied on their own;
         // only anyMajorCreditor genuinely defaults to pass (checkIfMajorCreditorTypeMatch).

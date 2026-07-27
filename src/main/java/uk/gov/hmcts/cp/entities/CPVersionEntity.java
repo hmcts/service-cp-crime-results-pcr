@@ -43,7 +43,7 @@ public class CPVersionEntity {
     private UUID masterDefendantId;
 
     @Embedded
-    private NextHearingEmbeddable nextHearing;
+    private CPNextHearingEmbeddable nextHearing;
 
     @Column(name = "created_at")
     private OffsetDateTime createdAt;

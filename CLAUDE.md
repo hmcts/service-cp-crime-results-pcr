@@ -25,9 +25,9 @@ version store (Postgres/Flyway, immutable `cp_version` rows) is phase 2 and desi
   consumes `Hearing_Resulted`, checks Redis-then-REST for complete hearing data, and
   retries/dead-letters on incompleteness — but **does not persist anything**. There is no data
   store yet for it to write a `cp_version` row into.
-- The orchestrator (`VocabularyService`, `ResultsPcrOrchestrator`, `NowSubscriptionMatcher`,
+- The orchestrator (`CPVocabularyService`, `CPResultsPcrOrchestrator`, `CPNowSubscriptionMatcher`,
   `ReferenceDataClient`) is fully implemented and unit-tested but **not called from anywhere**
-  — no controller, service, or listener constructs a `Vocabulary` or invokes
+  — no controller, service, or listener constructs a `CPVocabulary` or invokes
   `isPrisonCourtRegisterRequired` yet. It exists ahead of wiring, same pattern as the phase-2
   Flyway migrations.
 
@@ -43,12 +43,12 @@ that looks arbitrary; it likely isn't.
 
 | Component | Technology | Purpose |
 |---|---|---|
-| Ingestion trigger | Azure Event Grid `Hearing_Resulted` → self-provisioned Service Bus queue (`pcr.hearing-resulted`, `HearingResultedQueueProvisioner`) → `HearingResultedProcessorService` (raw `ServiceBusProcessorClient`, **not** `spring-cloud-azure-stream-binder-servicebus` — ADR-002/AMP-889) | Pointer-only event (`hearingId`/`hearingDay`/`userId`), unwrapped from an `EventGridEnvelope`; malformed payloads are dead-lettered, not retried |
+| Ingestion trigger | Azure Event Grid `Hearing_Resulted` → self-provisioned Service Bus queue (`pcr.hearing-resulted`, `HearingResultedQueueProvisioner`) → `HearingResultedProcessorService` (raw `ServiceBusProcessorClient`, **not** `spring-cloud-azure-stream-binder-servicebus` — ADR-002/AMP-889) | Pointer-only event (`hearingId`/`hearingDay`/`userId`), unwrapped from an `CPHearingResultedEventEnvelope`; malformed payloads are dead-lettered, not retried |
 | Results Query Client | `HearingResultedCacheClient` (Redis, read-only `StringRedisTemplate`) first, `ResultsClient` (`RestClient`) REST fallback against `results-query-api/.../hearingDetails/internal/{hearingId}` | Two-step retrieval per design §4a/4b — **ingestion path only**; the synchronous `GET /pcr` path skips Redis entirely |
 | Retry/escalation | `RetryServiceConfig` (`service-bus.retry-durations`/`max-tries`) + `ResultsIngestionService.escalateOrDeadLetter` | On `IncompleteHearingDetailsException`, schedules Service Bus redelivery (`ServiceBusSenderClient`) with increasing backoff; dead-letters once `max-tries` is exceeded |
 | Reference Data — `ResultDefinition` | Lookups, offence metadata (e.g. `startDate`) | Not yet built — "to be analysed" per design §8 |
-| Reference Data — `now-subscriptions` | `ReferenceDataClient` (`RestClient`) → `.../referencedata-query-api/.../now-subscriptions?on=<date>`; `NowSubscriptionMatcher` matches the PCR-flagged subset against a `Vocabulary` | Built, unit-tested, **not called** — no caller passes a real `on` date yet (design §7's date-selection strategy is still open) |
-| Generation-gate orchestrator | `VocabularyService` (fact computation) + `ResultsPcrOrchestrator` (`excludePublishedForNows`, `isPrisonCourtRegisterRequired`) | Design §4 scope, confirmed with Common Platform TA per ADR-005/AMP-943 — generation-gate logic only; recipient resolution and Progression submission are explicitly out of scope |
+| Reference Data — `now-subscriptions` | `ReferenceDataClient` (`RestClient`) → `.../referencedata-query-api/.../now-subscriptions?on=<date>`; `CPNowSubscriptionMatcher` matches the PCR-flagged subset against a `CPVocabulary` | Built, unit-tested, **not called** — no caller passes a real `on` date yet (design §7's date-selection strategy is still open) |
+| Generation-gate orchestrator | `CPVocabularyService` (fact computation) + `CPResultsPcrOrchestrator` (`excludePublishedForNows`, `isPrisonCourtRegisterRequired`) | Design §4 scope, confirmed with Common Platform TA per ADR-005/AMP-943 — generation-gate logic only; recipient resolution and Progression submission are explicitly out of scope |
 | Data store | Flyway migrations (`V1.001`-`V1.008`), 7 JPA entities (`entities/`), 7 plain `JpaRepository`s (`repositories/`) — no custom query methods, nothing calls them yet | Schema + persistence layer built and integration-tested against a real, manually-started Postgres (`PostgresInitialise`, same pattern as HRDS); **not wired** — no service constructs/reads a `cp_version` row yet. Encryption (ADR-004) and the version-correlation mechanism (§7) are separate, still-open work |
 | Version lookup / retention | Not implemented | Depends on the phase-2 data store + the still-undecided version-correlation mechanism (§7) |
 
@@ -61,8 +61,8 @@ that looks arbitrary; it likely isn't.
 - `services/ResultsIngestionService` — Redis-then-REST hearing lookup, completeness check
   (`prosecutionCases` non-empty), retry/escalation via Service Bus
 - `servicebus/services/HearingResultedProcessorService` — `ServiceBusProcessorClient` message
-  loop; unwraps `EventGridEnvelope`, dead-letters on malformed payload or unrecoverable failure
-- `servicebus/model/EventGridEnvelope`, `EventGridData` — Event Grid message shape; pointer
+  loop; unwraps `CPHearingResultedEventEnvelope`, dead-letters on malformed payload or unrecoverable failure
+- `servicebus/model/CPHearingResultedEventEnvelope`, `CPHearingResultedEventData` — Event Grid message shape; pointer
   fields nest under `.data`, not flat on the envelope
 - `clients/ResultsClient` — `RestClient` call with `Accept: application/vnd.results.hearing-details-internal+json`
 - `clients/HearingResultedCacheClient` — Redis read only; key format
@@ -91,28 +91,28 @@ the phase-2 Flyway migrations. It's sub-packaged (not a new top-level layer — 
 this "not wired in yet" boundary is visible in the directory listing and import statements
 instead of only living in this file's prose:
 
-- `services/orchestrator/VocabularyService` — computes `Vocabulary` (custody, custodial-result,
+- `services/orchestrator/CPVocabularyService` — computes `CPVocabulary` (custody, custodial-result,
   CPS, age-group, court-language facts) from a defendant + hearing; merges custody/CPS scan
   across every `prosecutionCase`/`courtApplication` sharing the defendant's `masterDefendantId`
   on the same hearing (a real merge scenario, not a data-model bug — see repo architecture rules
   below)
-- `services/orchestrator/NowSubscriptionMatcher` — matches a `NowSubscription`'s vocabulary
-  requirements against a computed `Vocabulary` + eligible `JudicialResult`s; every dimension
+- `services/orchestrator/CPNowSubscriptionMatcher` — matches a `CPNowSubscription`'s vocabulary
+  requirements against a computed `CPVocabulary` + eligible `JudicialResult`s; every dimension
   fails closed when unconfigured except `applySubscriptionRules == false`; attendance matching
   is stubbed (any-flag-only) pending a confirmed `hearing.defendantAttendance` source
-- `services/orchestrator/ResultsPcrOrchestrator` — `excludePublishedForNows` (plain-field content
+- `services/orchestrator/CPResultsPcrOrchestrator` — `excludePublishedForNows` (plain-field content
   filter) and `isPrisonCourtRegisterRequired` (the generation gate: fetches subscriptions via
   `ReferenceDataClient`, filters to `isPrisonCourtRegisterSubscription`, matches via
-  `NowSubscriptionMatcher`)
+  `CPNowSubscriptionMatcher`)
 - `clients/orchestrator/ReferenceDataClient` — `RestClient` call to Reference Data's
-  `now-subscriptions` endpoint; deliberately generic (`NowSubscription`/`SubscriptionVocabulary`),
+  `now-subscriptions` endpoint; deliberately generic (`CPNowSubscription`/`SubscriptionVocabulary`),
   not PCR-specific — the same config backs other distribution-channel kinds (NOW/EDT/informant/
   court register), per ADR-005
-- `domain/orchestrator/NowSubscription`/`NowSubscriptionsResponse` — wire shape for the
+- `domain/orchestrator/CPNowSubscription`/`CPNowSubscriptionsResponse` — wire shape for the
   `now-subscriptions` response; every `SubscriptionVocabulary` field is boxed `Boolean`, not
   primitive — a real subscription omits a dimension's keys entirely rather than sending `false`
   when it doesn't configure that dimension
-- `domain/orchestrator/Vocabulary` — the eligibility-fact record `VocabularyService` computes;
+- `domain/orchestrator/CPVocabulary` — the eligibility-fact record `CPVocabularyService` computes;
   never surfaces in `PcrVersion`/`cp_version` — it exists only to decide *whether* a PCR is
   generated, not to describe its content (design doc §2)
 
@@ -162,7 +162,7 @@ run, in production or in tests; discovered the hard way when repository tests fa
 - **One PCR record per `(hearingId, defendantId)`, never merged across defendants** — this is
   load-bearing throughout the design (decision engine fan-out, data store keying, Query API
   shape). Do not "simplify" to one row per hearing.
-- **`VocabularyService` computes facts across every case/application sharing a
+- **`CPVocabularyService` computes facts across every case/application sharing a
   `masterDefendantId`, not scoped to one `defendantId`'s own case — this is a real, confirmed
   scenario, not a data-model bug.** One physical defendant can have multiple `defendantId`s
   (one per prosecution case) and appear on multiple court applications within the same hearing,
@@ -188,10 +188,10 @@ run, in production or in tests; discovered the hard way when repository tests fa
 - **`PcrVersionCorrelationHandler` is the only component allowed to know Progression exists** —
   every other layer only ever reads `versionStatus`/`materialId` once the correlator has set them.
   (Not yet implemented — this rule takes effect whenever it is.)
-- **`VocabularyService`/`NowSubscriptionMatcher` are in scope; `PrisonCourtRegisterSubscriptions`
+- **`CPVocabularyService`/`CPNowSubscriptionMatcher` are in scope; `PrisonCourtRegisterSubscriptions`
   (recipient/email resolution) and Progression PDF submission are not — confirmed with the
   Common Platform TA, see ADR-005/AMP-943.** This service's generation gate
-  (`ResultsPcrOrchestrator.isPrisonCourtRegisterRequired`) only answers "would a PCR have been
+  (`CPResultsPcrOrchestrator.isPrisonCourtRegisterRequired`) only answers "would a PCR have been
   generated" — it never resolves *who* receives it. Subscriber registration and push
   notification stay owned by `service-cp-crime-hearing-results-document-subscription` and
   `now_subscriptions`. Long-term direction (agreed, not scheduled) is folding the remaining

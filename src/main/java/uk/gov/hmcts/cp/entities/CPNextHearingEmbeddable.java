@@ -19,7 +19,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode
-public class NextHearingEmbeddable {
+public class CPNextHearingEmbeddable {
 
     @Column(name = "next_hearing_date")
     private LocalDate date;

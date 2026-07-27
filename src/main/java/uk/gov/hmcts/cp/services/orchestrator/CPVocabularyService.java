@@ -8,20 +8,20 @@ import uk.gov.hmcts.cp.domain.HearingDetailsResponse.JudicialResult;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.JudicialResultPrompt;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.PersonDefendant;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.ProsecutionCase;
-import uk.gov.hmcts.cp.domain.orchestrator.Vocabulary;
+import uk.gov.hmcts.cp.domain.orchestrator.CPVocabulary;
 
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Stream;
 
 @Component
-public class VocabularyService {
+public class CPVocabularyService {
 
     private static final String CUSTODIAL_RESULT_PROMPT = "prisonOrganisationName";
     private static final String POLICE_STATION = "Police Station";
     private static final String PRISON = "Prison";
 
-    public Vocabulary compute(final Defendant defendant, final HearingDetail hearing) {
+    public CPVocabulary compute(final Defendant defendant, final HearingDetail hearing) {
         final List<Defendant> masterDefendants = matchingDefendants(defendant, hearing);
         final List<JudicialResult> allResults = allJudicialResults(masterDefendants, matchingApplications(defendant, hearing));
         final boolean atleastOneCustodialResult = atleastOneCustodialResult(allResults);
@@ -30,26 +30,27 @@ public class VocabularyService {
         final boolean isYouth = Boolean.TRUE.equals(defendant.getIsYouth());
         final boolean isWelshCourtHearing = Boolean.TRUE.equals(hearing.getCourtCentre().getWelshCourtCentre());
 
-        return new Vocabulary(
-                custodyLocationIsPolice,
-                custodyLocationIsPrison,
-                custodyLocationIsPolice || custodyLocationIsPrison,
-                atleastOneCustodialResult,
-                !atleastOneCustodialResult,
-                atleastOneNonCustodialResult(allResults),
-                cpsProsecuted(hearing),
-                isYouth,
-                !isYouth,
-                isWelshCourtHearing,
-                !isWelshCourtHearing,
-                List.of(),
-                List.of());
+        return CPVocabulary.builder()
+                .custodyLocationIsPolice(custodyLocationIsPolice)
+                .custodyLocationIsPrison(custodyLocationIsPrison)
+                .inCustody(custodyLocationIsPolice || custodyLocationIsPrison)
+                .atleastOneCustodialResult(atleastOneCustodialResult)
+                .allNonCustodialResults(!atleastOneCustodialResult)
+                .atleastOneNonCustodialResult(atleastOneNonCustodialResult(allResults))
+                .cpsProsecuted(cpsProsecuted(hearing))
+                .youthDefendant(isYouth)
+                .adultDefendant(!isYouth)
+                .welshCourtHearing(isWelshCourtHearing)
+                .englishCourtHearing(!isWelshCourtHearing)
+                .prosecutorMajorCreditor(List.of())
+                .nonProsecutorMajorCreditor(List.of())
+                .build();
     }
 
     // Same physical person (masterDefendantId) can appear as a separate Defendant record on
     // more than one prosecutionCase, and as a respondent on a court application, all on the
     // same hearing — a valid CP scenario, not an edge case. Every hearing-wide scan below
-    // merges across all of them, matching legacy VocabularyService.js (design doc §2).
+    // merges across all of them, matching legacy CPVocabularyService.js (design doc §2).
     private List<Defendant> matchingDefendants(final Defendant defendant, final HearingDetail hearing) {
         final String masterDefendantId = defendant.getMasterDefendantId();
         return masterDefendantId == null
