@@ -227,14 +227,15 @@ case+hearing.
   genuinely 1:1 with a version and has no independent lifecycle of its
   own — plus, per ADR-004, `title`/`first_name`/`middle_name`/`last_name`/
   `date_of_birth`/`address_line_1`-`5`/`post_code`, same 1:1 reasoning.
-- **Superseded — defendant PII (name, DOB, address) is now carried,
-  encrypted at rest.** This table previously excluded it entirely, on the
-  basis that no consumer needed a name/DOB/address lookup through this
-  API. A confirmed new requirement reverses that — see
+- **Superseded — defendant PII (name, DOB, address) is now carried.**
+  This table previously excluded it entirely, on the basis that no
+  consumer needed a name/DOB/address lookup through this API. A confirmed
+  new requirement reverses that — see
   `docs/pipeline/adrs/004-AMP-891-carry-defendant-pii-encrypted-at-rest.md` for
-  the reversal and the encryption mechanism (transparent field-level
-  encryption via a Hibernate event listener, not a native Postgres type —
-  every PII column here is `varchar`, holding ciphertext).
+  the reversal. That ADR's encryption mechanism (transparent field-level
+  encryption via a Hibernate event listener) is deferred to a future phase,
+  not part of this one — columns hold plain values today, so `date_of_birth`
+  is a real `date` column, not `varchar`.
 - **`next_hearing_*` fields:** named after CP's own `nextHearing`, not a
   consumer-facing "next appearance" term. Embedded, nullable, 1:1 — kept
   per-defendant on `cp_version` rather than promoted to `cp_case_hearing`,

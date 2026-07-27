@@ -1,6 +1,8 @@
 # 004. Carry defendant PII, encrypted at rest
 
-**Status:** Accepted, 24 Jul 2026
+**Status:** Accepted, 24 Jul 2026. **Encryption mechanism deferred to a future phase** (2026-07-27)
+— PII is carried as plain, unencrypted values in phase 2; see the note at the top of the
+Decision section.
 **Jira:** AMP-891 — PII redaction/encryption
 **Design docs:** this decision changes the contract/persistence shape described in
 [`2026-07-16-pcr-api-marketplace-design-v2.md`](../../designs/2026-07-16-pcr-api-marketplace-design-v2.md),
@@ -39,6 +41,13 @@ This ADR covers: given that this data will now flow through this service, how it
 once it does.
 
 ## Decision
+
+**Deferred to a future phase, not part of the current phase-2 data store work:** the encryption
+mechanism described below (Hibernate listener, `EncryptionService`, Key Vault) is the intended
+end state, but is not being implemented now. PII columns (`cp_version.title`/`first_name`/
+`middle_name`/`last_name`/`date_of_birth`/`address_line_1`-`5`/`post_code`) are carried as plain
+values in the meantime — `date_of_birth` is a real `date` column, not `varchar`, since there's no
+ciphertext to hold today. Revisit this section once encryption work actually starts.
 
 Encrypt `firstName`/`middleName`/`lastName`/`dateOfBirth`/`address` (and `title`, though it's not
 sensitive on its own, for consistency) at the persistence layer, using the same transparent

@@ -11,6 +11,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
@@ -51,9 +52,8 @@ public class CPVersionEntity {
     @Column(name = "expires_at")
     private OffsetDateTime expiresAt;
 
-    // Defendant PII (ADR-004/AMP-891) — every column is varchar regardless of the field's real
-    // type, since the application layer will store ciphertext here, not a value Postgres could
-    // parse natively. Plain String today: no EncryptionService is wired yet (ADR-004 scope).
+    // Defendant PII (ADR-004/AMP-891) — carried as plain values; encryption at rest is future
+    // scope, not part of this phase.
     private String title;
 
     @Column(name = "first_name")
@@ -66,7 +66,7 @@ public class CPVersionEntity {
     private String lastName;
 
     @Column(name = "date_of_birth")
-    private String dateOfBirth;
+    private LocalDate dateOfBirth;
 
     @Column(name = "address_line_1")
     private String addressLine1;

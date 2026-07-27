@@ -126,7 +126,8 @@ are plain `UUID` fields, matching `service-cp-crime-hearing-results-document-sub
 established convention. `cp_offence`/`cp_judicial_result`'s polymorphic parent (exactly one of
 two nullable FKs set, design doc §1/§3) is enforced by the DB `CHECK` constraint only, not
 modelled as inheritance in Java. `CPVersionEntity`'s PII columns (`title`/`firstName`/etc.) are
-plain `String` today — no `EncryptionService` is wired yet (ADR-004 is a separate piece of work).
+plain values today — `dateOfBirth` a real `LocalDate`, the rest `String` — no `EncryptionService`
+is wired yet; encryption at rest (ADR-004) is deferred to a future phase, not this one.
 Every repository is a bare `JpaRepository<Entity, UUID>` with no custom query methods — nothing
 calls them yet. Proven against a real Postgres, not an in-memory substitute — same pattern as
 `service-cp-crime-hearing-results-document-subscription`: full `@SpringBootTest` +
@@ -200,13 +201,15 @@ run, in production or in tests; discovered the hard way when repository tests fa
 - **Confirmed dead, dropped.** `officerInCase` and `parentGuardianName`/`Address1-5`/`PostCode`
   are hardcoded blank in the legacy generator and have no real source data — not carried
   through. This is a "the data doesn't exist" exclusion, unrelated to the point below.
-- **Defendant PII is carried and encrypted, per ADR-004 — this reverses an earlier decision.**
+- **Defendant PII is carried, per ADR-004 — this reverses an earlier decision.**
   `title`/`firstName`/`middleName`/`lastName`/`dateOfBirth`/`address` were previously dropped on
   the basis that one consumer resolved defendant identity via `defendantId`/`masterDefendantId`
   against their own systems and didn't need this data from this API. A confirmed new requirement
   now needs it carried through, so it's back in scope — see
-  `docs/pipeline/adrs/004-AMP-891-carry-defendant-pii-encrypted-at-rest.md` for the reversal and the
-  encryption-at-rest approach. The `api-cp-crime-results-pcr` `Defendant` schema (v1.0.3, already
+  `docs/pipeline/adrs/004-AMP-891-carry-defendant-pii-encrypted-at-rest.md` for the reversal.
+  **Encryption at rest is future scope, deferred out of the current phase** — `CPVersionEntity`'s
+  PII fields are plain values today (`dateOfBirth` a real `LocalDate`/`date` column, not
+  ciphertext-shaped `varchar`). The `api-cp-crime-results-pcr` `Defendant` schema (v1.0.3, already
   pinned in `build.gradle`) already declares these fields; nothing in the spec needs to change.
   What's still missing: the upstream `HearingDetailsResponse` DTO has no fields to source this
   data from yet, and `PcrVersionMapper.toDefendant()` doesn't populate them — both are open work,

@@ -1,12 +1,12 @@
 -- Defendant PII, per ADR-004 (docs/pipeline/adrs/004-AMP-891-carry-defendant-pii-encrypted-at-rest.md).
--- Every column is varchar, including date_of_birth -- application layer stores ciphertext here,
--- not a value Postgres could parse natively.
+-- Encryption at rest is future scope, not part of this phase -- columns hold plain values today,
+-- so date_of_birth is a real date rather than varchar.
 ALTER TABLE cp_version
     ADD COLUMN title varchar,
     ADD COLUMN first_name varchar,
     ADD COLUMN middle_name varchar,
     ADD COLUMN last_name varchar,
-    ADD COLUMN date_of_birth varchar,
+    ADD COLUMN date_of_birth date,
     ADD COLUMN address_line_1 varchar,
     ADD COLUMN address_line_2 varchar,
     ADD COLUMN address_line_3 varchar,

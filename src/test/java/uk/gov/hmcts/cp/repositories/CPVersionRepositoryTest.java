@@ -61,7 +61,7 @@ class CPVersionRepositoryTest extends RepositoryIntegrationTestBase {
                 .firstName("encrypted-first-name")
                 .middleName("encrypted-middle-name")
                 .lastName("encrypted-last-name")
-                .dateOfBirth("encrypted-dob")
+                .dateOfBirth(LocalDate.of(1990, 5, 15))
                 .addressLine1("encrypted-address-1")
                 .addressLine2("encrypted-address-2")
                 .addressLine3("encrypted-address-3")
@@ -91,7 +91,7 @@ class CPVersionRepositoryTest extends RepositoryIntegrationTestBase {
         assertThat(actual.getFirstName()).isEqualTo("encrypted-first-name");
         assertThat(actual.getMiddleName()).isEqualTo("encrypted-middle-name");
         assertThat(actual.getLastName()).isEqualTo("encrypted-last-name");
-        assertThat(actual.getDateOfBirth()).isEqualTo("encrypted-dob");
+        assertThat(actual.getDateOfBirth()).isEqualTo(LocalDate.of(1990, 5, 15));
         assertThat(actual.getAddressLine1()).isEqualTo("encrypted-address-1");
         assertThat(actual.getAddressLine2()).isEqualTo("encrypted-address-2");
         assertThat(actual.getAddressLine3()).isEqualTo("encrypted-address-3");
