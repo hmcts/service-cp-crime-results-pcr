@@ -2,6 +2,8 @@ package uk.gov.hmcts.cp.integration;
 
 import jakarta.annotation.Resource;
 import org.junit.jupiter.api.Test;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.jdbc.autoconfigure.DataSourceAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.test.web.servlet.MockMvc;
@@ -11,7 +13,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+// DataSourceAutoConfiguration excluded: see IntegrationTestBase for why — this class predates
+// it and doesn't extend it, so needs the same override directly.
 @SpringBootTest
+@EnableAutoConfiguration(exclude = DataSourceAutoConfiguration.class)
 @AutoConfigureMockMvc
 @SuppressWarnings("PMD.UnitTestShouldIncludeAssert") // MockMvc andExpect() calls are assertions
 class ActuatorIntegrationTest {
