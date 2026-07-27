@@ -12,7 +12,7 @@ subscriber.
 
 **Pattern**: Hybrid, mid-build — synchronous stateless proxy (`GET /pcr`) implemented; async
 Service Bus ingestion listener implemented but not yet wired to any persistence; DB-backed
-version store (Postgres/Flyway, immutable `pcr_version` rows) is phase 2 and design-only.
+version store (Postgres/Flyway, immutable `cp_version` rows) is phase 2 and design-only.
 **Spring Boot version**: 4.1.0
 **Implements**: `api-cp-crime-results-pcr` v1.0.3 (`PcrApi` — see `build.gradle`)
 
@@ -24,7 +24,7 @@ version store (Postgres/Flyway, immutable `pcr_version` rows) is phase 2 and des
 - The Service Bus listener (`HearingResultedProcessorService` → `ResultsIngestionService`)
   consumes `Hearing_Resulted`, checks Redis-then-REST for complete hearing data, and
   retries/dead-letters on incompleteness — but **does not persist anything**. There is no data
-  store yet for it to write a `pcr_version` row into.
+  store yet for it to write a `cp_version` row into.
 - The orchestrator (`VocabularyService`, `ResultsPcrOrchestrator`, `NowSubscriptionMatcher`,
   `ReferenceDataClient`) is fully implemented and unit-tested but **not called from anywhere**
   — no controller, service, or listener constructs a `Vocabulary` or invokes
@@ -49,7 +49,7 @@ that looks arbitrary; it likely isn't.
 | Reference Data — `ResultDefinition` | Lookups, offence metadata (e.g. `startDate`) | Not yet built — "to be analysed" per design §8 |
 | Reference Data — `now-subscriptions` | `ReferenceDataClient` (`RestClient`) → `.../referencedata-query-api/.../now-subscriptions?on=<date>`; `NowSubscriptionMatcher` matches the PCR-flagged subset against a `Vocabulary` | Built, unit-tested, **not called** — no caller passes a real `on` date yet (design §7's date-selection strategy is still open) |
 | Generation-gate orchestrator | `VocabularyService` (fact computation) + `ResultsPcrOrchestrator` (`excludePublishedForNows`, `isPrisonCourtRegisterRequired`) | Design §4 scope, confirmed with Common Platform TA per ADR-005/AMP-943 — generation-gate logic only; recipient resolution and Progression submission are explicitly out of scope |
-| Data store | **Not implemented.** `docs/designs/2026-07-21-pcr-data-store-design.md` specifies Postgres/Flyway, immutable `pcr_version` rows keyed `(hearingId, defendantId)` | Phase 2 — no Flyway migration, JPA entity, or repository exists in `src/main` yet |
+| Data store | Flyway migrations (`V1.001`-`V1.008`), 7 JPA entities (`entities/`), 7 plain `JpaRepository`s (`repositories/`) — no custom query methods, nothing calls them yet | Schema + persistence layer built and integration-tested against a real, manually-started Postgres (`PostgresInitialise`, same pattern as HRDS); **not wired** — no service constructs/reads a `cp_version` row yet. Encryption (ADR-004) and the version-correlation mechanism (§7) are separate, still-open work |
 | Version lookup / retention | Not implemented | Depends on the phase-2 data store + the still-undecided version-correlation mechanism (§7) |
 
 ## Source Structure
@@ -113,11 +113,33 @@ instead of only living in this file's prose:
   primitive — a real subscription omits a dimension's keys entirely rather than sending `false`
   when it doesn't configure that dimension
 - `domain/orchestrator/Vocabulary` — the eligibility-fact record `VocabularyService` computes;
-  never surfaces in `PcrVersion`/`pcr_version` — it exists only to decide *whether* a PCR is
+  never surfaces in `PcrVersion`/`cp_version` — it exists only to decide *whether* a PCR is
   generated, not to describe its content (design doc §2)
 
 `HearingDetailsResponse`/`HearingResultedPointer` stay in top-level `domain/` — they're genuinely
 shared across all three code paths, unlike the orchestrator-only types above.
+
+### Data store (`entities/`, `repositories/`)
+
+Flat entity-per-table mapping, no JPA associations (`@ManyToOne`/`@OneToMany`) — foreign keys
+are plain `UUID` fields, matching `service-cp-crime-hearing-results-document-subscription`'s
+established convention. `cp_offence`/`cp_judicial_result`'s polymorphic parent (exactly one of
+two nullable FKs set, design doc §1/§3) is enforced by the DB `CHECK` constraint only, not
+modelled as inheritance in Java. `CPVersionEntity`'s PII columns (`title`/`firstName`/etc.) are
+plain `String` today — no `EncryptionService` is wired yet (ADR-004 is a separate piece of work).
+Every repository is a bare `JpaRepository<Entity, UUID>` with no custom query methods — nothing
+calls them yet. Proven against a real Postgres, not an in-memory substitute — same pattern as
+`service-cp-crime-hearing-results-document-subscription`: full `@SpringBootTest` +
+`PostgresInitialise` (`integration/config/PostgresInitialise.java`, a `TestPropertyValues`-based
+`ApplicationContextInitializer` asserting `jdbc:postgresql://localhost:5432/pcrdb` is reachable
+before the context boots), not `@DataJpaTest`/Testcontainers — that was tried first but abandoned
+in favour of matching the established org convention. Needs a real Postgres running locally with
+a `pcrdb` database created (`docker compose up -d postgres`, service added to this repo's
+`docker-compose.yml`, or a native install) — there's no self-contained fallback.
+`spring-boot-starter-flyway` (not just raw `flyway-core`/`flyway-database-postgresql`) is
+required for `FlywayAutoConfiguration` to exist at all — without it, migrations silently never
+run, in production or in tests; discovered the hard way when repository tests failed with
+`relation "cp_case_hearing" does not exist` despite Flyway configuration looking correct.
 
 ## Environment Variables
 
@@ -147,7 +169,7 @@ shared across all three code paths, unlike the orchestrator-only types above.
   all sharing one `masterDefendantId`. Custody location and CPS-prosecuted scan the whole
   hearing by `masterDefendantId` for this reason (orchestrator design doc §2/§7). This is
   orthogonal to the point above: computing *eligibility* against the merged view does not mean
-  the *persisted* `pcr_version` row merges — it stays keyed per `(hearingId, defendantId)`.
+  the *persisted* `cp_version` row merges — it stays keyed per `(hearingId, defendantId)`.
 - **Redis-first, REST-fallback-with-retry is mandatory, not an optimisation** — Redis is written
   synchronously before `Hearing_Resulted` fires (guaranteed populated); the REST viewstore is
   updated asynchronously and can race. Skipping the Redis check reintroduces a real, confirmed
@@ -157,7 +179,7 @@ shared across all three code paths, unlike the orchestrator-only types above.
   ingestion path is.
 - **The ingestion listener does not persist anything today.** A successful
   `ResultsIngestionService.ingestHearingResults` call only proves the hearing data is complete
-  and retryable-safe — it does not mean a `pcr_version` row now exists, because there is no data
+  and retryable-safe — it does not mean a `cp_version` row now exists, because there is no data
   store to write to until phase 2 (`docs/designs/2026-07-21-pcr-data-store-design.md`) is implemented.
   Don't wire `GET /pcr` to "whatever the listener last saw" as a shortcut.
 - **Version correlation mechanism is still TBD** (design §7) — three options considered
@@ -200,6 +222,7 @@ shared across all three code paths, unlike the orchestrator-only types above.
 | `GET /pcr` returns an incomplete or empty `prosecutionCases` hearing | Expected today — `ResultsPcrService` has no completeness gate or retry; only the async ingestion listener (`ResultsIngestionService.isComplete`) guards against viewstore lag, and the two paths are independent (see Status above) |
 | Retry logic assumes REST fallback fails cleanly on a race | Unconfirmed assumption per design §4b/§13 item 2 — verify against the Results team's actual code before relying on it |
 | Service Bus emulator / Redis not available locally | Not yet wired into `docker-compose.yml` or an `apitest.gradle` project (ADR-002 consequence) — `docker-compose.yml` only starts the `app` container today |
+| `repositories/*RepositoryTest` fails with `PSQLException`/`does not exist` | Needs a real Postgres reachable at `localhost:5432` with a `pcrdb` database already created — start it via `docker compose up -d postgres` (service defined in this repo's `docker-compose.yml`) before running `./gradlew test`; `PostgresInitialise` fails fast with instructions if it's unreachable |
 
 ## Repo-Specific Notes
 
