@@ -29,8 +29,8 @@ introduces four: `org.postgresql:postgresql`, `org.flywaydb:flyway-core`,
   with the encryption work in ADR-004, which specifically needs Hibernate's event-listener
   system). `starter-jdbc` gives Flyway a `DataSource` to run migrations against without pulling
   in Hibernate ahead of any code that would actually use it.
-- Schema itself — normalized tables, immutable version rows, surrogate `pcr_version_pk` vs.
-  source-propagated `source_id`, polymorphic `pcr_offence`/`pcr_judicial_result` parents — is
+- Schema itself — normalized tables, immutable version rows, surrogate `cp_version_pk` vs.
+  source-propagated `source_id`, polymorphic `cp_offence`/`cp_judicial_result` parents — is
   specified in full in the linked design doc, not repeated here.
 
 ## Consequences

@@ -2,10 +2,10 @@ package uk.gov.hmcts.cp.repositories;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import uk.gov.hmcts.cp.entities.PcrCaseHearingEntity;
-import uk.gov.hmcts.cp.entities.PcrJudicialResultEntity;
-import uk.gov.hmcts.cp.entities.PcrOffenceEntity;
-import uk.gov.hmcts.cp.entities.PcrVersionEntity;
+import uk.gov.hmcts.cp.entities.CPCaseHearingEntity;
+import uk.gov.hmcts.cp.entities.CPJudicialResultEntity;
+import uk.gov.hmcts.cp.entities.CPOffenceEntity;
+import uk.gov.hmcts.cp.entities.CPVersionEntity;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -16,7 +16,7 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class PcrJudicialResultRepositoryTest extends RepositoryIntegrationTestBase {
+class CPJudicialResultRepositoryTest extends RepositoryIntegrationTestBase {
 
     private static final UUID CASE_HEARING_ID = UUID.fromString("00000000-0000-0000-0000-000000000001");
     private static final UUID VERSION_PK = UUID.fromString("00000000-0000-0000-0000-000000000004");
@@ -24,22 +24,22 @@ class PcrJudicialResultRepositoryTest extends RepositoryIntegrationTestBase {
     private static final UUID JUDICIAL_RESULT_ID = UUID.fromString("00000000-0000-0000-0000-000000000010");
 
     @Autowired
-    private PcrCaseHearingRepository pcrCaseHearingRepository;
+    private CPCaseHearingRepository pcrCaseHearingRepository;
 
     @Autowired
-    private PcrVersionRepository pcrVersionRepository;
+    private CPVersionRepository pcrVersionRepository;
 
     @Autowired
-    private PcrOffenceRepository pcrOffenceRepository;
+    private CPOffenceRepository pcrOffenceRepository;
 
     @Autowired
-    private PcrJudicialResultRepository pcrJudicialResultRepository;
+    private CPJudicialResultRepository pcrJudicialResultRepository;
 
     @Test
     void save_should_persistAndReturnEveryField_whenParentedByOffence() {
         saveParents();
 
-        final PcrJudicialResultEntity entity = PcrJudicialResultEntity.builder()
+        final CPJudicialResultEntity entity = CPJudicialResultEntity.builder()
                 .id(JUDICIAL_RESULT_ID)
                 .offenceId(OFFENCE_ID)
                 .resultCode("3120")
@@ -59,7 +59,7 @@ class PcrJudicialResultRepositoryTest extends RepositoryIntegrationTestBase {
         pcrJudicialResultRepository.save(entity);
         flushAndClear();
 
-        final Optional<PcrJudicialResultEntity> found = pcrJudicialResultRepository.findById(JUDICIAL_RESULT_ID);
+        final Optional<CPJudicialResultEntity> found = pcrJudicialResultRepository.findById(JUDICIAL_RESULT_ID);
         assertThat(found).isPresent();
         assertThat(found.get().getOffenceId()).isEqualTo(OFFENCE_ID);
         assertThat(found.get().getCourtApplicationId()).isNull();
@@ -78,20 +78,20 @@ class PcrJudicialResultRepositoryTest extends RepositoryIntegrationTestBase {
     }
 
     private void saveParents() {
-        pcrCaseHearingRepository.save(PcrCaseHearingEntity.builder()
+        pcrCaseHearingRepository.save(CPCaseHearingEntity.builder()
                 .id(CASE_HEARING_ID)
                 .caseUrn("ABCD1234567")
                 .hearingId(UUID.fromString("00000000-0000-0000-0000-000000000002"))
                 .createdAt(OffsetDateTime.now(ZoneOffset.UTC))
                 .build());
-        pcrVersionRepository.save(PcrVersionEntity.builder()
-                .pcrVersionPk(VERSION_PK)
+        pcrVersionRepository.save(CPVersionEntity.builder()
+                .cpVersionPk(VERSION_PK)
                 .defendantId(UUID.fromString("00000000-0000-0000-0000-000000000005"))
                 .caseHearingId(CASE_HEARING_ID)
                 .createdAt(OffsetDateTime.now(ZoneOffset.UTC))
                 .expiresAt(OffsetDateTime.now(ZoneOffset.UTC).plusDays(30))
                 .build());
-        pcrOffenceRepository.save(PcrOffenceEntity.builder()
+        pcrOffenceRepository.save(CPOffenceEntity.builder()
                 .id(OFFENCE_ID)
                 .versionPk(VERSION_PK)
                 .code("TH68001")

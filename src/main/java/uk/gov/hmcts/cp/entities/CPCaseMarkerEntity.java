@@ -10,35 +10,24 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
 import java.util.UUID;
 
 @Entity
-@Table(name = "pcr_court_application")
+@Table(name = "cp_case_marker")
 @Getter
 @Builder(toBuilder = true)
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode
-public class PcrCourtApplicationEntity {
+public class CPCaseMarkerEntity {
 
     @Id
     private UUID id;
 
-    @Column(name = "version_pk")
-    private UUID versionPk;
+    @Column(name = "case_hearing_id")
+    private UUID caseHearingId;
 
-    private String reference;
+    private String code;
 
-    private String type;
-
-    private String decision;
-
-    @Column(name = "decision_date")
-    private LocalDate decisionDate;
-
-    private String response;
-
-    @Column(name = "response_date")
-    private LocalDate responseDate;
+    private String description;
 }

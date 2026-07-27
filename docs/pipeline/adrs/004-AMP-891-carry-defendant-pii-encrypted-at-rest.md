@@ -46,7 +46,7 @@ field-level encryption pattern already demonstrated in
 `service-hmcts-springboot-demo/postgres-encrypt-demo`:
 
 - A custom `@Encrypted` field annotation on the JPA entity (a new `PcrDefendant`-shaped entity
-  or fields added to the existing `pcr_version` entity once the JPA layer exists — this service
+  or fields added to the existing `cp_version` entity once the JPA layer exists — this service
   has no JPA entities yet, see `docs/designs/2026-07-21-pcr-data-store-design.md`; adding this pattern
   and adding the phase-2 JPA layer are naturally sequenced together, not two independent efforts).
 - A Hibernate `PreInsert`/`PreUpdate`/`PostLoad` event listener
@@ -67,7 +67,7 @@ field-level encryption pattern already demonstrated in
 ## Consequences
 
 - **Real personal data now flows through this service's data store and (for whichever fields the
-  contract exposes them on) its API responses**, for the first time. `pcr_version`'s retention
+  contract exposes them on) its API responses**, for the first time. `cp_version`'s retention
   policy (30-day TTL purge, already designed) becomes a real data-minimisation control, not just
   a storage-cost one — confirm the purge job is built and tested before any PII-bearing row can be
   written in a real environment.
@@ -97,7 +97,7 @@ field-level encryption pattern already demonstrated in
   physical media theft but not against a compromised database credential or a misconfigured query
   tool reading plaintext directly; application-level field encryption is defence-in-depth on top
   of whatever infrastructure-level encryption already exists, not a replacement for it.
-- **Encrypting the whole `pcr_version` row as a single opaque blob** — rejected; breaks the
+- **Encrypting the whole `cp_version` row as a single opaque blob** — rejected; breaks the
   ability to query/index on any non-PII column (`case_hearing_id`, `defendant_id`,
   `expires_at`), which the retention sweep and the `version=latest` lookup both depend on.
 - **Doing the encryption in application code before calling the repository (manual
@@ -114,6 +114,6 @@ field-level encryption pattern already demonstrated in
   imply this data is inherently unnecessary for the API as a whole. This ADR and the accompanying
   documentation cleanup (removing consumer-specific framing from `CLAUDE.md`/design docs) reflect
   that the contract's shape is not owned by any single consumer's needs.
-- Retention: this data must still be purged on the same 30-day TTL as the rest of `pcr_version`
+- Retention: this data must still be purged on the same 30-day TTL as the rest of `cp_version`
   (design doc §11) — carrying PII doesn't change the retention window, and arguably makes enforcing
   it correctly more important than before.

@@ -2,9 +2,9 @@ package uk.gov.hmcts.cp.repositories;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import uk.gov.hmcts.cp.entities.PcrCaseHearingEntity;
-import uk.gov.hmcts.cp.entities.PcrOffenceEntity;
-import uk.gov.hmcts.cp.entities.PcrVersionEntity;
+import uk.gov.hmcts.cp.entities.CPCaseHearingEntity;
+import uk.gov.hmcts.cp.entities.CPOffenceEntity;
+import uk.gov.hmcts.cp.entities.CPVersionEntity;
 
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
@@ -14,38 +14,38 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class PcrOffenceRepositoryTest extends RepositoryIntegrationTestBase {
+class CPOffenceRepositoryTest extends RepositoryIntegrationTestBase {
 
     private static final UUID CASE_HEARING_ID = UUID.fromString("00000000-0000-0000-0000-000000000001");
     private static final UUID VERSION_PK = UUID.fromString("00000000-0000-0000-0000-000000000004");
     private static final UUID OFFENCE_ID = UUID.fromString("00000000-0000-0000-0000-000000000009");
 
     @Autowired
-    private PcrCaseHearingRepository pcrCaseHearingRepository;
+    private CPCaseHearingRepository pcrCaseHearingRepository;
 
     @Autowired
-    private PcrVersionRepository pcrVersionRepository;
+    private CPVersionRepository pcrVersionRepository;
 
     @Autowired
-    private PcrOffenceRepository pcrOffenceRepository;
+    private CPOffenceRepository pcrOffenceRepository;
 
     @Test
     void save_should_persistAndReturnEveryField_whenParentedByVersion() {
-        pcrCaseHearingRepository.save(PcrCaseHearingEntity.builder()
+        pcrCaseHearingRepository.save(CPCaseHearingEntity.builder()
                 .id(CASE_HEARING_ID)
                 .caseUrn("ABCD1234567")
                 .hearingId(UUID.fromString("00000000-0000-0000-0000-000000000002"))
                 .createdAt(OffsetDateTime.now(ZoneOffset.UTC))
                 .build());
-        pcrVersionRepository.save(PcrVersionEntity.builder()
-                .pcrVersionPk(VERSION_PK)
+        pcrVersionRepository.save(CPVersionEntity.builder()
+                .cpVersionPk(VERSION_PK)
                 .defendantId(UUID.fromString("00000000-0000-0000-0000-000000000005"))
                 .caseHearingId(CASE_HEARING_ID)
                 .createdAt(OffsetDateTime.now(ZoneOffset.UTC))
                 .expiresAt(OffsetDateTime.now(ZoneOffset.UTC).plusDays(30))
                 .build());
 
-        final PcrOffenceEntity entity = PcrOffenceEntity.builder()
+        final CPOffenceEntity entity = CPOffenceEntity.builder()
                 .id(OFFENCE_ID)
                 .versionPk(VERSION_PK)
                 .code("TH68001")
@@ -63,7 +63,7 @@ class PcrOffenceRepositoryTest extends RepositoryIntegrationTestBase {
         pcrOffenceRepository.save(entity);
         flushAndClear();
 
-        final Optional<PcrOffenceEntity> found = pcrOffenceRepository.findById(OFFENCE_ID);
+        final Optional<CPOffenceEntity> found = pcrOffenceRepository.findById(OFFENCE_ID);
         assertThat(found).isPresent();
         assertThat(found.get().getVersionPk()).isEqualTo(VERSION_PK);
         assertThat(found.get().getCourtApplicationId()).isNull();

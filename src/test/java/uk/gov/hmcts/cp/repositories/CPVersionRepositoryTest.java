@@ -3,8 +3,8 @@ package uk.gov.hmcts.cp.repositories;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import uk.gov.hmcts.cp.entities.NextHearingEmbeddable;
-import uk.gov.hmcts.cp.entities.PcrCaseHearingEntity;
-import uk.gov.hmcts.cp.entities.PcrVersionEntity;
+import uk.gov.hmcts.cp.entities.CPCaseHearingEntity;
+import uk.gov.hmcts.cp.entities.CPVersionEntity;
 
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
@@ -14,7 +14,7 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class PcrVersionRepositoryTest extends RepositoryIntegrationTestBase {
+class CPVersionRepositoryTest extends RepositoryIntegrationTestBase {
 
     private static final UUID CASE_HEARING_ID = UUID.fromString("00000000-0000-0000-0000-000000000001");
     private static final UUID VERSION_PK = UUID.fromString("00000000-0000-0000-0000-000000000004");
@@ -23,14 +23,14 @@ class PcrVersionRepositoryTest extends RepositoryIntegrationTestBase {
     private static final UUID NEXT_HEARING_ID = UUID.fromString("00000000-0000-0000-0000-000000000007");
 
     @Autowired
-    private PcrCaseHearingRepository pcrCaseHearingRepository;
+    private CPCaseHearingRepository pcrCaseHearingRepository;
 
     @Autowired
-    private PcrVersionRepository pcrVersionRepository;
+    private CPVersionRepository pcrVersionRepository;
 
     @Test
     void save_should_persistAndReturnEveryField_whenFindById() {
-        pcrCaseHearingRepository.save(PcrCaseHearingEntity.builder()
+        pcrCaseHearingRepository.save(CPCaseHearingEntity.builder()
                 .id(CASE_HEARING_ID)
                 .caseUrn("ABCD1234567")
                 .hearingId(UUID.fromString("00000000-0000-0000-0000-000000000002"))
@@ -39,8 +39,8 @@ class PcrVersionRepositoryTest extends RepositoryIntegrationTestBase {
 
         final OffsetDateTime createdAt = OffsetDateTime.now(ZoneOffset.UTC).withNano(0);
         final OffsetDateTime expiresAt = createdAt.plusDays(30);
-        final PcrVersionEntity entity = PcrVersionEntity.builder()
-                .pcrVersionPk(VERSION_PK)
+        final CPVersionEntity entity = CPVersionEntity.builder()
+                .cpVersionPk(VERSION_PK)
                 .sourceId("SRC-1")
                 .defendantId(DEFENDANT_ID)
                 .caseHearingId(CASE_HEARING_ID)
@@ -71,9 +71,9 @@ class PcrVersionRepositoryTest extends RepositoryIntegrationTestBase {
         pcrVersionRepository.save(entity);
         flushAndClear();
 
-        final Optional<PcrVersionEntity> found = pcrVersionRepository.findById(VERSION_PK);
+        final Optional<CPVersionEntity> found = pcrVersionRepository.findById(VERSION_PK);
         assertThat(found).isPresent();
-        final PcrVersionEntity actual = found.get();
+        final CPVersionEntity actual = found.get();
         assertThat(actual.getSourceId()).isEqualTo("SRC-1");
         assertThat(actual.getDefendantId()).isEqualTo(DEFENDANT_ID);
         assertThat(actual.getCaseHearingId()).isEqualTo(CASE_HEARING_ID);

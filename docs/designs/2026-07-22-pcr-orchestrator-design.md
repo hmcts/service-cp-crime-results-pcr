@@ -18,7 +18,7 @@ the `SubscriptionsService`/`VocabularyService` modules it calls —
 ("the ingestion doc") and
 [`2026-07-21-pcr-data-store-design.md`](2026-07-21-pcr-data-store-design.md)
 ("the data-store doc") — together the three cover the full pipeline from
-Event Grid trigger through to a written `pcr_version` row.
+Event Grid trigger through to a written `cp_version` row.
 
 **Why subscription matching is in scope at all:** a defendant with zero
 matched subscriptions gets no register in the legacy system — subscription
@@ -33,7 +33,7 @@ content that never existed. This document replicates the gate, not just
 the content shaping.
 
 **Scope:** everything between "raw hearing/results payload in hand" (the
-ingestion doc's boundary) and "content ready to persist into `pcr_version`"
+ingestion doc's boundary) and "content ready to persist into `cp_version`"
 (the data-store doc's target):
 - Per-defendant vocabulary computation (§2)
 - The `publishedForNows` content filter (§3)
@@ -96,7 +96,7 @@ flowchart LR
     Filter --> Gate["NowSubscriptionMatcher<br/>§4 — vocabulary rules"]
     Gate -->|"matched"| Transform["Transformer<br/>§6 — mostly already built (phase 1's PcrVersionMapper)"]
     Gate -->|"zero matches"| NoPcr["404 — no PCR for this defendant<br/>§7"]
-    Transform --> Persist["Persist<br/>(data-store doc)<br/>one pcr_version row per eligible defendant"]
+    Transform --> Persist["Persist<br/>(data-store doc)<br/>one cp_version row per eligible defendant"]
 ```
 
 This diagram is *this service's* equivalent of the legacy pipeline, not a
@@ -279,9 +279,9 @@ already scans `judicialResultPrompts[]` by `promptReference` for six other
 prompts (phase 1). This is the same pattern, one more prompt reference.
 
 None of `Vocabulary`'s fields belong in `PcrVersion` (the API schema) or
-`pcr_version` (the data store) — cross-checked against both, correctly:
+`cp_version` (the data store) — cross-checked against both, correctly:
 `Vocabulary` exists only to decide *whether* a PCR is generated (§4), not
-to describe its content. Don't add a `pcr_version` column or an API field
+to describe its content. Don't add a `cp_version` column or an API field
 for any of `custodyLocationIsPolice`/`inCustody`/`appearedInPerson`/
 `welshCourtHearing`/etc. — `custodyLocation` (content, sourced separately,
 §5) and `custody_location` (the data-store column) are a different,
@@ -667,11 +667,11 @@ a home:**
   an undocumented precedence rule, `ProsecutionCaseOrApplicationMapper.js:30,172-178`)
   but not needed by this API's consumers. Not modeled anywhere — no field
   in `Offence`/`ProsecutionCase`/`Defendant`, no column in
-  `pcr_offence`/`pcr_case_hearing` — and deliberately staying that way, same
+  `cp_offence`/`cp_case_hearing` — and deliberately staying that way, same
   resolution pattern as the other confirmed-not-needed fields in the
   field-mapping doc §2c/§6.
 - **`applicationType` is already fully modeled — not a gap.**
-  `CourtApplication.type` exists in the schema, `pcr_court_application.type`
+  `CourtApplication.type` exists in the schema, `cp_court_application.type`
   exists in the data store, and `PcrVersionMapper.toCourtApplication`
   already maps it. `CourtApplication.reference` is likewise already modeled
   end-to-end from `courtApplication.applicationReference`
@@ -721,7 +721,7 @@ a home:**
   this contract, and given the bug below, may not be worth adding.** The
   legacy `hearing.defendantPresent`/`hearing.defendantAppearanceDetails`
   content has no equivalent on `HearingDetails` in this API or in
-  `pcr_version`/`pcr_case_hearing`. Low priority to add given the confirmed
+  `cp_version`/`cp_case_hearing`. Low priority to add given the confirmed
   bug immediately below makes the legacy source data unreliable anyway.
 
 **A confirmed legacy bug, needing an explicit replicate-or-diverge
@@ -771,7 +771,7 @@ outcome **will diverge from the legacy system** for any defendant who
 appears in more than one prosecution case (or a linked court application)
 within the same hearing. This needs an explicit reconciliation decision —
 e.g. computing vocabulary against the `masterDefendantId`-merged view even
-though the persisted `pcr_version` row stays keyed per `(hearingId,
+though the persisted `cp_version` row stays keyed per `(hearingId,
 defendantId)` — before §2's `VocabularyService.compute` can be implemented
 as sketched. Flagging for the tech lead/whoever owns this decision, not
 resolving it unilaterally here.

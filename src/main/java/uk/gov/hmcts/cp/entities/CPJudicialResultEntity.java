@@ -15,15 +15,15 @@ import java.time.LocalDate;
 import java.util.UUID;
 
 // Polymorphic parent (design doc §3) — exactly one of offenceId/courtApplicationId is set,
-// enforced by the chk_pcr_judicial_result_one_parent DB constraint, not by this entity.
+// enforced by the chk_cp_judicial_result_one_parent DB constraint, not by this entity.
 @Entity
-@Table(name = "pcr_judicial_result")
+@Table(name = "cp_judicial_result")
 @Getter
 @Builder(toBuilder = true)
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode
-public class PcrJudicialResultEntity {
+public class CPJudicialResultEntity {
 
     @Id
     private UUID id;
