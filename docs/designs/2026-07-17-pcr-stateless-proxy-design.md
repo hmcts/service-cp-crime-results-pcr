@@ -2,7 +2,7 @@
 
 **Status:** Revised, 20 Jul 2026 — retargeted at the corrected API contract
 (PR #5, `docs/simplify-pcr-versioning-model`, merged into
-[`docs/2026-07-16-pcr-api-marketplace-design-v2.md`](2026-07-16-pcr-api-marketplace-design-v2.md),
+[`docs/designs/2026-07-16-pcr-api-marketplace-design-v2.md`](2026-07-16-pcr-api-marketplace-design-v2.md),
 v2). The original 17 Jul draft targeted a pre-redesign, HMPPS-shaped contract
 (`ProsecutionCaseResultsApi`, `ProsecutionCaseResultView`/`DefendantResultView`,
 `eventId` query param) that no longer exists — every component below is
@@ -239,8 +239,9 @@ record DefendantResponse(
         PersonDefendantResponse personDefendant,
         List<OffenceResponse> offences) {}
 
-// Deliberately no name/DOB/address here — HMPPS resolves defendant identity via
-// defendantId/masterDefendantId against NOMIS; this API never carries that PII.
+// name/DOB/address: carried, encrypted at rest — see ADR-004
+// (docs/pipeline/adrs/004-AMP-891-carry-defendant-pii-encrypted-at-rest.md). This illustrative
+// sketch predates that decision; the real DTO has since gained these fields.
 record PersonDefendantResponse(CustodialEstablishmentResponse custodialEstablishment) {}
 
 record CustodialEstablishmentResponse(String id, String name, String custody) {}
@@ -358,7 +359,7 @@ public class PcrVersionMapper {
                 .nextHearing(findNextHearing(hearing))
                 .build();
         // courtHouseName/hearingOutcome/warrantType/overallConvictionDate:
-        // left unset (null) — no confirmed CP source, per PCR-HMPPS-FIELD-MAPPING.md
+        // left unset (null) — no confirmed CP source, per the field-mapping doc
     }
 
     private NextHearing findNextHearing(HearingResponse hearing) {
@@ -949,10 +950,10 @@ same linear path.
   for phase 1 completion or an explicit phase-2 pickup.
   - `nextHearing` per-offence-per-judicialResult ambiguity: phase 1's
   "first non-null found" choice (§4.5) is provisional, stated explicitly —
-  revisit once product/HMPPS confirms which offence's `nextHearing` should
+  revisit once product confirms which offence's `nextHearing` should
   win when several diverge.
 - `HearingDetails.courtHouseName`/`hearingOutcome`/`warrantType`/`overallConvictionDate`,
   `Offence.title`/`wording`/`pleaValue`/`pleaDate`/`verdictCode`,
   `JudicialResult.postHearingCustodyStatus`/`category`: no confirmed CP source
   for a synchronous lookup — left `null`, consistent with
-  `PCR-HMPPS-FIELD-MAPPING.md`'s existing findings.
+  the field-mapping doc's existing findings.

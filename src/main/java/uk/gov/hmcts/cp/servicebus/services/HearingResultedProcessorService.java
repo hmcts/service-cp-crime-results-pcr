@@ -13,8 +13,8 @@ import tools.jackson.databind.ObjectMapper;
 import uk.gov.hmcts.cp.clients.HearingResultedServiceBusClientFactory;
 import uk.gov.hmcts.cp.domain.HearingResultedPointer;
 import uk.gov.hmcts.cp.exceptions.IncompleteHearingDetailsException;
-import uk.gov.hmcts.cp.servicebus.model.EventGridData;
-import uk.gov.hmcts.cp.servicebus.model.EventGridEnvelope;
+import uk.gov.hmcts.cp.servicebus.model.CPHearingResultedEventData;
+import uk.gov.hmcts.cp.servicebus.model.CPHearingResultedEventEnvelope;
 import uk.gov.hmcts.cp.services.ResultsIngestionService;
 
 import java.util.Optional;
@@ -75,8 +75,8 @@ public class HearingResultedProcessorService {
     }
 
     private HearingResultedPointer toPointer(final ServiceBusReceivedMessage message) {
-        final EventGridEnvelope envelope = objectMapper.readValue(message.getBody().toString(), EventGridEnvelope.class);
-        final EventGridData data = envelope.data();
+        final CPHearingResultedEventEnvelope envelope = objectMapper.readValue(message.getBody().toString(), CPHearingResultedEventEnvelope.class);
+        final CPHearingResultedEventData data = envelope.data();
         if (data == null) {
             throw new IllegalArgumentException("Event Grid envelope missing 'data'");
         }

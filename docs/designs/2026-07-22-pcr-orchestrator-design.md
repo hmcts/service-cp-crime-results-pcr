@@ -1,5 +1,12 @@
 # PCROrchestrator (Decision Engine, Enrichment, and Transformer) Design
 
+**Jira:** AMP-892 — API contract + service + orchestrator implementation (part of the
+AMP-888 epic; see `docs/pipeline/adrs/001-AMP-888-pcr-api-marketplace-pull-channel.md`).
+Retention and drift-detection are split into their own AMP-888 child stories, not this one.
+**Scope:** AMP-943 — see
+[`docs/pipeline/adrs/005-AMP-943-pcr-scope-boundary-generation-gate-only.md`](../pipeline/adrs/005-AMP-943-pcr-scope-boundary-generation-gate-only.md)
+for the confirmed boundary (generation-gate logic only; recipient resolution and Progression
+submission are out of scope for this phase).
 **Status:** Draft, 22 Jul 2026, cross-checked file-by-file against the
 `cpp-context-azure-legalaidagency` source on 23 Jul 2026. Deep-dive of v2
 §5a/§6/§8's Decision Engine, Enrichment, and Transformer components,
@@ -11,7 +18,7 @@ the `SubscriptionsService`/`VocabularyService` modules it calls —
 ("the ingestion doc") and
 [`2026-07-21-pcr-data-store-design.md`](2026-07-21-pcr-data-store-design.md)
 ("the data-store doc") — together the three cover the full pipeline from
-Event Grid trigger through to a written `pcr_version` row.
+Event Grid trigger through to a written `cp_version` row.
 
 **Why subscription matching is in scope at all:** a defendant with zero
 matched subscriptions gets no register in the legacy system — subscription
@@ -26,7 +33,7 @@ content that never existed. This document replicates the gate, not just
 the content shaping.
 
 **Scope:** everything between "raw hearing/results payload in hand" (the
-ingestion doc's boundary) and "content ready to persist into `pcr_version`"
+ingestion doc's boundary) and "content ready to persist into `cp_version`"
 (the data-store doc's target):
 - Per-defendant vocabulary computation (§2)
 - The `publishedForNows` content filter (§3)
@@ -50,18 +57,18 @@ which is about *delivery*, not content or eligibility:
 
 ## 1. Pipeline position
 
-`ResultsPcrOrchestrator` performs the decision-relevant subset of the legacy
+`CPResultsPcrOrchestrator` performs the decision-relevant subset of the legacy
 orchestrator's five activities — activities 2 and 3 only:
 
-1. **Compute vocabulary** (`VocabularyService.compute`, §2) — per-defendant
+1. **Compute vocabulary** (`CPVocabularyService.compute`, §2) — per-defendant
    fact computation from the full, unfiltered result set.
 2. **Exclude `publishedForNows` results**
-   (`ResultsPcrOrchestrator.excludePublishedForNows`, §3) — the content filter,
+   (`CPResultsPcrOrchestrator.excludePublishedForNows`, §3) — the content filter,
    replicating legacy activity 2's `filterJudicialResultsApplicableForRegisters`
    step.
 3. **Determine whether a PCR is required**
-   (`ResultsPcrOrchestrator.isPrisonCourtRegisterRequired`, §4) — the
-   subscription-match gate (vocabulary rules via `NowSubscriptionMatcher`,
+   (`CPResultsPcrOrchestrator.isPrisonCourtRegisterRequired`, §4) — the
+   subscription-match gate (vocabulary rules via `CPNowSubscriptionMatcher`,
    backed by `ReferenceDataClient`), replicating legacy activity 3
    (`PrisonCourtRegisterSubscriptions`).
 
@@ -70,7 +77,7 @@ touch them: building the register fragment's non-decision content, and
 anything from activities 4–5 (recipients, payload assembly, Progression
 submission) — see "Explicitly not in scope" above.
 
-**Naming — `ResultsPcrOrchestrator`, not the legacy name.** The legacy
+**Naming — `CPResultsPcrOrchestrator`, not the legacy name.** The legacy
 top-level coordinator, `PrisonCourtRegisterOrchestrator`, is an Azure
 Durable Functions orchestrator function with checkpointing/replay
 semantics, coordinating all five activities including delivery. A plain
@@ -78,18 +85,18 @@ Spring `@Component` coordinating only the decision-relevant subset
 (activities 2–3) isn't the same thing, so this class follows this
 service's own naming convention instead — `ResultsPcrController`,
 `ResultsPcrService`, `ResultsClient` are all `Results`-prefixed — while
-still naming the class for what it does: coordinate `VocabularyService`,
-the `publishedForNows` filter, and `NowSubscriptionMatcher`/
+still naming the class for what it does: coordinate `CPVocabularyService`,
+the `publishedForNows` filter, and `CPNowSubscriptionMatcher`/
 `ReferenceDataClient` in sequence.
 
 ```mermaid
 flowchart LR
-    Ingestion["Ingestion<br/>(ingestion doc)<br/>raw hearing payload"] --> Vocab["VocabularyService<br/>§2 — per-defendant facts, full result set"]
+    Ingestion["Ingestion<br/>(ingestion doc)<br/>raw hearing payload"] --> Vocab["CPVocabularyService<br/>§2 — per-defendant facts, full result set"]
     Vocab --> Filter["publishedForNows filter<br/>§3 — plain field, no lookup"]
-    Filter --> Gate["NowSubscriptionMatcher<br/>§4 — vocabulary rules"]
+    Filter --> Gate["CPNowSubscriptionMatcher<br/>§4 — vocabulary rules"]
     Gate -->|"matched"| Transform["Transformer<br/>§6 — mostly already built (phase 1's PcrVersionMapper)"]
     Gate -->|"zero matches"| NoPcr["404 — no PCR for this defendant<br/>§7"]
-    Transform --> Persist["Persist<br/>(data-store doc)<br/>one pcr_version row per eligible defendant"]
+    Transform --> Persist["Persist<br/>(data-store doc)<br/>one cp_version row per eligible defendant"]
 ```
 
 This diagram is *this service's* equivalent of the legacy pipeline, not a
@@ -100,7 +107,7 @@ activity 4 (`OutboundPrisonCourtRegister`, which discards fragments with no
 `matchedSubscriptions` before building payloads) — a detail that only
 matters to delivery-routing machinery this service doesn't replicate. The
 determination itself (`matchedSubscriptions.length > 0`, legacy activity 4)
-is exactly equivalent to this design's `ResultsPcrOrchestrator.isPrisonCourtRegisterRequired`
+is exactly equivalent to this design's `CPResultsPcrOrchestrator.isPrisonCourtRegisterRequired`
 (§4) — same check, just relocated earlier in the pipeline since this
 service has no reason to build the rest of activity 4's recipient/payload
 machinery first.
@@ -121,7 +128,7 @@ completeness only.
 
 ---
 
-## 2. `VocabularyService` — per-defendant fact computation
+## 2. `CPVocabularyService` — per-defendant fact computation
 
 The vocabulary is computed from the defendant's **full** result set,
 before any filtering — it's used by the subscription matcher (§4), so it
@@ -185,7 +192,7 @@ single custodial-result boolean, not instead of it.
   always-empty, not as a lookup this service needs to build (§4).
 
 ```java
-public record Vocabulary(
+public record CPVocabulary(
         boolean custodyLocationIsPolice,
         boolean custodyLocationIsPrison,      // both may be true together — see above
         boolean inCustody,                    // = custodyLocationIsPolice || custodyLocationIsPrison
@@ -206,7 +213,7 @@ public record Vocabulary(
 
 ```java
 @Component
-public class VocabularyService {
+public class CPVocabularyService {
 
     private static final String CUSTODIAL_RESULT_PROMPT = "prisonOrganisationName";
 
@@ -214,10 +221,10 @@ public class VocabularyService {
     // sharing the same masterDefendantId (§2 above) — this signature assumes that merge
     // has already happened upstream (see §7's structural note on masterDefendantId
     // merging vs this service's per-(hearingId, defendantId) model).
-    public Vocabulary compute(final DefendantResponse defendant, final HearingResponse hearing) {
+    public CPVocabulary compute(final DefendantResponse defendant, final HearingResponse hearing) {
         final boolean custodyLocationIsPolice = custodyLocationIsPolice(defendant, hearing);
         final boolean custodyLocationIsPrison = custodyLocationIsPrison(defendant, hearing);
-        return new Vocabulary(
+        return new CPVocabulary(
                 custodyLocationIsPolice,
                 custodyLocationIsPrison,
                 custodyLocationIsPolice || custodyLocationIsPrison,
@@ -271,14 +278,14 @@ public class VocabularyService {
 already scans `judicialResultPrompts[]` by `promptReference` for six other
 prompts (phase 1). This is the same pattern, one more prompt reference.
 
-None of `Vocabulary`'s fields belong in `PcrVersion` (the API schema) or
-`pcr_version` (the data store) — cross-checked against both, correctly:
-`Vocabulary` exists only to decide *whether* a PCR is generated (§4), not
-to describe its content. Don't add a `pcr_version` column or an API field
+None of `CPVocabulary`'s fields belong in `PcrVersion` (the API schema) or
+`cp_version` (the data store) — cross-checked against both, correctly:
+`CPVocabulary` exists only to decide *whether* a PCR is generated (§4), not
+to describe its content. Don't add a `cp_version` column or an API field
 for any of `custodyLocationIsPolice`/`inCustody`/`appearedInPerson`/
 `welshCourtHearing`/etc. — `custodyLocation` (content, sourced separately,
 §5) and `custody_location` (the data-store column) are a different,
-correctly-separate concept from `Vocabulary.custodyLocationIsPolice`/
+correctly-separate concept from `CPVocabulary.custodyLocationIsPolice`/
 `custodyLocationIsPrison` (eligibility only).
 
 ---
@@ -300,18 +307,18 @@ own `hearingDetails/internal` call too, since both consume the same
 Results Query API family. It is **not yet modeled** on
 `HearingDetailsResponse.JudicialResult` (phase 1). Confirm it's actually
 present on a real `hearingDetails/internal` response (§7), then add it as
-a plain field. The filter itself is `ResultsPcrOrchestrator.excludePublishedForNows`
+a plain field. The filter itself is `CPResultsPcrOrchestrator.excludePublishedForNows`
 (§4) — deliberately named to avoid reusing "eligible"/"eligibility," which
 already means something different in this document (§4's subscription-
 match gate).
 
 ---
 
-## 4. `NowSubscriptionMatcher` — the generation gate
+## 4. `CPNowSubscriptionMatcher` — the generation gate
 
 Sourced from Reference Data's NOW-subscription config, filtered to
 `isPrisonCourtRegisterSubscription == true`, matched against a defendant's
-`Vocabulary` (§2), replicated with full rule fidelity against live
+`CPVocabulary` (§2), replicated with full rule fidelity against live
 Reference Data — a narrower approximation risks this API disagreeing with
 the legacy system about whether a PCR exists at all.
 
@@ -342,9 +349,9 @@ in v2's original description.** Reading it in full
 lists (prompts first, then results), with a CPS-prosecuted short-circuit
 ahead of all of them.
 
-**Vocabulary-level `checkIfCourtHouseMatch` is the English/Welsh language
+**CPVocabulary-level `checkIfCourtHouseMatch` is the English/Welsh language
 check, not a separate dimension** (`SubscriptionsService.js:313-326`,
-reading `welshCourtHearing`/`englishCourtHearing` off §2's `Vocabulary`) —
+reading `welshCourtHearing`/`englishCourtHearing` off §2's `CPVocabulary`) —
 modelled below as `courtLanguageMatches`, the same rule as
 `checkIfCourtHouseMatch`.
 
@@ -370,7 +377,7 @@ comparison; with no flag set and no specific requirement set, the function
 falls through to its final `return`, which evaluates to `false` (the
 subscription fails). Only `checkIfMajorCreditorTypeMatch` has a genuine
 unconditional-pass early return when unconfigured (`anyMajorCreditor`
-above). `NowSubscription`'s fields below are modelled as an explicit
+above). `CPNowSubscription`'s fields below are modelled as an explicit
 (any-flag, specific-requirement) pair per dimension for this reason, not a
 single nullable enum where "null" silently means "any."
 
@@ -389,7 +396,7 @@ always computed unconditionally before this gate runs (§2), but noted for
 completeness against the subscription-side fail-open above.
 
 ```java
-public record NowSubscription(
+public record CPNowSubscription(
         boolean isPrisonCourtRegisterSubscription,
         boolean applySubscriptionRules,             // false, or no subscriptionVocabulary at all -> matches by default (only true default-pass case)
         boolean anyAppearance,                       // explicit "any" flag — false + no requirement below -> FAILS, not passes
@@ -398,7 +405,7 @@ public record NowSubscription(
         CourtLanguage requiredCourtLanguage,         // ENGLISH, WELSH — same rule as checkIfCourtHouseMatch, see prose above
         AgeGroup requiredAgeGroup,                   // nullable
         boolean ignoreCustody,                       // explicit "any" flag — false + no requirement below -> FAILS
-        CustodyRequirement custodyRequirement,       // NONE, IN_CUSTODY, PRISON_ONLY, POLICE_ONLY
+        CustodyRequirement custodyRequirement,       // NONE (fails unless ignoreCustody), IN_CUSTODY, PRISON_ONLY, POLICE_ONLY
         boolean ignoreResults,                       // explicit "any" flag — false + no requirement below -> FAILS
         CustodialOutcomeRequirement custodialOutcomeRequirement, // ANY, CUSTODIAL_ONLY, NON_CUSTODIAL_ONLY
         boolean requiresCpsProsecuted,
@@ -413,9 +420,9 @@ public record NowSubscription(
 
 ```java
 @Component
-public class NowSubscriptionMatcher {
+public class CPNowSubscriptionMatcher {
 
-    public boolean matches(final NowSubscription subscription, final Vocabulary vocabulary,
+    public boolean matches(final CPNowSubscription subscription, final CPVocabulary vocabulary,
                             final List<JudicialResultResponse> eligibleResults) {
         if (!subscription.applySubscriptionRules()) {
             return true; // no rules configured -> matches by default
@@ -423,7 +430,7 @@ public class NowSubscriptionMatcher {
         return matchesVocabularyRules(subscription, vocabulary, eligibleResults);
     }
 
-    private boolean matchesVocabularyRules(final NowSubscription subscription, final Vocabulary vocabulary,
+    private boolean matchesVocabularyRules(final CPNowSubscription subscription, final CPVocabulary vocabulary,
                                              final List<JudicialResultResponse> eligibleResults) {
         // CPS short-circuit — bypasses every other rule in this method once
         // both the subscription requires CPS and the vocabulary is
@@ -441,21 +448,25 @@ public class NowSubscriptionMatcher {
                 && resultTypeListsMatch(subscription, eligibleResults);
     }
 
-    private boolean custodyMatches(final NowSubscription subscription, final Vocabulary vocabulary) {
+    private boolean custodyMatches(final CPNowSubscription subscription, final CPVocabulary vocabulary) {
         if (subscription.ignoreCustody()) {
             return true;
         }
-        // No ignoreCustody AND no specific requirement below -> falls through to FAILS,
-        // matching the real checkIfCustodyMatch — not a null-means-any default.
+        // Corrected against checkIfCustodyMatch (SubscriptionsService.js:343-365) — there is
+        // no "no requirement configured" case that passes. Every branch below requires
+        // subscription.custodyRequirement() != NONE; NONE (no custody requirement, no
+        // ignoreCustody) FAILS, same fail-closed shape as every other dimension in this
+        // matcher. An earlier draft of this pseudocode had `case NONE -> true`, which was
+        // wrong — verified directly against source.
         return switch (subscription.custodyRequirement()) {
-            case NONE -> true;
+            case NONE -> false;
             case IN_CUSTODY -> vocabulary.inCustody();
             case PRISON_ONLY -> vocabulary.custodyLocationIsPrison();
             case POLICE_ONLY -> vocabulary.custodyLocationIsPolice();
         };
     }
 
-    private boolean majorCreditorTypeMatches(final NowSubscription subscription, final Vocabulary vocabulary) {
+    private boolean majorCreditorTypeMatches(final CPNowSubscription subscription, final CPVocabulary vocabulary) {
         if (subscription.anyMajorCreditor()) {
             return true; // the one dimension that genuinely defaults to pass
         }
@@ -470,7 +481,7 @@ public class NowSubscriptionMatcher {
     // to bypass — no flag set and no requirement set FAILS, mirroring custodyMatches above.
     // Omitted here for brevity, same shape.
 
-    private boolean resultTypeListsMatch(final NowSubscription subscription, final List<JudicialResultResponse> results) {
+    private boolean resultTypeListsMatch(final CPNowSubscription subscription, final List<JudicialResultResponse> results) {
         final List<String> resultCodes = results.stream().map(JudicialResultResponse::cjsCode).toList();
         final boolean includeOk = subscription.includedResultTypes().isEmpty()
                 || resultCodes.stream().anyMatch(subscription.includedResultTypes()::contains);
@@ -487,17 +498,17 @@ public class NowSubscriptionMatcher {
 ```java
 @Component
 @RequiredArgsConstructor
-public class ResultsPcrOrchestrator {
+public class CPResultsPcrOrchestrator {
 
-    private final NowSubscriptionMatcher nowSubscriptionMatcher;
+    private final CPNowSubscriptionMatcher nowSubscriptionMatcher;
     private final ReferenceDataClient referenceDataClient;
 
-    public boolean isPrisonCourtRegisterRequired(final Vocabulary vocabulary, final List<JudicialResultResponse> eligibleResults,
-                                                   final LocalDate on) {
+    public boolean isPrisonCourtRegisterRequired(final CPVocabulary vocabulary, final List<JudicialResultResponse> eligibleResults,
+                                                   final LocalDate activeAt) {
         // See §7 for the confirmed contract — GET .../now-subscriptions?on=<date>,
-        // CJSCPPUID + Accept vendor header, no other auth. `on` still needs a decided
+        // CJSCPPUID + Accept vendor header, no other auth. `activeAt` still needs a decided
         // date-selection strategy (§7) before this can be called for real.
-        final List<NowSubscription> subscriptions = referenceDataClient.getPrisonCourtRegisterSubscriptions(on);
+        final List<CPNowSubscription> subscriptions = referenceDataClient.getPrisonCourtRegisterSubscriptions(activeAt);
         return subscriptions.stream()
                 .anyMatch(s -> nowSubscriptionMatcher.matches(s, vocabulary, eligibleResults));
     }
@@ -541,7 +552,7 @@ the Results payload — the same client the subscription-matching gate (§4)
 would also depend on if this service ever needs Reference Data config, so
 both can share one `ReferenceDataClient`. `CustodyLocationMapper.getDefendant()`
 (lines 30-40) uses the same hearing-wide, `masterDefendantId`-scanning
-pattern as `VocabularyService`'s custody-location lookup (§2) — a third
+pattern as `CPVocabularyService`'s custody-location lookup (§2) — a third
 independent occurrence of that pattern in this codebase.
 
 **`postHearingCustodyStatus` is a plain field, sourced with a "first case
@@ -567,8 +578,8 @@ client (`ReferenceDataService.js` — NOW metadata, NOW subscriptions
 metadata used in §4, organisation unit, major creditors, enforcement area,
 prisons-custody-suites) found no `ResultDefinition`/`cjsResultCode`-keyed
 endpoint, and none of these three fields are referenced anywhere in the
-Function App's own code. `PCR-HMPPS-FIELD-MAPPING.md` (the field-mapping
-doc in the `api-cp-crime-results-pcr` spec repo) independently states they
+Function App's own code. The field-mapping doc (in the `api-cp-crime-results-pcr`
+spec repo) independently states they
 come from `ResultDefinition` reference data keyed on `cjsResultCode` — both
 are correct at different layers: that join happens upstream (in
 `cpp-context-results`, before the Results Query API response this service
@@ -656,11 +667,11 @@ a home:**
   an undocumented precedence rule, `ProsecutionCaseOrApplicationMapper.js:30,172-178`)
   but not needed by this API's consumers. Not modeled anywhere — no field
   in `Offence`/`ProsecutionCase`/`Defendant`, no column in
-  `pcr_offence`/`pcr_case_hearing` — and deliberately staying that way, same
-  resolution pattern as the other confirmed-not-needed fields in
-  `PCR-HMPPS-FIELD-MAPPING.md` §2c/§6.
+  `cp_offence`/`cp_case_hearing` — and deliberately staying that way, same
+  resolution pattern as the other confirmed-not-needed fields in the
+  field-mapping doc §2c/§6.
 - **`applicationType` is already fully modeled — not a gap.**
-  `CourtApplication.type` exists in the schema, `pcr_court_application.type`
+  `CourtApplication.type` exists in the schema, `cp_court_application.type`
   exists in the data store, and `PcrVersionMapper.toCourtApplication`
   already maps it. `CourtApplication.reference` is likewise already modeled
   end-to-end from `courtApplication.applicationReference`
@@ -703,14 +714,14 @@ a home:**
   legacy output model but never populated by any mapper
   (`ProsecutionCaseOrApplicationMapper.js` never sets them) — nothing to
   port for these two; source them fresh from the Results/Hearing payload
-  if HMPPS needs them. Likewise `ethnicity` is declared but never set by
+  if a real consumer need surfaces. Likewise `ethnicity` is declared but never set by
   `DefendantMapper.build()` — no ethnicity data flows through this
   pipeline at all, legacy or otherwise.
 - **Hearing-level attendance/appearance detail has no field anywhere in
   this contract, and given the bug below, may not be worth adding.** The
   legacy `hearing.defendantPresent`/`hearing.defendantAppearanceDetails`
   content has no equivalent on `HearingDetails` in this API or in
-  `pcr_version`/`pcr_case_hearing`. Low priority to add given the confirmed
+  `cp_version`/`cp_case_hearing`. Low priority to add given the confirmed
   bug immediately below makes the legacy source data unreliable anyway.
 
 **A confirmed legacy bug, needing an explicit replicate-or-diverge
@@ -760,14 +771,14 @@ outcome **will diverge from the legacy system** for any defendant who
 appears in more than one prosecution case (or a linked court application)
 within the same hearing. This needs an explicit reconciliation decision —
 e.g. computing vocabulary against the `masterDefendantId`-merged view even
-though the persisted `pcr_version` row stays keyed per `(hearingId,
-defendantId)` — before §2's `VocabularyService.compute` can be implemented
+though the persisted `cp_version` row stays keyed per `(hearingId,
+defendantId)` — before §2's `CPVocabularyService.compute` can be implemented
 as sketched. Flagging for the tech lead/whoever owns this decision, not
 resolving it unilaterally here.
 
 ### No-match behaviour: `404`
 
-When `ResultsPcrOrchestrator.isPrisonCourtRegisterRequired` returns `false`, this
+When `CPResultsPcrOrchestrator.isPrisonCourtRegisterRequired` returns `false`, this
 service treats it exactly like "no PCR version found for the supplied
 identifiers" — the same `404` `PcrService` already returns for a
 case/defendant that doesn't exist (phase 1). No new error shape, no
@@ -823,7 +834,7 @@ alongside the existing case/defendant lookups in
   `NowsHelper/service/test/Subscriptions.json:10` — not nested inside
   `subscriptionVocabulary`), a nested `recipient` object (delivery-only,
   out of scope, §1), and `subscriptionVocabulary` whose field names match
-  this document's `Vocabulary` record almost verbatim —
+  this document's `CPVocabulary` record almost verbatim —
   `custodyLocationIsPrison`/`custodyLocationIsPolice`,
   `atleastOneCustodialResult`/`allNonCustodialResults`/`atleastOneNonCustodialResult`,
   `youthDefendant`/`adultDefendant`, `welshCourtHearing`/`englishCourtHearing`,

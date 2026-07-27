@@ -8,6 +8,9 @@ plugins {
   id 'com.github.ben-manes.versions' version '0.54.0'
   id 'org.cyclonedx.bom' version '3.3.0'
   id 'com.gorylenko.gradle-git-properties' version '4.0.1'
+  // Starts the docker-compose Postgres service before `test` in CI — repository tests need a
+  // real, externally-started Postgres (PostgresInitialise), matching HRDS's established pattern.
+  id 'com.avast.gradle.docker-compose' version '0.17.21'
 }
 
 group = 'uk.gov.hmcts.cp'
@@ -20,6 +23,7 @@ apply {
   from("$rootDir/gradle/pmd.gradle")
   from("$rootDir/gradle/test.gradle")
   from("$rootDir/gradle/jar.gradle")
+  from("$rootDir/gradle/docker-test.gradle")
 }
 
 // We MUST keep all dependencies in the build.gradle to allow dependabot to provide version updates
@@ -58,7 +62,23 @@ dependencies {
   // Brought in transitively via spring-boot-starter-web; >=11.0.0-M1,<11.0.22 are vulnerable
   implementation 'org.apache.tomcat.embed:tomcat-embed-core:11.0.24'
 
-  // --- Hearing event ingestion (docs/2026-07-22-pcr-hearing-event-ingestion-design.md) ---
+  // --- Data store (docs/designs/2026-07-21-pcr-data-store-design.md) ---
+  // spring-boot-starter-data-jpa (Hibernate) added alongside the JPA entity/repository layer —
+  // spring-boot-starter-jdbc alone was only ever a placeholder to give Flyway a DataSource ahead
+  // of this. Versions come from the Spring Boot BOM.
+  implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+  implementation 'org.postgresql:postgresql'
+  // spring-boot-starter-flyway wires FlywayAutoConfiguration (the bean that actually runs
+  // migrations at startup) — depending on the raw Flyway libraries alone compiles fine but
+  // silently never runs a single migration, in production or in tests. flyway-database-postgresql
+  // is still needed explicitly alongside it — the Postgres dialect plugin isn't pulled in by the
+  // starter on its own (Flyway 10+ moved per-database support into separate opt-in modules).
+  // Same three-dependency combination as service-cp-crime-hearing-results-document-subscription.
+  implementation 'org.springframework.boot:spring-boot-starter-flyway'
+  implementation 'org.flywaydb:flyway-core'
+  implementation 'org.flywaydb:flyway-database-postgresql'
+
+  // --- Hearing event ingestion (docs/designs/2026-07-22-pcr-hearing-event-ingestion-design.md) ---
   // Raw Azure SDK Service Bus client — consumes Hearing_Resulted off the self-provisioned
   // pcr.hearing-resulted queue and owns the scheduled-retry escalation. Same client-construction
   // pattern already used by service-cp-crime-hearing-results-document-subscription.

@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
+import uk.gov.hmcts.cp.clients.ResultsClient;
 
 import java.util.UUID;
 
@@ -73,7 +74,7 @@ class TracingIntegrationTest extends IntegrationTestBase {
     }
 
     private void stubHearingDetails() {
-        final String url = String.format("%s/%s", appProperties.getResultsQueryPath(), HEARING_ID);
+        final String url = String.format("%s/%s", ResultsClient.RESULTS_QUERY_PATH, HEARING_ID);
         stubFor(WireMock.get(urlEqualTo(url)).willReturn(aResponse()
                 .withStatus(HTTP_OK)
                 .withHeader("Content-Type", "application/json")

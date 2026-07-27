@@ -6,7 +6,7 @@ Scaffolded from [service-hmcts-crime-springboot-template](https://github.com/hmc
 
 ## Design
 
-Full design — architecture, trigger, transformation, versioning, retention/ack, and open cross-team items — is in [docs/2026-07-16-pcr-api-marketplace-design-v2.md](docs/2026-07-16-pcr-api-marketplace-design-v2.md).
+Full design — architecture, trigger, transformation, versioning, retention/ack, and open cross-team items — is in [docs/designs/2026-07-16-pcr-api-marketplace-design-v2.md](docs/designs/2026-07-16-pcr-api-marketplace-design-v2.md).
 
 ## Upstream / downstream
 

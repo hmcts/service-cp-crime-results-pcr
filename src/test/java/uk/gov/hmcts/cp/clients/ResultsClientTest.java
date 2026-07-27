@@ -25,7 +25,6 @@ import static java.net.HttpURLConnection.HTTP_OK;
 class ResultsClientTest {
 
     private static final UUID HEARING_ID = UUID.fromString("00000000-0000-0000-0000-000000000011");
-    private static final String RESULTS_QUERY_PATH = "/results-query-api/query/api/rest/results/hearingDetails/internal";
 
     private WireMockServer wireMockServer;
     private ResultsClient resultsClient;
@@ -37,7 +36,8 @@ class ResultsClientTest {
         WireMock.configureFor("localhost", 8081);
 
         final AppPropertiesBackend appProperties = new AppPropertiesBackend(
-                "http://localhost:8081", RESULTS_QUERY_PATH, "00000000-0000-0000-0000-000000000000");
+                "http://localhost:8081", "00000000-0000-0000-0000-000000000000",
+                "http://localhost:8081", "00000000-0000-0000-0000-000000000000");
         resultsClient = new ResultsClient(appProperties, RestClient.create());
     }
 
@@ -50,7 +50,7 @@ class ResultsClientTest {
 
     @Test
     void getHearingDetails_should_callCorrectUrlAndAcceptHeader() {
-        final String url = String.format("%s/%s", RESULTS_QUERY_PATH, HEARING_ID);
+        final String url = String.format("%s/%s", ResultsClient.RESULTS_QUERY_PATH, HEARING_ID);
         stubFor(WireMock.get(urlEqualTo(url)).willReturn(aResponse()
                 .withStatus(HTTP_OK)
                 .withHeader("Content-Type", "application/json")

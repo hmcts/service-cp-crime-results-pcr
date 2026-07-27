@@ -5,12 +5,14 @@
 **Repos:** `api-cp-crime-results-pcr` (OpenAPI spec) + `service-cp-crime-results-pcr` (Spring Boot service), Modern-by-Default pattern, scaffolded from `api-hmcts-crime-template` / `service-hmcts-crime-springboot-template`.
 
 **Status:** Draft, 16 Jul 2026, built from the epic/stories.
+**Jira:** AMP-888 — see [`docs/pipeline/adrs/001-AMP-888-pcr-api-marketplace-pull-channel.md`](../pipeline/adrs/001-AMP-888-pcr-api-marketplace-pull-channel.md)
+for the decision this design doc's architecture was accepted under.
 
 ---
 
 ## 1. Purpose
 
-Give API Marketplace subscribers (HMPPS/prisons) programmatic, pull-based access to Prison Court Register (PCR) source data — the same underlying content currently distributed as a PDF via the legacy Function App → Progression → Docmosis pipeline. Each PCR version is identified by a single id, minted once at the source and propagated through the existing pipeline (§7) — not invented by this service.
+Give API Marketplace subscribers programmatic, pull-based access to Prison Court Register (PCR) source data — the same underlying content currently distributed as a PDF via the legacy Function App → Progression → Docmosis pipeline. Each PCR version is identified by a single id, minted once at the source and propagated through the existing pipeline (§7) — not invented by this service.
 
 This is **not** a replacement for existing email/post distribution, and does **not** rebuild subscriber management. It is a new read channel that plugs into the existing subscription/callback infrastructure — the same propagated id that already reaches that callback is what a consumer uses to fetch a specific version.
 
@@ -50,7 +52,7 @@ flowchart TB
 
     API --> Subscription["service-cp-crime-hearing-results-document-subscription<br/>existing - owns subscriber registration and push notification"]
 
-    Subscriber["Subscriber<br/>HMPPS/prison consumer"] -->|"GET pull, after callback carrying the id received"| API
+    Subscriber["Subscriber<br/>API Marketplace consumer"] -->|"GET pull, after callback carrying the id received"| API
 ```
 
 ### 3b. Sequence — one hearing, end to end
@@ -182,13 +184,26 @@ Went through the actual Function App code, not assumptions, to separate genuine 
 
 ## 6. Transformation and enrichment
 
-**Base shape:** ports `PrisonCourtRegisterPdfPayloadGenerator`'s field mapping faithfully — court/custody details, offences, applications (full field list already documented in `PCR-HMPPS-FIELD-MAPPING.md`) — **except defendant identity**, see below. Source of this data is the Results Query Client's response (§4b), not an event-carried payload. `registerDate` is deliberately excluded — a generation timestamp, not a case fact.
+**Base shape:** ports `PrisonCourtRegisterPdfPayloadGenerator`'s field mapping faithfully — court/custody details, offences, applications (full field list already documented in the field-mapping doc) — **including defendant identity**, see below. Source of this data is the Results Query Client's response (§4b), not an event-carried payload. `registerDate` is deliberately excluded — a generation timestamp, not a case fact.
 
-**Defendant identity (name, DOB, address) — confirmed not needed, not included.** HMPPS resolves the defendant entirely via `defendantId`/`masterDefendantId` against NOMIS; no name/DOB/address lookup happens through this API. `title`/`firstName`/`middleName`/`lastName`/`dateOfBirth`/`address` are absent from the `Defendant`/`Address` schemas.
+**Defendant identity (name, DOB, address) — carried; encryption at rest is future scope.** A
+confirmed requirement needs this data through the API; `title`/`firstName`/`middleName`/`lastName`/
+`dateOfBirth`/`address` are present on the `Defendant`/`Address` schemas, carried as plain values
+for now — see `docs/pipeline/adrs/004-AMP-891-carry-defendant-pii-encrypted-at-rest.md`, which
+defers the encryption mechanism to a later phase. This reverses an earlier decision (recorded in that ADR) that this data was out of
+scope on the basis that one consumer resolved identity independently — the contract isn't scoped
+to a single consumer's stated needs.
 
-**Also deliberately not included, despite being confirmed present in CP's real PCR payload** (`PrisonCourtRegisterPdfPayloadGenerator.java`, cross-validated against the Function App's outbound mapper): prosecution/defence counsel, attending solicitor name, `defendantResults[]`/`caseResults[]` (hearing/case-level free-text results), `gender`/`nationality`, `aliases`, parent/guardian details, `ljaName`/`courtHouseAddress`, `allocationDecision`/`indicatedPleaValue`. Each exists in CP; HMPPS confirmed none is needed, same as defendant identity above. Full decision record in `api-cp-crime-results-pcr`'s `PCR-HMPPS-FIELD-MAPPING.md` §6.
+**Deliberately not included, despite being confirmed present in CP's real PCR payload**
+(`PrisonCourtRegisterPdfPayloadGenerator.java`, cross-validated against the Function App's
+outbound mapper): prosecution/defence counsel, attending solicitor name, `defendantResults[]`/
+`caseResults[]` (hearing/case-level free-text results), `gender`/`nationality`, `aliases`,
+parent/guardian details, `ljaName`/`courtHouseAddress`, `allocationDecision`/`indicatedPleaValue`.
+Each exists in CP; no confirmed requirement for any of them exists yet — revisit only if one
+surfaces, don't add speculatively. Full decision record in `api-cp-crime-results-pcr`'s
+field-mapping doc §6.
 
-**PCR eligibility draws on four judicial-result sources, not two — confirmed via the Function App's `DefendantContextBaseService.getDefendantContextBaseList()`.** Case offences and application-level results were already modelled; also confirmed load-bearing: results on offences linked via `courtApplication.courtApplicationCases[].offences[]`, and results on `courtApplication.courtOrder.courtOrderOffences[].offence`. All four are merged into one flat list before `RegisterFragmentService`'s `!publishedForNows` filter runs — there's no source-specific branching in the real code, so `CourtApplication.offences[]` (added to the contract) folds the last two together rather than exposing a third, separate array. See §8a for the corresponding data-model change (`pcr_offence` made polymorphic).
+**PCR eligibility draws on four judicial-result sources, not two — confirmed via the Function App's `DefendantContextBaseService.getDefendantContextBaseList()`.** Case offences and application-level results were already modelled; also confirmed load-bearing: results on offences linked via `courtApplication.courtApplicationCases[].offences[]`, and results on `courtApplication.courtOrder.courtOrderOffences[].offence`. All four are merged into one flat list before `RegisterFragmentService`'s `!publishedForNows` filter runs — there's no source-specific branching in the real code, so `CourtApplication.offences[]` (added to the contract) folds the last two together rather than exposing a third, separate array. See §8a for the corresponding data-model change (`cp_offence` made polymorphic).
 
 **Identity/correlation fields, alongside the ported content:**
 - `hearingId`, `defendantId`: the grouping/resource key (§2) — one PCR resource per pair, exposing its full version history.
@@ -198,12 +213,12 @@ Went through the actual Function App code, not assumptions, to separate genuine 
 - `applications[].result[]` becomes `{resultCode, resultText}` pairs, matching every other result block, instead of the legacy shape's plain-string-only inconsistency.
 - `pleaDate` exposed as its own field rather than string-concatenated onto `pleaValue`.
 
-**Enrichment beyond what the legacy generator does today** — deliberate additions, not scope creep, each tied to a concrete need already identified in `PCR-HMPPS-FIELD-MAPPING.md`:
+**Enrichment beyond what the legacy generator does today** — deliberate additions, not scope creep, each tied to a concrete need already identified in the field-mapping doc:
 - `postHearingCustodyStatus` / `financial` / `category` / `convicted` per result, from Reference Data's `ResultDefinition`, keyed on `cjsResultCode`. The legacy generator strips these before they reach the document; this service keeps them, since they're the clearest structured signal for anything downstream that needs to classify custodial vs. non-custodial without parsing `resultText`.
 - `judicialResultPrompts[]` (raw label/value/promptReference/type), sourced from the judicial-result domain object directly — not from the legacy generator, which discards prompts entirely. Needed for any consumer building their own logic on top of structured signals like the terrorism/foreign-power/domestic-violence flags, which only exist at this level.
 - `custodyLocation`: include it, but be explicit in the API's own documentation that whether it's ever printed on the register could not be independently confirmed — the actual template and its rendering are owned by an external `systemdocgenerator` service, not available for inspection. Don't let a consumer assume it's document-verified just because it's present, and don't assert it's confirmed-unprinted either — both are unverified.
 
-**Resolved — dropped.** The confirmed-dead legacy fields (`officerInCase`, `parentGuardianName`/`Address1-5`/`PostCode`) are not carried through as permanently-empty fields — HMPPS confirmed no parent/guardian concept is needed from this API.
+**Resolved — dropped.** The confirmed-dead legacy fields (`officerInCase`, `parentGuardianName`/`Address1-5`/`PostCode`) are not carried through as permanently-empty fields — hardcoded blank in the legacy generator, with no real source data and no confirmed need for a parent/guardian concept in this API.
 
 ---
 
@@ -257,25 +272,25 @@ Normalized, not a JSON blob — matches how CP itself models this domain (`cpp-c
 
 ```mermaid
 erDiagram
-    PCR_CASE_HEARING ||--o{ PCR_CASE_MARKER : has
-    PCR_CASE_HEARING ||--o{ PCR_VERSION : "one per defendant"
-    PCR_VERSION ||--o{ PCR_OFFENCE : "case-level"
-    PCR_VERSION ||--o{ PCR_COURT_APPLICATION : has
-    PCR_COURT_APPLICATION ||--o{ PCR_OFFENCE : "linked/cloned"
-    PCR_OFFENCE ||--o{ PCR_JUDICIAL_RESULT : has
-    PCR_COURT_APPLICATION ||--o{ PCR_JUDICIAL_RESULT : "application-level"
-    PCR_JUDICIAL_RESULT ||--o{ PCR_JUDICIAL_RESULT_PROMPT : has
+    CP_CASE_HEARING ||--o{ CP_CASE_MARKER : has
+    CP_CASE_HEARING ||--o{ CP_VERSION : "one per defendant"
+    CP_VERSION ||--o{ CP_OFFENCE : "case-level"
+    CP_VERSION ||--o{ CP_COURT_APPLICATION : has
+    CP_COURT_APPLICATION ||--o{ CP_OFFENCE : "linked/cloned"
+    CP_OFFENCE ||--o{ CP_JUDICIAL_RESULT : has
+    CP_COURT_APPLICATION ||--o{ CP_JUDICIAL_RESULT : "application-level"
+    CP_JUDICIAL_RESULT ||--o{ CP_JUDICIAL_RESULT_PROMPT : has
 ```
 
-- **`pcr_case_hearing`** — shared "case at a hearing" parent, avoiding repeating `case_urn`/`hearing_id` identically across every defendant on the same hearing. Also owns the hearing's own facts (`HearingDetails`, minus `nextHearing` — see below) since those are identical for every defendant at that hearing, same reasoning as `caseMarkers`: `id` (surrogate PK), `case_urn`, `hearing_id`, `court_house_code`, `court_house_name`, `hearing_date`, `hearing_outcome`, `warrant_type`, `created_at`, `expires_at` — unique on `(case_urn, hearing_id)`. Note: `hearing_outcome`/`warrant_type` still have no confirmed CP source (§1's original mapping showed `—` for both) — these columns exist to match the current API contract, but if that's ever corrected to drop the fields, drop the columns with it. No `overall_conviction_date` column — resolved in `PCR-HMPPS-FIELD-MAPPING.md`: it derives from `offences[].convictionDate` and CP need not send it, so `conviction_date` lives only on `pcr_offence`.
-- **`pcr_case_marker`** — child of `pcr_case_hearing` (case-level, not per-defendant). `id`, `case_hearing_id` (FK), `code`, `description`.
-- **`pcr_version`** — one row per defendant's PCR version at that case+hearing; the actual "immutable version row" from §7. `id` + `defendant_id` (composite PK — `id` is the source-propagated id from §7, not generated by this service), `case_hearing_id` (FK), `custody_location`, `master_defendant_id` (the only defendant identity field carried — name/DOB/address confirmed not needed by HMPPS, not modelled anywhere in this service), `next_hearing` fields (embedded, nullable, 1:1 — CP's own name, `nextHearing`, not a consumer-facing "next appearance" term; kept per-defendant rather than promoted to `pcr_case_hearing`, since which offence's `nextHearing` wins is still unconfirmed and may genuinely vary — see §7 of the original field-mapping analysis), `created_at`.
-- **`pcr_offence`** — child of **either** `pcr_version` (case-level, direct — a defendant's own offences) **or** `pcr_court_application` (linked/cloned — CP's `courtApplicationCases[].offences[]` and `courtOrder.courtOrderOffences[].offence`, folded together per product decision, since consumers don't need to distinguish how an offence came to be linked). Polymorphic, same pattern as `pcr_judicial_result` below: `id` (CP's own offence UUID), `version_id`+`defendant_id` (composite FK, nullable), `court_application_id` (FK, nullable), a `CHECK` that exactly one parent is set, `code`, `title`, `wording`, `start_date`, `end_date`, `listing_number`, `conviction_date`, `plea_value`, `plea_date`, `verdict_code`. (`terrorRelated`/`foreignPowerRelated` deliberately have no column — dropped from the API contract as derived duplicates of `judicialResultPrompts[]`; the raw signal lives only in `pcr_judicial_result_prompt`.) Confirmed via `DefendantContextBaseService.getDefendantContextBaseList()` (the Function App): PCR eligibility (`!publishedForNows`) is checked uniformly across case offences, application-level results, and both these linked-offence sources — there's no source-specific branching, so the schema doesn't need one either.
-- **`pcr_court_application`** — child of `pcr_version` (many per version). `id` (CP's own application UUID), `version_id`+`defendant_id` (composite FK), `reference`, `type`, `decision`, `decision_date`, `response`, `response_date`.
-- **`pcr_judicial_result`** — child of **either** `pcr_offence` **or** `pcr_court_application` (polymorphic, mirroring the OpenAPI spec's own reuse of `JudicialResult` for both). `id` (surrogate PK), `offence_id` (FK, nullable), `court_application_id` (FK, nullable), a `CHECK` that exactly one parent FK is set, `result_code`, `result_text`, `post_hearing_custody_status`, `financial`, `category`, `convicted`, plus the flattened sentence fields (`concurrent`, `consecutive_to_date`, `consecutive_to_court_name`, `fine_amount`, `imprisonment_period`, `total_custodial_period`). Because `pcr_offence` is now itself polymorphic, this one table already covers all four of CP's real result sources — a result on a `pcr_offence` row parented by `pcr_court_application` is exactly a "linked-offence result," with no schema change needed here.
-- **`pcr_judicial_result_prompt`** — child of `pcr_judicial_result` (many per result). `id`, `judicial_result_id` (FK), `label`, `value`, `prompt_reference`, `type`.
+- **`cp_case_hearing`** — shared "case at a hearing" parent, avoiding repeating `case_urn`/`hearing_id` identically across every defendant on the same hearing. Also owns the hearing's own facts (`HearingDetails`, minus `nextHearing` — see below) since those are identical for every defendant at that hearing, same reasoning as `caseMarkers`: `id` (surrogate PK), `case_urn`, `hearing_id`, `court_house_code`, `court_house_name`, `hearing_date`, `hearing_outcome`, `warrant_type`, `created_at`, `expires_at` — unique on `(case_urn, hearing_id)`. Note: `hearing_outcome`/`warrant_type` still have no confirmed CP source (§1's original mapping showed `—` for both) — these columns exist to match the current API contract, but if that's ever corrected to drop the fields, drop the columns with it. No `overall_conviction_date` column — resolved in the field-mapping doc: it derives from `offences[].convictionDate` and CP need not send it, so `conviction_date` lives only on `cp_offence`.
+- **`cp_case_marker`** — child of `cp_case_hearing` (case-level, not per-defendant). `id`, `case_hearing_id` (FK), `code`, `description`.
+- **`cp_version`** — one row per defendant's PCR version at that case+hearing; the actual "immutable version row" from §7. `id` + `defendant_id` (composite PK — `id` is the source-propagated id from §7, not generated by this service), `case_hearing_id` (FK), `custody_location`, `master_defendant_id`, `next_hearing` fields (embedded, nullable, 1:1 — CP's own name, `nextHearing`, not a consumer-facing "next appearance" term; kept per-defendant rather than promoted to `cp_case_hearing`, since which offence's `nextHearing` wins is still unconfirmed and may genuinely vary — see §7 of the original field-mapping analysis), `created_at`. Also carries defendant identity — `title`/`first_name`/`middle_name`/`last_name`/`date_of_birth`/`address_line_1`-`5`/`post_code` — per ADR-004; carried as plain values for now, `date_of_birth` a real `date` column, since ADR-004's encryption-at-rest mechanism is deferred to a future phase.
+- **`cp_offence`** — child of **either** `cp_version` (case-level, direct — a defendant's own offences) **or** `cp_court_application` (linked/cloned — CP's `courtApplicationCases[].offences[]` and `courtOrder.courtOrderOffences[].offence`, folded together per product decision, since consumers don't need to distinguish how an offence came to be linked). Polymorphic, same pattern as `cp_judicial_result` below: `id` (CP's own offence UUID), `version_id`+`defendant_id` (composite FK, nullable), `court_application_id` (FK, nullable), a `CHECK` that exactly one parent is set, `code`, `title`, `wording`, `start_date`, `end_date`, `listing_number`, `conviction_date`, `plea_value`, `plea_date`, `verdict_code`. (`terrorRelated`/`foreignPowerRelated` deliberately have no column — dropped from the API contract as derived duplicates of `judicialResultPrompts[]`; the raw signal lives only in `cp_judicial_result_prompt`.) Confirmed via `DefendantContextBaseService.getDefendantContextBaseList()` (the Function App): PCR eligibility (`!publishedForNows`) is checked uniformly across case offences, application-level results, and both these linked-offence sources — there's no source-specific branching, so the schema doesn't need one either.
+- **`cp_court_application`** — child of `cp_version` (many per version). `id` (CP's own application UUID), `version_id`+`defendant_id` (composite FK), `reference`, `type`, `decision`, `decision_date`, `response`, `response_date`.
+- **`cp_judicial_result`** — child of **either** `cp_offence` **or** `cp_court_application` (polymorphic, mirroring the OpenAPI spec's own reuse of `JudicialResult` for both). `id` (surrogate PK), `offence_id` (FK, nullable), `court_application_id` (FK, nullable), a `CHECK` that exactly one parent FK is set, `result_code`, `result_text`, `post_hearing_custody_status`, `financial`, `category`, `convicted`, plus the flattened sentence fields (`concurrent`, `consecutive_to_date`, `consecutive_to_court_name`, `fine_amount`, `imprisonment_period`, `total_custodial_period`). Because `cp_offence` is now itself polymorphic, this one table already covers all four of CP's real result sources — a result on a `cp_offence` row parented by `cp_court_application` is exactly a "linked-offence result," with no schema change needed here.
+- **`cp_judicial_result_prompt`** — child of `cp_judicial_result` (many per result). `id`, `judicial_result_id` (FK), `label`, `value`, `prompt_reference`, `type`.
 
-**Retention/cascade:** `pcr_version` rows are deleted by their own `expires_at` (§11's TTL-only rule), cascading to their `pcr_offence`/`pcr_court_application`/`pcr_judicial_result`/`pcr_judicial_result_prompt` children (both `pcr_offence` parentage paths included). A secondary sweep deletes `pcr_case_hearing` rows once they have zero remaining `pcr_version` children — its lifetime isn't tied to any single defendant's TTL, since siblings on the same hearing may have been generated (and so expire) at slightly different times.
+**Retention/cascade:** `cp_version` rows are deleted by their own `expires_at` (§11's TTL-only rule), cascading to their `cp_offence`/`cp_court_application`/`cp_judicial_result`/`cp_judicial_result_prompt` children (both `cp_offence` parentage paths included). A secondary sweep deletes `cp_case_hearing` rows once they have zero remaining `cp_version` children — its lifetime isn't tied to any single defendant's TTL, since siblings on the same hearing may have been generated (and so expire) at slightly different times.
 
 ---
 
@@ -309,7 +324,7 @@ The same id is already carried through the existing subscriber callback payload 
 
 ## 12. MVP scope
 
-Story 3's non-amendment phase-1 slice (mirror the Function App, no amendments) ships first, specifically to get early HMPPS feedback on the payload shape before the full service — including amendment handling, versioning, retention — is built.
+Story 3's non-amendment phase-1 slice (mirror the Function App, no amendments) ships first, specifically to get early subscriber feedback on the payload shape before the full service — including amendment handling, versioning, retention — is built.
 
 ---
 

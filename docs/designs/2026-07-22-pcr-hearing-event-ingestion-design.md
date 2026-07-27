@@ -3,19 +3,22 @@
 **Status:** Draft, 22 Jul 2026. Deep-dive expansion of v2 §3a/§3b/§4/§8's Event
 Grid trigger and Results Query Client sections — the same target architecture,
 written out with concrete Spring/Azure wiring instead of prose-only.
+**Jira:** AMP-889 — inbound contract via Event Grid. See
+[`docs/pipeline/adrs/002-AMP-889-event-driven-hearing-ingestion-servicebus-redis.md`](../pipeline/adrs/002-AMP-889-event-driven-hearing-ingestion-servicebus-redis.md)
+for the dependency-adoption decision this design doc drove.
 Companion to
 [`2026-07-21-pcr-data-store-design.md`](2026-07-21-pcr-data-store-design.md)
 ("the data-store doc") and
 [`2026-07-22-pcr-orchestrator-design.md`](2026-07-22-pcr-orchestrator-design.md)
 ("the orchestrator doc") — together the three cover the full pipeline from
-Event Grid trigger through to a written `pcr_version` row.
+Event Grid trigger through to a written `cp_version` row.
 
 **Scope:** the ingestion pipeline only — Event Grid subscription → Service
 Bus queue → a raw Azure SDK Service Bus consumer → Results Query Client
 (Redis-first, REST-fallback with a completeness check) → a raw
 hearing/results payload in hand. Stops there. Does **not** cover the
 Decision Engine's per-defendant fan-out or `publishedForNows` eligibility
-filtering, the Transformer, or writing into `pcr_version` — the data-store
+filtering, the Transformer, or writing into `cp_version` — the data-store
 doc covers the target shape of that write, not how a payload gets there.
 
 **Not yet built:** none of this exists in phase 1 — a stateless, synchronous
@@ -75,7 +78,7 @@ flowchart TB
     RQC -->|"GET hearingDetails/internal/{hearingId}"| ResultsAPI["Results Query API"]
 
     GroupCheck -->|"true"| NoPcr["404 — no PCR for any defendant<br/>on this hearing, §3.3a"]
-    GroupCheck -->|"false/null"| Downstream["PcrOrchestrator<br/>(orchestrator doc)"]
+    GroupCheck -->|"false/null"| Downstream["CPResultsPcrOrchestrator<br/>(orchestrator doc)"]
 ```
 
 Sequence for one hearing:
@@ -90,7 +93,7 @@ sequenceDiagram
     participant Redis as Redis Cache
     participant RQC as ResultsClient
     participant API as Results Query API
-    participant Downstream as PcrOrchestrator
+    participant Downstream as CPResultsPcrOrchestrator
 
     Results-->>Grid: Hearing_Resulted (pointer only)
     Grid-->>Bus: routed by Event Grid subscription
@@ -305,14 +308,14 @@ body and has to unwrap it itself:
 
 ```java
 private HearingResultedPointer unwrap(final ServiceBusReceivedMessage message) {
-    final EventGridEnvelope envelope = jsonMapper.fromJson(
-            message.getBody().toString(), EventGridEnvelope.class);
+    final CPHearingResultedEventEnvelope envelope = jsonMapper.fromJson(
+            message.getBody().toString(), CPHearingResultedEventEnvelope.class);
     return new HearingResultedPointer(
             envelope.data().hearingId(), envelope.data().hearingDay(), envelope.data().userId());
 }
 
-record EventGridEnvelope(String eventType, String subject, String eventTime, EventGridData data) {}
-record EventGridData(UUID hearingId, String hearingDay, String userId) {}
+record CPHearingResultedEventEnvelope(String eventType, String subject, String eventTime, CPHearingResultedEventData data) {}
+record CPHearingResultedEventData(UUID hearingId, String hearingDay, String userId) {}
 ```
 
 **Not independently confirmed:** whether a Service-Bus-queue
@@ -437,7 +440,7 @@ any per-defendant work starts — confirmed by reading the full legacy
 orchestrator (`PrisonCourtRegisterOrchestrator/index.js`, no other guard
 anywhere) and the start of `SetPrisonCourtRegister.build()`, which goes
 straight into per-defendant fan-out with no guard of its own. This is the
-correct home for both checks — `PcrOrchestrator` (the orchestrator design
+correct home for both checks — `CPResultsPcrOrchestrator` (the orchestrator design
 doc) begins *after* per-defendant fan-out has already happened, so it
 structurally cannot apply a whole-hearing filter; it would have to apply
 the same check once per defendant, redundantly.
@@ -590,8 +593,8 @@ item; this is a new, separate thing to watch).
 Service Bus is at-least-once delivery. A redelivered message means
 `ResultsIngestionService.ingest(...)` runs again for the same hearing,
 producing the same (or a refreshed) payload a second time. Whatever
-consumes that payload downstream (`PcrOrchestrator`, ultimately writing to
-`pcr_version`) needs to tolerate that — e.g. deduping by
+consumes that payload downstream (`CPResultsPcrOrchestrator`, ultimately writing to
+`cp_version`) needs to tolerate that — e.g. deduping by
 `(source_id, defendant_id)` once `source_id` is populated (data-store doc
 §3), or by some other means for the interim rows written before it is.
 This document doesn't design that dedup mechanism — it's a downstream

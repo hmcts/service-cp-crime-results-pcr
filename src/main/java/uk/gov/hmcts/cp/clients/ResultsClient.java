@@ -17,6 +17,8 @@ public class ResultsClient {
 
     private static final String ACCEPT_HEARING_DETAILS_INTERNAL =
             "application/vnd.results.hearing-details-internal+json";
+    public static final String RESULTS_QUERY_PATH =
+            "/results-query-api/query/api/rest/results/hearingDetails/internal";
 
     private final AppPropertiesBackend appProperties;
     private final RestClient restClient;
@@ -33,6 +35,6 @@ public class ResultsClient {
     }
 
     private String buildUrl(final UUID hearingId) {
-        return String.format("%s%s/%s", appProperties.getResultsQueryUrl(), appProperties.getResultsQueryPath(), hearingId);
+        return String.format("%s%s/%s", appProperties.getResultsQueryUrl(), RESULTS_QUERY_PATH, hearingId);
     }
 }
