@@ -65,7 +65,9 @@ jobs:
           ARTEFACT_VERSION: ${{ needs.Artefact-Version.outputs.artefact_version }}
         run: |
           echo "Building with ARTEFACT_VERSION=$ARTEFACT_VERSION"
+          ./gradlew composeUp
           ./gradlew build -DARTEFACT_VERSION=$ARTEFACT_VERSION
+          ./gradlew composeDown
 
       - name: Extract repo name
         id: repo_vars

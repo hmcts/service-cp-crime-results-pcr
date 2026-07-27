@@ -8,6 +8,9 @@ plugins {
   id 'com.github.ben-manes.versions' version '0.54.0'
   id 'org.cyclonedx.bom' version '3.3.0'
   id 'com.gorylenko.gradle-git-properties' version '4.0.1'
+  // Starts the docker-compose Postgres service before `test` in CI — repository tests need a
+  // real, externally-started Postgres (PostgresInitialise), matching HRDS's established pattern.
+  id 'com.avast.gradle.docker-compose' version '0.17.21'
 }
 
 group = 'uk.gov.hmcts.cp'
@@ -20,6 +23,7 @@ apply {
   from("$rootDir/gradle/pmd.gradle")
   from("$rootDir/gradle/test.gradle")
   from("$rootDir/gradle/jar.gradle")
+  from("$rootDir/gradle/docker-test.gradle")
 }
 
 // We MUST keep all dependencies in the build.gradle to allow dependabot to provide version updates
