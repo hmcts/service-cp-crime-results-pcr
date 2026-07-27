@@ -12,7 +12,7 @@ CREATE TABLE cp_offence (
     plea_value varchar,
     plea_date date,
     verdict_code varchar,
-    -- Polymorphic parent (design doc §1/§3) — exactly one of version_pk/court_application_id is set.
+    -- Exactly one of version_pk/court_application_id is set (design doc §1/§3).
     CONSTRAINT chk_cp_offence_one_parent CHECK (
         (version_pk IS NOT NULL AND court_application_id IS NULL)
         OR (version_pk IS NULL AND court_application_id IS NOT NULL)

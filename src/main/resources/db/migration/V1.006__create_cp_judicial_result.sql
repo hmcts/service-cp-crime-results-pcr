@@ -14,7 +14,7 @@ CREATE TABLE cp_judicial_result (
     fine_amount numeric(12,2),
     imprisonment_period varchar,
     total_custodial_period varchar,
-    -- Polymorphic parent (design doc §3) — exactly one of offence_id/court_application_id is set.
+    -- Exactly one of offence_id/court_application_id is set (design doc §3).
     CONSTRAINT chk_cp_judicial_result_one_parent CHECK (
         (offence_id IS NOT NULL AND court_application_id IS NULL)
         OR (offence_id IS NULL AND court_application_id IS NOT NULL)
