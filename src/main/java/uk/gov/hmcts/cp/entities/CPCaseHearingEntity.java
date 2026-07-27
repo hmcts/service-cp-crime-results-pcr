@@ -15,13 +15,13 @@ import java.time.OffsetDateTime;
 import java.util.UUID;
 
 @Entity
-@Table(name = "pcr_case_hearing")
+@Table(name = "cp_case_hearing")
 @Getter
 @Builder(toBuilder = true)
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode
-public class PcrCaseHearingEntity {
+public class CPCaseHearingEntity {
 
     @Id
     private UUID id;

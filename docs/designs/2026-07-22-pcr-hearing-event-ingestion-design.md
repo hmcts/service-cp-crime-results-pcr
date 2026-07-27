@@ -11,14 +11,14 @@ Companion to
 ("the data-store doc") and
 [`2026-07-22-pcr-orchestrator-design.md`](2026-07-22-pcr-orchestrator-design.md)
 ("the orchestrator doc") — together the three cover the full pipeline from
-Event Grid trigger through to a written `pcr_version` row.
+Event Grid trigger through to a written `cp_version` row.
 
 **Scope:** the ingestion pipeline only — Event Grid subscription → Service
 Bus queue → a raw Azure SDK Service Bus consumer → Results Query Client
 (Redis-first, REST-fallback with a completeness check) → a raw
 hearing/results payload in hand. Stops there. Does **not** cover the
 Decision Engine's per-defendant fan-out or `publishedForNows` eligibility
-filtering, the Transformer, or writing into `pcr_version` — the data-store
+filtering, the Transformer, or writing into `cp_version` — the data-store
 doc covers the target shape of that write, not how a payload gets there.
 
 **Not yet built:** none of this exists in phase 1 — a stateless, synchronous
@@ -594,7 +594,7 @@ Service Bus is at-least-once delivery. A redelivered message means
 `ResultsIngestionService.ingest(...)` runs again for the same hearing,
 producing the same (or a refreshed) payload a second time. Whatever
 consumes that payload downstream (`ResultsPcrOrchestrator`, ultimately writing to
-`pcr_version`) needs to tolerate that — e.g. deduping by
+`cp_version`) needs to tolerate that — e.g. deduping by
 `(source_id, defendant_id)` once `source_id` is populated (data-store doc
 §3), or by some other means for the interim rows written before it is.
 This document doesn't design that dedup mechanism — it's a downstream

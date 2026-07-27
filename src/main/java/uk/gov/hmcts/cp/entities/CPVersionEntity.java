@@ -15,17 +15,17 @@ import java.time.OffsetDateTime;
 import java.util.UUID;
 
 @Entity
-@Table(name = "pcr_version")
+@Table(name = "cp_version")
 @Getter
 @Builder(toBuilder = true)
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode
-public class PcrVersionEntity {
+public class CPVersionEntity {
 
     @Id
-    @Column(name = "pcr_version_pk")
-    private UUID pcrVersionPk;
+    @Column(name = "cp_version_pk")
+    private UUID cpVersionPk;
 
     @Column(name = "source_id")
     private String sourceId;

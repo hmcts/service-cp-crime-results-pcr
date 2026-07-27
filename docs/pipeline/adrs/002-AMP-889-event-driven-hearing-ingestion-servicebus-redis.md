@@ -44,7 +44,7 @@ service:
 
 - This service gains its first genuinely async, at-least-once-delivery code path — idempotency
   on redelivery is a real concern, explicitly handed off to whichever downstream component
-  eventually writes `pcr_version` rows (design doc §4), not solved here.
+  eventually writes `cp_version` rows (design doc §4), not solved here.
 - Local development and CI need a Service Bus emulator and a Redis instance available — not yet
   wired into `docker-compose`/`apitest.gradle` as of this ADR; tracked as a follow-up once the
   emulator-based integration tests land (design doc §5).

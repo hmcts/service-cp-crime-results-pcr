@@ -12,7 +12,7 @@ subscriber.
 
 **Pattern**: Hybrid, mid-build — synchronous stateless proxy (`GET /pcr`) implemented; async
 Service Bus ingestion listener implemented but not yet wired to any persistence; DB-backed
-version store (Postgres/Flyway, immutable `pcr_version` rows) is phase 2 and design-only.
+version store (Postgres/Flyway, immutable `cp_version` rows) is phase 2 and design-only.
 **Spring Boot version**: 4.1.0
 **Implements**: `api-cp-crime-results-pcr` v1.0.3 (`PcrApi` — see `build.gradle`)
 
@@ -24,7 +24,7 @@ version store (Postgres/Flyway, immutable `pcr_version` rows) is phase 2 and des
 - The Service Bus listener (`HearingResultedProcessorService` → `ResultsIngestionService`)
   consumes `Hearing_Resulted`, checks Redis-then-REST for complete hearing data, and
   retries/dead-letters on incompleteness — but **does not persist anything**. There is no data
-  store yet for it to write a `pcr_version` row into.
+  store yet for it to write a `cp_version` row into.
 - The orchestrator (`VocabularyService`, `ResultsPcrOrchestrator`, `NowSubscriptionMatcher`,
   `ReferenceDataClient`) is fully implemented and unit-tested but **not called from anywhere**
   — no controller, service, or listener constructs a `Vocabulary` or invokes
@@ -49,7 +49,7 @@ that looks arbitrary; it likely isn't.
 | Reference Data — `ResultDefinition` | Lookups, offence metadata (e.g. `startDate`) | Not yet built — "to be analysed" per design §8 |
 | Reference Data — `now-subscriptions` | `ReferenceDataClient` (`RestClient`) → `.../referencedata-query-api/.../now-subscriptions?on=<date>`; `NowSubscriptionMatcher` matches the PCR-flagged subset against a `Vocabulary` | Built, unit-tested, **not called** — no caller passes a real `on` date yet (design §7's date-selection strategy is still open) |
 | Generation-gate orchestrator | `VocabularyService` (fact computation) + `ResultsPcrOrchestrator` (`excludePublishedForNows`, `isPrisonCourtRegisterRequired`) | Design §4 scope, confirmed with Common Platform TA per ADR-005/AMP-943 — generation-gate logic only; recipient resolution and Progression submission are explicitly out of scope |
-| Data store | Flyway migrations (`V1`-`V8`), 7 JPA entities (`entities/`), 7 plain `JpaRepository`s (`repositories/`) — no custom query methods, nothing calls them yet | Schema + persistence layer built and `@DataJpaTest`-verified against real Postgres (Testcontainers); **not wired** — no service constructs/reads a `pcr_version` row yet. Encryption (ADR-004) and the version-correlation mechanism (§7) are separate, still-open work |
+| Data store | Flyway migrations (`V1`-`V8`), 7 JPA entities (`entities/`), 7 plain `JpaRepository`s (`repositories/`) — no custom query methods, nothing calls them yet | Schema + persistence layer built and `@DataJpaTest`-verified against real Postgres (Testcontainers); **not wired** — no service constructs/reads a `cp_version` row yet. Encryption (ADR-004) and the version-correlation mechanism (§7) are separate, still-open work |
 | Version lookup / retention | Not implemented | Depends on the phase-2 data store + the still-undecided version-correlation mechanism (§7) |
 
 ## Source Structure
@@ -113,7 +113,7 @@ instead of only living in this file's prose:
   primitive — a real subscription omits a dimension's keys entirely rather than sending `false`
   when it doesn't configure that dimension
 - `domain/orchestrator/Vocabulary` — the eligibility-fact record `VocabularyService` computes;
-  never surfaces in `PcrVersion`/`pcr_version` — it exists only to decide *whether* a PCR is
+  never surfaces in `PcrVersion`/`cp_version` — it exists only to decide *whether* a PCR is
   generated, not to describe its content (design doc §2)
 
 `HearingDetailsResponse`/`HearingResultedPointer` stay in top-level `domain/` — they're genuinely
@@ -123,9 +123,9 @@ shared across all three code paths, unlike the orchestrator-only types above.
 
 Flat entity-per-table mapping, no JPA associations (`@ManyToOne`/`@OneToMany`) — foreign keys
 are plain `UUID` fields, matching `service-cp-crime-hearing-results-document-subscription`'s
-established convention. `pcr_offence`/`pcr_judicial_result`'s polymorphic parent (exactly one of
+established convention. `cp_offence`/`cp_judicial_result`'s polymorphic parent (exactly one of
 two nullable FKs set, design doc §1/§3) is enforced by the DB `CHECK` constraint only, not
-modelled as inheritance in Java. `PcrVersionEntity`'s PII columns (`title`/`firstName`/etc.) are
+modelled as inheritance in Java. `CPVersionEntity`'s PII columns (`title`/`firstName`/etc.) are
 plain `String` today — no `EncryptionService` is wired yet (ADR-004 is a separate piece of work).
 Every repository is a bare `JpaRepository<Entity, UUID>` with no custom query methods — nothing
 calls them yet. `@DataJpaTest` + a Testcontainers Postgres singleton
@@ -166,7 +166,7 @@ exercise persistence.
   all sharing one `masterDefendantId`. Custody location and CPS-prosecuted scan the whole
   hearing by `masterDefendantId` for this reason (orchestrator design doc §2/§7). This is
   orthogonal to the point above: computing *eligibility* against the merged view does not mean
-  the *persisted* `pcr_version` row merges — it stays keyed per `(hearingId, defendantId)`.
+  the *persisted* `cp_version` row merges — it stays keyed per `(hearingId, defendantId)`.
 - **Redis-first, REST-fallback-with-retry is mandatory, not an optimisation** — Redis is written
   synchronously before `Hearing_Resulted` fires (guaranteed populated); the REST viewstore is
   updated asynchronously and can race. Skipping the Redis check reintroduces a real, confirmed
@@ -176,7 +176,7 @@ exercise persistence.
   ingestion path is.
 - **The ingestion listener does not persist anything today.** A successful
   `ResultsIngestionService.ingestHearingResults` call only proves the hearing data is complete
-  and retryable-safe — it does not mean a `pcr_version` row now exists, because there is no data
+  and retryable-safe — it does not mean a `cp_version` row now exists, because there is no data
   store to write to until phase 2 (`docs/designs/2026-07-21-pcr-data-store-design.md`) is implemented.
   Don't wire `GET /pcr` to "whatever the listener last saw" as a shortcut.
 - **Version correlation mechanism is still TBD** (design §7) — three options considered

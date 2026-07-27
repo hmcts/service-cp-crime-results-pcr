@@ -13,13 +13,13 @@ import lombok.NoArgsConstructor;
 import java.util.UUID;
 
 @Entity
-@Table(name = "pcr_judicial_result_prompt")
+@Table(name = "cp_judicial_result_prompt")
 @Getter
 @Builder(toBuilder = true)
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode
-public class PcrJudicialResultPromptEntity {
+public class CPJudicialResultPromptEntity {
 
     @Id
     private UUID id;
