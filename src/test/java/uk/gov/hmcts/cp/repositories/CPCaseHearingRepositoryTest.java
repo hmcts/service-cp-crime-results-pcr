@@ -2,6 +2,7 @@ package uk.gov.hmcts.cp.repositories;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 import uk.gov.hmcts.cp.entities.CPCaseHearingEntity;
 
 import java.time.LocalDate;
@@ -18,8 +19,9 @@ class CPCaseHearingRepositoryTest extends RepositoryIntegrationTestBase {
     private static final UUID HEARING_ID = UUID.fromString("00000000-0000-0000-0000-000000000002");
 
     @Autowired
-    private CPCaseHearingRepository pcrCaseHearingRepository;
+    private CPCaseHearingRepository cpCaseHearingRepository;
 
+    @Transactional
     @Test
     void save_should_persistAndReturnEveryField_whenFindById() {
         final OffsetDateTime createdAt = OffsetDateTime.now(ZoneOffset.UTC).withNano(0);
@@ -34,10 +36,9 @@ class CPCaseHearingRepositoryTest extends RepositoryIntegrationTestBase {
                 .createdAt(createdAt)
                 .build();
 
-        pcrCaseHearingRepository.save(entity);
-        flushAndClear();
+        cpCaseHearingRepository.save(entity);
 
-        final Optional<CPCaseHearingEntity> found = pcrCaseHearingRepository.findById(ID);
+        final Optional<CPCaseHearingEntity> found = cpCaseHearingRepository.findById(ID);
         assertThat(found).isPresent();
         assertThat(found.get().getCaseUrn()).isEqualTo("ABCD1234567");
         assertThat(found.get().getHearingId()).isEqualTo(HEARING_ID);

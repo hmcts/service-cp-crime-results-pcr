@@ -64,20 +64,15 @@ dependencies {
   // of this. Versions come from the Spring Boot BOM.
   implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
   implementation 'org.postgresql:postgresql'
+  // spring-boot-starter-flyway wires FlywayAutoConfiguration (the bean that actually runs
+  // migrations at startup) — depending on the raw Flyway libraries alone compiles fine but
+  // silently never runs a single migration, in production or in tests. flyway-database-postgresql
+  // is still needed explicitly alongside it — the Postgres dialect plugin isn't pulled in by the
+  // starter on its own (Flyway 10+ moved per-database support into separate opt-in modules).
+  // Same three-dependency combination as service-cp-crime-hearing-results-document-subscription.
+  implementation 'org.springframework.boot:spring-boot-starter-flyway'
   implementation 'org.flywaydb:flyway-core'
   implementation 'org.flywaydb:flyway-database-postgresql'
-  // @DataJpaTest/@AutoConfigureTestDatabase — Spring Boot 4's per-starter test-slice module,
-  // not bundled in spring-boot-starter-test.
-  testImplementation 'org.springframework.boot:spring-boot-starter-data-jpa-test'
-  // Flyway's own test-slice autoconfiguration — without this, @DataJpaTest never runs the
-  // migrations against the real Postgres container, so entity/schema mismatches go undetected.
-  testImplementation 'org.springframework.boot:spring-boot-starter-flyway-test'
-  // Real Postgres in @DataJpaTest — proves Flyway migrations and JPA entities actually agree,
-  // which an in-memory H2 substitute can't (no way to fake Postgres-specific DDL/constraints).
-  // Explicit version — io.spring.dependency-management doesn't apply the Spring Boot BOM's
-  // nested testcontainers-bom import automatically.
-  testImplementation 'org.testcontainers:postgresql:1.21.4'
-  testImplementation 'org.testcontainers:junit-jupiter:1.21.4'
 
   // --- Hearing event ingestion (docs/designs/2026-07-22-pcr-hearing-event-ingestion-design.md) ---
   // Raw Azure SDK Service Bus client — consumes Hearing_Resulted off the self-provisioned

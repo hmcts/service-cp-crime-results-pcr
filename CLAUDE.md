@@ -49,7 +49,7 @@ that looks arbitrary; it likely isn't.
 | Reference Data — `ResultDefinition` | Lookups, offence metadata (e.g. `startDate`) | Not yet built — "to be analysed" per design §8 |
 | Reference Data — `now-subscriptions` | `ReferenceDataClient` (`RestClient`) → `.../referencedata-query-api/.../now-subscriptions?on=<date>`; `NowSubscriptionMatcher` matches the PCR-flagged subset against a `Vocabulary` | Built, unit-tested, **not called from anywhere yet**, but `ResultsPcrOrchestrator.isPrisonCourtRegisterRequired` now derives `on` itself from `eligibleResults` (design §7's `getOrderedDate` quirk, faithfully ported) — no external caller needs to supply a date anymore |
 | Generation-gate orchestrator | `VocabularyService` (fact computation) + `ResultsPcrOrchestrator` (`excludePublishedForNows`, `isPrisonCourtRegisterRequired`) | Design §4 scope, confirmed with Common Platform TA per ADR-005/AMP-943 — generation-gate logic only; recipient resolution and Progression submission are explicitly out of scope |
-| Data store | Flyway migrations (`V1`-`V8`), 7 JPA entities (`entities/`), 7 plain `JpaRepository`s (`repositories/`) — no custom query methods, nothing calls them yet | Schema + persistence layer built and `@DataJpaTest`-verified against real Postgres (Testcontainers); **not wired** — no service constructs/reads a `cp_version` row yet. Encryption (ADR-004) and the version-correlation mechanism (§7) are separate, still-open work |
+| Data store | Flyway migrations (`V1.001`-`V1.008`), 7 JPA entities (`entities/`), 7 plain `JpaRepository`s (`repositories/`) — no custom query methods, nothing calls them yet | Schema + persistence layer built and integration-tested against a real, manually-started Postgres (`PostgresInitialise`, same pattern as HRDS); **not wired** — no service constructs/reads a `cp_version` row yet. Encryption (ADR-004) and the version-correlation mechanism (§7) are separate, still-open work |
 | Version lookup / retention | Not implemented | Depends on the phase-2 data store + the still-undecided version-correlation mechanism (§7) |
 
 ## Source Structure
@@ -131,15 +131,18 @@ two nullable FKs set, design doc §1/§3) is enforced by the DB `CHECK` constrai
 modelled as inheritance in Java. `CPVersionEntity`'s PII columns (`title`/`firstName`/etc.) are
 plain `String` today — no `EncryptionService` is wired yet (ADR-004 is a separate piece of work).
 Every repository is a bare `JpaRepository<Entity, UUID>` with no custom query methods — nothing
-calls them yet. `@DataJpaTest` + a Testcontainers Postgres singleton
-(`repositories/RepositoryIntegrationTestBase`) proves Flyway/JPA column alignment for real; this
-needed two extra test-only dependencies Spring Boot 4 splits out per starter
-(`spring-boot-starter-data-jpa-test`, `spring-boot-starter-flyway-test`) that aren't bundled in
-`spring-boot-starter-test`. Adding `spring-boot-starter-data-jpa` to the main classpath made
-every full-context `@SpringBootTest` (`IntegrationTestBase` subclasses, `ActuatorIntegrationTest`)
-eagerly connect to `application.yaml`'s real (non-existent locally/in-CI) Postgres URL at
-startup — both now exclude `DataSourceAutoConfiguration` to avoid it, since none of them
-exercise persistence.
+calls them yet. Proven against a real Postgres, not an in-memory substitute — same pattern as
+`service-cp-crime-hearing-results-document-subscription`: full `@SpringBootTest` +
+`PostgresInitialise` (`integration/config/PostgresInitialise.java`, a `TestPropertyValues`-based
+`ApplicationContextInitializer` asserting `jdbc:postgresql://localhost:5432/pcrdb` is reachable
+before the context boots), not `@DataJpaTest`/Testcontainers — that was tried first but abandoned
+in favour of matching the established org convention. Needs a real Postgres running locally with
+a `pcrdb` database created (`docker compose up -d postgres`, service added to this repo's
+`docker-compose.yml`, or a native install) — there's no self-contained fallback.
+`spring-boot-starter-flyway` (not just raw `flyway-core`/`flyway-database-postgresql`) is
+required for `FlywayAutoConfiguration` to exist at all — without it, migrations silently never
+run, in production or in tests; discovered the hard way when repository tests failed with
+`relation "cp_case_hearing" does not exist` despite Flyway configuration looking correct.
 
 ## Environment Variables
 
@@ -222,7 +225,7 @@ exercise persistence.
 | `GET /pcr` returns an incomplete or empty `prosecutionCases` hearing | Expected today — `ResultsPcrService` has no completeness gate or retry; only the async ingestion listener (`ResultsIngestionService.isComplete`) guards against viewstore lag, and the two paths are independent (see Status above) |
 | Retry logic assumes REST fallback fails cleanly on a race | Unconfirmed assumption per design §4b/§13 item 2 — verify against the Results team's actual code before relying on it |
 | Service Bus emulator / Redis not available locally | Not yet wired into `docker-compose.yml` or an `apitest.gradle` project (ADR-002 consequence) — `docker-compose.yml` only starts the `app` container today |
-| `repositories/*RepositoryTest` fails/hangs with no clear error | Needs a running Docker daemon — Testcontainers starts a real `postgres:16-alpine` container per test JVM. Not wired into `docker-compose.yml`; runs standalone via plain `./gradlew test` |
+| `repositories/*RepositoryTest` fails with `PSQLException`/`does not exist` | Needs a real Postgres reachable at `localhost:5432` with a `pcrdb` database already created — start it via `docker compose up -d postgres` (service defined in this repo's `docker-compose.yml`) before running `./gradlew test`; `PostgresInitialise` fails fast with instructions if it's unreachable |
 
 ## Repo-Specific Notes
 

@@ -2,6 +2,7 @@ package uk.gov.hmcts.cp.repositories;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 import uk.gov.hmcts.cp.entities.NextHearingEmbeddable;
 import uk.gov.hmcts.cp.entities.CPCaseHearingEntity;
 import uk.gov.hmcts.cp.entities.CPVersionEntity;
@@ -23,14 +24,15 @@ class CPVersionRepositoryTest extends RepositoryIntegrationTestBase {
     private static final UUID NEXT_HEARING_ID = UUID.fromString("00000000-0000-0000-0000-000000000007");
 
     @Autowired
-    private CPCaseHearingRepository pcrCaseHearingRepository;
+    private CPCaseHearingRepository cpCaseHearingRepository;
 
     @Autowired
-    private CPVersionRepository pcrVersionRepository;
+    private CPVersionRepository cpVersionRepository;
 
+    @Transactional
     @Test
     void save_should_persistAndReturnEveryField_whenFindById() {
-        pcrCaseHearingRepository.save(CPCaseHearingEntity.builder()
+        cpCaseHearingRepository.save(CPCaseHearingEntity.builder()
                 .id(CASE_HEARING_ID)
                 .caseUrn("ABCD1234567")
                 .hearingId(UUID.fromString("00000000-0000-0000-0000-000000000002"))
@@ -68,10 +70,9 @@ class CPVersionRepositoryTest extends RepositoryIntegrationTestBase {
                 .postCode("encrypted-postcode")
                 .build();
 
-        pcrVersionRepository.save(entity);
-        flushAndClear();
+        cpVersionRepository.save(entity);
 
-        final Optional<CPVersionEntity> found = pcrVersionRepository.findById(VERSION_PK);
+        final Optional<CPVersionEntity> found = cpVersionRepository.findById(VERSION_PK);
         assertThat(found).isPresent();
         final CPVersionEntity actual = found.get();
         assertThat(actual.getSourceId()).isEqualTo("SRC-1");

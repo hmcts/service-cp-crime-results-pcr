@@ -2,6 +2,7 @@ package uk.gov.hmcts.cp.repositories;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 import uk.gov.hmcts.cp.entities.CPCaseHearingEntity;
 import uk.gov.hmcts.cp.entities.CPCaseMarkerEntity;
 
@@ -18,14 +19,15 @@ class CPCaseMarkerRepositoryTest extends RepositoryIntegrationTestBase {
     private static final UUID MARKER_ID = UUID.fromString("00000000-0000-0000-0000-000000000003");
 
     @Autowired
-    private CPCaseHearingRepository pcrCaseHearingRepository;
+    private CPCaseHearingRepository cpCaseHearingRepository;
 
     @Autowired
-    private CPCaseMarkerRepository pcrCaseMarkerRepository;
+    private CPCaseMarkerRepository cpCaseMarkerRepository;
 
+    @Transactional
     @Test
     void save_should_persistAndReturnEveryField_whenFindById() {
-        pcrCaseHearingRepository.save(CPCaseHearingEntity.builder()
+        cpCaseHearingRepository.save(CPCaseHearingEntity.builder()
                 .id(CASE_HEARING_ID)
                 .caseUrn("ABCD1234567")
                 .hearingId(UUID.fromString("00000000-0000-0000-0000-000000000002"))
@@ -39,10 +41,9 @@ class CPCaseMarkerRepositoryTest extends RepositoryIntegrationTestBase {
                 .description("Domestic violence case marker")
                 .build();
 
-        pcrCaseMarkerRepository.save(entity);
-        flushAndClear();
+        cpCaseMarkerRepository.save(entity);
 
-        final Optional<CPCaseMarkerEntity> found = pcrCaseMarkerRepository.findById(MARKER_ID);
+        final Optional<CPCaseMarkerEntity> found = cpCaseMarkerRepository.findById(MARKER_ID);
         assertThat(found).isPresent();
         assertThat(found.get().getCaseHearingId()).isEqualTo(CASE_HEARING_ID);
         assertThat(found.get().getCode()).isEqualTo("DV");
