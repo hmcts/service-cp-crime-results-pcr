@@ -9,6 +9,7 @@ import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import uk.gov.hmcts.cp.services.ResultsIngestionService;
+import uk.gov.hmcts.cp.services.ResultsPcrService;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -28,6 +29,11 @@ class ActuatorIntegrationTest {
 
     @MockitoBean
     private ResultsIngestionService resultsIngestionService;
+
+    // Same reason as resultsIngestionService above — ResultsPcrService is now repository-backed
+    // and DataSourceAutoConfiguration is excluded here (see IntegrationTestBase).
+    @MockitoBean
+    private ResultsPcrService resultsPcrService;
 
     @Test
     void actuator_info_should_have_build_fields() throws Exception {

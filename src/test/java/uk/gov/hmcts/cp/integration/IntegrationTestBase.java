@@ -12,6 +12,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import uk.gov.hmcts.cp.config.AppPropertiesBackend;
 import uk.gov.hmcts.cp.services.ResultsIngestionService;
+import uk.gov.hmcts.cp.services.ResultsPcrService;
 
 import java.net.URL;
 import java.nio.file.Files;
@@ -38,6 +39,12 @@ public abstract class IntegrationTestBase {
 
     @MockitoBean
     ResultsIngestionService resultsIngestionService;
+
+    // ResultsPcrService is now repository-backed (7 JpaRepository constructor deps) — with
+    // DataSourceAutoConfiguration excluded above, those beans don't exist, so ResultsPcrController
+    // can't be constructed for real. Mocked for the same reason resultsIngestionService is.
+    @MockitoBean
+    ResultsPcrService resultsPcrService;
 
     @SneakyThrows
     protected String readResourceContents(final String resourceName) {
