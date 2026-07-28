@@ -165,6 +165,9 @@ public class HearingDetailsResponse {
     @NoArgsConstructor
     @Getter
     public static class Offence {
+        // Confirmed present on CP's own hearing payload — see V1.009 migration comment for why
+        // it's retained as source_offence_id, not the primary key.
+        private String id;
         private String offenceCode;
         private Integer listingNumber;
         private LocalDate startDate;
