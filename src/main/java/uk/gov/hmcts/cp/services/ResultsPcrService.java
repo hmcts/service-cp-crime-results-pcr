@@ -3,6 +3,7 @@ package uk.gov.hmcts.cp.services;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.cp.entities.CPCaseHearingEntity;
+import uk.gov.hmcts.cp.entities.CPCaseMarkerEntity;
 import uk.gov.hmcts.cp.entities.CPCourtApplicationEntity;
 import uk.gov.hmcts.cp.entities.CPJudicialResultEntity;
 import uk.gov.hmcts.cp.entities.CPJudicialResultPromptEntity;
@@ -42,22 +43,25 @@ public class ResultsPcrService {
     }
 
     private List<PcrHearingResult> toResults(final CPCaseHearingEntity caseHearing, final UUID defendantId) {
+        final List<CPCaseMarkerEntity> caseMarkers = caseMarkerRepository.findByCaseHearingId(caseHearing.getId());
         return versionRepository.findByCaseHearingIdAndDefendantIdOrderByCreatedAtAsc(caseHearing.getId(), defendantId).stream()
-                .map(version -> toPcrHearingResult(caseHearing, version))
+                .map(version -> toPcrHearingResult(caseHearing, version, caseMarkers))
                 .toList();
     }
 
-    private PcrHearingResult toPcrHearingResult(final CPCaseHearingEntity caseHearing, final CPVersionEntity version) {
+    private PcrHearingResult toPcrHearingResult(final CPCaseHearingEntity caseHearing, final CPVersionEntity version,
+                                                 final List<CPCaseMarkerEntity> caseMarkers) {
         final List<CPCourtApplicationEntity> courtApplications = courtApplicationRepository.findByVersionPk(version.getCpVersionPk());
         final List<CPOffenceEntity> offences = allOffences(version.getCpVersionPk(), courtApplications);
+        final List<CPJudicialResultEntity> judicialResults = allJudicialResults(offences, courtApplications);
         return mapper.toPcrHearingResult(
                 caseHearing,
                 version,
-                caseMarkerRepository.findByCaseHearingId(caseHearing.getId()),
+                caseMarkers,
                 courtApplications,
                 offences,
-                allJudicialResults(offences, courtApplications),
-                allPrompts(offences, courtApplications));
+                judicialResults,
+                allPrompts(judicialResults));
     }
 
     private List<CPOffenceEntity> allOffences(final UUID versionPk, final List<CPCourtApplicationEntity> courtApplications) {
@@ -76,9 +80,8 @@ public class ResultsPcrService {
         return Stream.concat(offenceResults, applicationResults).toList();
     }
 
-    private List<CPJudicialResultPromptEntity> allPrompts(
-            final List<CPOffenceEntity> offences, final List<CPCourtApplicationEntity> courtApplications) {
-        return allJudicialResults(offences, courtApplications).stream()
+    private List<CPJudicialResultPromptEntity> allPrompts(final List<CPJudicialResultEntity> judicialResults) {
+        return judicialResults.stream()
                 .flatMap(r -> judicialResultPromptRepository.findByJudicialResultId(r.getId()).stream())
                 .toList();
     }
