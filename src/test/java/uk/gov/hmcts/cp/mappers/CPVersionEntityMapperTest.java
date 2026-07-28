@@ -300,7 +300,7 @@ class CPVersionEntityMapperTest {
 
         assertThat(bundle.courtApplications()).hasSize(1);
         final CPCourtApplicationEntity applicationEntity = bundle.courtApplications().get(0);
-        assertThat(applicationEntity.getId()).isEqualTo(UUID.fromString("a9b8c7d6-e5f4-4321-9876-0a1b2c3d4e5f"));
+        assertThat(applicationEntity.getId()).isNotNull();
         assertThat(applicationEntity.getVersionPk()).isEqualTo(bundle.version().getCpVersionPk());
         assertThat(applicationEntity.getReference()).isEqualTo("REF1");
         assertThat(bundle.offences()).hasSize(1);
@@ -312,6 +312,38 @@ class CPVersionEntityMapperTest {
                 .filter(r -> "APP1".equals(r.getResultCode())).findFirst().orElseThrow();
         assertThat(applicationLevelResult.getCourtApplicationId()).isEqualTo(applicationEntity.getId());
         assertThat(applicationLevelResult.getOffenceId()).isNull();
+    }
+
+    @Test
+    void toWriteBundle_should_generateDistinctCourtApplicationIds_whenTwoDefendantsShareTheSameApplication() {
+        final CourtApplication application = CourtApplication.builder()
+                .id("a9b8c7d6-e5f4-4321-9876-0a1b2c3d4e5f")
+                .applicationReference("REF1").type("Bail")
+                .respondents(List.of(Respondent.builder().masterDefendantId(MASTER_DEFENDANT_ID).build()))
+                .courtApplicationCases(List.of())
+                .judicialResults(List.of())
+                .build();
+        final HearingDetail hearing = HearingDetail.builder().courtApplications(List.of(application)).build();
+        final Defendant defendantA = Defendant.builder()
+                .id(DEFENDANT_ID.toString())
+                .masterDefendantId(MASTER_DEFENDANT_ID)
+                .personDefendant(PersonDefendant.builder().build())
+                .offences(List.of())
+                .build();
+        final Defendant defendantB = Defendant.builder()
+                .id("44444444-4444-4444-4444-444444444444")
+                .masterDefendantId(MASTER_DEFENDANT_ID)
+                .personDefendant(PersonDefendant.builder().build())
+                .offences(List.of())
+                .build();
+
+        final CPVersionWriteBundle bundleA = mapper.toWriteBundle(defendantA, hearing, CASE_HEARING_ID, CREATED_AT, EXPIRES_AT);
+        final CPVersionWriteBundle bundleB = mapper.toWriteBundle(defendantB, hearing, CASE_HEARING_ID, CREATED_AT, EXPIRES_AT);
+
+        assertThat(bundleA.courtApplications().get(0).getId())
+                .isNotEqualTo(bundleB.courtApplications().get(0).getId());
+        assertThat(bundleA.courtApplications().get(0).getVersionPk()).isEqualTo(bundleA.version().getCpVersionPk());
+        assertThat(bundleB.courtApplications().get(0).getVersionPk()).isEqualTo(bundleB.version().getCpVersionPk());
     }
 
     private ProsecutionCase minimalProsecutionCase() {

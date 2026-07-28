@@ -182,7 +182,7 @@ public class CPVersionEntityMapper {
 
     private CPCourtApplicationEntity toCourtApplicationEntity(final CourtApplication application, final UUID versionPk) {
         return CPCourtApplicationEntity.builder()
-                .id(UUID.fromString(application.getId()))
+                .id(UUID.randomUUID()) // surrogate — one row per version, CP's real application id can repeat across versions (design doc §4.3) so can't be the PK
                 .versionPk(versionPk)
                 .reference(application.getApplicationReference())
                 .type(application.getType())
