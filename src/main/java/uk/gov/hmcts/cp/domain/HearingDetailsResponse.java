@@ -116,9 +116,10 @@ public class HearingDetailsResponse {
     @NoArgsConstructor
     @Getter
     public static class PersonDefendant {
-        // Deliberately no name/DOB/address here — consumers resolve defendant identity
-        // via defendantId/masterDefendantId against their own systems (e.g. NOMIS).
         private CustodialEstablishment custodialEstablishment;
+        // personDetails: confirmed present on CP's own hearing payload (ADR-004, updated
+        // 28 Jul 2026) — no longer "deliberately absent".
+        private PersonDetails personDetails;
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
@@ -130,6 +131,32 @@ public class HearingDetailsResponse {
         private String id;
         private String name;
         private String custody;
+    }
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Getter
+    public static class PersonDetails {
+        private String title;
+        private String firstName;
+        private String middleName;
+        private String lastName;
+        private LocalDate dateOfBirth;
+        private Address address;
+    }
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Getter
+    public static class Address {
+        private String address1;
+        private String address2;
+        private String address3;
+        private String postcode;
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
@@ -159,6 +186,9 @@ public class HearingDetailsResponse {
         // publishedForNows: the PCR eligibility flag (orchestrator design doc §3) — boxed,
         // not primitive, see CourtCentre.welshCourtCentre for why.
         private Boolean publishedForNows;
+        // orderedDate: sourced for the persistence-wiring design's resolveActiveAt (design
+        // doc §4.2) — needs a real fixture check, same caveat as publishedForNows was under.
+        private LocalDate orderedDate;
         private NextHearing nextHearing;
         private List<JudicialResultPrompt> judicialResultPrompts;
     }
