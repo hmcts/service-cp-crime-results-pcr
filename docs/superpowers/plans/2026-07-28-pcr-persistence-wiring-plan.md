@@ -8,7 +8,7 @@
 
 **Tech Stack:** Spring Boot 4.1.0, Spring Data JPA (existing entities/repositories, no schema change), JUnit 5 + Mockito, `PostgresInitialise`-based integration tests (already established in this repo) — no new dependencies.
 
-**Design doc:** `docs/superpowers/specs/2026-07-28-pcr-persistence-wiring-design.md` — read in full before starting; every task below implements one part of it.
+**Design doc:** `docs/designs/2026-07-28-pcr-persistence-wiring-design.md` — read in full before starting; every task below implements one part of it.
 
 ## Global Constraints
 
