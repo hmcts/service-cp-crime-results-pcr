@@ -10,31 +10,36 @@ as a new pull-based read channel for API Marketplace subscribers. The contract i
 to any single consumer's stated needs — decisions here apply platform-wide, not to one
 subscriber.
 
-**Pattern**: Hybrid, mid-build — synchronous stateless proxy (`GET /pcr`) implemented; async
-Service Bus ingestion listener implemented but not yet wired to any persistence; DB-backed
-version store (Postgres/Flyway, immutable `cp_version` rows) is phase 2 and design-only.
+**Pattern**: Hybrid — synchronous stateless proxy (`GET /pcr`) implemented; async Service Bus
+ingestion listener now wired end-to-end into the DB-backed version store (Postgres/Flyway,
+`cp_version` rows), gated by the orchestrator's generation check.
 **Spring Boot version**: 4.1.0
 **Implements**: `api-cp-crime-results-pcr` v1.0.3 (`PcrApi` — see `build.gradle`)
 
-**Status**: Three independent code paths exist and do not yet talk to each other:
+**Status**: `GET /pcr` remains an independent code path; the ingestion listener now drives the
+orchestrator and the data store as one connected pipeline:
 - `GET /pcr/.../{version}` (`ResultsPcrController` → `ResultsPcrService`) calls `ResultsClient`
   synchronously on every request. It never reads Redis, never goes through the ingestion
   listener, and has no completeness gate — it returns whatever the Results Query API has *right
-  now*, even mid-race. Only `version=latest` is supported; any other value is `501`.
+  now*, even mid-race. Only `version=latest` is supported; any other value is `501`. This is
+  unchanged by the persistence wiring below — it's a separate follow-on
+  (`docs/designs/2026-07-28-pcr-persistence-wiring-design.md`).
 - The Service Bus listener (`HearingResultedProcessorService` → `ResultsIngestionService`)
-  consumes `Hearing_Resulted`, checks Redis-then-REST for complete hearing data, and
-  retries/dead-letters on incompleteness — but **does not persist anything**. There is no data
-  store yet for it to write a `cp_version` row into.
+  consumes `Hearing_Resulted`, checks Redis-then-REST for complete hearing data, retries/
+  dead-letters on incompleteness, and — via `ResultsIngestionService.ingestAndPersist` — now
+  **does persist**: for each defendant it invokes the orchestrator's generation gate, then
+  find-or-creates a `cp_case_hearing` row and writes a `cp_version` row (plus its offences,
+  court applications, judicial results, and prompts) through the repository layer.
 - The orchestrator (`CPVocabularyService`, `CPResultsPcrOrchestrator`, `CPNowSubscriptionMatcher`,
-  `ReferenceDataClient`) is fully implemented and unit-tested but **not called from anywhere**
-  — no controller, service, or listener constructs a `CPVocabulary` or invokes
-  `isPrisonCourtRegisterRequired` yet. It exists ahead of wiring, same pattern as the phase-2
-  Flyway migrations.
+  `ReferenceDataClient`) is now called — `ResultsIngestionService.ingestAndPersist` computes a
+  `CPVocabulary` per defendant and invokes `isPrisonCourtRegisterRequired` to decide whether a
+  `cp_version` row gets written at all. It is still not called from `ResultsPcrController` or
+  `ResultsPcrService` — `GET /pcr` is unaffected.
 
 Read `docs/designs/2026-07-16-pcr-api-marketplace-design-v2.md` (authoritative architecture) plus the
-four dated follow-on design docs in `docs/designs/` before adding any component, not just this file —
+five dated follow-on design docs in `docs/designs/` before adding any component, not just this file —
 each one is a deeper design pass on one layer (stateless-proxy phase 1, data store phase 2,
-hearing-event ingestion, orchestrator) and states its own scope/status at the top.
+hearing-event ingestion, orchestrator, persistence wiring) and states its own scope/status at the top.
 `docs/pipeline/adrs/` records the decisions behind each layer, tagged with their Jira ticket
 (AMP-888 parent epic through AMP-943) — read the relevant ADR before revisiting a decision
 that looks arbitrary; it likely isn't.
@@ -47,9 +52,9 @@ that looks arbitrary; it likely isn't.
 | Results Query Client | `HearingResultedCacheClient` (Redis, read-only `StringRedisTemplate`) first, `ResultsClient` (`RestClient`) REST fallback against `results-query-api/.../hearingDetails/internal/{hearingId}` | Two-step retrieval per design §4a/4b — **ingestion path only**; the synchronous `GET /pcr` path skips Redis entirely |
 | Retry/escalation | `RetryServiceConfig` (`service-bus.retry-durations`/`max-tries`) + `ResultsIngestionService.escalateOrDeadLetter` | On `IncompleteHearingDetailsException`, schedules Service Bus redelivery (`ServiceBusSenderClient`) with increasing backoff; dead-letters once `max-tries` is exceeded |
 | Reference Data — `ResultDefinition` | Lookups, offence metadata (e.g. `startDate`) | Not yet built — "to be analysed" per design §8 |
-| Reference Data — `now-subscriptions` | `ReferenceDataClient` (`RestClient`) → `.../referencedata-query-api/.../now-subscriptions?on=<date>`; `CPNowSubscriptionMatcher` matches the PCR-flagged subset against a `CPVocabulary` | Built, unit-tested, **not called** — no caller passes a real `on` date yet (design §7's date-selection strategy is still open) |
-| Generation-gate orchestrator | `CPVocabularyService` (fact computation) + `CPResultsPcrOrchestrator` (`excludePublishedForNows`, `isPrisonCourtRegisterRequired`) | Design §4 scope, confirmed with Common Platform TA per ADR-005/AMP-943 — generation-gate logic only; recipient resolution and Progression submission are explicitly out of scope |
-| Data store | Flyway migrations (`V1.001`-`V1.008`), 7 JPA entities (`entities/`), 7 plain `JpaRepository`s (`repositories/`) — no custom query methods, nothing calls them yet | Schema + persistence layer built and integration-tested against a real, manually-started Postgres (`PostgresInitialise`, same pattern as HRDS); **not wired** — no service constructs/reads a `cp_version` row yet. Encryption (ADR-004) and the version-correlation mechanism (§7) are separate, still-open work |
+| Reference Data — `now-subscriptions` | `ReferenceDataClient` (`RestClient`) → `.../referencedata-query-api/.../now-subscriptions?on=<date>`; `CPNowSubscriptionMatcher` matches the PCR-flagged subset against a `CPVocabulary` | Now called from `ResultsIngestionService.ingestAndPersist`, once per hearing, using the first `JudicialResult.orderedDate` found on the hearing as `on` — a provisional stand-in, not the confirmed date-selection strategy from design §7 |
+| Generation-gate orchestrator | `CPVocabularyService` (fact computation) + `CPResultsPcrOrchestrator` (`excludePublishedForNows`, `isPrisonCourtRegisterRequired`) | Design §4 scope, confirmed with Common Platform TA per ADR-005/AMP-943 — generation-gate logic only; recipient resolution and Progression submission are explicitly out of scope. Now called from `ResultsIngestionService.ingestAndPersist`, gating whether a `cp_version` row gets written per defendant |
+| Data store | Flyway migrations (`V1.001`-`V1.008`), 7 JPA entities (`entities/`), 7 plain `JpaRepository`s (`repositories/`) | Schema + persistence layer built and integration-tested against a real, manually-started Postgres (`PostgresInitialise`, same pattern as HRDS). Now wired — `ResultsIngestionService.ingestAndPersist` writes `cp_case_hearing`/`cp_version` (and dependent) rows via the repository layer once the orchestrator's gate passes. Encryption (ADR-004) and the version-correlation mechanism (§7) are separate, still-open work |
 | Version lookup / retention | Not implemented | Depends on the phase-2 data store + the still-undecided version-correlation mechanism (§7) |
 
 ## Source Structure
@@ -59,7 +64,9 @@ that looks arbitrary; it likely isn't.
 - `services/ResultsPcrService` — synchronous version lookup; `501`s on any `version` other than
   `latest`; `404`s if the case/defendant isn't found on the hearing
 - `services/ResultsIngestionService` — Redis-then-REST hearing lookup, completeness check
-  (`prosecutionCases` non-empty), retry/escalation via Service Bus
+  (`prosecutionCases` non-empty), retry/escalation via Service Bus; `ingestAndPersist` additionally
+  runs the orchestrator's generation gate per defendant and writes the `cp_version` write-graph
+  via the repository layer
 - `servicebus/services/HearingResultedProcessorService` — `ServiceBusProcessorClient` message
   loop; unwraps `CPHearingResultedEventEnvelope`, dead-letters on malformed payload or unrecoverable failure
 - `servicebus/model/CPHearingResultedEventEnvelope`, `CPHearingResultedEventData` — Event Grid message shape; pointer
@@ -84,12 +91,13 @@ that looks arbitrary; it likely isn't.
 
 ### The `orchestrator` sub-package (`services/orchestrator/`, `clients/orchestrator/`, `domain/orchestrator/`)
 
-Every class here is built and unit-tested but **not called from `ResultsPcrController`,
-`ResultsPcrService`, or the Service Bus listener** — it exists ahead of wiring, same status as
-the phase-2 Flyway migrations. It's sub-packaged (not a new top-level layer — every sibling
-`service-cp-*` repo's `controllers/services/clients/domain` shape stays intact) specifically so
-this "not wired in yet" boundary is visible in the directory listing and import statements
-instead of only living in this file's prose:
+Every class here is built and unit-tested and is now called from `ResultsIngestionService`
+(invoked by the Service Bus listener via `ingestAndPersist`) — but still **not called from
+`ResultsPcrController` or `ResultsPcrService`**; `GET /pcr` is unaffected by this wiring. It's
+sub-packaged (not a new top-level layer — every sibling `service-cp-*` repo's
+`controllers/services/clients/domain` shape stays intact) specifically so this boundary stays
+visible in the directory listing and import statements instead of only living in this file's
+prose:
 
 - `services/orchestrator/CPVocabularyService` — computes `CPVocabulary` (custody, custodial-result,
   CPS, age-group, court-language facts) from a defendant + hearing; merges custody/CPS scan
@@ -101,9 +109,10 @@ instead of only living in this file's prose:
   fails closed when unconfigured except `applySubscriptionRules == false`; attendance matching
   is stubbed (any-flag-only) pending a confirmed `hearing.defendantAttendance` source
 - `services/orchestrator/CPResultsPcrOrchestrator` — `excludePublishedForNows` (plain-field content
-  filter) and `isPrisonCourtRegisterRequired` (the generation gate: fetches subscriptions via
-  `ReferenceDataClient`, filters to `isPrisonCourtRegisterSubscription`, matches via
-  `CPNowSubscriptionMatcher`)
+  filter); `fetchPrisonCourtRegisterSubscriptions` (fetches via `ReferenceDataClient`, filters to
+  `isPrisonCourtRegisterSubscription` — called once per hearing, not per defendant, since
+  `activeAt` is hearing-wide) and `isPrisonCourtRegisterRequired` (the generation gate: matches
+  the already-fetched subscriptions via `CPNowSubscriptionMatcher`)
 - `clients/orchestrator/ReferenceDataClient` — `RestClient` call to Reference Data's
   `now-subscriptions` endpoint; deliberately generic (`CPNowSubscription`/`SubscriptionVocabulary`),
   not PCR-specific — the same config backs other distribution-channel kinds (NOW/EDT/informant/
@@ -128,8 +137,10 @@ two nullable FKs set, design doc §1/§3) is enforced by the DB `CHECK` constrai
 modelled as inheritance in Java. `CPVersionEntity`'s PII columns (`title`/`firstName`/etc.) are
 plain values today — `dateOfBirth` a real `LocalDate`, the rest `String` — no `EncryptionService`
 is wired yet; encryption at rest (ADR-004) is deferred to a future phase, not this one.
-Every repository is a bare `JpaRepository<Entity, UUID>` with no custom query methods — nothing
-calls them yet. Proven against a real Postgres, not an in-memory substitute — same pattern as
+Every repository is a bare `JpaRepository<Entity, UUID>` — `CPCaseHearingRepository` now also has
+`findByCaseUrnAndHearingId` (a real custom query method, added to support find-or-create), and
+all 7 repositories are now called from `ResultsIngestionService.ingestAndPersist`. Proven against
+a real Postgres, not an in-memory substitute — same pattern as
 `service-cp-crime-hearing-results-document-subscription`: full `@SpringBootTest` +
 `PostgresInitialise` (`integration/config/PostgresInitialise.java`, a `TestPropertyValues`-based
 `ApplicationContextInitializer` asserting `jdbc:postgresql://localhost:5432/pcrdb` is reachable
@@ -178,11 +189,13 @@ run, in production or in tests; discovered the hard way when repository tests fa
   ingestion listener only** — `GET /pcr` (`ResultsPcrService`) does not check Redis and has no
   completeness gate; don't assume the synchronous endpoint is race-safe just because the
   ingestion path is.
-- **The ingestion listener does not persist anything today.** A successful
-  `ResultsIngestionService.ingestHearingResults` call only proves the hearing data is complete
-  and retryable-safe — it does not mean a `cp_version` row now exists, because there is no data
-  store to write to until phase 2 (`docs/designs/2026-07-21-pcr-data-store-design.md`) is implemented.
-  Don't wire `GET /pcr` to "whatever the listener last saw" as a shortcut.
+- **The ingestion listener now persists, via `ResultsIngestionService.ingestAndPersist`** — see
+  `docs/designs/2026-07-28-pcr-persistence-wiring-design.md`. A successful
+  `ingestHearingResults` call only proves the hearing data is complete and retryable-safe;
+  `ingestAndPersist` is the method that additionally runs the orchestrator's generation gate per
+  defendant and writes `cp_case_hearing`/`cp_version` (and dependent) rows when it passes. Don't
+  wire `GET /pcr` to "whatever the listener last saw" as a shortcut — it still reads live via
+  `ResultsClient`, independent of this write path.
 - **Version correlation mechanism is still TBD** (design §7) — three options considered
   (`recorded_date` ruled out, `sharedTime` propagation, `resultEventId` propagation), none
   decided. Don't build against any of them as if settled; check design doc status first.
