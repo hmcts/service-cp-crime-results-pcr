@@ -33,6 +33,9 @@ public class CPOffenceEntity {
     @Column(name = "court_application_id")
     private UUID courtApplicationId;
 
+    @Column(name = "source_offence_id")
+    private UUID sourceOffenceId;
+
     private String code;
 
     private String title;

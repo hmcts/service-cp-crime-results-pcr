@@ -184,6 +184,7 @@ public class CPVersionEntityMapper {
         return CPCourtApplicationEntity.builder()
                 .id(UUID.randomUUID()) // surrogate — one row per version, CP's real application id can repeat across versions (design doc §4.3) so can't be the PK
                 .versionPk(versionPk)
+                .sourceApplicationId(UUID.fromString(application.getId()))
                 .reference(application.getApplicationReference())
                 .type(application.getType())
                 .build();
@@ -206,9 +207,10 @@ public class CPVersionEntityMapper {
 
     private CPOffenceEntity toOffenceEntity(final Offence offence, final UUID versionPk, final UUID courtApplicationId) {
         return CPOffenceEntity.builder()
-                .id(UUID.randomUUID()) // surrogate for now — CP's real offence id isn't sourceable yet, design doc §5
+                .id(UUID.randomUUID()) // surrogate — CP's real offence id can repeat across versions, kept as sourceOffenceId only
                 .versionPk(versionPk)
                 .courtApplicationId(courtApplicationId)
+                .sourceOffenceId(offence.getId() == null ? null : UUID.fromString(offence.getId()))
                 .code(offence.getOffenceCode())
                 .startDate(offence.getStartDate())
                 .endDate(offence.getEndDate())

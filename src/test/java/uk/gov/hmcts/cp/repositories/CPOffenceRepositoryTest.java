@@ -20,6 +20,7 @@ class CPOffenceRepositoryTest extends RepositoryIntegrationTestBase {
     private static final UUID CASE_HEARING_ID = UUID.fromString("00000000-0000-0000-0000-000000000001");
     private static final UUID VERSION_PK = UUID.fromString("00000000-0000-0000-0000-000000000004");
     private static final UUID OFFENCE_ID = UUID.fromString("00000000-0000-0000-0000-000000000009");
+    private static final UUID SOURCE_OFFENCE_ID = UUID.fromString("00000000-0000-0000-0000-000000000010");
 
     @Autowired
     private CPCaseHearingRepository cpCaseHearingRepository;
@@ -50,6 +51,7 @@ class CPOffenceRepositoryTest extends RepositoryIntegrationTestBase {
         final CPOffenceEntity entity = CPOffenceEntity.builder()
                 .id(OFFENCE_ID)
                 .versionPk(VERSION_PK)
+                .sourceOffenceId(SOURCE_OFFENCE_ID)
                 .code("TH68001")
                 .title("Theft from a shop")
                 .wording("On 1 July 2026 stole goods")
@@ -68,6 +70,7 @@ class CPOffenceRepositoryTest extends RepositoryIntegrationTestBase {
         assertThat(found).isPresent();
         assertThat(found.get().getVersionPk()).isEqualTo(VERSION_PK);
         assertThat(found.get().getCourtApplicationId()).isNull();
+        assertThat(found.get().getSourceOffenceId()).isEqualTo(SOURCE_OFFENCE_ID);
         assertThat(found.get().getCode()).isEqualTo("TH68001");
         assertThat(found.get().getTitle()).isEqualTo("Theft from a shop");
         assertThat(found.get().getWording()).isEqualTo("On 1 July 2026 stole goods");

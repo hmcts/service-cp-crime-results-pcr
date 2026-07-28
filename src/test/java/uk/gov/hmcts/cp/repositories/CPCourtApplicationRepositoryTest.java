@@ -20,6 +20,7 @@ class CPCourtApplicationRepositoryTest extends RepositoryIntegrationTestBase {
     private static final UUID CASE_HEARING_ID = UUID.fromString("00000000-0000-0000-0000-000000000001");
     private static final UUID VERSION_PK = UUID.fromString("00000000-0000-0000-0000-000000000004");
     private static final UUID COURT_APPLICATION_ID = UUID.fromString("00000000-0000-0000-0000-000000000008");
+    private static final UUID SOURCE_APPLICATION_ID = UUID.fromString("00000000-0000-0000-0000-000000000011");
 
     @Autowired
     private CPCaseHearingRepository cpCaseHearingRepository;
@@ -38,6 +39,7 @@ class CPCourtApplicationRepositoryTest extends RepositoryIntegrationTestBase {
         final CPCourtApplicationEntity entity = CPCourtApplicationEntity.builder()
                 .id(COURT_APPLICATION_ID)
                 .versionPk(VERSION_PK)
+                .sourceApplicationId(SOURCE_APPLICATION_ID)
                 .reference("APP-1")
                 .type("Breach")
                 .decision("Granted")
@@ -51,6 +53,7 @@ class CPCourtApplicationRepositoryTest extends RepositoryIntegrationTestBase {
         final Optional<CPCourtApplicationEntity> found = cpCourtApplicationRepository.findById(COURT_APPLICATION_ID);
         assertThat(found).isPresent();
         assertThat(found.get().getVersionPk()).isEqualTo(VERSION_PK);
+        assertThat(found.get().getSourceApplicationId()).isEqualTo(SOURCE_APPLICATION_ID);
         assertThat(found.get().getReference()).isEqualTo("APP-1");
         assertThat(found.get().getType()).isEqualTo("Breach");
         assertThat(found.get().getDecision()).isEqualTo("Granted");

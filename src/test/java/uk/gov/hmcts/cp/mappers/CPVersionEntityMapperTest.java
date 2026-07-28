@@ -276,6 +276,41 @@ class CPVersionEntityMapperTest {
     }
 
     @Test
+    void toWriteBundle_should_mapSourceOffenceId_whenPresent() {
+        final Offence offence = Offence.builder()
+                .id("9f4752be-7c1b-4eb5-9940-a26c5ae37ebe")
+                .offenceCode("TH68001")
+                .judicialResults(List.of())
+                .build();
+        final Defendant defendant = Defendant.builder()
+                .id(DEFENDANT_ID.toString())
+                .personDefendant(PersonDefendant.builder().build())
+                .offences(List.of(offence))
+                .build();
+        final HearingDetail hearing = HearingDetail.builder().courtApplications(List.of()).build();
+
+        final CPVersionWriteBundle bundle = mapper.toWriteBundle(defendant, hearing, CASE_HEARING_ID, CREATED_AT, EXPIRES_AT);
+
+        assertThat(bundle.offences().get(0).getSourceOffenceId())
+                .isEqualTo(UUID.fromString("9f4752be-7c1b-4eb5-9940-a26c5ae37ebe"));
+    }
+
+    @Test
+    void toWriteBundle_should_leaveSourceOffenceIdNull_whenAbsent() {
+        final Offence offence = Offence.builder().offenceCode("TH68001").judicialResults(List.of()).build();
+        final Defendant defendant = Defendant.builder()
+                .id(DEFENDANT_ID.toString())
+                .personDefendant(PersonDefendant.builder().build())
+                .offences(List.of(offence))
+                .build();
+        final HearingDetail hearing = HearingDetail.builder().courtApplications(List.of()).build();
+
+        final CPVersionWriteBundle bundle = mapper.toWriteBundle(defendant, hearing, CASE_HEARING_ID, CREATED_AT, EXPIRES_AT);
+
+        assertThat(bundle.offences().get(0).getSourceOffenceId()).isNull();
+    }
+
+    @Test
     void toWriteBundle_should_mapLinkedCourtApplicationAndItsOffenceAndOwnResult() {
         when(promptParser.fineAmount(any())).thenReturn(null);
         final JudicialResult linkedOffenceResult = JudicialResult.builder().cjsCode("LINK1").judicialResultPrompts(List.of()).build();
@@ -302,6 +337,8 @@ class CPVersionEntityMapperTest {
         final CPCourtApplicationEntity applicationEntity = bundle.courtApplications().get(0);
         assertThat(applicationEntity.getId()).isNotNull();
         assertThat(applicationEntity.getVersionPk()).isEqualTo(bundle.version().getCpVersionPk());
+        assertThat(applicationEntity.getSourceApplicationId())
+                .isEqualTo(UUID.fromString("a9b8c7d6-e5f4-4321-9876-0a1b2c3d4e5f"));
         assertThat(applicationEntity.getReference()).isEqualTo("REF1");
         assertThat(bundle.offences()).hasSize(1);
         assertThat(bundle.offences().get(0).getCourtApplicationId()).isEqualTo(applicationEntity.getId());
