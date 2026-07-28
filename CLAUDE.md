@@ -211,10 +211,20 @@ run, in production or in tests; discovered the hard way when repository tests fa
   PII fields are plain values today (`dateOfBirth` a real `LocalDate`/`date` column, not
   ciphertext-shaped `varchar`). The `api-cp-crime-results-pcr` `Defendant` schema (v1.0.3, already
   pinned in `build.gradle`) already declares these fields; nothing in the spec needs to change.
-  What's still missing: the upstream `HearingDetailsResponse` DTO has no fields to source this
-  data from yet, and `PcrVersionMapper.toDefendant()` doesn't populate them — both are open work,
-  not yet done. Prosecution/defence counsel and aliases remain excluded for now — not reversed by
-  this decision, revisit only if a real requirement surfaces for them too.
+  **Source confirmed as CP itself, not an external lookup — 28 Jul 2026.** CP's own hearing
+  payload already carries this data at `personDefendant.personDetails.{title, firstName,
+  middleName, lastName, dateOfBirth, address}` — the same object this service already reads via
+  the Redis cache or the `hearingDetails/internal` REST fallback. Confirmed by cross-referencing
+  `cpp-context-azure-legalaidagency`'s Redis-seeded integration-test fixtures (which populate this
+  exact key format with this exact field shape) against its `DefendantMapper.js`, which reads
+  `firstName`/`middleName`/`lastName`/`dateOfBirth`/`address`/`title` directly off the identical
+  cache-or-API object with no separate downstream enrichment call in between. What remains is
+  wiring, not sourcing: `HearingDetailsResponse.PersonDefendant` needs a new `PersonDetails`/
+  `Address` shape to capture it, and `PcrVersionMapper.toDefendant()` needs to populate
+  `CPVersionEntity`'s PII columns from it — tracked as part of the phase-2 persistence-wiring
+  work, no longer an unconfirmed/blocked gap. Prosecution/defence counsel and aliases remain
+  excluded for now — not reversed by this decision, revisit only if a real requirement surfaces
+  for them too.
 - Field-level mapping detail (base shape, aliasing fixes, enrichment additions) lives in the
   field-mapping doc in the `api-cp-crime-results-pcr` spec repo, not duplicated here.
 

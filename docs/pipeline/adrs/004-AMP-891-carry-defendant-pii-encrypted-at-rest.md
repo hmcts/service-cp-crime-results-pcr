@@ -2,7 +2,9 @@
 
 **Status:** Accepted, 24 Jul 2026. **Encryption mechanism deferred to a future phase** (2026-07-27)
 — PII is carried as plain, unencrypted values in phase 2; see the note at the top of the
-Decision section.
+Decision section. **Upstream source confirmed as CP itself** (2026-07-28) — see the Consequences
+section; sourcing is no longer an open item, only the wiring (`HearingDetailsResponse`/
+`PcrVersionMapper`) remains to be built, as part of the phase-2 persistence-wiring work.
 **Jira:** AMP-891 — PII redaction/encryption
 **Design docs:** this decision changes the contract/persistence shape described in
 [`2026-07-16-pcr-api-marketplace-design-v2.md`](../../designs/2026-07-16-pcr-api-marketplace-design-v2.md),
@@ -35,7 +37,8 @@ Two things are true at once, and this ADR only resolves the second:
 - Nothing populates them yet. `PcrVersionMapper.toDefendant()` only sets `id`/`masterDefendantId`,
   and `HearingDetailsResponse.Defendant`/`PersonDefendant` (the upstream DTO this service parses
   the Results Query API response into) has no fields to source name/DOB/address from at all —
-  that upstream modelling is new work, out of this ADR's scope, tracked separately.
+  that upstream modelling was new work at the time this ADR was written. **Since confirmed as CP's
+  own data, not new/separate upstream modelling** — see the Consequences section below.
 
 This ADR covers: given that this data will now flow through this service, how it's protected
 once it does.
@@ -80,11 +83,18 @@ field-level encryption pattern already demonstrated in
   policy (30-day TTL purge, already designed) becomes a real data-minimisation control, not just
   a storage-cost one — confirm the purge job is built and tested before any PII-bearing row can be
   written in a real environment.
-- **The upstream data source for this data doesn't exist yet.** `HearingDetailsResponse` (and,
-  further upstream, whatever the Results Query API's `hearingDetails/internal` response actually
-  carries) needs a real fixture check to confirm these fields are even present and sourceable —
-  this ADR does not do that work; it only decides how the data is protected once a separate piece
-  of work sources it.
+- **Upstream source confirmed as CP itself (2026-07-28) — sourcing is no longer an open item.**
+  CP's own hearing payload carries this data at
+  `personDefendant.personDetails.{title, firstName, middleName, lastName, dateOfBirth, address}`
+  — the same object this service already reads via the Redis cache or the `hearingDetails/internal`
+  REST fallback. Confirmed by cross-referencing `cpp-context-azure-legalaidagency`'s Redis-seeded
+  integration-test fixtures (which populate this exact key format with this exact field shape)
+  against its `DefendantMapper.js`, which reads these fields directly off the identical
+  cache-or-API object with no separate downstream enrichment call in between. What remains is
+  wiring: `HearingDetailsResponse.PersonDefendant` needs a new `PersonDetails`/`Address` shape,
+  and `PcrVersionMapper.toDefendant()` needs to populate `CPVersionEntity`'s PII columns from it —
+  tracked as part of the phase-2 persistence-wiring work. This does not change the encryption
+  decision above, which remains deferred to a future phase.
 - **`StubEncryptionService` must never reach a real environment.** It exists only to prove the
   encrypt-on-write/decrypt-on-read lifecycle works; the demo's README is explicit that it performs
   no real cryptography. Swapping in the Key Vault-backed implementation is a hard gate before this
