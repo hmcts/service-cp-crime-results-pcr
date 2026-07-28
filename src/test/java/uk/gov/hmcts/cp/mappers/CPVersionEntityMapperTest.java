@@ -68,6 +68,38 @@ class CPVersionEntityMapperTest {
     }
 
     @Test
+    void toCaseHearingEntity_should_leaveCourtHouseFieldsNull_whenNoCourtCentre() {
+        final ProsecutionCase prosecutionCase = minimalProsecutionCase();
+        final HearingDetail hearing = HearingDetail.builder()
+                .hearingDays(List.of(HearingDay.builder().sittingDay("2026-07-23").build()))
+                .courtApplications(List.of())
+                .prosecutionCases(List.of())
+                .build();
+
+        final CPCaseHearingEntity result = mapper.toCaseHearingEntity(prosecutionCase, hearing, HEARING_ID, CREATED_AT);
+
+        assertThat(result.getCourtHouseCode()).isNull();
+        assertThat(result.getCourtHouseName()).isNull();
+        assertThat(result.getHearingDate()).isEqualTo(LocalDate.of(2026, 7, 23));
+    }
+
+    @Test
+    void toCaseHearingEntity_should_leaveHearingDateNull_whenNoHearingDays() {
+        final ProsecutionCase prosecutionCase = minimalProsecutionCase();
+        final HearingDetail hearing = HearingDetail.builder()
+                .courtCentre(CourtCentre.builder().code("B01LY").name("Leeds Crown Court").build())
+                .hearingDays(List.of())
+                .courtApplications(List.of())
+                .prosecutionCases(List.of())
+                .build();
+
+        final CPCaseHearingEntity result = mapper.toCaseHearingEntity(prosecutionCase, hearing, HEARING_ID, CREATED_AT);
+
+        assertThat(result.getHearingDate()).isNull();
+        assertThat(result.getCourtHouseCode()).isEqualTo("B01LY");
+    }
+
+    @Test
     void toCaseMarkerEntities_should_mapEachMarkerCode() {
         final ProsecutionCase prosecutionCase = ProsecutionCase.builder()
                 .prosecutionCaseIdentifier(ProsecutionCaseIdentifier.builder().caseURN(CASE_URN).build())
