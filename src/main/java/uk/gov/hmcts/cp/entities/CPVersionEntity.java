@@ -40,6 +40,9 @@ public class CPVersionEntity {
     @Column(name = "custody_location")
     private String custodyLocation;
 
+    @Column(name = "custody_type")
+    private String custodyType;
+
     @Column(name = "master_defendant_id")
     private UUID masterDefendantId;
 

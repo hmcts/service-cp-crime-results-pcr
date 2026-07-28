@@ -47,6 +47,7 @@ class CPVersionRepositoryTest extends RepositoryIntegrationTestBase {
                 .defendantId(DEFENDANT_ID)
                 .caseHearingId(CASE_HEARING_ID)
                 .custodyLocation("Prison")
+                .custodyType("HMP Dovegate")
                 .masterDefendantId(MASTER_DEFENDANT_ID)
                 .nextHearing(CPNextHearingEmbeddable.builder()
                         .date(LocalDate.of(2026, 8, 1))
@@ -79,6 +80,7 @@ class CPVersionRepositoryTest extends RepositoryIntegrationTestBase {
         assertThat(actual.getDefendantId()).isEqualTo(DEFENDANT_ID);
         assertThat(actual.getCaseHearingId()).isEqualTo(CASE_HEARING_ID);
         assertThat(actual.getCustodyLocation()).isEqualTo("Prison");
+        assertThat(actual.getCustodyType()).isEqualTo("HMP Dovegate");
         assertThat(actual.getMasterDefendantId()).isEqualTo(MASTER_DEFENDANT_ID);
         assertThat(actual.getNextHearing().getDate()).isEqualTo(LocalDate.of(2026, 8, 1));
         assertThat(actual.getNextHearing().getTime()).isEqualTo("10:00");
