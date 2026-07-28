@@ -22,6 +22,7 @@ import uk.gov.hmcts.cp.openapi.model.NextHearing;
 import uk.gov.hmcts.cp.openapi.model.Offence;
 import uk.gov.hmcts.cp.openapi.model.PcrHearingResult;
 
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.UUID;
 
@@ -101,14 +102,14 @@ public class PcrHearingResultMapper {
     }
 
     private NextHearing toNextHearing(final CPNextHearingEmbeddable nextHearing) {
-        // dateTime: only ever set from a real date+time pair; nextHearing.time is never
-        // populated by the write path today, so a synthetic midnight timestamp would
-        // fabricate precision this service doesn't have — left null until a real time source exists.
         return nextHearing == null || nextHearing.getDate() == null
                 ? null
                 : NextHearing.builder()
                         .hearingId(nextHearing.getId())
                         .court(toCourt(nextHearing.getCourtHouseCode(), nextHearing.getCourtHouseName()))
+                        // dateTime: nextHearing.time is never populated by the write path today,
+                        // so this is the known date at midnight UTC, not a real recorded time.
+                        .dateTime(nextHearing.getDate().atStartOfDay(ZoneOffset.UTC).toInstant())
                         .build();
     }
 

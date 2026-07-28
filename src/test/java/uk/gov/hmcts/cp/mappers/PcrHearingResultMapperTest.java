@@ -16,6 +16,7 @@ import uk.gov.hmcts.cp.entities.CPVersionEntity;
 import uk.gov.hmcts.cp.openapi.model.PcrHearingResult;
 
 import java.time.LocalDate;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.UUID;
 
@@ -105,7 +106,7 @@ class PcrHearingResultMapperTest {
     }
 
     @Test
-    void toPcrHearingResult_should_mapNextHearingDate_withoutDateTime_whenTimeAbsent() {
+    void toPcrHearingResult_should_mapNextHearingDateTime_asDateAtMidnightUtc_whenOnlyDateKnown() {
         final CPVersionEntity version = minimalVersion().toBuilder()
                 .nextHearing(CPNextHearingEmbeddable.builder().date(LocalDate.of(2026, 8, 1)).build())
                 .build();
@@ -114,7 +115,8 @@ class PcrHearingResultMapperTest {
         final PcrHearingResult result = mapper.toPcrHearingResult(caseHearing, version, List.of(), List.of(), List.of(), List.of(), List.of());
 
         assertThat(result.getNextHearing()).isNotNull();
-        assertThat(result.getNextHearing().getDateTime()).isNull();
+        assertThat(result.getNextHearing().getDateTime())
+                .isEqualTo(LocalDate.of(2026, 8, 1).atStartOfDay(ZoneOffset.UTC).toInstant());
     }
 
     @Test
