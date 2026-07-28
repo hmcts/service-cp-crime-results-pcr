@@ -60,7 +60,7 @@ public class HearingResultedProcessorService {
     @SuppressWarnings("PMD.AvoidCatchingGenericException")
     private void processIngestion(final ServiceBusReceivedMessageContext context, final HearingResultedPointer hearingResultedPointer) {
         try {
-            ingestionService.ingestHearingResults(hearingResultedPointer.hearingId(), hearingResultedPointer.hearingDay());
+            ingestionService.ingestAndPersist(hearingResultedPointer.hearingId(), hearingResultedPointer.hearingDay());
             context.complete();
         } catch (IncompleteHearingDetailsException _) {
             ingestionService.escalateOrDeadLetter(context, hearingResultedPointer);
