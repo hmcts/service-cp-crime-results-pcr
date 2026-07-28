@@ -15,6 +15,7 @@ import uk.gov.hmcts.cp.entities.CPOffenceEntity;
 import uk.gov.hmcts.cp.entities.CPVersionEntity;
 import uk.gov.hmcts.cp.openapi.model.PcrHearingResult;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.util.List;
@@ -117,6 +118,19 @@ class PcrHearingResultMapperTest {
         assertThat(result.getNextHearing()).isNotNull();
         assertThat(result.getNextHearing().getDateTime())
                 .isEqualTo(LocalDate.of(2026, 8, 1).atStartOfDay(ZoneOffset.UTC).toInstant());
+    }
+
+    @Test
+    void toPcrHearingResult_should_mapNextHearingDateTime_usingRealTime_whenTimeKnown() {
+        final CPVersionEntity version = minimalVersion().toBuilder()
+                .nextHearing(CPNextHearingEmbeddable.builder().date(LocalDate.of(2026, 8, 1)).time("10:00").build())
+                .build();
+        final CPCaseHearingEntity caseHearing = CPCaseHearingEntity.builder().hearingId(HEARING_ID).build();
+
+        final PcrHearingResult result = mapper.toPcrHearingResult(caseHearing, version, List.of(), List.of(), List.of(), List.of(), List.of());
+
+        assertThat(result.getNextHearing()).isNotNull();
+        assertThat(result.getNextHearing().getDateTime()).isEqualTo(Instant.parse("2026-08-01T10:00:00Z"));
     }
 
     @Test
