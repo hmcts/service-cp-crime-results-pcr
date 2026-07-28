@@ -8,8 +8,10 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.jdbc.autoconfigure.DataSourceAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import uk.gov.hmcts.cp.config.AppPropertiesBackend;
+import uk.gov.hmcts.cp.services.ResultsIngestionService;
 
 import java.net.URL;
 import java.nio.file.Files;
@@ -33,6 +35,9 @@ public abstract class IntegrationTestBase {
 
     @Resource
     protected MockMvc mockMvc;
+
+    @MockitoBean
+    ResultsIngestionService resultsIngestionService;
 
     @SneakyThrows
     protected String readResourceContents(final String resourceName) {
