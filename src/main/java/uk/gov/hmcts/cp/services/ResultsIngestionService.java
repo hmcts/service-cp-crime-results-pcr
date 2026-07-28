@@ -20,6 +20,7 @@ import uk.gov.hmcts.cp.domain.HearingDetailsResponse.HearingDetail;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.JudicialResult;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.ProsecutionCase;
 import uk.gov.hmcts.cp.domain.HearingResultedPointer;
+import uk.gov.hmcts.cp.domain.orchestrator.CPNowSubscription;
 import uk.gov.hmcts.cp.domain.orchestrator.CPVocabulary;
 import uk.gov.hmcts.cp.entities.CPCaseHearingEntity;
 import uk.gov.hmcts.cp.exceptions.IncompleteHearingDetailsException;
@@ -78,14 +79,15 @@ public class ResultsIngestionService {
         final HearingDetailsResponse hearingDetails = ingestHearingResults(hearingId, hearingDay);
         final HearingDetail hearing = hearingDetails.getHearing();
         final LocalDate activeAt = resolveActiveAt(hearing, hearingId);
-        hearing.getProsecutionCases().forEach(c -> processProsecutionCase(c, hearing, hearingId, activeAt));
+        final List<CPNowSubscription> subscriptions = orchestrator.fetchPrisonCourtRegisterSubscriptions(activeAt);
+        hearing.getProsecutionCases().forEach(c -> processProsecutionCase(c, hearing, hearingId, subscriptions));
     }
 
     private void processProsecutionCase(final ProsecutionCase prosecutionCase, final HearingDetail hearing,
-                                         final UUID hearingId, final LocalDate activeAt) {
+                                         final UUID hearingId, final List<CPNowSubscription> subscriptions) {
         UUID caseHearingId = null;
         for (final Defendant defendant : prosecutionCase.getDefendants()) {
-            if (!isPcrRequired(defendant, hearing, activeAt)) {
+            if (!isPcrRequired(defendant, hearing, subscriptions)) {
                 log.info("PCR not required for hearingId:{} defendantId:{} — skipping", hearingId, defendant.getId());
                 continue;
             }
@@ -94,10 +96,10 @@ public class ResultsIngestionService {
         }
     }
 
-    private boolean isPcrRequired(final Defendant defendant, final HearingDetail hearing, final LocalDate activeAt) {
+    private boolean isPcrRequired(final Defendant defendant, final HearingDetail hearing, final List<CPNowSubscription> subscriptions) {
         final CPVocabulary vocabulary = vocabularyService.compute(defendant, hearing);
         final List<JudicialResult> eligibleResults = orchestrator.excludePublishedForNows(entityMapper.eligibleResults(defendant, hearing));
-        return orchestrator.isPrisonCourtRegisterRequired(vocabulary, eligibleResults, activeAt);
+        return orchestrator.isPrisonCourtRegisterRequired(vocabulary, eligibleResults, subscriptions);
     }
 
     private UUID findOrCreateCaseHearing(final ProsecutionCase prosecutionCase, final HearingDetail hearing, final UUID hearingId) {

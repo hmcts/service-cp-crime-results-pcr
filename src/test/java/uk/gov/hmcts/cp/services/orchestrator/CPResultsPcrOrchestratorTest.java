@@ -52,15 +52,23 @@ class CPResultsPcrOrchestratorTest {
     }
 
     @Test
+    void fetchPrisonCourtRegisterSubscriptions_should_filterToOnlyPcrFlaggedSubscriptions() {
+        final CPNowSubscription pcrSubscription = CPNowSubscription.builder().isPrisonCourtRegisterSubscription(true).build();
+        final CPNowSubscription nonPcrSubscription = CPNowSubscription.builder().isPrisonCourtRegisterSubscription(false).build();
+        when(referenceDataClient.getPrisonCourtRegisterSubscriptions(ON_DATE)).thenReturn(List.of(pcrSubscription, nonPcrSubscription));
+
+        assertThat(resultsPcrOrchestrator.fetchPrisonCourtRegisterSubscriptions(ON_DATE)).containsExactly(pcrSubscription);
+    }
+
+    @Test
     void isPrisonCourtRegisterRequired_should_returnTrue_whenPcrSubscriptionMatches() {
         final CPVocabulary vocabulary = vocabulary();
         final CPNowSubscription pcrSubscription = CPNowSubscription.builder()
                 .isPrisonCourtRegisterSubscription(true)
                 .build();
-        when(referenceDataClient.getPrisonCourtRegisterSubscriptions(ON_DATE)).thenReturn(List.of(pcrSubscription));
         when(nowSubscriptionMatcher.matches(pcrSubscription, vocabulary, List.of())).thenReturn(true);
 
-        assertThat(resultsPcrOrchestrator.isPrisonCourtRegisterRequired(vocabulary, List.of(), ON_DATE)).isTrue();
+        assertThat(resultsPcrOrchestrator.isPrisonCourtRegisterRequired(vocabulary, List.of(), List.of(pcrSubscription))).isTrue();
     }
 
     @Test
@@ -68,20 +76,14 @@ class CPResultsPcrOrchestratorTest {
         final CPNowSubscription pcrSubscription = CPNowSubscription.builder()
                 .isPrisonCourtRegisterSubscription(true)
                 .build();
-        when(referenceDataClient.getPrisonCourtRegisterSubscriptions(ON_DATE)).thenReturn(List.of(pcrSubscription));
         when(nowSubscriptionMatcher.matches(pcrSubscription, vocabulary(), List.of())).thenReturn(false);
 
-        assertThat(resultsPcrOrchestrator.isPrisonCourtRegisterRequired(vocabulary(), List.of(), ON_DATE)).isFalse();
+        assertThat(resultsPcrOrchestrator.isPrisonCourtRegisterRequired(vocabulary(), List.of(), List.of(pcrSubscription))).isFalse();
     }
 
     @Test
-    void isPrisonCourtRegisterRequired_should_ignoreNonPcrSubscriptions() {
-        final CPNowSubscription nonPcrSubscription = CPNowSubscription.builder()
-                .isPrisonCourtRegisterSubscription(false)
-                .build();
-        when(referenceDataClient.getPrisonCourtRegisterSubscriptions(ON_DATE)).thenReturn(List.of(nonPcrSubscription));
-
-        assertThat(resultsPcrOrchestrator.isPrisonCourtRegisterRequired(vocabulary(), List.of(), ON_DATE)).isFalse();
+    void isPrisonCourtRegisterRequired_should_returnFalse_whenNoSubscriptions() {
+        assertThat(resultsPcrOrchestrator.isPrisonCourtRegisterRequired(vocabulary(), List.of(), List.of())).isFalse();
         verify(nowSubscriptionMatcher, never()).matches(any(), any(), any());
     }
 
