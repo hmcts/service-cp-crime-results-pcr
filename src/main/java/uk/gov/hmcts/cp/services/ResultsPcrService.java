@@ -2,6 +2,7 @@ package uk.gov.hmcts.cp.services;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import uk.gov.hmcts.cp.entities.CPCaseHearingEntity;
 import uk.gov.hmcts.cp.entities.CPCaseMarkerEntity;
 import uk.gov.hmcts.cp.entities.CPCourtApplicationEntity;
@@ -36,6 +37,7 @@ public class ResultsPcrService {
     private final CPJudicialResultPromptRepository judicialResultPromptRepository;
     private final PcrHearingResultMapper mapper;
 
+    @Transactional(readOnly = true)
     public List<PcrHearingResult> getPcrHearingResults(final String caseURN, final UUID hearingId, final UUID defendantId) {
         return caseHearingRepository.findByCaseUrnAndHearingId(caseURN, hearingId)
                 .map(caseHearing -> toResults(caseHearing, defendantId))

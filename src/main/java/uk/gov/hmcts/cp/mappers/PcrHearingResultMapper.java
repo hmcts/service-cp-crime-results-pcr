@@ -116,10 +116,9 @@ public class PcrHearingResultMapper {
     // dateTime: uses the recorded time when the write path has populated it; midnight UTC is
     // only a fallback for when the source data genuinely carries a date with no time.
     private Instant toNextHearingDateTime(final CPNextHearingEmbeddable nextHearing) {
-        if (nextHearing.getTime() == null) {
-            return nextHearing.getDate().atStartOfDay(ZoneOffset.UTC).toInstant();
-        }
-        return nextHearing.getDate().atTime(LocalTime.parse(nextHearing.getTime())).atZone(ZoneOffset.UTC).toInstant();
+        return nextHearing.getTime() == null
+                ? nextHearing.getDate().atStartOfDay(ZoneOffset.UTC).toInstant()
+                : nextHearing.getDate().atTime(LocalTime.parse(nextHearing.getTime())).atZone(ZoneOffset.UTC).toInstant();
     }
 
     private List<CPOffenceEntity> directOffences(final List<CPOffenceEntity> offences, final UUID versionPk) {
