@@ -159,6 +159,16 @@ public class HearingDetailsResponse {
         // publishedForNows: the PCR eligibility flag (orchestrator design doc §3) — boxed,
         // not primitive, see CourtCentre.welshCourtCentre for why.
         private Boolean publishedForNows;
+        // orderedDate: confirmed present on every judicialResults[] entry against
+        // cpp-context-results's results-query-api RAML schema (results.hearing-details.json,
+        // typed isoDate) — feeds the Reference Data now-subscriptions date-selection
+        // (orchestrator design doc §7).
+        private LocalDate orderedDate;
+        // postHearingCustodyStatus: confirmed alongside orderedDate in results-domain-aggregate's
+        // fixtures, same judicial-result nesting level — not a live-endpoint call, but strong
+        // circumstantial evidence (design doc §5/§7). String, not an enum — real value set
+        // unconfirmed.
+        private String postHearingCustodyStatus;
         private NextHearing nextHearing;
         private List<JudicialResultPrompt> judicialResultPrompts;
     }

@@ -22,7 +22,7 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class ResultsPcrOrchestratorTest {
 
-    private static final LocalDate ON_DATE = LocalDate.of(2026, 7, 23);
+    private static final LocalDate ORDERED_DATE = LocalDate.of(2026, 7, 23);
 
     @Mock
     private NowSubscriptionMatcher nowSubscriptionMatcher;
@@ -54,35 +54,66 @@ class ResultsPcrOrchestratorTest {
     @Test
     void isPrisonCourtRegisterRequired_should_returnTrue_whenPcrSubscriptionMatches() {
         final Vocabulary vocabulary = vocabulary();
+        final JudicialResult result = JudicialResult.builder().cjsCode("1200").orderedDate(ORDERED_DATE).build();
+        final List<JudicialResult> eligibleResults = List.of(result);
         final NowSubscription pcrSubscription = NowSubscription.builder()
                 .isPrisonCourtRegisterSubscription(true)
                 .build();
-        when(referenceDataClient.getPrisonCourtRegisterSubscriptions(ON_DATE)).thenReturn(List.of(pcrSubscription));
-        when(nowSubscriptionMatcher.matches(pcrSubscription, vocabulary, List.of())).thenReturn(true);
+        when(referenceDataClient.getPrisonCourtRegisterSubscriptions(ORDERED_DATE)).thenReturn(List.of(pcrSubscription));
+        when(nowSubscriptionMatcher.matches(pcrSubscription, vocabulary, eligibleResults)).thenReturn(true);
 
-        assertThat(resultsPcrOrchestrator.isPrisonCourtRegisterRequired(vocabulary, List.of(), ON_DATE)).isTrue();
+        assertThat(resultsPcrOrchestrator.isPrisonCourtRegisterRequired(vocabulary, eligibleResults)).isTrue();
     }
 
     @Test
     void isPrisonCourtRegisterRequired_should_returnFalse_whenNoSubscriptionMatches() {
+        final JudicialResult result = JudicialResult.builder().cjsCode("1200").orderedDate(ORDERED_DATE).build();
+        final List<JudicialResult> eligibleResults = List.of(result);
         final NowSubscription pcrSubscription = NowSubscription.builder()
                 .isPrisonCourtRegisterSubscription(true)
                 .build();
-        when(referenceDataClient.getPrisonCourtRegisterSubscriptions(ON_DATE)).thenReturn(List.of(pcrSubscription));
-        when(nowSubscriptionMatcher.matches(pcrSubscription, vocabulary(), List.of())).thenReturn(false);
+        when(referenceDataClient.getPrisonCourtRegisterSubscriptions(ORDERED_DATE)).thenReturn(List.of(pcrSubscription));
+        when(nowSubscriptionMatcher.matches(pcrSubscription, vocabulary(), eligibleResults)).thenReturn(false);
 
-        assertThat(resultsPcrOrchestrator.isPrisonCourtRegisterRequired(vocabulary(), List.of(), ON_DATE)).isFalse();
+        assertThat(resultsPcrOrchestrator.isPrisonCourtRegisterRequired(vocabulary(), eligibleResults)).isFalse();
     }
 
     @Test
     void isPrisonCourtRegisterRequired_should_ignoreNonPcrSubscriptions() {
+        final JudicialResult result = JudicialResult.builder().cjsCode("1200").orderedDate(ORDERED_DATE).build();
+        final List<JudicialResult> eligibleResults = List.of(result);
         final NowSubscription nonPcrSubscription = NowSubscription.builder()
                 .isPrisonCourtRegisterSubscription(false)
                 .build();
-        when(referenceDataClient.getPrisonCourtRegisterSubscriptions(ON_DATE)).thenReturn(List.of(nonPcrSubscription));
+        when(referenceDataClient.getPrisonCourtRegisterSubscriptions(ORDERED_DATE)).thenReturn(List.of(nonPcrSubscription));
 
-        assertThat(resultsPcrOrchestrator.isPrisonCourtRegisterRequired(vocabulary(), List.of(), ON_DATE)).isFalse();
+        assertThat(resultsPcrOrchestrator.isPrisonCourtRegisterRequired(vocabulary(), eligibleResults)).isFalse();
         verify(nowSubscriptionMatcher, never()).matches(any(), any(), any());
+    }
+
+    @Test
+    void isPrisonCourtRegisterRequired_should_returnFalse_whenNoResultHasOrderedDate() {
+        final JudicialResult result = JudicialResult.builder().cjsCode("1200").build();
+        final List<JudicialResult> eligibleResults = List.of(result);
+
+        assertThat(resultsPcrOrchestrator.isPrisonCourtRegisterRequired(vocabulary(), eligibleResults)).isFalse();
+        verify(referenceDataClient, never()).getPrisonCourtRegisterSubscriptions(any());
+    }
+
+    @Test
+    void isPrisonCourtRegisterRequired_should_returnFalse_whenFirstResultLacksOrderedDateEvenIfALaterOneHasIt() {
+        // Faithful port of PrisonCourtRegisterSubscriptions/index.js:52-57's getOrderedDate quirk
+        // (orchestrator design doc §7): legacy finds the first fragment with ANY dated result,
+        // then returns that fragment's FIRST result's date regardless of whether that specific
+        // result is the one that matched. Translated to our single-defendant scope: if results[0]
+        // has no date, the derived date is null even though a later result in the same list does
+        // — not "fixed" to search further, faithfully replicated as a real, documented quirk.
+        final JudicialResult first = JudicialResult.builder().cjsCode("1200").build();
+        final JudicialResult second = JudicialResult.builder().cjsCode("1300").orderedDate(ORDERED_DATE).build();
+        final List<JudicialResult> eligibleResults = List.of(first, second);
+
+        assertThat(resultsPcrOrchestrator.isPrisonCourtRegisterRequired(vocabulary(), eligibleResults)).isFalse();
+        verify(referenceDataClient, never()).getPrisonCourtRegisterSubscriptions(any());
     }
 
     private static Vocabulary vocabulary() {

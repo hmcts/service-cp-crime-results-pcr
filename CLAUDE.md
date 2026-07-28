@@ -47,7 +47,7 @@ that looks arbitrary; it likely isn't.
 | Results Query Client | `HearingResultedCacheClient` (Redis, read-only `StringRedisTemplate`) first, `ResultsClient` (`RestClient`) REST fallback against `results-query-api/.../hearingDetails/internal/{hearingId}` | Two-step retrieval per design §4a/4b — **ingestion path only**; the synchronous `GET /pcr` path skips Redis entirely |
 | Retry/escalation | `RetryServiceConfig` (`service-bus.retry-durations`/`max-tries`) + `ResultsIngestionService.escalateOrDeadLetter` | On `IncompleteHearingDetailsException`, schedules Service Bus redelivery (`ServiceBusSenderClient`) with increasing backoff; dead-letters once `max-tries` is exceeded |
 | Reference Data — `ResultDefinition` | Lookups, offence metadata (e.g. `startDate`) | Not yet built — "to be analysed" per design §8 |
-| Reference Data — `now-subscriptions` | `ReferenceDataClient` (`RestClient`) → `.../referencedata-query-api/.../now-subscriptions?on=<date>`; `NowSubscriptionMatcher` matches the PCR-flagged subset against a `Vocabulary` | Built, unit-tested, **not called** — no caller passes a real `on` date yet (design §7's date-selection strategy is still open) |
+| Reference Data — `now-subscriptions` | `ReferenceDataClient` (`RestClient`) → `.../referencedata-query-api/.../now-subscriptions?on=<date>`; `NowSubscriptionMatcher` matches the PCR-flagged subset against a `Vocabulary` | Built, unit-tested, **not called from anywhere yet**, but `ResultsPcrOrchestrator.isPrisonCourtRegisterRequired` now derives `on` itself from `eligibleResults` (design §7's `getOrderedDate` quirk, faithfully ported) — no external caller needs to supply a date anymore |
 | Generation-gate orchestrator | `VocabularyService` (fact computation) + `ResultsPcrOrchestrator` (`excludePublishedForNows`, `isPrisonCourtRegisterRequired`) | Design §4 scope, confirmed with Common Platform TA per ADR-005/AMP-943 — generation-gate logic only; recipient resolution and Progression submission are explicitly out of scope |
 | Data store | Flyway migrations (`V1.001`-`V1.008`), 7 JPA entities (`entities/`), 7 plain `JpaRepository`s (`repositories/`) — no custom query methods, nothing calls them yet | Schema + persistence layer built and integration-tested against a real, manually-started Postgres (`PostgresInitialise`, same pattern as HRDS); **not wired** — no service constructs/reads a `cp_version` row yet. Encryption (ADR-004) and the version-correlation mechanism (§7) are separate, still-open work |
 | Version lookup / retention | Not implemented | Depends on the phase-2 data store + the still-undecided version-correlation mechanism (§7) |
@@ -101,9 +101,12 @@ instead of only living in this file's prose:
   fails closed when unconfigured except `applySubscriptionRules == false`; attendance matching
   is stubbed (any-flag-only) pending a confirmed `hearing.defendantAttendance` source
 - `services/orchestrator/ResultsPcrOrchestrator` — `excludePublishedForNows` (plain-field content
-  filter) and `isPrisonCourtRegisterRequired` (the generation gate: fetches subscriptions via
-  `ReferenceDataClient`, filters to `isPrisonCourtRegisterSubscription`, matches via
-  `NowSubscriptionMatcher`)
+  filter) and `isPrisonCourtRegisterRequired` (the generation gate: derives the Reference Data
+  `on` date from `eligibleResults` via `orderedDate()` — a faithful port of legacy's
+  `getOrderedDate` quirk, design doc §7 — then fetches subscriptions via `ReferenceDataClient`,
+  filters to `isPrisonCourtRegisterSubscription`, matches via `NowSubscriptionMatcher`). No date
+  is ever derived from an empty/undated result list — the Reference Data call is skipped
+  entirely rather than failing
 - `clients/orchestrator/ReferenceDataClient` — `RestClient` call to Reference Data's
   `now-subscriptions` endpoint; deliberately generic (`NowSubscription`/`SubscriptionVocabulary`),
   not PCR-specific — the same config backs other distribution-channel kinds (NOW/EDT/informant/

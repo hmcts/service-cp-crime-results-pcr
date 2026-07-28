@@ -791,12 +791,24 @@ alongside the existing case/defendant lookups in
 ### Genuinely still open
 
 - **`publishedForNows`/`postHearingCustodyStatus`/`financial`/`category`/
-  `convicted` need a real fixture check** (§3/§5) — confirm all five are
-  actually present on a live `hearingDetails/internal` response before
-  adding them as fields. Their upstream source (`ResultDefinition`
-  reference data joined at `cpp-context-results`, §5) is established; what's
-  unconfirmed is only whether that join has already happened by the time
-  this service's own payload arrives.
+  `convicted` — mostly resolved via source, not yet a live-call confirmation.**
+  `category` is confirmed present on judicial results in
+  `cpp-context-results`'s `results-query-api` RAML schema
+  (`results.hearing-details.json`, e.g. `"category": "FINAL"`). `financial`/
+  `convicted` were never separately missing — they're this document's naming
+  for the existing `isFinancialResult`/`isConvictedResult` boolean fields
+  already on `HearingDetailsResponse.JudicialResult`, confirmed in the same
+  schema. `publishedForNows`/`postHearingCustodyStatus` are confirmed in
+  `results-domain-aggregate`'s test fixtures, same judicial-result nesting
+  level as `orderedDate` — strong circumstantial evidence, though the
+  `results-query-api` RAML schema itself doesn't show them (likely schema/
+  doc drift against the real domain model, not proof of absence).
+  `postHearingCustodyStatus` and `orderedDate` are now added to
+  `HearingDetailsResponse.JudicialResult`; `category` is not yet added since
+  nothing consumes it (the `pcr_judicial_result.category` column has no
+  mapper writing to it yet — that's phase-2 wiring, not this item). Still
+  genuinely unconfirmed: whether the `ResultDefinition` reference-data join
+  (§5) has already happened by the time this service's own payload arrives.
 - **CPS scan scope (§2):** the legacy vocabulary computation checks
   `prosecutor.isCps` across *every* `prosecutionCase` on the hearing, not
   scoped to the defendant's own case. Can't confirm *intent*, but the same
@@ -842,15 +854,28 @@ alongside the existing case/defendant lookups in
   trio (§2) — direct confirmation those three are real, current, and worth
   building once their `HearingDetailsResponse` source is fixture-confirmed.
 
-  The date-scoping's *selection* logic (which date to pass) is still as
-  originally found: `PrisonCourtRegisterSubscriptions/index.js:52-57`
-  (`getOrderedDate`) takes the first `prisonCourtRegister` fragment in
-  array order with any dated result, then that fragment's first result's
-  `orderedDate` — not sorted, not the latest, not computed per-defendant.
-  `ReferenceDataClient.getPrisonCourtRegisterSubscriptions()` above needs
-  updating to take an explicit date parameter and a decision on whether to
-  reproduce that same first-fragment-wins selection or do something more
-  principled — the endpoint contract itself is no longer the blocker.
+  **The date-scoping's *selection* logic — resolved, replicated.**
+  `PrisonCourtRegisterSubscriptions/index.js:52-57` (`getOrderedDate`) takes
+  the first `prisonCourtRegister` fragment in array order with any dated
+  result, then that fragment's first result's `orderedDate` — not sorted,
+  not the latest, not computed per-defendant, and with a genuine quirk:
+  it returns that first result's `orderedDate` even if a *different*
+  result in the same fragment is the one that actually had a date.
+  `orderedDate` itself is confirmed present on every `judicialResults[]`
+  entry — checked directly against `cpp-context-results`'s
+  `results-query-api` RAML schema (`results.hearing-details.json`, typed
+  `isoDate`) — and added to this service's own
+  `HearingDetailsResponse.JudicialResult`.
+  `ResultsPcrOrchestrator.isPrisonCourtRegisterRequired` now derives the
+  date itself from `eligibleResults` (a private `orderedDate()` method)
+  rather than taking it as an external parameter, replicating the same
+  quirk faithfully — including the case where the first result lacks a
+  date even though a later one has it. Where this diverges deliberately:
+  if *no* result has any `orderedDate` at all, legacy's JS would throw on
+  an undefined access; this service simply skips the Reference Data call
+  and returns `false`, which is safer and doesn't change the observable
+  eligibility outcome for a real hearing (no date ⇒ no subscription batch
+  to match against ⇒ not eligible either way).
 
   **One item genuinely remains unconfirmed, and it's a deployment
   question, not a code one:** no non-`localhost` value for
