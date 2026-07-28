@@ -126,6 +126,17 @@ class ResultsIngestionServiceTest {
     }
 
     @Test
+    void ingest_should_throwIncompleteHearingDetailsException_whenCachedPayloadIsIncomplete() {
+        when(cacheClient.get(HEARING_ID, HEARING_DAY))
+                .thenReturn(Optional.of("{\"hearing\":{\"prosecutionCases\":[]}}"));
+
+        assertThatThrownBy(() -> ingestionService.ingestHearingResults(HEARING_ID, HEARING_DAY))
+                .isInstanceOf(IncompleteHearingDetailsException.class);
+
+        verify(resultsClient, never()).getHearingDetails(any(UUID.class));
+    }
+
+    @Test
     void ingest_should_throwIllegalStateException_whenCachedPayloadIsMalformed() {
         // No HTTP status here — this path never runs inside a request, only the Service
         // Bus consumer, which just treats it as another "genuinely wrong" dead-letter case.

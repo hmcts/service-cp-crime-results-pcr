@@ -69,9 +69,14 @@ public class ResultsIngestionService {
     private final CPJudicialResultPromptRepository judicialResultPromptRepository;
 
     public HearingDetailsResponse ingestHearingResults(final UUID hearingId, final String hearingDay) {
-        return cacheClient.get(hearingId, hearingDay)
+        final HearingDetailsResponse response = cacheClient.get(hearingId, hearingDay)
                 .map(this::deserializeCachedHearingResults)
-                .orElseGet(() -> getHearingResults(hearingId));
+                .orElseGet(() -> resultsClient.getHearingDetails(hearingId));
+        if (isComplete(response)) {
+            return response;
+        }
+        log.warn("Incomplete hearing details for hearingId:{} — viewstore may not have caught up yet", hearingId);
+        throw new IncompleteHearingDetailsException(hearingId);
     }
 
     @Transactional
@@ -143,15 +148,6 @@ public class ResultsIngestionService {
         } catch (JacksonException e) {
             throw new IllegalStateException("Malformed cached hearing-result payload", e);
         }
-    }
-
-    private HearingDetailsResponse getHearingResults(final UUID hearingId) {
-        final HearingDetailsResponse response = resultsClient.getHearingDetails(hearingId);
-        if (isComplete(response)) {
-            return response;
-        }
-        log.warn("Incomplete hearing details for hearingId:{} — viewstore may not have caught up yet", hearingId);
-        throw new IncompleteHearingDetailsException(hearingId);
     }
 
     private boolean isComplete(final HearingDetailsResponse response) {
