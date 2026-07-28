@@ -10,6 +10,7 @@ import uk.gov.hmcts.cp.entities.CPVersionEntity;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -100,5 +101,45 @@ class CPVersionRepositoryTest extends RepositoryIntegrationTestBase {
         assertThat(actual.getAddressLine4()).isEqualTo("encrypted-address-4");
         assertThat(actual.getAddressLine5()).isEqualTo("encrypted-address-5");
         assertThat(actual.getPostCode()).isEqualTo("encrypted-postcode");
+    }
+
+    @Transactional
+    @Test
+    void findByCaseHearingIdAndDefendantIdOrderByCreatedAtAsc_should_returnVersionsOldestFirst() {
+        final UUID caseHearingId = UUID.fromString("00000000-0000-0000-0000-000000000077");
+        cpCaseHearingRepository.save(CPCaseHearingEntity.builder()
+                .id(caseHearingId)
+                .caseUrn("ABCD1234567")
+                .hearingId(UUID.fromString("00000000-0000-0000-0000-000000000002"))
+                .createdAt(OffsetDateTime.now(ZoneOffset.UTC))
+                .build());
+        final UUID defendantId = UUID.fromString("00000000-0000-0000-0000-000000000088");
+        final OffsetDateTime older = OffsetDateTime.parse("2026-07-01T10:00:00Z");
+        final OffsetDateTime newer = OffsetDateTime.parse("2026-07-15T10:00:00Z");
+        final CPVersionEntity newerVersion = CPVersionEntity.builder()
+                .cpVersionPk(UUID.fromString("00000000-0000-0000-0000-000000000091"))
+                .caseHearingId(caseHearingId).defendantId(defendantId).createdAt(newer)
+                .expiresAt(newer.plusDays(30)).build();
+        final CPVersionEntity olderVersion = CPVersionEntity.builder()
+                .cpVersionPk(UUID.fromString("00000000-0000-0000-0000-000000000092"))
+                .caseHearingId(caseHearingId).defendantId(defendantId).createdAt(older)
+                .expiresAt(older.plusDays(30)).build();
+        cpVersionRepository.save(newerVersion);
+        cpVersionRepository.save(olderVersion);
+
+        final List<CPVersionEntity> found =
+                cpVersionRepository.findByCaseHearingIdAndDefendantIdOrderByCreatedAtAsc(caseHearingId, defendantId);
+
+        assertThat(found).extracting(CPVersionEntity::getCpVersionPk)
+                .containsExactly(olderVersion.getCpVersionPk(), newerVersion.getCpVersionPk());
+    }
+
+    @Transactional
+    @Test
+    void findByCaseHearingIdAndDefendantIdOrderByCreatedAtAsc_should_returnEmpty_whenNoMatch() {
+        final List<CPVersionEntity> found = cpVersionRepository.findByCaseHearingIdAndDefendantIdOrderByCreatedAtAsc(
+                UUID.fromString("00000000-0000-0000-0000-000000000093"), UUID.fromString("00000000-0000-0000-0000-000000000094"));
+
+        assertThat(found).isEmpty();
     }
 }
