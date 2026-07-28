@@ -254,6 +254,56 @@ class ResultsIngestionServiceTest {
     }
 
     @Test
+    void ingestAndPersist_should_findCaseHearingOnce_whenTwoDefendantsShareTheSameCase() {
+        when(cacheClient.get(HEARING_ID, HEARING_DAY)).thenReturn(Optional.empty());
+        when(resultsClient.getHearingDetails(HEARING_ID)).thenReturn(hearingWithTwoDefendantsOnOneCase());
+        when(vocabularyService.compute(any(), any())).thenReturn(VOCABULARY);
+        when(entityMapper.eligibleResults(any(), any())).thenReturn(List.of());
+        when(orchestrator.excludePublishedForNows(any())).thenReturn(List.of());
+        when(orchestrator.isPrisonCourtRegisterRequired(any(), any(), any())).thenReturn(true);
+        when(caseHearingRepository.findByCaseUrnAndHearingId(CASE_URN, HEARING_ID)).thenReturn(Optional.empty());
+        final CPCaseHearingEntity caseHearingEntity = CPCaseHearingEntity.builder().id(CASE_HEARING_ID).build();
+        when(entityMapper.toCaseHearingEntity(any(), any(), eq(HEARING_ID), any())).thenReturn(caseHearingEntity);
+        when(entityMapper.toCaseMarkerEntities(any(), eq(CASE_HEARING_ID))).thenReturn(List.of());
+        when(entityMapper.toWriteBundle(any(), any(), eq(CASE_HEARING_ID), any(), any())).thenReturn(emptyBundle());
+
+        ingestionService.ingestAndPersist(HEARING_ID, HEARING_DAY);
+
+        verify(caseHearingRepository, times(1)).findByCaseUrnAndHearingId(CASE_URN, HEARING_ID);
+        verify(caseHearingRepository, times(1)).save(caseHearingEntity);
+        verify(versionRepository, times(2)).save(any());
+    }
+
+    private HearingDetailsResponse hearingWithTwoDefendantsOnOneCase() {
+        final JudicialResult result = JudicialResult.builder()
+                .cjsCode("1200").orderedDate(LocalDate.of(2026, 7, 15)).judicialResultPrompts(List.of()).build();
+        final Offence offence = Offence.builder().judicialResults(List.of(result)).build();
+        final Defendant defendantOne = Defendant.builder()
+                .id("11111111-1111-1111-1111-111111111111")
+                .personDefendant(PersonDefendant.builder().build())
+                .offences(List.of(offence))
+                .build();
+        final Defendant defendantTwo = Defendant.builder()
+                .id("22222222-2222-2222-2222-222222222222")
+                .personDefendant(PersonDefendant.builder().build())
+                .offences(List.of(offence))
+                .build();
+        final ProsecutionCase prosecutionCase = ProsecutionCase.builder()
+                .prosecutionCaseIdentifier(ProsecutionCaseIdentifier.builder().caseURN(CASE_URN).build())
+                .caseMarkers(List.of())
+                .defendants(List.of(defendantOne, defendantTwo))
+                .build();
+        return HearingDetailsResponse.builder()
+                .hearing(HearingDetailsResponse.HearingDetail.builder()
+                        .courtCentre(CourtCentre.builder().build())
+                        .hearingDays(List.of(HearingDay.builder().sittingDay("2026-07-23").build()))
+                        .prosecutionCases(List.of(prosecutionCase))
+                        .courtApplications(List.of())
+                        .build())
+                .build();
+    }
+
+    @Test
     void ingestAndPersist_should_throwNoOrderedDateFoundException_whenNoResultHasOrderedDate() {
         when(cacheClient.get(HEARING_ID, HEARING_DAY)).thenReturn(Optional.empty());
         when(resultsClient.getHearingDetails(HEARING_ID)).thenReturn(hearingWithNoOrderedDate());
