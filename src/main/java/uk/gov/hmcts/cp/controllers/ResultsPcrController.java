@@ -10,9 +10,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 import uk.gov.hmcts.cp.openapi.api.PcrApi;
-import uk.gov.hmcts.cp.openapi.model.PcrVersion;
+import uk.gov.hmcts.cp.openapi.model.PcrHearingResult;
 import uk.gov.hmcts.cp.services.ResultsPcrService;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -26,13 +27,13 @@ public class ResultsPcrController implements PcrApi {
 
     @Override
     @NonNull
-    public ResponseEntity<PcrVersion> getPcrVersion(final String caseURN, final UUID hearingId, final UUID defendantId, final String version) {
-        log.info("Received request to get PCR version for caseURN:{} hearingId:{} defendantId:{} version:{}",
-                Encode.forJava(caseURN), hearingId, defendantId, Encode.forJava(version));
-        final PcrVersion pcrVersion = resultsPcrService.getVersion(validateCaseUrn(caseURN), hearingId, defendantId, version);
+    public ResponseEntity<List<PcrHearingResult>> getPcrHearingResults(final String caseURN, final UUID hearingId, final UUID defendantId) {
+        log.info("Received request to get PCR hearing results for caseURN:{} hearingId:{} defendantId:{}",
+                Encode.forJava(caseURN), hearingId, defendantId);
+        final List<PcrHearingResult> results = resultsPcrService.getPcrHearingResults(validateCaseUrn(caseURN), hearingId, defendantId);
         return ResponseEntity.ok()
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(pcrVersion);
+                .body(results);
     }
 
     private String validateCaseUrn(final String caseUrn) {

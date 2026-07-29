@@ -28,6 +28,9 @@ public class CPCourtApplicationEntity {
     @Column(name = "version_pk")
     private UUID versionPk;
 
+    @Column(name = "source_application_id")
+    private UUID sourceApplicationId;
+
     private String reference;
 
     private String type;

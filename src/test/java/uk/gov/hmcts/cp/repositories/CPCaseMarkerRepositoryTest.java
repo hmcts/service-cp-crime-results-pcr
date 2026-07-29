@@ -8,6 +8,7 @@ import uk.gov.hmcts.cp.entities.CPCaseMarkerEntity;
 
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -48,5 +49,25 @@ class CPCaseMarkerRepositoryTest extends RepositoryIntegrationTestBase {
         assertThat(found.get().getCaseHearingId()).isEqualTo(CASE_HEARING_ID);
         assertThat(found.get().getCode()).isEqualTo("DV");
         assertThat(found.get().getDescription()).isEqualTo("Domestic violence case marker");
+    }
+
+    @Transactional
+    @Test
+    void findByCaseHearingId_should_returnMatchingMarkers() {
+        final UUID caseHearingId = UUID.fromString("00000000-0000-0000-0000-000000000075");
+        cpCaseHearingRepository.save(CPCaseHearingEntity.builder()
+                .id(caseHearingId)
+                .caseUrn("ABCD1234567")
+                .hearingId(UUID.fromString("00000000-0000-0000-0000-000000000002"))
+                .createdAt(OffsetDateTime.now(ZoneOffset.UTC))
+                .build());
+        final CPCaseMarkerEntity marker = CPCaseMarkerEntity.builder()
+                .id(UUID.fromString("00000000-0000-0000-0000-000000000076"))
+                .caseHearingId(caseHearingId).code("DomesticViolence").build();
+        cpCaseMarkerRepository.save(marker);
+
+        final List<CPCaseMarkerEntity> found = cpCaseMarkerRepository.findByCaseHearingId(caseHearingId);
+
+        assertThat(found).extracting(CPCaseMarkerEntity::getCode).containsExactly("DomesticViolence");
     }
 }

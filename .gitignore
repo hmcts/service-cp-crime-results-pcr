@@ -35,3 +35,9 @@ applicationinsights-agent-*.jar
 */.DS_Store
 
 .claude/CLAUDE.md
+
+# Local-only superpowers skill artifacts (plans, working docs) — never pushed to a PR
+docs/superpowers/
+
+# Local git worktrees for isolated feature work
+.worktrees/

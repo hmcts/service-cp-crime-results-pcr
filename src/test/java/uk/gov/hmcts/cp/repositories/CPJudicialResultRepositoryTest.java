@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import uk.gov.hmcts.cp.entities.CPCaseHearingEntity;
+import uk.gov.hmcts.cp.entities.CPCourtApplicationEntity;
 import uk.gov.hmcts.cp.entities.CPJudicialResultEntity;
 import uk.gov.hmcts.cp.entities.CPOffenceEntity;
 import uk.gov.hmcts.cp.entities.CPVersionEntity;
@@ -12,6 +13,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -32,6 +34,9 @@ class CPJudicialResultRepositoryTest extends RepositoryIntegrationTestBase {
 
     @Autowired
     private CPOffenceRepository cpOffenceRepository;
+
+    @Autowired
+    private CPCourtApplicationRepository cpCourtApplicationRepository;
 
     @Autowired
     private CPJudicialResultRepository cpJudicialResultRepository;
@@ -76,6 +81,46 @@ class CPJudicialResultRepositoryTest extends RepositoryIntegrationTestBase {
         assertThat(found.get().getFineAmount()).isEqualByComparingTo(new BigDecimal("250.00"));
         assertThat(found.get().getImprisonmentPeriod()).isEqualTo("6 months");
         assertThat(found.get().getTotalCustodialPeriod()).isEqualTo("6 months");
+    }
+
+    @Transactional
+    @Test
+    void findByOffenceId_should_returnMatchingResults() {
+        saveParents();
+        final UUID offenceId = UUID.fromString("00000000-0000-0000-0000-000000000084");
+        cpOffenceRepository.save(CPOffenceEntity.builder()
+                .id(offenceId)
+                .versionPk(VERSION_PK)
+                .code("TH68001")
+                .build());
+        final CPJudicialResultEntity result = CPJudicialResultEntity.builder()
+                .id(UUID.fromString("00000000-0000-0000-0000-000000000085"))
+                .offenceId(offenceId).resultCode("1200").build();
+        cpJudicialResultRepository.save(result);
+
+        final List<CPJudicialResultEntity> found = cpJudicialResultRepository.findByOffenceId(offenceId);
+
+        assertThat(found).extracting(CPJudicialResultEntity::getResultCode).containsExactly("1200");
+    }
+
+    @Transactional
+    @Test
+    void findByCourtApplicationId_should_returnMatchingResults() {
+        saveParents();
+        final UUID courtApplicationId = UUID.fromString("00000000-0000-0000-0000-000000000086");
+        cpCourtApplicationRepository.save(CPCourtApplicationEntity.builder()
+                .id(courtApplicationId)
+                .versionPk(VERSION_PK)
+                .reference("APP-1")
+                .build());
+        final CPJudicialResultEntity result = CPJudicialResultEntity.builder()
+                .id(UUID.fromString("00000000-0000-0000-0000-000000000087"))
+                .courtApplicationId(courtApplicationId).resultCode("1201").build();
+        cpJudicialResultRepository.save(result);
+
+        final List<CPJudicialResultEntity> found = cpJudicialResultRepository.findByCourtApplicationId(courtApplicationId);
+
+        assertThat(found).extracting(CPJudicialResultEntity::getResultCode).containsExactly("1201");
     }
 
     private void saveParents() {
