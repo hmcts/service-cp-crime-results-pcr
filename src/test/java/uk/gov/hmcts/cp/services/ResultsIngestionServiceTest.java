@@ -91,7 +91,7 @@ class ResultsIngestionServiceTest {
     @Mock
     private CPVocabularyService vocabularyService;
     @Mock
-    private CPResultsPcrFilter orchestrator;
+    private CPResultsPcrFilter pcrFilter;
     @Mock
     private CPVersionEntityMapper entityMapper;
     @Spy
@@ -212,9 +212,9 @@ class ResultsIngestionServiceTest {
         when(resultsClient.getHearingDetails(HEARING_ID)).thenReturn(hearingWithOneDefendant());
         when(vocabularyService.compute(any(), any())).thenReturn(VOCABULARY);
         when(entityMapper.eligibleResults(any(), any())).thenReturn(List.of());
-        when(orchestrator.excludePublishedForNows(any())).thenReturn(List.of());
-        when(orchestrator.fetchPrisonCourtRegisterSubscriptions(any())).thenReturn(List.of());
-        when(orchestrator.isPrisonCourtRegisterRequired(any(), any(), any())).thenReturn(true);
+        when(pcrFilter.excludePublishedForNows(any())).thenReturn(List.of());
+        when(pcrFilter.fetchPrisonCourtRegisterSubscriptions(any())).thenReturn(List.of());
+        when(pcrFilter.isPrisonCourtRegisterRequired(any(), any(), any())).thenReturn(true);
         when(caseHearingRepository.findByCaseUrnAndHearingId(CASE_URN, HEARING_ID)).thenReturn(Optional.empty());
         final CPCaseHearingEntity caseHearingEntity = CPCaseHearingEntity.builder().id(CASE_HEARING_ID).build();
         when(entityMapper.toCaseHearingEntity(any(), any(), eq(HEARING_ID), any())).thenReturn(caseHearingEntity);
@@ -238,9 +238,9 @@ class ResultsIngestionServiceTest {
         when(resultsClient.getHearingDetails(HEARING_ID)).thenReturn(hearingWithOneDefendant());
         when(vocabularyService.compute(any(), any())).thenReturn(VOCABULARY);
         when(entityMapper.eligibleResults(any(), any())).thenReturn(List.of());
-        when(orchestrator.excludePublishedForNows(any())).thenReturn(List.of());
-        when(orchestrator.fetchPrisonCourtRegisterSubscriptions(any())).thenReturn(List.of());
-        when(orchestrator.isPrisonCourtRegisterRequired(any(), any(), any())).thenReturn(true);
+        when(pcrFilter.excludePublishedForNows(any())).thenReturn(List.of());
+        when(pcrFilter.fetchPrisonCourtRegisterSubscriptions(any())).thenReturn(List.of());
+        when(pcrFilter.isPrisonCourtRegisterRequired(any(), any(), any())).thenReturn(true);
         final CPCaseHearingEntity existing = CPCaseHearingEntity.builder().id(CASE_HEARING_ID).build();
         when(caseHearingRepository.findByCaseUrnAndHearingId(CASE_URN, HEARING_ID)).thenReturn(Optional.of(existing));
         when(entityMapper.toWriteBundle(any(), any(), eq(CASE_HEARING_ID), any(), any())).thenReturn(emptyBundle());
@@ -257,9 +257,9 @@ class ResultsIngestionServiceTest {
         when(resultsClient.getHearingDetails(HEARING_ID)).thenReturn(hearingWithOneDefendant());
         when(vocabularyService.compute(any(), any())).thenReturn(VOCABULARY);
         when(entityMapper.eligibleResults(any(), any())).thenReturn(List.of());
-        when(orchestrator.excludePublishedForNows(any())).thenReturn(List.of());
-        when(orchestrator.fetchPrisonCourtRegisterSubscriptions(any())).thenReturn(List.of());
-        when(orchestrator.isPrisonCourtRegisterRequired(any(), any(), any())).thenReturn(false);
+        when(pcrFilter.excludePublishedForNows(any())).thenReturn(List.of());
+        when(pcrFilter.fetchPrisonCourtRegisterSubscriptions(any())).thenReturn(List.of());
+        when(pcrFilter.isPrisonCourtRegisterRequired(any(), any(), any())).thenReturn(false);
 
         ingestionService.ingestAndPersist(HEARING_ID, HEARING_DAY);
 
@@ -273,9 +273,9 @@ class ResultsIngestionServiceTest {
         when(resultsClient.getHearingDetails(HEARING_ID)).thenReturn(hearingWithTwoDefendantsOnOneCase());
         when(vocabularyService.compute(any(), any())).thenReturn(VOCABULARY);
         when(entityMapper.eligibleResults(any(), any())).thenReturn(List.of());
-        when(orchestrator.excludePublishedForNows(any())).thenReturn(List.of());
-        when(orchestrator.fetchPrisonCourtRegisterSubscriptions(any())).thenReturn(List.of());
-        when(orchestrator.isPrisonCourtRegisterRequired(any(), any(), any())).thenReturn(true);
+        when(pcrFilter.excludePublishedForNows(any())).thenReturn(List.of());
+        when(pcrFilter.fetchPrisonCourtRegisterSubscriptions(any())).thenReturn(List.of());
+        when(pcrFilter.isPrisonCourtRegisterRequired(any(), any(), any())).thenReturn(true);
         when(caseHearingRepository.findByCaseUrnAndHearingId(CASE_URN, HEARING_ID)).thenReturn(Optional.empty());
         final CPCaseHearingEntity caseHearingEntity = CPCaseHearingEntity.builder().id(CASE_HEARING_ID).build();
         when(entityMapper.toCaseHearingEntity(any(), any(), eq(HEARING_ID), any())).thenReturn(caseHearingEntity);
