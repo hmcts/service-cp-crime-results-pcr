@@ -10,11 +10,12 @@ import lombok.SneakyThrows;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import uk.gov.hmcts.cp.entities.CPCaseHearingEntity;
 import uk.gov.hmcts.cp.entities.CPCourtApplicationEntity;
@@ -42,18 +43,14 @@ import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
 import static java.net.HttpURLConnection.HTTP_OK;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.hasItems;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-// Real end-to-end proof: a real Event Grid envelope pointing at a real captured hearing payload
-// (two-def-one-application — one physical defendant appearing both as a prosecutionCase
-// defendant and as a court application's subject, sharing one masterDefendantId, per this
-// repo's CLAUDE.md architecture rule) is seeded into a real Redis, run through the real
-// HearingResultedProcessorService -> ResultsIngestionService -> CPVocabularyService ->
-// CPResultsPcrOrchestrator -> repository stack against a real Postgres, with only the
-// now-subscriptions HTTP call stubbed (WireMock) — proving the whole pipeline persists exactly
-// what the real payload describes, not a hand-built unit-test fixture.
 @ExtendWith(MockitoExtension.class)
 class HearingResultedIngestionE2EIntegrationTest extends IngestionE2ETestBase {
 
@@ -62,6 +59,7 @@ class HearingResultedIngestionE2EIntegrationTest extends IngestionE2ETestBase {
     private static final String CASE_URN = "TEST1234567";
     private static final UUID DEFENDANT_ID = UUID.fromString("ea6b2d84-e99a-47ff-b031-a036e093f627");
     private static final String FIXTURE_PATH = "pcr-two-def-one-application/two-def-one-application.json";
+    private static final String NOW_SUBSCRIPTIONS_FIXTURE_PATH = "referencedata/now-subscriptions-prison-court-register-fixture.json";
     private static final String CACHE_KEY = "INT_" + HEARING_ID + "_" + HEARING_DAY + "_result_";
 
     @Autowired
@@ -87,13 +85,15 @@ class HearingResultedIngestionE2EIntegrationTest extends IngestionE2ETestBase {
     private ServiceBusReceivedMessage message;
 
     private WireMockServer wireMockServer;
+    private CPCaseHearingEntity caseHearing;
+    private CPVersionEntity version;
+    private CPJudicialResultEntity imprisonment;
 
     @BeforeEach
     void beforeEach() {
         wireMockServer = new WireMockServer(WireMockConfiguration.options().port(8081));
         wireMockServer.start();
         WireMock.configureFor("localhost", 8081);
-        stubNowSubscriptionsUnconditionalMatch();
     }
 
     @AfterEach
@@ -106,23 +106,54 @@ class HearingResultedIngestionE2EIntegrationTest extends IngestionE2ETestBase {
 
     @Transactional
     @Test
-    void onMessage_should_persistCaseHearingVersionAndCourtApplication_whenRealHearingPayloadInRedis() {
+    void twoDefendantOneApplicationHearing_should_persistAndExposeViaGetPcr_whenPrisonCourtRegisterSubscriptionMatches() throws Exception {
+        given_a_matching_prison_court_register_subscription();
+        given_the_real_hearing_payload_is_seeded_in_redis();
+
+        when_the_hearing_resulted_event_is_processed();
+
+        then_the_message_is_completed_not_dead_lettered();
+        then_the_case_hearing_is_persisted();
+        then_the_version_is_persisted_with_defendant_pii_and_custody();
+        then_the_court_application_is_persisted();
+        then_the_offence_and_judicial_result_are_persisted();
+        then_the_judicial_result_prompts_are_persisted();
+        then_the_get_pcr_query_returns_the_persisted_result();
+    }
+
+    private void given_a_matching_prison_court_register_subscription() {
+        WireMock.stubFor(get(urlPathEqualTo("/referencedata-query-api/query/api/rest/referencedata/now-subscriptions"))
+                .willReturn(aResponse()
+                        .withStatus(HTTP_OK)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody(readResourceContents(NOW_SUBSCRIPTIONS_FIXTURE_PATH))));
+    }
+
+    private void given_the_real_hearing_payload_is_seeded_in_redis() {
         redisTemplate.opsForValue().set(CACHE_KEY, readResourceContents(FIXTURE_PATH));
+    }
+
+    private void when_the_hearing_resulted_event_is_processed() {
         when(context.getMessage()).thenReturn(message);
         when(message.getBody()).thenReturn(BinaryData.fromString(eventGridEnvelope()));
-
         processorService.onMessage(context);
+    }
 
+    private void then_the_message_is_completed_not_dead_lettered() {
         verify(context).complete();
         verify(context, never()).deadLetter();
+    }
 
-        final CPCaseHearingEntity caseHearing = caseHearingRepository.findByCaseUrnAndHearingId(CASE_URN, HEARING_ID)
+    private void then_the_case_hearing_is_persisted() {
+        caseHearing = caseHearingRepository.findByCaseUrnAndHearingId(CASE_URN, HEARING_ID)
                 .orElseThrow(() -> new AssertionError("Expected a CPCaseHearingEntity for " + CASE_URN + "/" + HEARING_ID));
         assertThat(caseHearing.getCourtHouseCode()).isEqualTo("B52CM00");
         assertThat(caseHearing.getCourtHouseName()).isEqualTo("Bristol Magistrates' Court");
         assertThat(caseHearing.getHearingDate()).isEqualTo(LocalDate.of(2026, 7, 23));
+    }
 
-        final CPVersionEntity version = versionRepository.findAll().stream()
+    private void then_the_version_is_persisted_with_defendant_pii_and_custody() {
+        version = versionRepository.findAll().stream()
                 .filter(v -> DEFENDANT_ID.equals(v.getDefendantId()))
                 .findFirst()
                 .orElseThrow(() -> new AssertionError("Expected a CPVersionEntity for defendantId " + DEFENDANT_ID));
@@ -136,7 +167,9 @@ class HearingResultedIngestionE2EIntegrationTest extends IngestionE2ETestBase {
         assertThat(version.getDateOfBirth()).isEqualTo(LocalDate.of(2006, 7, 23));
         assertThat(version.getAddressLine1()).isEqualTo("30 Church Street");
         assertThat(version.getPostCode()).isEqualTo("NW1 5BR");
+    }
 
+    private void then_the_court_application_is_persisted() {
         final List<CPCourtApplicationEntity> applications = courtApplicationRepository.findAll().stream()
                 .filter(a -> version.getCpVersionPk().equals(a.getVersionPk()))
                 .toList();
@@ -145,7 +178,9 @@ class HearingResultedIngestionE2EIntegrationTest extends IngestionE2ETestBase {
                 .isEqualTo(UUID.fromString("08efcf9b-c3d6-439e-bdbc-509ee4126921"));
         assertThat(applications.get(0).getReference()).isEqualTo(CASE_URN);
         assertThat(applications.get(0).getType()).isEqualTo("Application within criminal proceedings");
+    }
 
+    private void then_the_offence_and_judicial_result_are_persisted() {
         final List<CPOffenceEntity> offences = offenceRepository.findAll().stream()
                 .filter(o -> version.getCpVersionPk().equals(o.getVersionPk()))
                 .toList();
@@ -158,13 +193,15 @@ class HearingResultedIngestionE2EIntegrationTest extends IngestionE2ETestBase {
                 .filter(r -> offences.get(0).getId().equals(r.getOffenceId()))
                 .toList();
         assertThat(judicialResults).hasSize(1);
-        final CPJudicialResultEntity imprisonment = judicialResults.get(0);
+        imprisonment = judicialResults.get(0);
         assertThat(imprisonment.getResultCode()).isEqualTo("1002");
         assertThat(imprisonment.getConvicted()).isTrue();
         assertThat(imprisonment.getFinancial()).isFalse();
         assertThat(imprisonment.getImprisonmentPeriod()).isEqualTo("6 Months");
         assertThat(imprisonment.getTotalCustodialPeriod()).isEqualTo("5 Months");
+    }
 
+    private void then_the_judicial_result_prompts_are_persisted() {
         final List<CPJudicialResultPromptEntity> prompts = judicialResultPromptRepository.findAll().stream()
                 .filter(p -> imprisonment.getId().equals(p.getJudicialResultId()))
                 .toList();
@@ -172,18 +209,35 @@ class HearingResultedIngestionE2EIntegrationTest extends IngestionE2ETestBase {
                 .contains("imprisonmentPeriod", "totalCustodialPeriod", "prisonOrganisationName");
     }
 
-    private void stubNowSubscriptionsUnconditionalMatch() {
-        WireMock.stubFor(get(urlPathEqualTo("/referencedata-query-api/query/api/rest/referencedata/now-subscriptions"))
-                .willReturn(aResponse()
-                        .withStatus(HTTP_OK)
-                        .withHeader("Content-Type", "application/json")
-                        .withBody("""
-                                {
-                                  "nowSubscriptions": [
-                                    { "isPrisonCourtRegisterSubscription": true, "applySubscriptionRules": false }
-                                  ]
-                                }
-                                """)));
+    private void then_the_get_pcr_query_returns_the_persisted_result() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.get(
+                        "/pcrs/cases/{caseURN}/hearings/{hearingId}/defendants/{defendantId}",
+                        CASE_URN, HEARING_ID, DEFENDANT_ID))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].caseURN").value(CASE_URN))
+                .andExpect(jsonPath("$[0].defendant.masterDefendantId").value(DEFENDANT_ID.toString()))
+                .andExpect(jsonPath("$[0].defendant.firstName").value("Sophie"))
+                .andExpect(jsonPath("$[0].defendant.lastName").value("Reichel"))
+                .andExpect(jsonPath("$[0].defendant.title").value("Mr"))
+                .andExpect(jsonPath("$[0].defendant.dateOfBirth").value("2006-07-23"))
+                .andExpect(jsonPath("$[0].defendant.address.address1").value("30 Church Street"))
+                .andExpect(jsonPath("$[0].defendant.address.postCode").value("NW1 5BR"))
+                .andExpect(jsonPath("$[0].custodyLocation.name").value("HMP/YOI Eastwood Park"))
+                .andExpect(jsonPath("$[0].custodyLocation.custodyType").value("Prison"))
+                .andExpect(jsonPath("$[0].hearing.court.courtHouseCode").value("B52CM00"))
+                .andExpect(jsonPath("$[0].hearing.court.courtHouseName").value("Bristol Magistrates' Court"))
+                .andExpect(jsonPath("$[0].hearing.hearingDate").value("2026-07-23"))
+                .andExpect(jsonPath("$[0].courtApplications[0].reference").value(CASE_URN))
+                .andExpect(jsonPath("$[0].courtApplications[0].type").value("Application within criminal proceedings"))
+                .andExpect(jsonPath("$[0].offences[0].code").value("TH68013A"))
+                .andExpect(jsonPath("$[0].offences[0].judicialResults[0].resultCode").value("1002"))
+                .andExpect(jsonPath("$[0].offences[0].judicialResults[0].convicted").value(true))
+                .andExpect(jsonPath("$[0].offences[0].judicialResults[0].financial").value(false))
+                .andExpect(jsonPath("$[0].offences[0].judicialResults[0].imprisonmentPeriod").value("6 Months"))
+                .andExpect(jsonPath("$[0].offences[0].judicialResults[0].totalCustodialPeriod").value("5 Months"))
+                .andExpect(jsonPath("$[0].offences[0].judicialResults[0].prompts[*].reference")
+                        .value(hasItems("imprisonmentPeriod", "totalCustodialPeriod", "prisonOrganisationName")));
     }
 
     private String eventGridEnvelope() {
