@@ -40,7 +40,7 @@ import uk.gov.hmcts.cp.repositories.CPJudicialResultPromptRepository;
 import uk.gov.hmcts.cp.repositories.CPJudicialResultRepository;
 import uk.gov.hmcts.cp.repositories.CPOffenceRepository;
 import uk.gov.hmcts.cp.repositories.CPVersionRepository;
-import uk.gov.hmcts.cp.services.orchestrator.CPResultsPcrOrchestrator;
+import uk.gov.hmcts.cp.services.orchestrator.CPResultsPcrFilter;
 import uk.gov.hmcts.cp.services.orchestrator.CPVocabularyService;
 
 import java.time.Clock;
@@ -91,7 +91,7 @@ class ResultsIngestionServiceTest {
     @Mock
     private CPVocabularyService vocabularyService;
     @Mock
-    private CPResultsPcrOrchestrator orchestrator;
+    private CPResultsPcrFilter orchestrator;
     @Mock
     private CPVersionEntityMapper entityMapper;
     @Spy

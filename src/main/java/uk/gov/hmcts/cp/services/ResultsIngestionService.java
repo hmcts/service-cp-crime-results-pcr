@@ -34,7 +34,7 @@ import uk.gov.hmcts.cp.repositories.CPJudicialResultPromptRepository;
 import uk.gov.hmcts.cp.repositories.CPJudicialResultRepository;
 import uk.gov.hmcts.cp.repositories.CPOffenceRepository;
 import uk.gov.hmcts.cp.repositories.CPVersionRepository;
-import uk.gov.hmcts.cp.services.orchestrator.CPResultsPcrOrchestrator;
+import uk.gov.hmcts.cp.services.orchestrator.CPResultsPcrFilter;
 import uk.gov.hmcts.cp.services.orchestrator.CPVocabularyService;
 
 import java.time.Duration;
@@ -57,7 +57,7 @@ public class ResultsIngestionService {
     private final HearingResultedServiceBusClientFactory clientFactory;
     private final RetryServiceConfig retryServiceConfig;
     private final CPVocabularyService vocabularyService;
-    private final CPResultsPcrOrchestrator orchestrator;
+    private final CPResultsPcrFilter orchestrator;
     private final CPVersionEntityMapper entityMapper;
     private final ClockService clockService;
     private final CPCaseHearingRepository caseHearingRepository;
