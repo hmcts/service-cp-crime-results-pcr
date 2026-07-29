@@ -29,8 +29,9 @@ apply {
 // We MUST keep all dependencies in the build.gradle to allow dependabot to provide version updates
 // Sadly, dependabot does not track dependencies in the apply-from files
 dependencies {
-  // Api spec — PR #10 (version query param contract) merged and released as v1.0.3
-  implementation('uk.gov.hmcts.cp:api-cp-crime-results-pcr:1.0.3')
+  // Api spec — v3.0.2: redesigned version-history/version-metadata endpoints (spec repo PR #16),
+  // flattened caseURN, shared Court object, dropped internal ids (docs/designs/2026-07-28-pcr-read-path-data-store-design.md)
+  implementation('uk.gov.hmcts.cp:api-cp-crime-results-pcr:3.0.2')
   // Required at compile time for the generated contract's @Schema annotations (not resolved transitively)
   implementation 'io.swagger.core.v3:swagger-annotations:2.2.52'
 

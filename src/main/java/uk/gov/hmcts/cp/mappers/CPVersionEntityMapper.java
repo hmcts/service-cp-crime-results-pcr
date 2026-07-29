@@ -125,6 +125,7 @@ public class CPVersionEntityMapper {
                 .defendantId(UUID.fromString(defendant.getId()))
                 .caseHearingId(caseHearingId)
                 .custodyLocation(toCustodyLocation(defendant))
+                .custodyType(toCustodyType(defendant))
                 .masterDefendantId(masterDefendantId(defendant))
                 .nextHearing(toNextHearingEmbeddable(hearing))
                 .createdAt(createdAt)
@@ -140,6 +141,11 @@ public class CPVersionEntityMapper {
     private String toCustodyLocation(final Defendant defendant) {
         final CustodialEstablishment establishment = defendant.getPersonDefendant().getCustodialEstablishment();
         return establishment == null ? null : establishment.getName();
+    }
+
+    private String toCustodyType(final Defendant defendant) {
+        final CustodialEstablishment establishment = defendant.getPersonDefendant().getCustodialEstablishment();
+        return establishment == null ? null : establishment.getCustody();
     }
 
     private void applyPersonDetails(final CPVersionEntity.CPVersionEntityBuilder builder, final PersonDetails personDetails) {

@@ -1,29 +1,38 @@
 package uk.gov.hmcts.cp.integration;
 
-import com.github.tomakehurst.wiremock.WireMockServer;
-import com.github.tomakehurst.wiremock.client.WireMock;
-import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
-import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.http.MediaType;
-import uk.gov.hmcts.cp.clients.ResultsClient;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
+import uk.gov.hmcts.cp.domain.HearingDetailsResponse.CaseMarker;
+import uk.gov.hmcts.cp.domain.HearingDetailsResponse.CourtCentre;
+import uk.gov.hmcts.cp.domain.HearingDetailsResponse.Defendant;
+import uk.gov.hmcts.cp.domain.HearingDetailsResponse.HearingDay;
+import uk.gov.hmcts.cp.domain.HearingDetailsResponse.HearingDetail;
+import uk.gov.hmcts.cp.domain.HearingDetailsResponse.JudicialResult;
+import uk.gov.hmcts.cp.domain.HearingDetailsResponse.Offence;
+import uk.gov.hmcts.cp.domain.HearingDetailsResponse.PersonDefendant;
+import uk.gov.hmcts.cp.domain.HearingDetailsResponse.ProsecutionCase;
+import uk.gov.hmcts.cp.domain.HearingDetailsResponse.ProsecutionCaseIdentifier;
+import uk.gov.hmcts.cp.mappers.CPVersionEntityMapper;
+import uk.gov.hmcts.cp.mappers.CPVersionWriteBundle;
+import uk.gov.hmcts.cp.repositories.CPCaseHearingRepository;
+import uk.gov.hmcts.cp.repositories.CPCaseMarkerRepository;
+import uk.gov.hmcts.cp.repositories.CPJudicialResultPromptRepository;
+import uk.gov.hmcts.cp.repositories.CPJudicialResultRepository;
+import uk.gov.hmcts.cp.repositories.CPOffenceRepository;
+import uk.gov.hmcts.cp.repositories.CPVersionRepository;
 
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import java.util.List;
 import java.util.UUID;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
-import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
-import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
-import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
-import static java.net.HttpURLConnection.HTTP_OK;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@Slf4j
-class ResultsPcrControllerIntegrationTest extends IntegrationTestBase {
+class ResultsPcrControllerIntegrationTest extends ControllerRepositoryIntegrationTestBase {
 
     private static final String CASE_URN = "ABCD1234567";
     private static final UUID HEARING_ID = UUID.fromString("00000000-0000-0000-0000-000000000011");
@@ -32,121 +41,104 @@ class ResultsPcrControllerIntegrationTest extends IntegrationTestBase {
     private static final UUID UNKNOWN_DEFENDANT_ID = UUID.fromString("00000000-0000-0000-0000-000000000099");
     private static final String UNKNOWN_CASE_URN = "ZZZZ9999999";
 
-    private WireMockServer wireMockServer;
+    @Autowired
+    private CPVersionEntityMapper mapper;
+    @Autowired
+    private CPCaseHearingRepository caseHearingRepository;
+    @Autowired
+    private CPCaseMarkerRepository caseMarkerRepository;
+    @Autowired
+    private CPVersionRepository versionRepository;
+    @Autowired
+    private CPOffenceRepository offenceRepository;
+    @Autowired
+    private CPJudicialResultRepository judicialResultRepository;
+    @Autowired
+    private CPJudicialResultPromptRepository judicialResultPromptRepository;
 
-    @BeforeEach
-    void beforeEach() {
-        wireMockServer = new WireMockServer(WireMockConfiguration.options().port(8081));
-        wireMockServer.start();
-        WireMock.configureFor("localhost", 8081);
-    }
-
-    @AfterEach
-    void afterEach() {
-        if (wireMockServer != null) {
-            wireMockServer.stop();
-        }
-    }
-
+    @Transactional
     @Test
-    void getPcrVersion_should_returnOk_withMappedFields_whenVersionIsLatest() throws Exception {
-        stubHearingDetails(HTTP_OK, readResourceContents("pcr/hearing-details-full.json")
-                .formatted(CASE_URN, DEFENDANT_ID, MASTER_DEFENDANT_ID));
+    void getPcrHearingResults_should_returnOk_withMappedFields_whenRecorded() throws Exception {
+        seedOneVersion();
 
-        mockMvc.perform(get("/pcrs/cases/{caseURN}/hearings/{hearingId}/defendants/{defendantId}/versions",
-                        CASE_URN, HEARING_ID, DEFENDANT_ID)
-                        .param("version", "latest")
-                        .accept(MediaType.APPLICATION_JSON))
+        mockMvc.perform(get("/pcrs/cases/{caseURN}/hearings/{hearingId}/defendants/{defendantId}", CASE_URN, HEARING_ID, DEFENDANT_ID))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").doesNotExist())
-                .andExpect(jsonPath("$.prosecutionCase.caseURN").value(CASE_URN))
-                .andExpect(jsonPath("$.defendant.masterDefendantId").value(MASTER_DEFENDANT_ID))
-                .andExpect(jsonPath("$.defendant.firstName").doesNotExist())
-                .andExpect(jsonPath("$.custodyLocation").value("HMP Dovegate"))
-                .andExpect(jsonPath("$.caseMarkers[0].code").value("DomesticViolence"))
-                .andExpect(jsonPath("$.offences[0].code").value("TH68001"))
-                .andExpect(jsonPath("$.offences[0].results[0].resultCode").value("1200"))
-                .andExpect(jsonPath("$.offences[0].results[0].convicted").value("Y"))
-                .andExpect(jsonPath("$.offences[0].results[0].financial").value("N"))
-                .andExpect(jsonPath("$.offences[0].results[0].concurrent").value(true))
-                .andExpect(jsonPath("$.offences[0].results[0].imprisonmentPeriod").value("6 Months 1 week"));
+                .andExpect(jsonPath("$[0].caseURN").value(CASE_URN))
+                .andExpect(jsonPath("$[0].defendant.masterDefendantId").value(MASTER_DEFENDANT_ID))
+                .andExpect(jsonPath("$[0].caseMarkers[0].code").value("DomesticViolence"))
+                .andExpect(jsonPath("$[0].offences[0].code").value("TH68001"))
+                .andExpect(jsonPath("$[0].offences[0].judicialResults[0].resultCode").value("1200"))
+                .andExpect(jsonPath("$[0].offences[0].judicialResults[0].convicted").value(true))
+                .andExpect(jsonPath("$[0].offences[0].judicialResults[0].financial").value(false));
+    }
+
+    @Transactional
+    @Test
+    void getPcrHearingResults_should_returnEmptyList_whenDefendantNeverRecorded() throws Exception {
+        seedOneVersion();
+
+        mockMvc.perform(get("/pcrs/cases/{caseURN}/hearings/{hearingId}/defendants/{defendantId}", CASE_URN, HEARING_ID, UNKNOWN_DEFENDANT_ID))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$").isEmpty());
+    }
+
+    @Transactional
+    @Test
+    void getPcrHearingResults_should_returnEmptyList_whenCaseUrnUnknown() throws Exception {
+        mockMvc.perform(get("/pcrs/cases/{caseURN}/hearings/{hearingId}/defendants/{defendantId}", UNKNOWN_CASE_URN, HEARING_ID, DEFENDANT_ID))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$").isEmpty());
     }
 
     @Test
-    void getPcrVersion_should_return404_whenCaseUrnNotFound() throws Exception {
-        stubHearingDetails(HTTP_OK, readResourceContents("pcr/hearing-details-no-cases.json"));
-
-        mockMvc.perform(get("/pcrs/cases/{caseURN}/hearings/{hearingId}/defendants/{defendantId}/versions",
-                        UNKNOWN_CASE_URN, HEARING_ID, DEFENDANT_ID)
-                        .param("version", "latest")
-                        .accept(MediaType.APPLICATION_JSON))
+    void getPcrHearingResults_should_return400_whenCaseUrnInvalid() throws Exception {
+        mockMvc.perform(get("/pcrs/cases/{caseURN}/hearings/{hearingId}/defendants/{defendantId}", "bad urn!", HEARING_ID, DEFENDANT_ID))
                 .andDo(print())
-                .andExpect(status().isNotFound());
+                .andExpect(status().isBadRequest());
     }
 
-    @Test
-    void getPcrVersion_should_return404_whenDefendantIdNotFound() throws Exception {
-        stubHearingDetails(HTTP_OK, readResourceContents("pcr/hearing-details-no-defendants.json")
-                .formatted(CASE_URN));
+    private void seedOneVersion() {
+        final ProsecutionCase prosecutionCase = ProsecutionCase.builder()
+                .prosecutionCaseIdentifier(ProsecutionCaseIdentifier.builder().caseURN(CASE_URN).build())
+                .caseMarkers(List.of(CaseMarker.builder().markerTypeCode("DomesticViolence").build()))
+                .defendants(List.of())
+                .build();
+        final HearingDetail hearing = HearingDetail.builder()
+                .courtCentre(CourtCentre.builder().code("B01LY").name("Leeds Crown Court").build())
+                .hearingDays(List.of(HearingDay.builder().sittingDay("2026-07-23").build()))
+                .prosecutionCases(List.of(prosecutionCase))
+                .courtApplications(List.of())
+                .build();
+        final OffsetDateTime createdAt = OffsetDateTime.now(ZoneOffset.UTC).withNano(0);
 
-        mockMvc.perform(get("/pcrs/cases/{caseURN}/hearings/{hearingId}/defendants/{defendantId}/versions",
-                        CASE_URN, HEARING_ID, UNKNOWN_DEFENDANT_ID)
-                        .param("version", "latest")
-                        .accept(MediaType.APPLICATION_JSON))
-                .andDo(print())
-                .andExpect(status().isNotFound());
+        final var caseHearing = mapper.toCaseHearingEntity(prosecutionCase, hearing, HEARING_ID, createdAt);
+        caseHearingRepository.save(caseHearing);
+        caseMarkerRepository.saveAll(mapper.toCaseMarkerEntities(prosecutionCase, caseHearing.getId()));
+
+        final Defendant defendant = Defendant.builder()
+                .id(DEFENDANT_ID.toString())
+                .masterDefendantId(MASTER_DEFENDANT_ID)
+                .personDefendant(PersonDefendant.builder().build())
+                .offences(List.of(offenceWithResult()))
+                .build();
+        final CPVersionWriteBundle bundle = mapper.toWriteBundle(defendant, hearing, caseHearing.getId(), createdAt, createdAt.plusDays(30));
+        versionRepository.save(bundle.version());
+        offenceRepository.saveAll(bundle.offences());
+        judicialResultRepository.saveAll(bundle.judicialResults());
+        judicialResultPromptRepository.saveAll(bundle.judicialResultPrompts());
     }
 
-    @Test
-    void getPcrVersion_should_return404_whenCpBackendReturns404() throws Exception {
-        stubHearingDetails(HTTP_NOT_FOUND, "");
-
-        mockMvc.perform(get("/pcrs/cases/{caseURN}/hearings/{hearingId}/defendants/{defendantId}/versions",
-                        CASE_URN, HEARING_ID, DEFENDANT_ID)
-                        .param("version", "latest")
-                        .accept(MediaType.APPLICATION_JSON))
-                .andDo(print())
-                .andExpect(status().isNotFound());
-    }
-
-    @Test
-    void getPcrVersion_should_return501_notImplemented_whenVersionIsSpecificId() throws Exception {
-        mockMvc.perform(get("/pcrs/cases/{caseURN}/hearings/{hearingId}/defendants/{defendantId}/versions",
-                        CASE_URN, HEARING_ID, DEFENDANT_ID)
-                        .param("version", "01hxjk8v3xj0e5jz2h1p4c6q7r")
-                        .accept(MediaType.APPLICATION_JSON))
-                .andDo(print())
-                .andExpect(status().isNotImplemented());
-    }
-
-    @Test
-    void getPcrVersion_should_return400_whenVersionQueryParamMissing() throws Exception {
-        mockMvc.perform(get("/pcrs/cases/{caseURN}/hearings/{hearingId}/defendants/{defendantId}/versions",
-                        CASE_URN, HEARING_ID, DEFENDANT_ID)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andDo(print())
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").exists())
-                .andExpect(jsonPath("$.timestamp").exists())
-                .andExpect(jsonPath("$.traceId").exists());
-    }
-
-    @Test
-    void getPcrVersionHistory_should_return501_notImplemented() throws Exception {
-        mockMvc.perform(get("/pcrs/cases/{caseURN}/hearings/{hearingId}/defendants/{defendantId}",
-                        CASE_URN, HEARING_ID, DEFENDANT_ID)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andDo(print())
-                .andExpect(status().isNotImplemented());
-    }
-
-    private void stubHearingDetails(final int status, final String body) {
-        final String url = String.format("%s/%s", ResultsClient.RESULTS_QUERY_PATH, HEARING_ID);
-        log.info("Stubbing results-query-api url:{}", url);
-        stubFor(WireMock.get(urlEqualTo(url)).willReturn(aResponse()
-                .withStatus(status)
-                .withHeader("Content-Type", "application/json")
-                .withBody(body)));
+    private Offence offenceWithResult() {
+        final JudicialResult result = JudicialResult.builder()
+                .cjsCode("1200").label("Sentenced")
+                .isFinancialResult(false).isConvictedResult(true)
+                .judicialResultPrompts(List.of())
+                .build();
+        return Offence.builder().offenceCode("TH68001").judicialResults(List.of(result)).build();
     }
 }

@@ -10,6 +10,7 @@ import uk.gov.hmcts.cp.domain.HearingDetailsResponse.CaseMarker;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.CourtApplication;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.CourtCentre;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.CourtApplicationCase;
+import uk.gov.hmcts.cp.domain.HearingDetailsResponse.CustodialEstablishment;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.Defendant;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.HearingDay;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.HearingDetail;
@@ -236,6 +237,31 @@ class CPVersionEntityMapperTest {
 
         assertThat(bundle.version().getFirstName()).isNull();
         assertThat(bundle.version().getDateOfBirth()).isNull();
+    }
+
+    @Test
+    void toWriteBundle_should_mapCustodyType_whenCustodialEstablishmentPresent() {
+        final Defendant defendant = Defendant.builder()
+                .id(DEFENDANT_ID.toString())
+                .personDefendant(PersonDefendant.builder()
+                        .custodialEstablishment(CustodialEstablishment.builder().name("HMP Dovegate").custody("Prison").build())
+                        .build())
+                .offences(List.of())
+                .build();
+        final HearingDetail hearing = HearingDetail.builder().courtApplications(List.of()).build();
+
+        final CPVersionWriteBundle bundle = mapper.toWriteBundle(defendant, hearing, CASE_HEARING_ID, CREATED_AT, EXPIRES_AT);
+
+        assertThat(bundle.version().getCustodyLocation()).isEqualTo("HMP Dovegate");
+        assertThat(bundle.version().getCustodyType()).isEqualTo("Prison");
+    }
+
+    @Test
+    void toWriteBundle_should_leaveCustodyTypeNull_whenNoCustodialEstablishment() {
+        final CPVersionWriteBundle bundle = mapper.toWriteBundle(minimalDefendant(),
+                HearingDetail.builder().courtApplications(List.of()).build(), CASE_HEARING_ID, CREATED_AT, EXPIRES_AT);
+
+        assertThat(bundle.version().getCustodyType()).isNull();
     }
 
     @Test

@@ -10,6 +10,7 @@ import uk.gov.hmcts.cp.entities.CPVersionEntity;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -60,6 +61,29 @@ class CPCourtApplicationRepositoryTest extends RepositoryIntegrationTestBase {
         assertThat(found.get().getDecisionDate()).isEqualTo(LocalDate.of(2026, 7, 20));
         assertThat(found.get().getResponse()).isEqualTo("Contested");
         assertThat(found.get().getResponseDate()).isEqualTo(LocalDate.of(2026, 7, 21));
+    }
+
+    @Transactional
+    @Test
+    void findByVersionPk_should_returnMatchingApplications() {
+        saveParents();
+        final UUID versionPk = UUID.fromString("00000000-0000-0000-0000-000000000078");
+        final CPVersionEntity versionEntity = CPVersionEntity.builder()
+                .cpVersionPk(versionPk)
+                .defendantId(UUID.fromString("00000000-0000-0000-0000-000000000099"))
+                .caseHearingId(CASE_HEARING_ID)
+                .createdAt(OffsetDateTime.now(ZoneOffset.UTC))
+                .expiresAt(OffsetDateTime.now(ZoneOffset.UTC).plusDays(30))
+                .build();
+        cpVersionRepository.save(versionEntity);
+        final CPCourtApplicationEntity application = CPCourtApplicationEntity.builder()
+                .id(UUID.fromString("00000000-0000-0000-0000-000000000079"))
+                .versionPk(versionPk).reference("REF1").build();
+        cpCourtApplicationRepository.save(application);
+
+        final List<CPCourtApplicationEntity> found = cpCourtApplicationRepository.findByVersionPk(versionPk);
+
+        assertThat(found).extracting(CPCourtApplicationEntity::getReference).containsExactly("REF1");
     }
 
     private void saveParents() {

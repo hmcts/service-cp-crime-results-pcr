@@ -14,16 +14,16 @@ subscriber.
 ingestion listener now wired end-to-end into the DB-backed version store (Postgres/Flyway,
 `cp_version` rows), gated by the orchestrator's generation check.
 **Spring Boot version**: 4.1.0
-**Implements**: `api-cp-crime-results-pcr` v1.0.3 (`PcrApi` — see `build.gradle`)
+**Implements**: `api-cp-crime-results-pcr` v3.0.2 (`PcrApi` — see `build.gradle`)
 
-**Status**: `GET /pcr` remains an independent code path; the ingestion listener now drives the
+**Status**: `GET /pcr` now reads from the data store; the ingestion listener drives the
 orchestrator and the data store as one connected pipeline:
-- `GET /pcr/.../{version}` (`ResultsPcrController` → `ResultsPcrService`) calls `ResultsClient`
-  synchronously on every request. It never reads Redis, never goes through the ingestion
-  listener, and has no completeness gate — it returns whatever the Results Query API has *right
-  now*, even mid-race. Only `version=latest` is supported; any other value is `501`. This is
-  unchanged by the persistence wiring below — it's a separate follow-on
-  (`docs/designs/2026-07-28-pcr-persistence-wiring-design.md`).
+- `GET /pcrs/cases/{caseURN}/hearings/{hearingId}/defendants/{defendantId}`
+  (`ResultsPcrController` → `ResultsPcrService`) reads `cp_version` (plus its offences, court
+  applications, judicial results, and prompts) via the repository layer and returns the full
+  recorded history as an array, ordered oldest-to-newest by `created_at` — no `version` query
+  param, no live call to `ResultsClient` or the Results Query API at all. See
+  `docs/designs/2026-07-28-pcr-read-path-data-store-design.md`.
 - The Service Bus listener (`HearingResultedProcessorService` → `ResultsIngestionService`)
   consumes `Hearing_Resulted`, checks Redis-then-REST for complete hearing data, retries/
   dead-letters on incompleteness, and — via `ResultsIngestionService.ingestAndPersist` — now
@@ -49,20 +49,22 @@ that looks arbitrary; it likely isn't.
 | Component | Technology | Purpose |
 |---|---|---|
 | Ingestion trigger | Azure Event Grid `Hearing_Resulted` → self-provisioned Service Bus queue (`pcr.hearing-resulted`, `HearingResultedQueueProvisioner`) → `HearingResultedProcessorService` (raw `ServiceBusProcessorClient`, **not** `spring-cloud-azure-stream-binder-servicebus` — ADR-002/AMP-889) | Pointer-only event (`hearingId`/`hearingDay`/`userId`), unwrapped from an `CPHearingResultedEventEnvelope`; malformed payloads are dead-lettered, not retried |
-| Results Query Client | `HearingResultedCacheClient` (Redis, read-only `StringRedisTemplate`) first, `ResultsClient` (`RestClient`) REST fallback against `results-query-api/.../hearingDetails/internal/{hearingId}` | Two-step retrieval per design §4a/4b — **ingestion path only**; the synchronous `GET /pcr` path skips Redis entirely |
+| Results Query Client | `HearingResultedCacheClient` (Redis, read-only `StringRedisTemplate`) first, `ResultsClient` (`RestClient`) REST fallback against `results-query-api/.../hearingDetails/internal/{hearingId}` | Two-step retrieval per design §4a/4b — **ingestion path only**; `GET /pcr` calls neither of these, it reads the data store |
 | Retry/escalation | `RetryServiceConfig` (`service-bus.retry-durations`/`max-tries`) + `ResultsIngestionService.escalateOrDeadLetter` | On `IncompleteHearingDetailsException`, schedules Service Bus redelivery (`ServiceBusSenderClient`) with increasing backoff; dead-letters once `max-tries` is exceeded |
 | Reference Data — `ResultDefinition` | Lookups, offence metadata (e.g. `startDate`) | Not yet built — "to be analysed" per design §8 |
 | Reference Data — `now-subscriptions` | `ReferenceDataClient` (`RestClient`) → `.../referencedata-query-api/.../now-subscriptions?on=<date>`; `CPNowSubscriptionMatcher` matches the PCR-flagged subset against a `CPVocabulary` | Now called from `ResultsIngestionService.ingestAndPersist`, once per hearing, using the first `JudicialResult.orderedDate` found on the hearing as `on` — a provisional stand-in, not the confirmed date-selection strategy from design §7 |
 | Generation-gate orchestrator | `CPVocabularyService` (fact computation) + `CPResultsPcrOrchestrator` (`excludePublishedForNows`, `isPrisonCourtRegisterRequired`) | Design §4 scope, confirmed with Common Platform TA per ADR-005/AMP-943 — generation-gate logic only; recipient resolution and Progression submission are explicitly out of scope. Now called from `ResultsIngestionService.ingestAndPersist`, gating whether a `cp_version` row gets written per defendant |
-| Data store | Flyway migrations (`V1.001`-`V1.008`), 7 JPA entities (`entities/`), 7 plain `JpaRepository`s (`repositories/`) | Schema + persistence layer built and integration-tested against a real, manually-started Postgres (`PostgresInitialise`, same pattern as HRDS). Now wired — `ResultsIngestionService.ingestAndPersist` writes `cp_case_hearing`/`cp_version` (and dependent) rows via the repository layer once the orchestrator's gate passes. Encryption (ADR-004) and the version-correlation mechanism (§7) are separate, still-open work |
-| Version lookup / retention | Not implemented | Depends on the phase-2 data store + the still-undecided version-correlation mechanism (§7) |
+| Data store | Flyway migrations (`V1.001`-`V1.010`), 7 JPA entities (`entities/`), 7 plain `JpaRepository`s (`repositories/`) | Schema + persistence layer built and integration-tested against a real, manually-started Postgres (`PostgresInitialise`, same pattern as HRDS). Wired on both sides — `ResultsIngestionService.ingestAndPersist` writes `cp_case_hearing`/`cp_version` (and dependent) rows via the repository layer once the orchestrator's gate passes, and `ResultsPcrService` reads them back for `GET /pcr`. Encryption (ADR-004) and the version-correlation mechanism (§7) are separate, still-open work |
+| Version lookup / retention | Read path implemented — `GET /pcr` returns the full recorded history per `(caseURN, hearingId, defendantId)`, ordered oldest-to-newest. The separate `/versions` metadata-only endpoint and retention policy remain `501`/not implemented, pending the still-undecided version-correlation mechanism (§7) |
 
 ## Source Structure
 
 - `controllers/ResultsPcrController` — implements generated `PcrApi`; validates `caseURN`
   against `CASE_URN_REGEX` (`^[0-9a-zA-Z]{1,30}$`) before delegating
-- `services/ResultsPcrService` — synchronous version lookup; `501`s on any `version` other than
-  `latest`; `404`s if the case/defendant isn't found on the hearing
+- `services/ResultsPcrService` — reads `cp_case_hearing`/`cp_version` and children via the
+  repository layer for a given `(caseURN, hearingId, defendantId)` and maps each recorded version
+  to a `PcrHearingResult`; always returns `200` with an empty array when nothing is found — no
+  `404` distinction, per the settled design decision
 - `services/ResultsIngestionService` — Redis-then-REST hearing lookup, completeness check
   (`prosecutionCases` non-empty), retry/escalation via Service Bus; `ingestAndPersist` additionally
   runs the orchestrator's generation gate per defendant and writes the `cp_version` write-graph
@@ -79,10 +81,10 @@ that looks arbitrary; it likely isn't.
   connection-string (emulator) vs. `DefaultAzureCredentialBuilder` managed identity (Azure),
   switched on `ServiceBusProperties.isEmulator()` (`sb://` vs `https`)
 - `clients/HearingResultedQueueProvisioner` — self-provisions the queue on startup if absent
-- `mappers/PcrVersionMapper` — builds `PcrVersion` from `HearingDetailsResponse`; `id` is always
-  `null` (no event-correlation pipeline in phase 1); several OpenAPI fields are deliberately left
-  unset — see the inline comments and the field-mapping doc in the spec repo before adding
-  a field back in
+- `mappers/PcrHearingResultMapper` — builds a `PcrHearingResult` from `CPCaseHearingEntity`,
+  `CPVersionEntity`, and their gathered children (case markers, court applications, offences,
+  judicial results, prompts); replaces the deleted `PcrVersionMapper` now that `GET /pcr` reads
+  from the data store instead of `HearingDetailsResponse`
 - `mappers/JudicialResultPromptParser` — extracts sentencing detail (`concurrent`, `fineAmount`,
   `imprisonmentPeriod`, etc.) from `judicialResultPrompts` by `promptReference` string lookup
 - `config/RetryServiceConfig`, `ServiceBusProperties`, `AppPropertiesBackend` — `@Value`-backed
@@ -193,9 +195,9 @@ run, in production or in tests; discovered the hard way when repository tests fa
   `docs/designs/2026-07-28-pcr-persistence-wiring-design.md`. A successful
   `ingestHearingResults` call only proves the hearing data is complete and retryable-safe;
   `ingestAndPersist` is the method that additionally runs the orchestrator's generation gate per
-  defendant and writes `cp_case_hearing`/`cp_version` (and dependent) rows when it passes. Don't
-  wire `GET /pcr` to "whatever the listener last saw" as a shortcut — it still reads live via
-  `ResultsClient`, independent of this write path.
+  defendant and writes `cp_case_hearing`/`cp_version` (and dependent) rows when it passes. `GET
+  /pcr` now reads from the same data store this write path populates, via the repository layer —
+  not from "whatever the listener last saw" in memory, and not from `ResultsClient` any more.
 - **Version correlation mechanism is still TBD** (design §7) — three options considered
   (`recorded_date` ruled out, `sharedTime` propagation, `resultEventId` propagation), none
   decided. Don't build against any of them as if settled; check design doc status first.
@@ -245,7 +247,7 @@ run, in production or in tests; discovered the hard way when repository tests fa
 
 | Symptom | Cause / Fix |
 |---|---|
-| `GET /pcr` returns an incomplete or empty `prosecutionCases` hearing | Expected today — `ResultsPcrService` has no completeness gate or retry; only the async ingestion listener (`ResultsIngestionService.isComplete`) guards against viewstore lag, and the two paths are independent (see Status above) |
+| `GET /pcr` returns an empty array for a hearing/defendant known to exist upstream | Expected if the ingestion listener hasn't persisted a `cp_version` row for it yet (async, gated by the orchestrator's generation check) — `GET /pcr` only ever reads what's already in the data store, it does not call the Results Query API or wait on ingestion |
 | Retry logic assumes REST fallback fails cleanly on a race | Unconfirmed assumption per design §4b/§13 item 2 — verify against the Results team's actual code before relying on it |
 | Service Bus emulator / Redis not available locally | Not yet wired into `docker-compose.yml` or an `apitest.gradle` project (ADR-002 consequence) — `docker-compose.yml` only starts the `app` container today |
 | `repositories/*RepositoryTest` fails with `PSQLException`/`does not exist` | Needs a real Postgres reachable at `localhost:5432` with a `pcrdb` database already created — start it via `docker compose up -d postgres` (service defined in this repo's `docker-compose.yml`) before running `./gradlew test`; `PostgresInitialise` fails fast with instructions if it's unreachable |
