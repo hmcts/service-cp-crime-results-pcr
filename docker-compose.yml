@@ -7,6 +7,7 @@ services:
       DATASOURCE_URL: jdbc:postgresql://postgres:5432/pcrdb
     depends_on:
       - postgres
+      - redis
     ports:
       - "8082:8082"
   postgres:
@@ -17,3 +18,7 @@ services:
       POSTGRES_PASSWORD: postgres
     ports:
       - "5432:5432"
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"

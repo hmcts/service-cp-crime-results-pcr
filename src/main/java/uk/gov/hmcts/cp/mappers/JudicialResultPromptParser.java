@@ -5,7 +5,9 @@ import uk.gov.hmcts.cp.domain.HearingDetailsResponse.JudicialResult;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.JudicialResultPrompt;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 @Component
 public class JudicialResultPromptParser {
@@ -45,7 +47,9 @@ public class JudicialResultPromptParser {
     }
 
     private Optional<String> findPrompt(final JudicialResult result, final String promptReference) {
-        return result.getJudicialResultPrompts().stream()
+        // judicialResultPrompts absent entirely on a real judicial result that has none
+        // (confirmed against a real hearing fixture) — not always an empty list.
+        return Stream.ofNullable(result.getJudicialResultPrompts()).flatMap(List::stream)
                 .filter(p -> promptReference.equals(p.getPromptReference()))
                 .map(JudicialResultPrompt::getValue)
                 .findFirst();

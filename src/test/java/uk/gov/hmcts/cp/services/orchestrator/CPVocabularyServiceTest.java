@@ -13,7 +13,8 @@ import uk.gov.hmcts.cp.domain.HearingDetailsResponse.PersonDefendant;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.ProsecutionCase;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.ProsecutionCaseIdentifier;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.Prosecutor;
-import uk.gov.hmcts.cp.domain.HearingDetailsResponse.Respondent;
+import uk.gov.hmcts.cp.domain.HearingDetailsResponse.MasterDefendant;
+import uk.gov.hmcts.cp.domain.HearingDetailsResponse.ApplicationParty;
 import uk.gov.hmcts.cp.domain.orchestrator.CPVocabulary;
 
 import java.util.List;
@@ -101,7 +102,7 @@ class CPVocabularyServiceTest {
         final Defendant defendant = defendantWithNoOffences(DEFENDANT_ID, MASTER_DEFENDANT_ID);
         final CourtApplication application = CourtApplication.builder()
                 .id("a9b8c7d6-e5f4-4321-9876-0a1b2c3d4e5f")
-                .respondents(List.of(Respondent.builder().masterDefendantId(MASTER_DEFENDANT_ID).build()))
+                .subject(ApplicationParty.builder().masterDefendant(MasterDefendant.builder().masterDefendantId(MASTER_DEFENDANT_ID).build()).build())
                 .courtApplicationCases(List.of())
                 .judicialResults(List.of(resultWithCustodialPrompt()))
                 .build();

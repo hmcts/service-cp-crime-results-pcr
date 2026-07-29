@@ -41,7 +41,9 @@ public class HearingResultedProcessorService {
         }
     }
 
-    /* default */ void onMessage(final ServiceBusReceivedMessageContext context) {
+    // Public so an E2E-level integration test (integration/e2e package) can invoke it directly —
+    // there is no other public entry point into Service Bus ingestion to trigger from outside.
+    public void onMessage(final ServiceBusReceivedMessageContext context) {
         unwrapOrDeadLetter(context).ifPresent(hearingResultedPointer -> processIngestion(context, hearingResultedPointer));
     }
 
