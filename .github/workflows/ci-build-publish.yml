@@ -9,7 +9,17 @@ on:
         required: true
       HMCTS_ADO_PAT:
         required: true
+      DEPLOYMENT_APP_ID:
+        required: true
+        description: "GitHub App ID for deployment"
+      DEPLOYMENT_APP_PRIVATE_KEY:
+        required: true
+        description: "GitHub App private key for deployment"
     inputs:
+      environment:
+        required: true
+        type: string
+        default: dev
       is_release:
         required: false
         type: boolean
@@ -23,11 +33,25 @@ on:
       trigger_deploy:
         required: true
         type: boolean
+      deploy_dev:
+        required: false
+        type: boolean
+        default: true
+      deploy_sit:
+        required: false
+        type: boolean
+        default: false
+      deploy_environment:
+        required: false
+        type: string
+        default: dev
 
 
 jobs:
   Artefact-Version:
     runs-on: ubuntu-latest
+    environment:
+      name: ${{ inputs.environment }}
     outputs:
       artefact_version: ${{ inputs.is_release && steps.artefact.outputs.release_version || steps.artefact.outputs.draft_version }}
     steps:
@@ -47,6 +71,8 @@ jobs:
   Build:
     needs: [Artefact-Version]
     runs-on: ubuntu-latest
+    environment:
+      name: ${{ inputs.environment }}
     outputs:
       repo_name: ${{ steps.repo_vars.outputs.repo_name }}
       artefact_name: ${{ steps.repo_vars.outputs.artefact_name }}
@@ -162,15 +188,18 @@ jobs:
             BASE_IMAGE=eclipse-temurin:25
             JAR_FILENAME=${{ needs.Build.outputs.artefact_name }}.jar
 
-  Deploy:
+  Trigger-ACR-Copy:
     needs: [ Provider-Deploy, Build, Artefact-Version ]
     if: ${{ inputs.trigger_deploy }}
     runs-on: ubuntu-latest
+    outputs:
+      run_id: ${{ steps.trigger.outputs.run_id }}
     steps:
       - name: Extract repo name
         run: echo "REPO_NAME=${GITHUB_REPOSITORY##*/}" >> $GITHUB_ENV
 
-      - name: Trigger ADO pipeline
+      - name: Trigger ADO pipeline 460
+        id: trigger
         uses: hmcts/trigger-ado-pipeline@v2
         with:
           pipeline_id: 460
@@ -183,4 +212,128 @@ jobs:
               "TARGET_REPOSITORY": "${{ github.repository }}",
               "agentDemand": "ubuntu-j25",
               "baseImage": "hmcts/apm-services:25-jre"
+            }
+
+  Wait-ACR-Copy:
+    needs: [Trigger-ACR-Copy]
+    if: ${{ inputs.trigger_deploy }}
+    runs-on: ubuntu-latest
+    outputs:
+      real_tag: ${{ steps.real_tag.outputs.value }}
+    steps:
+      - name: Wait for ADO pipeline 460
+        uses: hmcts/monitor-ado-pipeline@v1
+        with:
+          pipeline_id: 460
+          run_id: ${{ needs.Trigger-ACR-Copy.outputs.run_id }}
+          ado_pat: ${{ secrets.HMCTS_ADO_PAT }}
+          poll_interval: 30
+          timeout: 1800
+
+      # Pipeline 460 (cp-gh-artifact-to-acr) computes its own timestamp
+      # suffix internally and prints the exact tag it pushed via
+      # `echo "Final IMAGE_TAG: $IMAGE_TAG"` (see
+      # hmcts/cpp-azure-devops-templates:pipelines/gh-artifact-to-acr.yaml).
+      # Read that back from the run's logs instead of separately guessing
+      # a suffix — the two were computed independently and never reliably
+      # matched, causing every deploy to reference a non-existent tag
+      # (ImagePullBackOff). No change to pipeline 460 needed, and no new
+      # Azure credentials — this only reuses the existing HMCTS_ADO_PAT.
+      - name: Read real image tag from ADO pipeline 460 logs
+        id: real_tag
+        shell: bash
+        env:
+          ADO_PAT: ${{ secrets.HMCTS_ADO_PAT }}
+          RUN_ID: ${{ needs.Trigger-ACR-Copy.outputs.run_id }}
+        run: |
+          AUTH=$(printf ':%s' "$ADO_PAT" | base64 -w0)
+          ORG="hmcts-cpp"
+          PROJECT="cpp-apps"
+
+          LOG_IDS=$(curl -sf -H "Authorization: Basic ${AUTH}" \
+            "https://dev.azure.com/${ORG}/${PROJECT}/_apis/build/builds/${RUN_ID}/logs?api-version=7.1" \
+            | jq -r '.value[].id')
+
+          FOUND_LINE=""
+          for id in $LOG_IDS; do
+            # ADO log content uses CRLF line endings; tr strips the \r so it
+            # never ends up embedded in the extracted tag (grep's '.' matches
+            # \r, since it only excludes \n, and a trailing \r fails k8s label
+            # validation once it flows through to a Helm chart label).
+            MATCH=$(curl -sf -H "Authorization: Basic ${AUTH}" \
+              "https://dev.azure.com/${ORG}/${PROJECT}/_apis/build/builds/${RUN_ID}/logs/${id}?api-version=7.1" \
+              | tr -d '\r' | grep -o 'Final IMAGE_TAG: .*' | tail -1 || true)
+            [ -n "$MATCH" ] && FOUND_LINE="$MATCH"
+          done
+
+          if [ -z "$FOUND_LINE" ]; then
+            echo "::error::Could not find a 'Final IMAGE_TAG:' line in ADO pipeline 460 run ${RUN_ID} logs"
+            exit 1
+          fi
+
+          FULL_REF="${FOUND_LINE#Final IMAGE_TAG: }"
+          REAL_TAG="${FULL_REF##*:}"
+          # Positively match only valid Docker tag/k8s label characters
+          # instead of stripping specific bad ones. Pipeline 460 runs under
+          # set -xe, which prints a second, single-quote-wrapped trace line
+          # for the same echo (ADO stores stdout/trace as separate log
+          # streams), so a stray quote can end up as the "last match" across
+          # logs just as easily as a stray \r. Anchoring on valid characters
+          # discards any such garbage regardless of what it is.
+          REAL_TAG=$(printf '%s' "$REAL_TAG" | grep -oE '^[A-Za-z0-9._-]+')
+          echo "Resolved real tag from ADO logs: ${REAL_TAG}"
+          echo "value=${REAL_TAG}" >> "$GITHUB_OUTPUT"
+
+  Deploy-Dev:
+    needs: [Wait-ACR-Copy, Artefact-Version, Build]
+    if: ${{ inputs.trigger_deploy && inputs.deploy_dev }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy via ADO pipeline
+        uses: hmcts/action-ado-deploy@v1
+        with:
+          service_name: pcr-data
+          image_tag: ${{ needs.Wait-ACR-Copy.outputs.real_tag }}
+          app_id: ${{ secrets.DEPLOYMENT_APP_ID }}
+          app_private_key: ${{ secrets.DEPLOYMENT_APP_PRIVATE_KEY }}
+          target_repository: hmcts/cp-vp-aks-deploy
+          target_branch: env/dev
+          values_file: vp-config/services_values.yml
+          pipeline_id: 434
+          ado_pat: ${{ secrets.HMCTS_ADO_PAT }}
+          ref_name: refs/heads/env/dev
+          wait: false
+          template_parameters: >
+            {
+              "env": "dev",
+              "cpbackendenv": "steccm64",
+              "stack": "devamp01",
+              "cluster": "K8-DEV-CS01-CL01"
+            }
+
+  Deploy-Sit:
+    needs: [Wait-ACR-Copy, Artefact-Version, Build]
+    if: ${{ inputs.trigger_deploy && inputs.deploy_sit }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to SIT via ADO pipeline
+        uses: hmcts/action-ado-deploy@v1
+        with:
+          service_name: pcr-data
+          image_tag: ${{ needs.Wait-ACR-Copy.outputs.real_tag }}
+          app_id: ${{ secrets.DEPLOYMENT_APP_ID }}
+          app_private_key: ${{ secrets.DEPLOYMENT_APP_PRIVATE_KEY }}
+          target_repository: hmcts/cp-vp-aks-deploy
+          target_branch: env/sit
+          values_file: vp-config/services_values.yml
+          pipeline_id: 434
+          ado_pat: ${{ secrets.HMCTS_ADO_PAT }}
+          ref_name: refs/heads/env/sit
+          wait: false
+          template_parameters: >
+            {
+              "env": "sit",
+              "cpbackendenv": "sitccm01",
+              "stack": "sitamp01",
+              "cluster": "K8-SIT-CS01-CL02"
             }
