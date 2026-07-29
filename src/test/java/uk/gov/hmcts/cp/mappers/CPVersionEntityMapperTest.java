@@ -22,7 +22,9 @@ import uk.gov.hmcts.cp.domain.HearingDetailsResponse.PersonDetails;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.Address;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.ProsecutionCase;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.ProsecutionCaseIdentifier;
-import uk.gov.hmcts.cp.domain.HearingDetailsResponse.Respondent;
+import uk.gov.hmcts.cp.domain.HearingDetailsResponse.MasterDefendant;
+import uk.gov.hmcts.cp.domain.HearingDetailsResponse.ApplicationParty;
+import uk.gov.hmcts.cp.domain.HearingDetailsResponse.ApplicationType;
 import uk.gov.hmcts.cp.entities.CPCaseHearingEntity;
 import uk.gov.hmcts.cp.entities.CPCaseMarkerEntity;
 import uk.gov.hmcts.cp.entities.CPCourtApplicationEntity;
@@ -147,7 +149,7 @@ class CPVersionEntityMapperTest {
         final Offence linkedOffence = Offence.builder().judicialResults(List.of(linkedOffenceResult)).build();
         final CourtApplication matching = CourtApplication.builder()
                 .id("a9b8c7d6-e5f4-4321-9876-0a1b2c3d4e5f")
-                .respondents(List.of(Respondent.builder().masterDefendantId(MASTER_DEFENDANT_ID).build()))
+                .subject(ApplicationParty.builder().masterDefendant(MasterDefendant.builder().masterDefendantId(MASTER_DEFENDANT_ID).build()).build())
                 .courtApplicationCases(List.of(CourtApplicationCase.builder().offences(List.of(linkedOffence)).build()))
                 .judicialResults(List.of(applicationResult))
                 .build();
@@ -168,7 +170,7 @@ class CPVersionEntityMapperTest {
     void eligibleResults_should_excludeCourtApplication_whenMasterDefendantIdDoesNotMatch() {
         final CourtApplication other = CourtApplication.builder()
                 .id("a9b8c7d6-e5f4-4321-9876-0a1b2c3d4e60")
-                .respondents(List.of(Respondent.builder().masterDefendantId("99999999-9999-9999-9999-999999999999").build()))
+                .subject(ApplicationParty.builder().masterDefendant(MasterDefendant.builder().masterDefendantId("99999999-9999-9999-9999-999999999999").build()).build())
                 .courtApplicationCases(List.of())
                 .judicialResults(List.of(JudicialResult.builder().cjsCode("X").judicialResultPrompts(List.of()).build()))
                 .build();
@@ -344,8 +346,8 @@ class CPVersionEntityMapperTest {
         final JudicialResult applicationResult = JudicialResult.builder().cjsCode("APP1").judicialResultPrompts(List.of()).build();
         final CourtApplication application = CourtApplication.builder()
                 .id("a9b8c7d6-e5f4-4321-9876-0a1b2c3d4e5f")
-                .applicationReference("REF1").type("Bail")
-                .respondents(List.of(Respondent.builder().masterDefendantId(MASTER_DEFENDANT_ID).build()))
+                .applicationReference("REF1").type(ApplicationType.builder().type("Bail").build())
+                .subject(ApplicationParty.builder().masterDefendant(MasterDefendant.builder().masterDefendantId(MASTER_DEFENDANT_ID).build()).build())
                 .courtApplicationCases(List.of(CourtApplicationCase.builder().offences(List.of(linkedOffence)).build()))
                 .judicialResults(List.of(applicationResult))
                 .build();
@@ -381,8 +383,8 @@ class CPVersionEntityMapperTest {
     void toWriteBundle_should_generateDistinctCourtApplicationIds_whenTwoDefendantsShareTheSameApplication() {
         final CourtApplication application = CourtApplication.builder()
                 .id("a9b8c7d6-e5f4-4321-9876-0a1b2c3d4e5f")
-                .applicationReference("REF1").type("Bail")
-                .respondents(List.of(Respondent.builder().masterDefendantId(MASTER_DEFENDANT_ID).build()))
+                .applicationReference("REF1").type(ApplicationType.builder().type("Bail").build())
+                .subject(ApplicationParty.builder().masterDefendant(MasterDefendant.builder().masterDefendantId(MASTER_DEFENDANT_ID).build()).build())
                 .courtApplicationCases(List.of())
                 .judicialResults(List.of())
                 .build();

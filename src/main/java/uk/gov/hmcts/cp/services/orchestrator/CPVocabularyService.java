@@ -61,14 +61,24 @@ public class CPVocabularyService {
                         .toList();
     }
 
+    // `subject` is the only party role used for defendant-linkage — confirmed against
+    // cpp-context-azure-legalaidagency's DefendantContextBaseService.js, which reads only
+    // `subject.masterDefendant.masterDefendantId` for this same hearing-wide merge.
     private List<CourtApplication> matchingApplications(final Defendant defendant, final HearingDetail hearing) {
         final String masterDefendantId = defendant.getMasterDefendantId();
+        // courtApplications absent entirely on a real hearing that has none (confirmed against
+        // a real hearing fixture) — not always an empty list.
         return masterDefendantId == null
                 ? List.of()
-                : hearing.getCourtApplications().stream()
-                        .filter(a -> a.getRespondents().stream()
-                                .anyMatch(r -> masterDefendantId.equals(r.getMasterDefendantId())))
+                : Stream.ofNullable(hearing.getCourtApplications()).flatMap(List::stream)
+                        .filter(a -> masterDefendantId.equals(subjectMasterDefendantId(a)))
                         .toList();
+    }
+
+    private String subjectMasterDefendantId(final CourtApplication application) {
+        return application.getSubject() == null || application.getSubject().getMasterDefendant() == null
+                ? null
+                : application.getSubject().getMasterDefendant().getMasterDefendantId();
     }
 
     private List<JudicialResult> allJudicialResults(final List<Defendant> defendants, final List<CourtApplication> applications) {
@@ -77,9 +87,11 @@ public class CPVocabularyService {
                 .flatMap(o -> o.getJudicialResults().stream());
         final Stream<JudicialResult> applicationResults = applications.stream()
                 .flatMap(a -> a.getJudicialResults().stream());
+        // A real courtApplicationCase can omit "offences" entirely (confirmed against a real
+        // hearing fixture) — not always an empty list.
         final Stream<JudicialResult> linkedOffenceResults = applications.stream()
                 .flatMap(a -> a.getCourtApplicationCases().stream())
-                .flatMap(c -> c.getOffences().stream())
+                .flatMap(c -> Stream.ofNullable(c.getOffences()).flatMap(List::stream))
                 .flatMap(o -> o.getJudicialResults().stream());
         return Stream.of(caseResults, applicationResults, linkedOffenceResults).flatMap(s -> s).toList();
     }
@@ -102,7 +114,9 @@ public class CPVocabularyService {
     }
 
     private boolean hasCustodialPrompt(final JudicialResult result) {
-        return result.getJudicialResultPrompts().stream()
+        // judicialResultPrompts absent entirely on a real judicial result that has none
+        // (confirmed against a real hearing fixture) — not always an empty list.
+        return Stream.ofNullable(result.getJudicialResultPrompts()).flatMap(List::stream)
                 .map(JudicialResultPrompt::getPromptReference)
                 .anyMatch(CUSTODIAL_RESULT_PROMPT::equals);
     }
