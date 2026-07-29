@@ -57,7 +57,7 @@ public class ResultsIngestionService {
     private final HearingResultedServiceBusClientFactory clientFactory;
     private final RetryServiceConfig retryServiceConfig;
     private final CPVocabularyService vocabularyService;
-    private final CPResultsPcrFilter orchestrator;
+    private final CPResultsPcrFilter pcrFilter;
     private final CPVersionEntityMapper entityMapper;
     private final ClockService clockService;
     private final CPCaseHearingRepository caseHearingRepository;
@@ -84,7 +84,7 @@ public class ResultsIngestionService {
         final HearingDetailsResponse hearingDetails = ingestHearingResults(hearingId, hearingDay);
         final HearingDetail hearing = hearingDetails.getHearing();
         final LocalDate activeAt = resolveActiveAt(hearing, hearingId);
-        final List<CPNowSubscription> subscriptions = orchestrator.fetchPrisonCourtRegisterSubscriptions(activeAt);
+        final List<CPNowSubscription> subscriptions = pcrFilter.fetchPrisonCourtRegisterSubscriptions(activeAt);
         hearing.getProsecutionCases().forEach(c -> processProsecutionCase(c, hearing, hearingId, subscriptions));
     }
 
@@ -103,8 +103,8 @@ public class ResultsIngestionService {
 
     private boolean isPcrRequired(final Defendant defendant, final HearingDetail hearing, final List<CPNowSubscription> subscriptions) {
         final CPVocabulary vocabulary = vocabularyService.compute(defendant, hearing);
-        final List<JudicialResult> eligibleResults = orchestrator.excludePublishedForNows(entityMapper.eligibleResults(defendant, hearing));
-        return orchestrator.isPrisonCourtRegisterRequired(vocabulary, eligibleResults, subscriptions);
+        final List<JudicialResult> eligibleResults = pcrFilter.excludePublishedForNows(entityMapper.eligibleResults(defendant, hearing));
+        return pcrFilter.isPrisonCourtRegisterRequired(vocabulary, eligibleResults, subscriptions);
     }
 
     private UUID findOrCreateCaseHearing(final ProsecutionCase prosecutionCase, final HearingDetail hearing, final UUID hearingId) {
