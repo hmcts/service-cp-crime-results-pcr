@@ -25,14 +25,20 @@ public class CPResultsPcrOrchestrator {
                 .toList();
     }
 
-    // Design doc §4 — the generation gate. Only subscriptions actually flagged
-    // isPrisonCourtRegisterSubscription are considered (SubscriptionsService.js dispatcher
-    // branch 4) — a subscription of any other kind is never PCR-eligible regardless of
-    // whether its vocabulary would otherwise match.
-    public boolean isPrisonCourtRegisterRequired(final CPVocabulary vocabulary,
-                                                  final List<JudicialResult> eligibleResults, final LocalDate activeAt) {
+    // Design doc §4 — only subscriptions actually flagged isPrisonCourtRegisterSubscription
+    // are considered (SubscriptionsService.js dispatcher branch 4) — a subscription of any
+    // other kind is never PCR-eligible regardless of whether its vocabulary would otherwise
+    // match. Fetched once per hearing by the caller (activeAt is hearing-wide, not
+    // per-defendant) and passed into isPrisonCourtRegisterRequired for every defendant.
+    public List<CPNowSubscription> fetchPrisonCourtRegisterSubscriptions(final LocalDate activeAt) {
         return referenceDataClient.getPrisonCourtRegisterSubscriptions(activeAt).stream()
                 .filter(CPNowSubscription::isPrisonCourtRegisterSubscription)
-                .anyMatch(s -> nowSubscriptionMatcher.matches(s, vocabulary, eligibleResults));
+                .toList();
+    }
+
+    // Design doc §4 — the generation gate.
+    public boolean isPrisonCourtRegisterRequired(final CPVocabulary vocabulary, final List<JudicialResult> eligibleResults,
+                                                  final List<CPNowSubscription> subscriptions) {
+        return subscriptions.stream().anyMatch(s -> nowSubscriptionMatcher.matches(s, vocabulary, eligibleResults));
     }
 }

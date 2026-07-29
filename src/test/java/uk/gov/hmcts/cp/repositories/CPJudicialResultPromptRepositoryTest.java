@@ -11,6 +11,7 @@ import uk.gov.hmcts.cp.entities.CPVersionEntity;
 
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -62,6 +63,26 @@ class CPJudicialResultPromptRepositoryTest extends RepositoryIntegrationTestBase
         assertThat(found.get().getValue()).isEqualTo("HMP Leeds");
         assertThat(found.get().getPromptReference()).isEqualTo("prisonOrganisationName");
         assertThat(found.get().getType()).isEqualTo("TEXT");
+    }
+
+    @Transactional
+    @Test
+    void findByJudicialResultId_should_returnMatchingPrompts() {
+        saveParents();
+        final UUID judicialResultId = UUID.fromString("00000000-0000-0000-0000-000000000089");
+        cpJudicialResultRepository.save(CPJudicialResultEntity.builder()
+                .id(judicialResultId)
+                .offenceId(OFFENCE_ID)
+                .resultCode("3120")
+                .build());
+        final CPJudicialResultPromptEntity prompt = CPJudicialResultPromptEntity.builder()
+                .id(UUID.fromString("00000000-0000-0000-0000-000000000090"))
+                .judicialResultId(judicialResultId).promptReference("prisonOrganisationName").build();
+        cpJudicialResultPromptRepository.save(prompt);
+
+        final List<CPJudicialResultPromptEntity> found = cpJudicialResultPromptRepository.findByJudicialResultId(judicialResultId);
+
+        assertThat(found).extracting(CPJudicialResultPromptEntity::getPromptReference).containsExactly("prisonOrganisationName");
     }
 
     private void saveParents() {

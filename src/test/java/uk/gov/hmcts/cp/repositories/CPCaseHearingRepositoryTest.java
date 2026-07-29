@@ -48,4 +48,31 @@ class CPCaseHearingRepositoryTest extends RepositoryIntegrationTestBase {
         assertThat(found.get().getHearingOutcome()).isEqualTo("Adjourned");
         assertThat(found.get().getCreatedAt()).isEqualTo(createdAt);
     }
+
+    @Transactional
+    @Test
+    void findByCaseUrnAndHearingId_should_returnEntity_whenMatchExists() {
+        final CPCaseHearingEntity entity = CPCaseHearingEntity.builder()
+                .id(ID)
+                .caseUrn("ABCD1234567")
+                .hearingId(HEARING_ID)
+                .createdAt(OffsetDateTime.now(ZoneOffset.UTC).withNano(0))
+                .build();
+        cpCaseHearingRepository.save(entity);
+
+        final Optional<CPCaseHearingEntity> found =
+                cpCaseHearingRepository.findByCaseUrnAndHearingId("ABCD1234567", HEARING_ID);
+
+        assertThat(found).isPresent();
+        assertThat(found.get().getId()).isEqualTo(ID);
+    }
+
+    @Transactional
+    @Test
+    void findByCaseUrnAndHearingId_should_returnEmpty_whenNoMatch() {
+        final Optional<CPCaseHearingEntity> found =
+                cpCaseHearingRepository.findByCaseUrnAndHearingId("NOMATCH1234", HEARING_ID);
+
+        assertThat(found).isEmpty();
+    }
 }

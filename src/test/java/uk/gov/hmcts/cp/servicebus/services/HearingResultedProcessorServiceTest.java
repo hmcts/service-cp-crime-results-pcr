@@ -21,6 +21,7 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -64,7 +65,7 @@ class HearingResultedProcessorServiceTest {
 
         processorService.onMessage(context);
 
-        verify(ingestionService).ingestHearingResults(HEARING_ID, HEARING_DAY);
+        verify(ingestionService).ingestAndPersist(HEARING_ID, HEARING_DAY);
         verify(context).complete();
     }
 
@@ -72,8 +73,8 @@ class HearingResultedProcessorServiceTest {
     void onMessage_should_delegateToScheduleRetry_whenIngestThrowsIncompleteHearingDetailsException() {
         when(context.getMessage()).thenReturn(message);
         when(message.getBody()).thenReturn(BinaryData.fromString(ENVELOPE_JSON));
-        when(ingestionService.ingestHearingResults(HEARING_ID, HEARING_DAY))
-                .thenThrow(new IncompleteHearingDetailsException(HEARING_ID));
+        doThrow(new IncompleteHearingDetailsException(HEARING_ID))
+                .when(ingestionService).ingestAndPersist(HEARING_ID, HEARING_DAY);
 
         processorService.onMessage(context);
 
@@ -86,7 +87,7 @@ class HearingResultedProcessorServiceTest {
     void onMessage_should_deadLetter_whenIngestThrowsUnexpectedException() {
         when(context.getMessage()).thenReturn(message);
         when(message.getBody()).thenReturn(BinaryData.fromString(ENVELOPE_JSON));
-        when(ingestionService.ingestHearingResults(HEARING_ID, HEARING_DAY)).thenThrow(new RuntimeException("boom"));
+        doThrow(new RuntimeException("boom")).when(ingestionService).ingestAndPersist(HEARING_ID, HEARING_DAY);
 
         processorService.onMessage(context);
 
@@ -103,7 +104,7 @@ class HearingResultedProcessorServiceTest {
 
         verify(context).deadLetter();
         verify(context, never()).complete();
-        verify(ingestionService, never()).ingestHearingResults(any(), any());
+        verify(ingestionService, never()).ingestAndPersist(any(), any());
     }
 
     @Test
