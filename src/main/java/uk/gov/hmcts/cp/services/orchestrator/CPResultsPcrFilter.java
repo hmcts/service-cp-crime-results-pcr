@@ -12,7 +12,7 @@ import java.util.List;
 
 @Component
 @RequiredArgsConstructor
-public class CPResultsPcrOrchestrator {
+public class CPResultsPcrFilter {
 
     private final CPNowSubscriptionMatcher nowSubscriptionMatcher;
     private final ReferenceDataClient referenceDataClient;

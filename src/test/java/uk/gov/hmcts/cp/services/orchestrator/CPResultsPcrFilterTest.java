@@ -20,7 +20,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class CPResultsPcrOrchestratorTest {
+class CPResultsPcrFilterTest {
 
     private static final LocalDate ON_DATE = LocalDate.of(2026, 7, 23);
 
@@ -30,7 +30,7 @@ class CPResultsPcrOrchestratorTest {
     private ReferenceDataClient referenceDataClient;
 
     @InjectMocks
-    private CPResultsPcrOrchestrator resultsPcrOrchestrator;
+    private CPResultsPcrFilter resultsPcrOrchestrator;
 
     @Test
     void excludePublishedForNows_should_removeResultsMarkedPublishedForNows() {
