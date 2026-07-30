@@ -29,9 +29,10 @@ apply {
 // We MUST keep all dependencies in the build.gradle to allow dependabot to provide version updates
 // Sadly, dependabot does not track dependencies in the apply-from files
 dependencies {
-  // Api spec — v3.0.2: redesigned version-history/version-metadata endpoints (spec repo PR #16),
-  // flattened caseURN, shared Court object, dropped internal ids (docs/designs/2026-07-28-pcr-read-path-data-store-design.md)
-  implementation('uk.gov.hmcts.cp:api-cp-crime-results-pcr:3.0.2')
+  // Api spec — v1.1.0: adds POST /internal/hearing-results (Event Grid webhook, AMP-892),
+  // replacing the Service Bus queue ingestion path. Version history restarted at v1.0.0 on
+  // 2026-07-30 (previous v1.0.0-v3.0.2 tags/releases deleted, no external consumers existed yet).
+  implementation('uk.gov.hmcts.cp:api-cp-crime-results-pcr:1.1.0')
   // Required at compile time for the generated contract's @Schema annotations (not resolved transitively)
   implementation 'io.swagger.core.v3:swagger-annotations:2.2.52'
 
@@ -79,13 +80,6 @@ dependencies {
   implementation 'org.flywaydb:flyway-core'
   implementation 'org.flywaydb:flyway-database-postgresql'
 
-  // --- Hearing event ingestion (docs/designs/2026-07-22-pcr-hearing-event-ingestion-design.md) ---
-  // Raw Azure SDK Service Bus client — consumes Hearing_Resulted off the self-provisioned
-  // pcr.hearing-resulted queue and owns the scheduled-retry escalation. Same client-construction
-  // pattern already used by service-cp-crime-hearing-results-document-subscription.
-  implementation 'com.azure:azure-messaging-servicebus:7.17.19'
-  // Passwordless managed-identity auth to Service Bus in Azure (DefaultAzureCredentialBuilder)
-  implementation 'com.azure:azure-identity:1.18.4'
   // Redis-first read of the hearing-result cache cpp-context-results already writes to —
   // read-only from this service's side, no new cache write path introduced
   implementation 'org.springframework.boot:spring-boot-starter-data-redis'

@@ -1,4 +1,5 @@
-{
+[{
+  "id": "evt-1",
   "eventType": "Hearing_Resulted",
   "subject": "hearing/%s",
   "eventTime": "2026-07-24T09:40:34.745Z",
@@ -7,4 +8,4 @@
     "hearingDay": "%s",
     "userId": "00000000-0000-0000-0000-000000000099"
   }
-}
+}]

@@ -1,0 +1,7 @@
+# Dev-environment ingress hostname for the Event Grid webhook subscription, documented for
+# reviewer context in the AMP-892 design docs before the doc text itself was redacted. History
+# rewrite is blocked by this repo's feature-branches ruleset (no force-push) — allowlisted by
+# fingerprint instead of scrubbed from git history.
+a23f5dec5bd15a5e59eee10ce5296738f83d63c0:docs/designs/2026-07-29-pcr-eventgrid-webhook-ingestion-design.md:internal-urls:252
+a23f5dec5bd15a5e59eee10ce5296738f83d63c0:docs/designs/2026-07-29-pcr-eventgrid-webhook-ingestion-design.md:internal-urls:265
+a23f5dec5bd15a5e59eee10ce5296738f83d63c0:docs/pipeline/adrs/007-AMP-892-pcr-eventgrid-webhook-ingestion.md:internal-urls:29
