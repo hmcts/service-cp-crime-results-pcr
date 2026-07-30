@@ -42,6 +42,22 @@ public class GlobalExceptionHandler {
                 .body(buildErrorResponse(errorMessage));
     }
 
+    @ExceptionHandler(IncompleteHearingDetailsException.class)
+    public ResponseEntity<ErrorResponse> handleIncompleteHearingDetails(final IncompleteHearingDetailsException e) {
+        log.warn("GlobalExceptionHandler handleIncompleteHearingDetails: {}", e.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.SERVICE_UNAVAILABLE)
+                .body(buildErrorResponse(e.getMessage()));
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ErrorResponse> handleMalformedWebhookPayload(final IllegalArgumentException e) {
+        log.warn("GlobalExceptionHandler handleMalformedWebhookPayload: {}", e.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(buildErrorResponse(e.getMessage()));
+    }
+
     @ExceptionHandler(HttpServerErrorException.class)
     public ResponseEntity<ErrorResponse> handleServerException(final HttpServerErrorException e) {
         log.error("GlobalExceptionHandler handleServerException", e);
