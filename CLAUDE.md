@@ -185,7 +185,9 @@ run, in production or in tests; discovered the hard way when repository tests fa
 | `CP_BACKEND_URL` | Results Query API base URL | `http://localhost:8081` |
 | `CJSCPPUID` | Client identity header sent to the Results Query API and Reference Data | `00000000-0000-0000-0000-000000000000` |
 | `REFERENCE_DATA_URL` | Reference Data (`now-subscriptions`) base URL — real dev/SIT value unconfirmed, see design doc §7 | falls back to `CP_BACKEND_URL` |
-| `REDIS_HOST` / `REDIS_PORT` | Hearing-result cache (read-only) | `localhost` / `6379` |
+| `PCR_DATASOURCE_URL` / `PCR_DATASOURCE_USERNAME` / `PCR_DATASOURCE_PASSWORD` | Postgres connection (`cp_version` store) | `jdbc:postgresql://localhost:5432/pcrdb` / `postgres` / `postgres` |
+| `CP_REDIS_HOST` / `CP_REDIS_PORT` | Hearing-result cache (read-only) | `localhost` / `6379` |
+| `CP_REDIS_PASSWORD` / `CP_REDIS_SSL_ENABLED` | Azure Cache for Redis auth key + TLS toggle — required against a real (non-local) Redis instance | empty / `false` |
 | `rpe.AppInsightsInstrumentationKey` | Azure Application Insights key | `00000000-0000-0000-0000-000000000000` |
 
 ## Repo-Specific Architecture Rules

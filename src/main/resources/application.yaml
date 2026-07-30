@@ -6,14 +6,17 @@ spring:
     name: service-cp-crime-results-pcr
   data:
     redis:
-      host: ${REDIS_HOST:localhost}
-      port: ${REDIS_PORT:6379}
+      host: ${CP_REDIS_HOST:localhost}
+      port: ${CP_REDIS_PORT:6379}
+      password: ${CP_REDIS_PASSWORD:}
+      ssl:
+        enabled: ${CP_REDIS_SSL_ENABLED:false}
   jpa:
     open-in-view: false
   datasource:
-    url: ${DATASOURCE_URL:jdbc:postgresql://localhost:5432/pcrdb}
-    username: ${DATASOURCE_USERNAME:postgres}
-    password: ${DATASOURCE_PASSWORD:postgres}
+    url: ${PCR_DATASOURCE_URL:jdbc:postgresql://localhost:5432/pcrdb}
+    username: ${PCR_DATASOURCE_USERNAME:postgres}
+    password: ${PCR_DATASOURCE_PASSWORD:postgres}
     hikari:
       maximum-pool-size: ${HIKARI_MAX_POOL_SIZE:8}
   flyway:
