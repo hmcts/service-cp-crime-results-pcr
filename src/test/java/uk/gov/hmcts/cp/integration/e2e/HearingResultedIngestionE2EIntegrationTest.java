@@ -190,7 +190,7 @@ class HearingResultedIngestionE2EIntegrationTest extends IngestionE2ETestBase {
 
     private void then_the_get_pcr_query_returns_the_persisted_result() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.get(
-                        "/pcrs/cases/{caseURN}/hearings/{hearingId}/defendants/{defendantId}",
+                        "/cases/{caseURN}/hearings/{hearingId}/defendants/{defendantId}",
                         CASE_URN, HEARING_ID, DEFENDANT_ID))
                 .andDo(print())
                 .andExpect(status().isOk())
