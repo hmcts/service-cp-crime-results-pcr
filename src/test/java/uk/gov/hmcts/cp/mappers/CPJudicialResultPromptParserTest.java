@@ -9,7 +9,7 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class CPCPJudicialResultPromptParserTest {
+class CPJudicialResultPromptParserTest {
 
     private final CPJudicialResultPromptParser parser = new CPJudicialResultPromptParser();
 
