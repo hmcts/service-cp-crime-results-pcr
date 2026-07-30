@@ -3,13 +3,13 @@
 **Status:** Accepted, 16 Jul 2026
 **Jira:** AMP-888 — parent epic for this PCR API. Child tickets under this decision: AMP-889
 (event ingestion), AMP-890 (data modelling), AMP-891 (PII redaction/encryption), AMP-892
-(API contract + service + orchestrator implementation — retention and drift-detection split
+(API contract + service + generation-gate implementation — retention and drift-detection split
 into their own stories, both still under this same epic), AMP-943 (PCR API scope boundary,
 confirmed with Common Platform TA — see ADR-005).
 **Design docs:** [`2026-07-16-pcr-api-marketplace-design-v2.md`](../../designs/2026-07-16-pcr-api-marketplace-design-v2.md)
-is the full architecture this ADR authorises; every other design doc in this repo (stateless
-proxy, data store, hearing event ingestion, orchestrator) is a deep-dive expansion of one
-section of it.
+is the full architecture this ADR authorises; every other design doc in this repo (data store,
+hearing event ingestion, generation gate) is a deep-dive expansion of one section of it. (The
+original stateless-proxy phase-1 design doc has since been superseded and removed.)
 
 ## Context
 
@@ -53,8 +53,8 @@ already working:
 - This service now sits downstream of `cpp-context-results`' source-propagated id (design doc §7)
   and Redis cache, and upstream of the existing subscription/callback infrastructure — a new
   dependency surface in both directions that didn't exist before this decision.
-- Every subsequent design/ADR in this repo (stateless proxy, data store, hearing ingestion,
-  orchestrator, PII carriage) is scoped *within* this decision, not a re-litigation of it.
+- Every subsequent design/ADR in this repo (data store, hearing ingestion, generation gate,
+  PII carriage) is scoped *within* this decision, not a re-litigation of it.
 
 ## Alternatives considered
 

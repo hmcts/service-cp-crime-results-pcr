@@ -49,6 +49,7 @@ flowchart TB
 
     Query -.->|"Redis hit"| Redis
     Query -.->|"Redis miss, REST fallback"| ResultsAPI["Results Query API<br/>hearingDetails/internal/hearingId"]
+    Decision -.->|"fetch active PCR-flagged subscriptions<br/>(ReferenceDataClient)"| RefData["Reference Data<br/>referencedata-query-api/.../now-subscriptions"]
 
     API --> Subscription["service-cp-crime-hearing-results-document-subscription<br/>existing - owns subscriber registration and push notification"]
 

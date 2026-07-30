@@ -7,9 +7,8 @@ section; sourcing is no longer an open item, only the wiring (`HearingDetailsRes
 `PcrVersionMapper`) remains to be built, as part of the phase-2 persistence-wiring work.
 **Jira:** AMP-891 — PII redaction/encryption
 **Design docs:** this decision changes the contract/persistence shape described in
-[`2026-07-16-pcr-api-marketplace-design-v2.md`](../../designs/2026-07-16-pcr-api-marketplace-design-v2.md),
-[`2026-07-17-pcr-stateless-proxy-design.md`](../../designs/2026-07-17-pcr-stateless-proxy-design.md), and
-[`2026-07-21-pcr-data-store-design.md`](../../designs/2026-07-21-pcr-data-store-design.md) — each links
+[`2026-07-16-pcr-api-marketplace-design-v2.md`](../../designs/2026-07-16-pcr-api-marketplace-design-v2.md)
+and [`2026-07-21-pcr-data-store-design.md`](../../designs/2026-07-21-pcr-data-store-design.md) — each links
 back to this ADR at the point it carries an encrypted PII field.
 
 ## Context
@@ -18,7 +17,7 @@ Earlier in this service's design, `title`/`firstName`/`middleName`/`lastName`/`d
 `address` were deliberately dropped from the `Defendant`/`Address` contract on the basis that
 one confirmed consumer resolves defendant identity entirely via `defendantId`/`masterDefendantId`
 against their own systems and did not need this data from this API. That decision is recorded in
-this repo's own history (`CLAUDE.md`, the orchestrator design doc, and
+this repo's own history (`CLAUDE.md`, the generation-gate design doc, and
 `api-cp-crime-results-pcr`'s `PCR-HMPPS-FIELD-MAPPING.md`) as settled.
 
 That requirement has since changed: a confirmed new requirement now needs this data carried
