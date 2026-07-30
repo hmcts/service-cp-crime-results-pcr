@@ -269,7 +269,7 @@ run, in production or in tests; discovered the hard way when repository tests fa
 |---|---|
 | `GET /pcr` returns an empty array for a hearing/defendant known to exist upstream | Expected if the webhook ingestion path hasn't persisted a `cp_version` row for it yet (async, gated by the generation-gate check) — `GET /pcr` only ever reads what's already in the data store, it does not call the Results Query API or wait on ingestion |
 | Retry logic assumes REST fallback fails cleanly on a race | Unconfirmed assumption per design §4b/§13 item 2 — verify against the Results team's actual code before relying on it |
-| Redis not available locally | Not yet wired into `docker-compose.yml` or an `apitest.gradle` project — `docker-compose.yml` only starts the `app` container today |
+| Redis not available locally | `docker-compose.yml` defines a `redis` service — start it via `docker compose up -d redis`; still not wired into an `apitest.gradle` project |
 | `repositories/*RepositoryTest` fails with `PSQLException`/`does not exist` | Needs a real Postgres reachable at `localhost:5432` with a `pcrdb` database already created — start it via `docker compose up -d postgres` (service defined in this repo's `docker-compose.yml`) before running `./gradlew test`; `PostgresInitialise` fails fast with instructions if it's unreachable |
 
 ## Repo-Specific Notes
