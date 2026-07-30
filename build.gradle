@@ -29,11 +29,13 @@ apply {
 // We MUST keep all dependencies in the build.gradle to allow dependabot to provide version updates
 // Sadly, dependabot does not track dependencies in the apply-from files
 dependencies {
-  // Api spec — v1.1.1: removes the redundant /pcrs prefix from the case-result endpoint paths
-  // (now /cases/...). v1.1.0 added POST /internal/hearing-results (Event Grid webhook, AMP-892),
-  // replacing the Service Bus queue ingestion path. Version history restarted at v1.0.0 on
-  // 2026-07-30 (previous v1.0.0-v3.0.2 tags/releases deleted, no external consumers existed yet).
-  implementation('uk.gov.hmcts.cp:api-cp-crime-results-pcr:1.1.1')
+  // Api spec — v1.1.2: adds the missing 500 response and accurate error examples to the
+  // webhook endpoint. v1.1.1 removes the redundant /pcrs prefix from the case-result endpoint
+  // paths (now /cases/...). v1.1.0 added POST /internal/hearing-results (Event Grid webhook,
+  // AMP-892), replacing the Service Bus queue ingestion path. Version history restarted at
+  // v1.0.0 on 2026-07-30 (previous v1.0.0-v3.0.2 tags/releases deleted, no external consumers
+  // existed yet).
+  implementation('uk.gov.hmcts.cp:api-cp-crime-results-pcr:1.1.2')
   // Required at compile time for the generated contract's @Schema annotations (not resolved transitively)
   implementation 'io.swagger.core.v3:swagger-annotations:2.2.52'
 
