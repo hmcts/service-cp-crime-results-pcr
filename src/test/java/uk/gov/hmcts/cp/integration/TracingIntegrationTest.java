@@ -24,7 +24,7 @@ class TracingIntegrationTest extends IntegrationTestBase {
 
     @Test
     void request_with_correlation_id_header_should_echo_it_in_response() throws Exception {
-        when(resultsPcrService.getPcrHearingResults(any(), any(), any())).thenReturn(List.of());
+        when(pcrResultsService.getPcrHearingResults(any(), any(), any())).thenReturn(List.of());
 
         final MvcResult result = mockMvc.perform(getPcrHearingResultsRequest()
                         .header(CORRELATION_ID_KEY, TEST_CORRELATION_ID))
@@ -36,7 +36,7 @@ class TracingIntegrationTest extends IntegrationTestBase {
 
     @Test
     void request_without_correlation_id_header_should_generate_one_in_response() throws Exception {
-        when(resultsPcrService.getPcrHearingResults(any(), any(), any())).thenReturn(List.of());
+        when(pcrResultsService.getPcrHearingResults(any(), any(), any())).thenReturn(List.of());
 
         final MvcResult result = mockMvc.perform(getPcrHearingResultsRequest())
                 .andExpect(status().isOk())

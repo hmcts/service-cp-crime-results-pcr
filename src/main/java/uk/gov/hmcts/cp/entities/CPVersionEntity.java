@@ -28,8 +28,8 @@ public class CPVersionEntity {
     @Column(name = "cp_version_pk")
     private UUID cpVersionPk;
 
-    @Column(name = "source_id")
-    private String sourceId;
+    @Column(name = "event_id")
+    private String eventId;
 
     @Column(name = "defendant_id")
     private UUID defendantId;

@@ -14,7 +14,8 @@ import tools.jackson.databind.ObjectMapper;
 import uk.gov.hmcts.cp.clients.HearingResultedServiceBusClientFactory;
 import uk.gov.hmcts.cp.domain.HearingResultedPointer;
 import uk.gov.hmcts.cp.exceptions.IncompleteHearingDetailsException;
-import uk.gov.hmcts.cp.services.ResultsIngestionService;
+import uk.gov.hmcts.cp.services.ingestion.HearingResultedRetryService;
+import uk.gov.hmcts.cp.services.ingestion.ResultsIngestionService;
 
 import java.util.UUID;
 
@@ -48,6 +49,8 @@ class HearingResultedProcessorServiceTest {
     private HearingResultedServiceBusClientFactory clientFactory;
     @Mock
     private ResultsIngestionService ingestionService;
+    @Mock
+    private HearingResultedRetryService retryService;
     @Spy
     private ObjectMapper objectMapper = new ObjectMapper();
     @Mock
@@ -78,7 +81,7 @@ class HearingResultedProcessorServiceTest {
 
         processorService.onMessage(context);
 
-        verify(ingestionService).escalateOrDeadLetter(eq(context), any(HearingResultedPointer.class));
+        verify(retryService).escalateOrDeadLetter(eq(context), any(HearingResultedPointer.class));
         verify(context, never()).complete();
         verify(context, never()).deadLetter();
     }

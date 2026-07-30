@@ -3,6 +3,13 @@
 **Status:** Accepted, 23 Jul 2026
 **Jira:** AMP-889 — inbound contract via Event Grid
 
+**TBD:** Techarc has proposed an alternative — replacing the self-provisioned Service Bus queue
+with a webhook POST endpoint (Event Grid → direct HTTP push instead of a queue a consumer polls).
+See AMP-892 / PR #20 (`feature/AMP-892-pcr-webhook-ingestion`) and its design doc,
+`docs/plans/2026-07-29-pcr-eventgrid-webhook-ingestion.md`. Not yet decided or merged — this ADR's
+Service Bus approach may be decommissioned if the webhook approach is accepted; don't treat this
+ADR as settled long-term.
+
 ## Context
 
 Implementing,
