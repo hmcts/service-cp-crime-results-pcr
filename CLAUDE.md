@@ -14,7 +14,7 @@ subscriber.
 webhook ingestion (`POST /internal/hearing-results`) wired end-to-end into the DB-backed version
 store (Postgres/Flyway, `cp_version` rows), gated by the generation-gate check.
 **Spring Boot version**: 4.1.0
-**Implements**: `api-cp-crime-results-pcr` v1.1.0 (`PcrApi`/`InternalApi` — see `build.gradle`)
+**Implements**: `api-cp-crime-results-pcr` v1.1.1 (`PcrApi`/`InternalApi` — see `build.gradle`)
 
 Replaces the earlier self-provisioned Service Bus queue ingestion path (ADR-002/AMP-889) with a
 direct Event Grid webhook per ADR-007/AMP-892 — see
@@ -22,7 +22,7 @@ direct Event Grid webhook per ADR-007/AMP-892 — see
 
 **Status**: `GET /pcr` now reads from the data store; the webhook ingestion path drives the
 generation gate and the data store as one connected pipeline:
-- `GET /pcrs/cases/{caseURN}/hearings/{hearingId}/defendants/{defendantId}`
+- `GET /cases/{caseURN}/hearings/{hearingId}/defendants/{defendantId}`
   (`PcrResultsController` → `PcrResultsService`) reads `cp_version` (plus its offences, court
   applications, judicial results, and prompts) via the repository layer and returns the full
   recorded history as an array, ordered oldest-to-newest by `created_at` — no `version` query
