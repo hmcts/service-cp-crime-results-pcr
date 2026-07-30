@@ -33,9 +33,9 @@ import java.util.stream.Stream;
 
 @Component
 @RequiredArgsConstructor
-public class CPVersionEntityMapper {
+public class CPHearingResultEntityMapper {
 
-    private final JudicialResultPromptParser promptParser;
+    private final CPJudicialResultPromptParser promptParser;
 
     public CPCaseHearingEntity toCaseHearingEntity(final ProsecutionCase prosecutionCase, final HearingDetail hearing,
                                                     final UUID hearingId, final OffsetDateTime createdAt) {
@@ -120,7 +120,7 @@ public class CPVersionEntityMapper {
                 : application.getSubject().getMasterDefendant().getMasterDefendantId();
     }
 
-    public CPVersionWriteBundle toWriteBundle(final Defendant defendant, final HearingDetail hearing, final UUID caseHearingId,
+    public CPEntitySet toWriteBundle(final Defendant defendant, final HearingDetail hearing, final UUID caseHearingId,
                                                final OffsetDateTime createdAt, final OffsetDateTime expiresAt) {
         final CPVersionEntity version = toVersionEntity(defendant, hearing, caseHearingId, createdAt, expiresAt);
         final List<CourtApplication> linkedApplications = matchingCourtApplications(defendant, hearing);
@@ -134,7 +134,7 @@ public class CPVersionEntityMapper {
         for (int i = 0; i < linkedApplications.size(); i++) {
             addLinkedApplicationContent(linkedApplications.get(i), courtApplications.get(i).getId(), offences, judicialResults, prompts);
         }
-        return new CPVersionWriteBundle(version, courtApplications, offences, judicialResults, prompts);
+        return new CPEntitySet(version, courtApplications, offences, judicialResults, prompts);
     }
 
     private void addLinkedApplicationContent(final CourtApplication application, final UUID courtApplicationId,
@@ -150,7 +150,7 @@ public class CPVersionEntityMapper {
                                              final OffsetDateTime createdAt, final OffsetDateTime expiresAt) {
         final CPVersionEntity.CPVersionEntityBuilder builder = CPVersionEntity.builder()
                 .cpVersionPk(UUID.randomUUID())
-                .sourceId(null) // no event-correlation pipeline yet — data-store design doc §3
+                .eventId(null) // no event-correlation pipeline yet — data-store design doc §3
                 .defendantId(UUID.fromString(defendant.getId()))
                 .caseHearingId(caseHearingId)
                 .custodyLocation(toCustodyLocation(defendant))

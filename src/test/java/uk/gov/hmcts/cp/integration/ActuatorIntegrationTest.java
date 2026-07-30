@@ -8,8 +8,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-import uk.gov.hmcts.cp.services.ResultsIngestionService;
-import uk.gov.hmcts.cp.services.ResultsPcrService;
+import uk.gov.hmcts.cp.services.PcrResultsService;
+import uk.gov.hmcts.cp.services.ingestion.CPEntityPersistenceService;
+import uk.gov.hmcts.cp.services.ingestion.ResultsIngestionService;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -30,10 +31,15 @@ class ActuatorIntegrationTest {
     @MockitoBean
     private ResultsIngestionService resultsIngestionService;
 
-    // Same reason as resultsIngestionService above — ResultsPcrService is now repository-backed
+    // Same reason as resultsIngestionService above — PcrResultsService is now repository-backed
     // and DataSourceAutoConfiguration is excluded here (see IntegrationTestBase).
     @MockitoBean
-    private ResultsPcrService resultsPcrService;
+    private PcrResultsService pcrResultsService;
+
+    // CPEntityPersistenceService holds the 5 repository dependencies ResultsIngestionService
+    // used to hold directly — same reason as above, mocked so its real constructor never runs.
+    @MockitoBean
+    private CPEntityPersistenceService persistenceService;
 
     @Test
     void actuator_info_should_have_build_fields() throws Exception {

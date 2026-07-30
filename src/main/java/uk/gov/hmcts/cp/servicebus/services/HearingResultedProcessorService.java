@@ -15,10 +15,15 @@ import uk.gov.hmcts.cp.domain.HearingResultedPointer;
 import uk.gov.hmcts.cp.exceptions.IncompleteHearingDetailsException;
 import uk.gov.hmcts.cp.servicebus.model.CPHearingResultedEventData;
 import uk.gov.hmcts.cp.servicebus.model.CPHearingResultedEventEnvelope;
-import uk.gov.hmcts.cp.services.ResultsIngestionService;
+import uk.gov.hmcts.cp.services.ingestion.HearingResultedRetryService;
+import uk.gov.hmcts.cp.services.ingestion.ResultsIngestionService;
 
 import java.util.Optional;
 
+/**
+ * Consumes Hearing_Resulted Service Bus messages, unwraps the Event Grid envelope, and hands
+ * the pointer to ResultsIngestionService — escalating to HearingResultedRetryService on failure.
+  */
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -26,6 +31,7 @@ public class HearingResultedProcessorService {
 
     private final HearingResultedServiceBusClientFactory clientFactory;
     private final ResultsIngestionService ingestionService;
+    private final HearingResultedRetryService retryService;
     private final ObjectMapper objectMapper;
 
     private ServiceBusProcessorClient processorClient;
@@ -65,7 +71,7 @@ public class HearingResultedProcessorService {
             ingestionService.ingestAndPersist(hearingResultedPointer.hearingId(), hearingResultedPointer.hearingDay());
             context.complete();
         } catch (IncompleteHearingDetailsException _) {
-            ingestionService.escalateOrDeadLetter(context, hearingResultedPointer);
+            retryService.escalateOrDeadLetter(context, hearingResultedPointer);
         } catch (Exception e) {
             log.error("Unrecoverable failure ingesting hearingId:{}", hearingResultedPointer.hearingId(), e);
             context.deadLetter();

@@ -1,11 +1,11 @@
-package uk.gov.hmcts.cp.services.orchestrator;
+package uk.gov.hmcts.cp.services.pcrcompute;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import uk.gov.hmcts.cp.clients.orchestrator.ReferenceDataClient;
+import uk.gov.hmcts.cp.clients.ReferenceDataClient;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.JudicialResult;
-import uk.gov.hmcts.cp.domain.orchestrator.CPNowSubscription;
-import uk.gov.hmcts.cp.domain.orchestrator.CPVocabulary;
+import uk.gov.hmcts.cp.domain.pcrcompute.CPNowSubscription;
+import uk.gov.hmcts.cp.domain.pcrcompute.CPVocabulary;
 
 import java.time.LocalDate;
 import java.util.List;

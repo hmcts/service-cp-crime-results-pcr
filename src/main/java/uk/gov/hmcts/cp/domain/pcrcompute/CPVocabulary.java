@@ -1,4 +1,4 @@
-package uk.gov.hmcts.cp.domain.orchestrator;
+package uk.gov.hmcts.cp.domain.pcrcompute;
 
 import lombok.Builder;
 

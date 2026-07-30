@@ -1,4 +1,4 @@
-package uk.gov.hmcts.cp.clients.orchestrator;
+package uk.gov.hmcts.cp.clients;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -7,8 +7,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.util.UriComponentsBuilder;
 import uk.gov.hmcts.cp.config.AppPropertiesBackend;
-import uk.gov.hmcts.cp.domain.orchestrator.CPNowSubscription;
-import uk.gov.hmcts.cp.domain.orchestrator.CPNowSubscriptionsResponse;
+import uk.gov.hmcts.cp.domain.pcrcompute.CPNowSubscription;
+import uk.gov.hmcts.cp.domain.pcrcompute.CPNowSubscriptionsResponse;
 
 import java.time.LocalDate;
 import java.util.List;

@@ -23,7 +23,7 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(MockitoExtension.class)
-class PcrHearingResultMapperTest {
+class PcrResultsMapperTest {
 
     private static final UUID DEFENDANT_ID = UUID.fromString("00000000-0000-0000-0000-000000000022");
     private static final UUID MASTER_DEFENDANT_ID = UUID.fromString("00000000-0000-0000-0000-000000000033");
@@ -31,7 +31,7 @@ class PcrHearingResultMapperTest {
     private static final UUID VERSION_PK = UUID.fromString("00000000-0000-0000-0000-000000000099");
 
     @InjectMocks
-    private PcrHearingResultMapper mapper;
+    private PcrResultsMapper mapper;
 
     private static CPVersionEntity minimalVersion() {
         return CPVersionEntity.builder().cpVersionPk(VERSION_PK).build();

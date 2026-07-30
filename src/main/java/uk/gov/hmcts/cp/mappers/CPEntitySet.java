@@ -8,7 +8,7 @@ import uk.gov.hmcts.cp.entities.CPVersionEntity;
 
 import java.util.List;
 
-public record CPVersionWriteBundle(
+public record CPEntitySet(
         CPVersionEntity version,
         List<CPCourtApplicationEntity> courtApplications,
         List<CPOffenceEntity> offences,

@@ -1,14 +1,14 @@
-package uk.gov.hmcts.cp.services.orchestrator;
+package uk.gov.hmcts.cp.services.pcrcompute;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.gov.hmcts.cp.clients.orchestrator.ReferenceDataClient;
+import uk.gov.hmcts.cp.clients.ReferenceDataClient;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.JudicialResult;
-import uk.gov.hmcts.cp.domain.orchestrator.CPNowSubscription;
-import uk.gov.hmcts.cp.domain.orchestrator.CPVocabulary;
+import uk.gov.hmcts.cp.domain.pcrcompute.CPNowSubscription;
+import uk.gov.hmcts.cp.domain.pcrcompute.CPVocabulary;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -30,14 +30,14 @@ class CPResultsPcrFilterTest {
     private ReferenceDataClient referenceDataClient;
 
     @InjectMocks
-    private CPResultsPcrFilter resultsPcrOrchestrator;
+    private CPResultsPcrFilter resultsPcrFilter;
 
     @Test
     void excludePublishedForNows_should_removeResultsMarkedPublishedForNows() {
         final JudicialResult published = JudicialResult.builder().cjsCode("1200").publishedForNows(true).build();
         final JudicialResult eligible = JudicialResult.builder().cjsCode("1300").publishedForNows(false).build();
 
-        final List<JudicialResult> result = resultsPcrOrchestrator.excludePublishedForNows(List.of(published, eligible));
+        final List<JudicialResult> result = resultsPcrFilter.excludePublishedForNows(List.of(published, eligible));
 
         assertThat(result).containsExactly(eligible);
     }
@@ -46,7 +46,7 @@ class CPResultsPcrFilterTest {
     void excludePublishedForNows_should_returnEmptyList_whenAllResultsPublishedForNows() {
         final JudicialResult published = JudicialResult.builder().cjsCode("1200").publishedForNows(true).build();
 
-        final List<JudicialResult> result = resultsPcrOrchestrator.excludePublishedForNows(List.of(published));
+        final List<JudicialResult> result = resultsPcrFilter.excludePublishedForNows(List.of(published));
 
         assertThat(result).isEmpty();
     }
@@ -57,7 +57,7 @@ class CPResultsPcrFilterTest {
         final CPNowSubscription nonPcrSubscription = CPNowSubscription.builder().isPrisonCourtRegisterSubscription(false).build();
         when(referenceDataClient.getPrisonCourtRegisterSubscriptions(ON_DATE)).thenReturn(List.of(pcrSubscription, nonPcrSubscription));
 
-        assertThat(resultsPcrOrchestrator.fetchPrisonCourtRegisterSubscriptions(ON_DATE)).containsExactly(pcrSubscription);
+        assertThat(resultsPcrFilter.fetchPrisonCourtRegisterSubscriptions(ON_DATE)).containsExactly(pcrSubscription);
     }
 
     @Test
@@ -68,7 +68,7 @@ class CPResultsPcrFilterTest {
                 .build();
         when(nowSubscriptionMatcher.matches(pcrSubscription, vocabulary, List.of())).thenReturn(true);
 
-        assertThat(resultsPcrOrchestrator.isPrisonCourtRegisterRequired(vocabulary, List.of(), List.of(pcrSubscription))).isTrue();
+        assertThat(resultsPcrFilter.isPrisonCourtRegisterRequired(vocabulary, List.of(), List.of(pcrSubscription))).isTrue();
     }
 
     @Test
@@ -78,12 +78,12 @@ class CPResultsPcrFilterTest {
                 .build();
         when(nowSubscriptionMatcher.matches(pcrSubscription, vocabulary(), List.of())).thenReturn(false);
 
-        assertThat(resultsPcrOrchestrator.isPrisonCourtRegisterRequired(vocabulary(), List.of(), List.of(pcrSubscription))).isFalse();
+        assertThat(resultsPcrFilter.isPrisonCourtRegisterRequired(vocabulary(), List.of(), List.of(pcrSubscription))).isFalse();
     }
 
     @Test
     void isPrisonCourtRegisterRequired_should_returnFalse_whenNoSubscriptions() {
-        assertThat(resultsPcrOrchestrator.isPrisonCourtRegisterRequired(vocabulary(), List.of(), List.of())).isFalse();
+        assertThat(resultsPcrFilter.isPrisonCourtRegisterRequired(vocabulary(), List.of(), List.of())).isFalse();
         verify(nowSubscriptionMatcher, never()).matches(any(), any(), any());
     }
 

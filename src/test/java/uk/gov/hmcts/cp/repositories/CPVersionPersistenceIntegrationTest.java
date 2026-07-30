@@ -15,8 +15,8 @@ import uk.gov.hmcts.cp.domain.HearingDetailsResponse.PersonDefendant;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.ProsecutionCase;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.ProsecutionCaseIdentifier;
 import uk.gov.hmcts.cp.entities.CPCaseHearingEntity;
-import uk.gov.hmcts.cp.mappers.CPVersionEntityMapper;
-import uk.gov.hmcts.cp.mappers.CPVersionWriteBundle;
+import uk.gov.hmcts.cp.mappers.CPHearingResultEntityMapper;
+import uk.gov.hmcts.cp.mappers.CPEntitySet;
 
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
@@ -31,7 +31,7 @@ class CPVersionPersistenceIntegrationTest extends RepositoryIntegrationTestBase 
     private static final UUID HEARING_ID = UUID.fromString("00000000-0000-0000-0000-000000000066");
 
     @Autowired
-    private CPVersionEntityMapper mapper;
+    private CPHearingResultEntityMapper mapper;
     @Autowired
     private CPCaseHearingRepository caseHearingRepository;
     @Autowired
@@ -60,7 +60,7 @@ class CPVersionPersistenceIntegrationTest extends RepositoryIntegrationTestBase 
         final CPCaseHearingEntity caseHearing = mapper.toCaseHearingEntity(prosecutionCase, hearing, HEARING_ID, createdAt);
         caseHearingRepository.save(caseHearing);
         caseMarkerRepository.saveAll(mapper.toCaseMarkerEntities(prosecutionCase, caseHearing.getId()));
-        final CPVersionWriteBundle bundle = mapper.toWriteBundle(
+        final CPEntitySet bundle = mapper.toWriteBundle(
                 prosecutionCase.getDefendants().get(0), hearing, caseHearing.getId(), createdAt, createdAt.plusDays(30));
         versionRepository.save(bundle.version());
         offenceRepository.saveAll(bundle.offences());

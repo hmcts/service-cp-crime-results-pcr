@@ -44,7 +44,7 @@ class CPVersionRepositoryTest extends RepositoryIntegrationTestBase {
         final OffsetDateTime expiresAt = createdAt.plusDays(30);
         final CPVersionEntity entity = CPVersionEntity.builder()
                 .cpVersionPk(VERSION_PK)
-                .sourceId("SRC-1")
+                .eventId("EVT-1")
                 .defendantId(DEFENDANT_ID)
                 .caseHearingId(CASE_HEARING_ID)
                 .custodyLocation("Prison")
@@ -77,7 +77,7 @@ class CPVersionRepositoryTest extends RepositoryIntegrationTestBase {
         final Optional<CPVersionEntity> found = cpVersionRepository.findById(VERSION_PK);
         assertThat(found).isPresent();
         final CPVersionEntity actual = found.get();
-        assertThat(actual.getSourceId()).isEqualTo("SRC-1");
+        assertThat(actual.getEventId()).isEqualTo("EVT-1");
         assertThat(actual.getDefendantId()).isEqualTo(DEFENDANT_ID);
         assertThat(actual.getCaseHearingId()).isEqualTo(CASE_HEARING_ID);
         assertThat(actual.getCustodyLocation()).isEqualTo("Prison");
