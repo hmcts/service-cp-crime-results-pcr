@@ -1,6 +1,6 @@
-# PCROrchestrator (Decision Engine, Enrichment, and Transformer) Design
+# PCR Generation Gate (Decision Engine, Enrichment, and Transformer) Design
 
-**Jira:** AMP-892 — API contract + service + orchestrator implementation (part of the
+**Jira:** AMP-892 — API contract + service + generation-gate implementation (part of the
 AMP-888 epic; see `docs/pipeline/adrs/001-AMP-888-pcr-api-marketplace-pull-channel.md`).
 Retention and drift-detection are split into their own AMP-888 child stories, not this one.
 **Scope:** AMP-943 — see
@@ -57,17 +57,17 @@ which is about *delivery*, not content or eligibility:
 
 ## 1. Pipeline position
 
-`CPResultsPcrOrchestrator` performs the decision-relevant subset of the legacy
+`CPResultsPcrFilter` performs the decision-relevant subset of the legacy
 orchestrator's five activities — activities 2 and 3 only:
 
 1. **Compute vocabulary** (`CPVocabularyService.compute`, §2) — per-defendant
    fact computation from the full, unfiltered result set.
 2. **Exclude `publishedForNows` results**
-   (`CPResultsPcrOrchestrator.excludePublishedForNows`, §3) — the content filter,
+   (`CPResultsPcrFilter.excludePublishedForNows`, §3) — the content filter,
    replicating legacy activity 2's `filterJudicialResultsApplicableForRegisters`
    step.
 3. **Determine whether a PCR is required**
-   (`CPResultsPcrOrchestrator.isPrisonCourtRegisterRequired`, §4) — the
+   (`CPResultsPcrFilter.isPrisonCourtRegisterRequired`, §4) — the
    subscription-match gate (vocabulary rules via `CPNowSubscriptionMatcher`,
    backed by `ReferenceDataClient`), replicating legacy activity 3
    (`PrisonCourtRegisterSubscriptions`).
@@ -77,20 +77,23 @@ touch them: building the register fragment's non-decision content, and
 anything from activities 4–5 (recipients, payload assembly, Progression
 submission) — see "Explicitly not in scope" above.
 
-**Naming — `CPResultsPcrOrchestrator`, not the legacy name.** The legacy
+**Naming — `CPResultsPcrFilter`, not the legacy name.** The legacy
 top-level coordinator, `PrisonCourtRegisterOrchestrator`, is an Azure
 Durable Functions orchestrator function with checkpointing/replay
 semantics, coordinating all five activities including delivery. A plain
 Spring `@Component` coordinating only the decision-relevant subset
-(activities 2–3) isn't the same thing, so this class follows this
-service's own naming convention instead — `ResultsPcrController`,
-`ResultsPcrService`, `ResultsClient` are all `Results`-prefixed — while
-still naming the class for what it does: coordinate `CPVocabularyService`,
-the `publishedForNows` filter, and `CPNowSubscriptionMatcher`/
-`ReferenceDataClient` in sequence.
+(activities 2–3) isn't the same thing — this class was originally named
+`CPResultsPcrOrchestrator` for exactly that reason, then renamed again to
+`CPResultsPcrFilter` once "orchestrator" itself was dropped from this
+repo's vocabulary entirely (it doesn't coordinate other services, it
+computes/filters/matches). `CP`-prefixed, not `Pcr`-prefixed, since `Pcr`
+is now reserved for the PCR API's own read-path controller→service→mapper
+flow (`PcrResultsController`/`PcrResultsService`/`PcrResultsMapper`), and
+this class is part of the write-side ingestion pipeline instead.
 
 ```mermaid
 flowchart LR
+    RefData["Reference Data<br/>now-subscriptions (ReferenceDataClient)"] -.->|"active PCR-flagged subscriptions,<br/>fetched once per hearing"| Gate
     Ingestion["Ingestion<br/>(ingestion doc)<br/>raw hearing payload"] --> Vocab["CPVocabularyService<br/>§2 — per-defendant facts, full result set"]
     Vocab --> Filter["publishedForNows filter<br/>§3 — plain field, no lookup"]
     Filter --> Gate["CPNowSubscriptionMatcher<br/>§4 — vocabulary rules"]
@@ -107,7 +110,7 @@ activity 4 (`OutboundPrisonCourtRegister`, which discards fragments with no
 `matchedSubscriptions` before building payloads) — a detail that only
 matters to delivery-routing machinery this service doesn't replicate. The
 determination itself (`matchedSubscriptions.length > 0`, legacy activity 4)
-is exactly equivalent to this design's `CPResultsPcrOrchestrator.isPrisonCourtRegisterRequired`
+is exactly equivalent to this design's `CPResultsPcrFilter.isPrisonCourtRegisterRequired`
 (§4) — same check, just relocated earlier in the pipeline since this
 service has no reason to build the rest of activity 4's recipient/payload
 machinery first.
@@ -274,7 +277,7 @@ public class CPVocabularyService {
 }
 ```
 
-`hasCustodialResult` is directly portable — `JudicialResultPromptParser`
+`hasCustodialResult` is directly portable — `CPJudicialResultPromptParser`
 already scans `judicialResultPrompts[]` by `promptReference` for six other
 prompts (phase 1). This is the same pattern, one more prompt reference.
 
@@ -307,7 +310,7 @@ own `hearingDetails/internal` call too, since both consume the same
 Results Query API family. It is **not yet modeled** on
 `HearingDetailsResponse.JudicialResult` (phase 1). Confirm it's actually
 present on a real `hearingDetails/internal` response (§7), then add it as
-a plain field. The filter itself is `CPResultsPcrOrchestrator.excludePublishedForNows`
+a plain field. The filter itself is `CPResultsPcrFilter.excludePublishedForNows`
 (§4) — deliberately named to avoid reusing "eligible"/"eligibility," which
 already means something different in this document (§4's subscription-
 match gate).
@@ -498,7 +501,7 @@ public class CPNowSubscriptionMatcher {
 ```java
 @Component
 @RequiredArgsConstructor
-public class CPResultsPcrOrchestrator {
+public class CPResultsPcrFilter {
 
     private final CPNowSubscriptionMatcher nowSubscriptionMatcher;
     private final ReferenceDataClient referenceDataClient;
@@ -778,7 +781,7 @@ resolving it unilaterally here.
 
 ### No-match behaviour: `404`
 
-When `CPResultsPcrOrchestrator.isPrisonCourtRegisterRequired` returns `false`, this
+When `CPResultsPcrFilter.isPrisonCourtRegisterRequired` returns `false`, this
 service treats it exactly like "no PCR version found for the supplied
 identifiers" — the same `404` `PcrService` already returns for a
 case/defendant that doesn't exist (phase 1). No new error shape, no

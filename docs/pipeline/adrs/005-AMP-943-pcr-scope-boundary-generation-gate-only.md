@@ -1,13 +1,13 @@
 # 005. PCR API scope boundary — generation-gate logic only, not distribution
 
 **Status:** Accepted, 24 Jul 2026
-**Jira:** AMP-943 — PCR Orchestrator scope confirmation with Common Platform TA
-**Design docs:** [`2026-07-22-pcr-orchestrator-design.md`](../../designs/2026-07-22-pcr-orchestrator-design.md)
+**Jira:** AMP-943 — PCR generation-gate scope confirmation with Common Platform TA
+**Design docs:** [`2026-07-22-pcr-generation-gate-design.md`](../../designs/2026-07-22-pcr-generation-gate-design.md)
 implements the scope this ADR confirms; that doc links back here at its Jira line.
 
 ## Context
 
-§4/§7 of the orchestrator design doc raised an open question: how much of the legacy
+§4/§7 of the generation-gate design doc raised an open question: how much of the legacy
 `PrisonCourtRegisterOrchestrator` Durable Function pipeline does this service need to
 reproduce? The pipeline covers more than generation — recipient/email resolution and
 Progression PDF submission are also part of it. Building the wrong scope either duplicates
@@ -38,7 +38,7 @@ Confirmed with the Common Platform TA:
   distribution-channel kinds (NOW, EDT, informant register, court register subscriptions) —
   same underlying Reference Data source, not a PCR-only dataset. This service only ever
   consumes the `isPrisonCourtRegisterSubscription`-flagged subset
-  (`CPResultsPcrOrchestrator.isPrisonCourtRegisterRequired` filters to it), but the client and
+  (`CPResultsPcrFilter.isPrisonCourtRegisterRequired` filters to it), but the client and
   domain model themselves make no PCR-specific assumption about the response shape —
   confirms the modelling choice already made, not a change driven by this ADR.
 - **Long-term direction (not this phase):** moving the remaining Function App logic and
@@ -48,8 +48,8 @@ Confirmed with the Common Platform TA:
 
 ## Consequences
 
-- `CPResultsPcrOrchestrator`/`CPVocabularyService`/`CPNowSubscriptionMatcher` are now confirmed as
-  the full intended scope of "the orchestrator" for this phase — no further build-out
+- `CPResultsPcrFilter`/`CPVocabularyService`/`CPNowSubscriptionMatcher` are now confirmed as
+  the full intended scope of "the generation gate" for this phase — no further build-out
   (recipient resolution, Progression submission) should be added under this same umbrella
   without a new scope conversation.
 - The existing Function App pipeline keeps running unchanged for recipient resolution and

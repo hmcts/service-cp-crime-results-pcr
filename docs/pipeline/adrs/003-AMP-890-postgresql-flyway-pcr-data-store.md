@@ -8,8 +8,8 @@ here at its **Database engine** line.
 
 ## Context
 
-Phase 1 of this service (`2026-07-17-pcr-stateless-proxy-design.md`) is a stateless proxy with
-no data store at all. Phase 2 needs real version history — an immutable row per
+Phase 1 of this service (the original stateless-proxy design, since superseded and removed) is a
+stateless proxy with no data store at all. Phase 2 needs real version history — an immutable row per
 `(hearingId, defendantId)` PCR version, queryable by id and by history (v2 §7/§8a) — which
 requires a real persistence layer for the first time in this repo.
 
@@ -30,7 +30,7 @@ introduces four: `org.postgresql:postgresql`, `org.flywaydb:flyway-core`,
   system). `starter-jdbc` gives Flyway a `DataSource` to run migrations against without pulling
   in Hibernate ahead of any code that would actually use it.
 - Schema itself — normalized tables, immutable version rows, surrogate `cp_version_pk` vs.
-  source-propagated `source_id`, polymorphic `cp_offence`/`cp_judicial_result` parents — is
+  source-propagated `event_id`, polymorphic `cp_offence`/`cp_judicial_result` parents — is
   specified in full in the linked design doc, not repeated here.
 
 ## Consequences
