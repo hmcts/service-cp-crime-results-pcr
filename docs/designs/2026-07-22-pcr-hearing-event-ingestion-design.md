@@ -9,8 +9,8 @@ for the dependency-adoption decision this design doc drove.
 Companion to
 [`2026-07-21-pcr-data-store-design.md`](2026-07-21-pcr-data-store-design.md)
 ("the data-store doc") and
-[`2026-07-22-pcr-orchestrator-design.md`](2026-07-22-pcr-orchestrator-design.md)
-("the orchestrator doc") — together the three cover the full pipeline from
+[`2026-07-22-pcr-generation-gate-design.md`](2026-07-22-pcr-generation-gate-design.md)
+("the generation-gate doc") — together the three cover the full pipeline from
 Event Grid trigger through to a written `cp_version` row.
 
 **Scope:** the ingestion pipeline only — Event Grid subscription → Service
@@ -22,11 +22,10 @@ filtering, the Transformer, or writing into `cp_version` — the data-store
 doc covers the target shape of that write, not how a payload gets there.
 
 **Not yet built:** none of this exists in phase 1 — a stateless, synchronous
-proxy with no Event Grid, no Redis, no Service Bus (see
-[`2026-07-17-pcr-stateless-proxy-design.md`](2026-07-17-pcr-stateless-proxy-design.md)
-§2). This document describes what a later phase adds *in front of* phase 1's
-existing `ResultsClient` — that class's synchronous REST call is reused
-here as the REST-fallback leg, not replaced or duplicated.
+proxy with no Event Grid, no Redis, no Service Bus (the original stateless-proxy
+design, since superseded and removed). This document describes what a later
+phase adds *in front of* phase 1's existing `ResultsClient` — that class's
+synchronous REST call is reused here as the REST-fallback leg, not replaced or duplicated.
 
 ---
 
@@ -78,7 +77,7 @@ flowchart TB
     RQC -->|"GET hearingDetails/internal/{hearingId}"| ResultsAPI["Results Query API"]
 
     GroupCheck -->|"true"| NoPcr["404 — no PCR for any defendant<br/>on this hearing, §3.3a"]
-    GroupCheck -->|"false/null"| Downstream["CPResultsPcrOrchestrator<br/>(orchestrator doc)"]
+    GroupCheck -->|"false/null"| Downstream["CPResultsPcrFilter<br/>(generation-gate doc)"]
 ```
 
 Sequence for one hearing:
@@ -93,7 +92,7 @@ sequenceDiagram
     participant Redis as Redis Cache
     participant RQC as ResultsClient
     participant API as Results Query API
-    participant Downstream as CPResultsPcrOrchestrator
+    participant Downstream as CPResultsPcrFilter
 
     Results-->>Grid: Hearing_Resulted (pointer only)
     Grid-->>Bus: routed by Event Grid subscription
@@ -440,7 +439,7 @@ any per-defendant work starts — confirmed by reading the full legacy
 orchestrator (`PrisonCourtRegisterOrchestrator/index.js`, no other guard
 anywhere) and the start of `SetPrisonCourtRegister.build()`, which goes
 straight into per-defendant fan-out with no guard of its own. This is the
-correct home for both checks — `CPResultsPcrOrchestrator` (the orchestrator design
+correct home for both checks — `CPResultsPcrFilter` (the generation-gate design
 doc) begins *after* per-defendant fan-out has already happened, so it
 structurally cannot apply a whole-hearing filter; it would have to apply
 the same check once per defendant, redundantly.
@@ -473,7 +472,7 @@ public HearingDetailsResponse ingest(final UUID hearingId, final String hearingD
     if (isGroupProceedings(response)) {
         // Matches legacy exactly: a group-proceedings hearing produces no
         // PCR content for any defendant on it, not an error — same "no
-        // content exists" outcome as the orchestrator doc's subscription
+        // content exists" outcome as the generation-gate doc's subscription
         // no-match case (404), just at the whole-hearing level instead of
         // per-defendant.
         throw new ResponseStatusException(HttpStatus.NOT_FOUND,
@@ -593,9 +592,9 @@ item; this is a new, separate thing to watch).
 Service Bus is at-least-once delivery. A redelivered message means
 `ResultsIngestionService.ingest(...)` runs again for the same hearing,
 producing the same (or a refreshed) payload a second time. Whatever
-consumes that payload downstream (`CPResultsPcrOrchestrator`, ultimately writing to
+consumes that payload downstream (`CPResultsPcrFilter`, ultimately writing to
 `cp_version`) needs to tolerate that — e.g. deduping by
-`(source_id, defendant_id)` once `source_id` is populated (data-store doc
+`(event_id, defendant_id)` once `event_id` is populated (data-store doc
 §3), or by some other means for the interim rows written before it is.
 This document doesn't design that dedup mechanism — it's a downstream
 concern this ingestion pipeline creates, not one it can resolve on its

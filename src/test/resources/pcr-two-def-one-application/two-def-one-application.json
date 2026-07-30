@@ -8,7 +8,7 @@
             "defendantCase": [
               {
                 "caseId": "cd9b956e-085c-4f89-80c1-0192fd956694",
-                "caseReference": "CW238512139",
+                "caseReference": "TEST1234567",
                 "defendantId": "ea6b2d84-e99a-47ff-b031-a036e093f627"
               }
             ],
@@ -62,7 +62,7 @@
         },
         "applicationParticulars": "The application is being made for reason XYZ.",
         "applicationReceivedDate": "2026-07-13",
-        "applicationReference": "CW238512139",
+        "applicationReference": "TEST1234567",
         "applicationStatus": "FINALISED",
         "commissionerOfOath": false,
         "convictionDate": "2026-07-23",
@@ -88,7 +88,7 @@
               "prosecutionAuthorityId": "bdc190e7-c939-37ca-be4b-9f615d6ef40e",
               "prosecutionAuthorityName": "Derbyshire Police",
               "prosecutionAuthorityOUCode": "0300000",
-              "caseURN": "CW238512139"
+              "caseURN": "TEST1234567"
             }
           }
         ],
@@ -157,7 +157,7 @@
             "defendantCase": [
               {
                 "caseId": "cd9b956e-085c-4f89-80c1-0192fd956694",
-                "caseReference": "CW238512139",
+                "caseReference": "TEST1234567",
                 "defendantId": "ea6b2d84-e99a-47ff-b031-a036e093f627"
               }
             ],
@@ -838,7 +838,7 @@
           "prosecutionAuthorityId": "bdc190e7-c939-37ca-be4b-9f615d6ef40e",
           "prosecutionAuthorityName": "Derbyshire Police",
           "prosecutionAuthorityOUCode": "0300000",
-          "caseURN": "CW238512139"
+          "caseURN": "TEST1234567"
         }
       }
     ],

@@ -1,6 +1,6 @@
 dockerCompose {
     useComposeFiles = ['docker-compose.yml']
-    startedServices = ['postgres']
+    startedServices = ['postgres', 'redis']
 
     buildBeforeUp = false
     waitForTcpPorts = true

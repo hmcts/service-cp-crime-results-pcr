@@ -35,11 +35,11 @@ versioning model, on top of which `dd3a8e3` and several more commits landed. The
   `PcrVersionMapper`).
 - **`CourtApplication.offences`** stayed embedded `Offence[]` (an earlier PR#16 draft proposed
   `relatedOffenceIds: uuid[]` instead, but a later commit, `10c6afb`, reverted to embedded objects)
-  — matches what `CPVersionEntityMapper` already persists (full offence rows, not just ids).
+  — matches what `CPHearingResultEntityMapper` already persists (full offence rows, not just ids).
 - **`CustodyLocation` is now `{name, custodyType}`**, not a plain string — `cp_version` only has
   a `custody_location` varchar today; `custodyType` needs a new column (§3).
 - `PcrHearingResult` itself has **no `id` field** at all (moved to `PcrVersionMetadata`, the
-  deferred `/versions` schema) — matches `cp_version.source_id` already being `null` in phase 1/2.
+  deferred `/versions` schema) — matches `cp_version.event_id` already being `null` in phase 1/2.
 - Old schemas removed entirely from the spec: `PcrVersion`, `HearingDetails`, `NextHearing`
   (renamed/restructured into `PcrHearingResult`, `HearingDetails` — same name, new shape — and
   `NextHearing` respectively), `ProsecutionCase` (flattened away). This means `PcrVersionMapper`
@@ -49,8 +49,8 @@ versioning model, on top of which `dd3a8e3` and several more commits landed. The
 ## 2. Architecture / data flow
 
 ```
-ResultsPcrController.getPcrHearingResults(caseURN, hearingId, defendantId)
-  → ResultsPcrService.getPcrHearingResults(...)
+PcrResultsController.getPcrHearingResults(caseURN, hearingId, defendantId)
+  → PcrResultsService.getPcrHearingResults(...)
       1. caseHearingRepository.findByCaseUrnAndHearingId(caseURN, hearingId)
          → absent: return List.of() (200, empty — see §4)
       2. versionRepository.findByCaseHearingIdAndDefendantIdOrderByCreatedAtAsc(caseHearingId, defendantId)
@@ -61,7 +61,7 @@ ResultsPcrController.getPcrHearingResults(caseURN, hearingId, defendantId)
          (by offenceId; by courtApplicationId), judicialResultPromptRepository (by
          judicialResultId), caseMarkerRepository (by caseHearingId — same set for every version
          on this case, case-level not per-version)
-      4. PcrHearingResultMapper.toPcrHearingResult(version, courtApplications, offences,
+      4. PcrResultsMapper.toPcrHearingResult(version, courtApplications, offences,
          judicialResults, prompts, caseMarkers) → PcrHearingResult
   → List<PcrHearingResult>
 ```
@@ -73,13 +73,13 @@ ResultsPcrController.getPcrHearingResults(caseURN, hearingId, defendantId)
 | `build.gradle` | bump `api-cp-crime-results-pcr` `1.0.3` → `3.0.2` |
 | New migration `V1.010__add_custody_type_to_cp_version.sql` | `ALTER TABLE cp_version ADD COLUMN custody_type varchar;` |
 | `entities/CPVersionEntity` | add `custodyType` field |
-| `mappers/CPVersionEntityMapper` | add `toCustodyType(Defendant)` (mirrors `toCustodyLocation`, sources `custodialEstablishment.getCustody()`), wire into `toVersionEntity`'s builder chain |
+| `mappers/CPHearingResultEntityMapper` | add `toCustodyType(Defendant)` (mirrors `toCustodyLocation`, sources `custodialEstablishment.getCustody()`), wire into `toVersionEntity`'s builder chain |
 | `repositories/CPVersionRepository` | add `findByCaseHearingIdAndDefendantIdOrderByCreatedAtAsc(UUID, UUID): List<CPVersionEntity>` — second justified custom query method |
-| `mappers/PcrHearingResultMapper` (new) | entities → `PcrHearingResult`; owns all `.builder()` calls for the new generated DTOs, per the mapper-creates-objects rule |
+| `mappers/PcrResultsMapper` (new) | entities → `PcrHearingResult`; owns all `.builder()` calls for the new generated DTOs, per the mapper-creates-objects rule |
 | `mappers/PcrVersionMapper` + `PcrVersionMapperTest` | **deleted** — target DTOs no longer exist |
-| `services/ResultsPcrService` | rewritten — no `ResultsClient` dependency; queries repositories per §2 |
-| `controllers/ResultsPcrController` | rewritten — implements the new path-params-only `getPcrHearingResults` signature; `CASE_URN_REGEX` validation unchanged |
-| `integration/ResultsPcrControllerIntegrationTest` | rewritten — seeds Postgres directly via `CPVersionEntityMapper` + repositories (same pattern as the persistence-wiring design's Task 6), no more WireMock stub of the Results Query API |
+| `services/PcrResultsService` | rewritten — no `ResultsClient` dependency; queries repositories per §2 |
+| `controllers/PcrResultsController` | rewritten — implements the new path-params-only `getPcrHearingResults` signature; `CASE_URN_REGEX` validation unchanged |
+| `integration/PcrResultsControllerIntegrationTest` | rewritten — seeds Postgres directly via `CPHearingResultEntityMapper` + repositories (same pattern as the persistence-wiring design's Task 6), no more WireMock stub of the Results Query API |
 
 ## 4. Settled decisions
 
@@ -99,15 +99,15 @@ ResultsPcrController.getPcrHearingResults(caseURN, hearingId, defendantId)
   as "no guaranteed order"). Chosen for a natural reading order; revisit if a real consumer need
   for newest-first surfaces.
 - **`ResultsClient` is untouched.** `ResultsIngestionService`'s async ingestion path still needs
-  it for the Redis-miss REST fallback — only `ResultsPcrService`'s dependency on it is removed.
+  it for the Redis-miss REST fallback — only `PcrResultsService`'s dependency on it is removed.
 
 ## 5. Testing
 
-- Unit: `PcrHearingResultMapper` (field-by-field, mirroring `CPVersionEntityMapperTest`'s style),
-  `ResultsPcrService` (mock repositories, cover: case-hearing absent → empty, versions absent →
+- Unit: `PcrResultsMapper` (field-by-field, mirroring `CPHearingResultEntityMapperTest`'s style),
+  `PcrResultsService` (mock repositories, cover: case-hearing absent → empty, versions absent →
   empty, single version, multiple versions ordered correctly).
-- Integration: rewrite `ResultsPcrControllerIntegrationTest` to seed real Postgres rows (via
-  `CPVersionEntityMapper` + repositories) instead of stubbing a live backend, then assert the
+- Integration: rewrite `PcrResultsControllerIntegrationTest` to seed real Postgres rows (via
+  `CPHearingResultEntityMapper` + repositories) instead of stubbing a live backend, then assert the
   JSON response shape matches the new contract.
 - No changes needed to `ResultsIngestionServiceTest`/`HearingResultedProcessorServiceTest` —
   the write path is unaffected by this design.

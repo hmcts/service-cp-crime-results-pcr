@@ -4,11 +4,19 @@
 **Jira:** AMP-890 (parent epic AMP-888).
 **Scope:** wire the three independent code paths this repo's own `CLAUDE.md` describes as
 "not talking to each other yet" — `ResultsIngestionService` (proves completeness),
-`CPResultsPcrOrchestrator`/`CPVocabularyService` (the generation gate, built and unit-tested but
+`CPResultsPcrFilter`/`CPVocabularyService` (the generation gate, built and unit-tested but
 uncalled), and the Flyway-migrated JPA entities/repositories (built and integration-tested but
 nothing writes to them) — into one real write path: a `Hearing_Resulted` event, once complete,
 results in a `cp_version` row (plus its children) for every defendant the legacy Function App
 would have generated a PCR for, and no row for every defendant it wouldn't.
+
+**Since implemented, and further refactored** (post-implementation naming/structure pass): the
+mapper that was `CPVersionEntityMapper` in this design is now `CPHearingResultEntityMapper`, its
+return type `CPVersionWriteBundle` is now `CPEntitySet`, and the actual repository writes
+(find-or-create case hearing + persist) were subsequently extracted out of `ResultsIngestionService`
+into a dedicated `CPEntityPersistenceService` — see current `CLAUDE.md` for the up-to-date shape.
+This doc is kept below in its original form except for class-name updates, as the historical
+record of the design decisions; it does not describe every subsequent refactor's structure.
 
 **Explicitly not in scope** (tracked as a separate follow-on spec, agreed up front): bumping the
 `api-cp-crime-results-pcr` dependency to its latest released contract, and switching `GET /pcr`
@@ -27,11 +35,11 @@ HearingResultedProcessorService (Service Bus listener)
       3. for each prosecutionCase → for each defendant:
            a. CPVocabularyService.compute(defendant, hearing)         [existing, unchanged]
            b. gather this defendant's own case + linked-application judicial results
-           c. CPResultsPcrOrchestrator.excludePublishedForNows(...)    [existing, unchanged]
-           d. CPResultsPcrOrchestrator.isPrisonCourtRegisterRequired(vocabulary, filtered, activeAt)
+           c. CPResultsPcrFilter.excludePublishedForNows(...)    [existing, unchanged]
+           d. CPResultsPcrFilter.isPrisonCourtRegisterRequired(vocabulary, filtered, activeAt)
            e. false → log INFO "skipped, not required", no row written
               true  → find-or-create cp_case_hearing (+cp_case_marker on first creation)
-                      → CPVersionEntityMapper.toWriteBundle(...)      [NEW mapper]
+                      → CPHearingResultEntityMapper.toWriteBundle(...)      [NEW mapper]
                       → save cp_version, cp_court_application, cp_offence,
                         cp_judicial_result, cp_judicial_result_prompt (FK-safe order)
 ```
@@ -45,7 +53,7 @@ HearingResultedProcessorService (Service Bus listener)
 | `domain/HearingDetailsResponse.PersonDetails` (new) | `title`, `firstName`, `middleName`, `lastName`, `dateOfBirth`, `Address address` |
 | `domain/HearingDetailsResponse.Address` (new) | `address1`, `address2`, `address3`, `postcode` |
 | `services/ResultsIngestionService` | new `ingestAndPersist(...)` + private helpers (`resolveActiveAt`, `processProsecutionCase`, `processDefendant`); existing `ingestHearingResults` unchanged |
-| `mappers/CPVersionEntityMapper` (new) | owns all entity `.builder()` calls — `toCaseHearingEntity`, `toCaseMarkerEntities`, `toWriteBundle` (version + court applications + offences + judicial results + prompts) |
+| `mappers/CPHearingResultEntityMapper` (new) | owns all entity `.builder()` calls — `toCaseHearingEntity`, `toCaseMarkerEntities`, `toWriteBundle` (version + court applications + offences + judicial results + prompts) |
 | `repositories/CPCaseHearingRepository` | add `Optional<CPCaseHearingEntity> findByCaseUrnAndHearingId(String caseUrn, UUID hearingId)` — first justified custom query method on any of the 7 repositories |
 | `servicebus/services/HearingResultedProcessorService` | call `ingestAndPersist(...)` instead of discarding the result of `ingestHearingResults(...)` |
 | `exceptions/NoOrderedDateFoundException` (new) | thrown by `resolveActiveAt` — see §4.2 |
@@ -55,7 +63,7 @@ HearingResultedProcessorService (Service Bus listener)
 ```java
 // HearingDetailsResponse.JudicialResult — new field
 private LocalDate orderedDate;
-// Sourced from CP's own hearing payload — needs a real fixture check per the orchestrator
+// Sourced from CP's own hearing payload — needs a real fixture check per the generation-gate
 // design doc §7, same "confirm before relying on" caveat as publishedForNows was under.
 
 // HearingDetailsResponse.PersonDefendant — new field
@@ -144,7 +152,7 @@ would already produce for either defendant queried individually.
   message redelivers, duplicate `cp_version` rows are possible for the same hearing/defendant.
   Not solved here — the same "version correlation mechanism is still TBD" gap this repo's
   `CLAUDE.md` already flags (design doc §7); a real fix depends on the still-undecided
-  `source_id` propagation mechanism, out of this design's scope.
+  `event_id` propagation mechanism, out of this design's scope.
 - **`cp_offence.id` is a generated surrogate for now** (`UUID.randomUUID()`), not CP's real
   offence id — `HearingDetailsResponse.Offence` has no id field to source one from yet. The
   data-store design doc calls this column "CP's own offence UUID, not a surrogate" as the target
@@ -167,8 +175,8 @@ would already produce for either defendant queried individually.
 
 ## 7. Testing
 
-- **Unit:** `CPVersionEntityMapper` (field-by-field, mirroring `PcrVersionMapperTest`'s existing
-  style), the new `ResultsIngestionService` methods (mock repositories/orchestrator/vocabulary
+- **Unit:** `CPHearingResultEntityMapper` (field-by-field, mirroring `PcrVersionMapperTest`'s existing
+  style), the new `ResultsIngestionService` methods (mock repositories/generation-gate/vocabulary
   service), `resolveActiveAt` (both the found-date branch and the `NoOrderedDateFoundException`
   branch).
 - **Repository/integration:** extend the existing `PostgresInitialise`-based suite — a real
@@ -180,9 +188,16 @@ would already produce for either defendant queried individually.
 
 ## 8. Follow-on work (separate spec, not this one)
 
+**Both items below are since completed** — see
+`docs/designs/2026-07-28-pcr-read-path-data-store-design.md` for the read-path switch, and
+current `CLAUDE.md`/`build.gradle` for the contract version. Kept here as the historical record
+of what was deferred out of this design at the time it was written:
+
 - Bump `api-cp-crime-results-pcr` from `1.0.3` to the latest released contract (currently
-  `v3.0.2`) across `PcrVersionMapper`/`ResultsPcrController`/`ResultsPcrService`.
+  `v3.0.2`) across `PcrVersionMapper`/`ResultsPcrController`/`ResultsPcrService` — done; those
+  three classes are now `PcrResultsMapper`/`PcrResultsController`/`PcrResultsService`
+  (`PcrVersionMapper` itself was deleted, replaced by `PcrResultsMapper`).
 - Switch `GET /pcr` to read from `cp_version` (this design's output) instead of live
   `ResultsClient`, mapping entities to the bumped contract's shape — dropping ids from the API
   response that the entities still retain (`cp_offence.id`, `cp_court_application.id`), per the
-  contract's own `dd3a8e3` refactor.
+  contract's own `dd3a8e3` refactor — done.

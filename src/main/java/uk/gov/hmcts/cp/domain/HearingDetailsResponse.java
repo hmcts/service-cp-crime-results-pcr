@@ -217,7 +217,13 @@ public class HearingDetailsResponse {
 
     // Court applications are hearing-level, not nested per-defendant (confirmed —
     // cpp-context-results's shared hearing.json has hearing.courtApplications[]
-    // as a sibling of prosecutionCases[], linked to defendants via respondents[]).
+    // as a sibling of prosecutionCases[]). `subject` is the only party role used for
+    // defendant-linkage/vocabulary merge purposes — confirmed against
+    // cpp-context-azure-legalaidagency's DefendantContextBaseService.js, which reads only
+    // `subject.masterDefendant.masterDefendantId` for this. The real payload also carries
+    // `respondents[]`/`applicant`, but those serve a separate NOW/document-mapping subsystem and
+    // a CPS-eligibility check respectively (not defendant linkage) — neither is in this service's
+    // scope, so neither is modelled here.
     @JsonIgnoreProperties(ignoreUnknown = true)
     @Builder
     @AllArgsConstructor
@@ -226,8 +232,11 @@ public class HearingDetailsResponse {
     public static class CourtApplication {
         private String id;
         private String applicationReference;
-        private String type;
-        private List<Respondent> respondents;
+        // Real CP payload sends a whole object here (code + human-readable description +
+        // several other classification flags), not a plain string — confirmed against a real
+        // hearing fixture; deserialization of the entire payload fails otherwise.
+        private ApplicationType type;
+        private ApplicationParty subject;
         private List<CourtApplicationCase> courtApplicationCases;
         private List<JudicialResult> judicialResults;
     }
@@ -237,7 +246,26 @@ public class HearingDetailsResponse {
     @AllArgsConstructor
     @NoArgsConstructor
     @Getter
-    public static class Respondent {
+    public static class ApplicationType {
+        private String code;
+        private String type;
+    }
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Getter
+    public static class ApplicationParty {
+        private MasterDefendant masterDefendant;
+    }
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Getter
+    public static class MasterDefendant {
         private String masterDefendantId;
     }
 
