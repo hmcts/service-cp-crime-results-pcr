@@ -26,7 +26,7 @@ Event Grid subscription already configured on the platform side:
 | Subscription Name | `pcr-hearing-results` |
 | Subscription Type | Webhook |
 | Endpoint Name | `eg-ste-ccp0121-hearingres` |
-| Webhook URL (dev) | `https://devamp01.ingress01.dev.nl.cjscp.org.uk/internal/pcr/hearingResults` |
+| Webhook URL (dev) | `https://<redacted-internal-ingress-host>/internal/pcr/hearingResults` |
 
 ## Decision
 

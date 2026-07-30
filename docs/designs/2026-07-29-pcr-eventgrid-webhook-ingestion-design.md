@@ -248,11 +248,11 @@ components:
           description: Only present when acknowledging a subscription validation handshake.
 ```
 
-**Not hardcoded into the spec:** the actual per-environment host
-(`devamp01.ingress01.dev.nl.cjscp.org.uk` in dev) is an infra/Event Grid-subscription detail, not
-part of the versioned contract — the spec's existing `servers:` block (public APIM gateway
-pattern) is unaffected. Only the path, request/response shapes, and the `security: []` override
-are part of this contract.
+**Not hardcoded into the spec:** the actual per-environment host (redacted here — an internal
+ingress hostname, not for a public repo; see the platform team's own record of the Event Grid
+subscription) is an infra/Event Grid-subscription detail, not part of the versioned contract —
+the spec's existing `servers:` block (public APIM gateway pattern) is unaffected. Only the path,
+request/response shapes, and the `security: []` override are part of this contract.
 
 **Event Grid subscription (already provisioned on the publisher side, confirmed by the platform
 team):**
@@ -262,7 +262,7 @@ team):**
 | Subscription Name | `pcr-hearing-results` |
 | Subscription Type | Webhook |
 | Endpoint Name | `eg-ste-ccp0121-hearingres` |
-| Webhook URL (dev) | `https://devamp01.ingress01.dev.nl.cjscp.org.uk/internal/pcr/hearingResults` |
+| Webhook URL (dev) | `https://<redacted-internal-ingress-host>/internal/pcr/hearingResults` |
 
 ---
 
