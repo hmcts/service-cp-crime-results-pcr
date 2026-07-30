@@ -14,7 +14,7 @@ subscriber.
 webhook ingestion (`POST /internal/hearing-results`) wired end-to-end into the DB-backed version
 store (Postgres/Flyway, `cp_version` rows), gated by the generation-gate check.
 **Spring Boot version**: 4.1.0
-**Implements**: `api-cp-crime-results-pcr` v1.1.1 (`PcrApi`/`InternalApi` — see `build.gradle`)
+**Implements**: `api-cp-crime-results-pcr` v1.1.2 (`PcrApi`/`InternalApi` — see `build.gradle`)
 
 Replaces the earlier self-provisioned Service Bus queue ingestion path (ADR-002/AMP-889) with a
 direct Event Grid webhook per ADR-007/AMP-892 — see
