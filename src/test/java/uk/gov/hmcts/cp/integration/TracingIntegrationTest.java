@@ -46,7 +46,7 @@ class TracingIntegrationTest extends IntegrationTestBase {
     }
 
     private MockHttpServletRequestBuilder getPcrHearingResultsRequest() {
-        return get("/pcrs/cases/{caseURN}/hearings/{hearingId}/defendants/{defendantId}",
+        return get("/cases/{caseURN}/hearings/{hearingId}/defendants/{defendantId}",
                 CASE_URN, HEARING_ID, DEFENDANT_ID)
                 .accept(MediaType.APPLICATION_JSON);
     }

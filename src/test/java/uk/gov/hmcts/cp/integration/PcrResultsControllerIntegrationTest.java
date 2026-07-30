@@ -61,7 +61,7 @@ class PcrResultsControllerIntegrationTest extends ControllerRepositoryIntegratio
     void getPcrHearingResults_should_returnOk_withMappedFields_whenRecorded() throws Exception {
         seedOneVersion();
 
-        mockMvc.perform(get("/pcrs/cases/{caseURN}/hearings/{hearingId}/defendants/{defendantId}", CASE_URN, HEARING_ID, DEFENDANT_ID))
+        mockMvc.perform(get("/cases/{caseURN}/hearings/{hearingId}/defendants/{defendantId}", CASE_URN, HEARING_ID, DEFENDANT_ID))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].caseURN").value(CASE_URN))
@@ -78,7 +78,7 @@ class PcrResultsControllerIntegrationTest extends ControllerRepositoryIntegratio
     void getPcrHearingResults_should_returnEmptyList_whenDefendantNeverRecorded() throws Exception {
         seedOneVersion();
 
-        mockMvc.perform(get("/pcrs/cases/{caseURN}/hearings/{hearingId}/defendants/{defendantId}", CASE_URN, HEARING_ID, UNKNOWN_DEFENDANT_ID))
+        mockMvc.perform(get("/cases/{caseURN}/hearings/{hearingId}/defendants/{defendantId}", CASE_URN, HEARING_ID, UNKNOWN_DEFENDANT_ID))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").isArray())
@@ -88,7 +88,7 @@ class PcrResultsControllerIntegrationTest extends ControllerRepositoryIntegratio
     @Transactional
     @Test
     void getPcrHearingResults_should_returnEmptyList_whenCaseUrnUnknown() throws Exception {
-        mockMvc.perform(get("/pcrs/cases/{caseURN}/hearings/{hearingId}/defendants/{defendantId}", UNKNOWN_CASE_URN, HEARING_ID, DEFENDANT_ID))
+        mockMvc.perform(get("/cases/{caseURN}/hearings/{hearingId}/defendants/{defendantId}", UNKNOWN_CASE_URN, HEARING_ID, DEFENDANT_ID))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").isArray())
@@ -97,7 +97,7 @@ class PcrResultsControllerIntegrationTest extends ControllerRepositoryIntegratio
 
     @Test
     void getPcrHearingResults_should_return400_whenCaseUrnInvalid() throws Exception {
-        mockMvc.perform(get("/pcrs/cases/{caseURN}/hearings/{hearingId}/defendants/{defendantId}", "bad urn!", HEARING_ID, DEFENDANT_ID))
+        mockMvc.perform(get("/cases/{caseURN}/hearings/{hearingId}/defendants/{defendantId}", "bad urn!", HEARING_ID, DEFENDANT_ID))
                 .andDo(print())
                 .andExpect(status().isBadRequest());
     }
