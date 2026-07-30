@@ -22,6 +22,7 @@ import uk.gov.hmcts.cp.services.ClockService;
 import uk.gov.hmcts.cp.services.pcrcompute.CPResultsPcrFilter;
 import uk.gov.hmcts.cp.services.pcrcompute.CPVocabularyService;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.List;
@@ -37,6 +38,9 @@ import java.util.UUID;
 @Slf4j
 public class ResultsIngestionService {
 
+    private static final int MAX_COMPLETENESS_RETRIES = 3;
+    private static final Duration INITIAL_BACKOFF = Duration.ofSeconds(2);
+
     private final HearingResultedCacheClient cacheClient;
     private final ResultsClient resultsClient;
     private final ObjectMapper objectMapper;
@@ -47,14 +51,32 @@ public class ResultsIngestionService {
     private final CPEntityPersistenceService persistenceService;
 
     public HearingDetailsResponse ingestHearingResults(final UUID hearingId, final String hearingDay) {
-        final HearingDetailsResponse response = cacheClient.get(hearingId, hearingDay)
-                .map(this::deserializeCachedHearingResults)
-                .orElseGet(() -> resultsClient.getHearingDetails(hearingId));
-        if (isComplete(response)) {
-            return response;
+        for (int attempt = 1; attempt <= MAX_COMPLETENESS_RETRIES; attempt++) {
+            final HearingDetailsResponse response = cacheClient.get(hearingId, hearingDay)
+                    .map(this::deserializeCachedHearingResults)
+                    .orElseGet(() -> resultsClient.getHearingDetails(hearingId));
+            if (isComplete(response)) {
+                return response;
+            }
+            log.warn("Incomplete hearing details for hearingId:{} on attempt {}/{} — viewstore may not have caught up yet",
+                    hearingId, attempt, MAX_COMPLETENESS_RETRIES);
+            if (attempt < MAX_COMPLETENESS_RETRIES) {
+                sleepUninterruptibly(backoffFor(attempt));
+            }
         }
-        log.warn("Incomplete hearing details for hearingId:{} — viewstore may not have caught up yet", hearingId);
         throw new IncompleteHearingDetailsException(hearingId);
+    }
+
+    private Duration backoffFor(final int attempt) {
+        return INITIAL_BACKOFF.multipliedBy((long) Math.pow(2, attempt - 1));
+    }
+
+    /* default */ void sleepUninterruptibly(final Duration duration) {
+        try {
+            Thread.sleep(duration);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
     }
 
     @Transactional
