@@ -10,7 +10,7 @@ import uk.gov.hmcts.cp.entities.CPJudicialResultEntity;
 import uk.gov.hmcts.cp.entities.CPJudicialResultPromptEntity;
 import uk.gov.hmcts.cp.entities.CPOffenceEntity;
 import uk.gov.hmcts.cp.entities.CPVersionEntity;
-import uk.gov.hmcts.cp.mappers.PcrHearingResultMapper;
+import uk.gov.hmcts.cp.mappers.PcrResultsMapper;
 import uk.gov.hmcts.cp.openapi.model.PcrHearingResult;
 import uk.gov.hmcts.cp.repositories.CPCaseHearingRepository;
 import uk.gov.hmcts.cp.repositories.CPCaseMarkerRepository;
@@ -26,7 +26,7 @@ import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
-public class ResultsPcrService {
+public class PcrResultsService {
 
     private final CPCaseHearingRepository caseHearingRepository;
     private final CPVersionRepository versionRepository;
@@ -35,7 +35,7 @@ public class ResultsPcrService {
     private final CPOffenceRepository offenceRepository;
     private final CPJudicialResultRepository judicialResultRepository;
     private final CPJudicialResultPromptRepository judicialResultPromptRepository;
-    private final PcrHearingResultMapper mapper;
+    private final PcrResultsMapper mapper;
 
     @Transactional(readOnly = true)
     public List<PcrHearingResult> getPcrHearingResults(final String caseURN, final UUID hearingId, final UUID defendantId) {

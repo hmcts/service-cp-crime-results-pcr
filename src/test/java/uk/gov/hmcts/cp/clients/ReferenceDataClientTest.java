@@ -1,4 +1,4 @@
-package uk.gov.hmcts.cp.clients.orchestrator;
+package uk.gov.hmcts.cp.clients;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.client.WireMock;
@@ -9,7 +9,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.web.client.RestClient;
 import uk.gov.hmcts.cp.config.AppPropertiesBackend;
-import uk.gov.hmcts.cp.domain.orchestrator.CPNowSubscription;
+import uk.gov.hmcts.cp.domain.pcrcompute.CPNowSubscription;
 
 import java.net.URL;
 import java.nio.file.Files;

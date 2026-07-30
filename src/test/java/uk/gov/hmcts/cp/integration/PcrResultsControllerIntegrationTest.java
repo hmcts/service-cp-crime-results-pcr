@@ -13,8 +13,8 @@ import uk.gov.hmcts.cp.domain.HearingDetailsResponse.Offence;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.PersonDefendant;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.ProsecutionCase;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.ProsecutionCaseIdentifier;
-import uk.gov.hmcts.cp.mappers.CPVersionEntityMapper;
-import uk.gov.hmcts.cp.mappers.CPVersionWriteBundle;
+import uk.gov.hmcts.cp.mappers.CPHearingResultEntityMapper;
+import uk.gov.hmcts.cp.mappers.CPEntitySet;
 import uk.gov.hmcts.cp.repositories.CPCaseHearingRepository;
 import uk.gov.hmcts.cp.repositories.CPCaseMarkerRepository;
 import uk.gov.hmcts.cp.repositories.CPJudicialResultPromptRepository;
@@ -32,7 +32,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-class ResultsPcrControllerIntegrationTest extends ControllerRepositoryIntegrationTestBase {
+class PcrResultsControllerIntegrationTest extends ControllerRepositoryIntegrationTestBase {
 
     private static final String CASE_URN = "ABCD1234567";
     private static final UUID HEARING_ID = UUID.fromString("00000000-0000-0000-0000-000000000011");
@@ -42,7 +42,7 @@ class ResultsPcrControllerIntegrationTest extends ControllerRepositoryIntegratio
     private static final String UNKNOWN_CASE_URN = "ZZZZ9999999";
 
     @Autowired
-    private CPVersionEntityMapper mapper;
+    private CPHearingResultEntityMapper mapper;
     @Autowired
     private CPCaseHearingRepository caseHearingRepository;
     @Autowired
@@ -126,7 +126,7 @@ class ResultsPcrControllerIntegrationTest extends ControllerRepositoryIntegratio
                 .personDefendant(PersonDefendant.builder().build())
                 .offences(List.of(offenceWithResult()))
                 .build();
-        final CPVersionWriteBundle bundle = mapper.toWriteBundle(defendant, hearing, caseHearing.getId(), createdAt, createdAt.plusDays(30));
+        final CPEntitySet bundle = mapper.toWriteBundle(defendant, hearing, caseHearing.getId(), createdAt, createdAt.plusDays(30));
         versionRepository.save(bundle.version());
         offenceRepository.saveAll(bundle.offences());
         judicialResultRepository.saveAll(bundle.judicialResults());

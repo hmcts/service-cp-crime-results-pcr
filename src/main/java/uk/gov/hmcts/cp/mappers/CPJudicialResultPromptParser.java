@@ -10,7 +10,7 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 @Component
-public class JudicialResultPromptParser {
+public class CPJudicialResultPromptParser {
 
     private static final String CONCURRENT_PROMPT = "concurrent";
     private static final String CONSECUTIVE_TO_DATE_PROMPT = "consecutiveToSentenceImposedOn";

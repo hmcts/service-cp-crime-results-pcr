@@ -42,7 +42,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class CPVersionEntityMapperTest {
+class CPHearingResultEntityMapperTest {
 
     private static final String CASE_URN = "ABCD1234567";
     private static final UUID HEARING_ID = UUID.fromString("00000000-0000-0000-0000-000000000011");
@@ -53,10 +53,10 @@ class CPVersionEntityMapperTest {
     private static final OffsetDateTime EXPIRES_AT = CREATED_AT.plusDays(30);
 
     @Mock
-    private JudicialResultPromptParser promptParser;
+    private CPJudicialResultPromptParser promptParser;
 
     @InjectMocks
-    private CPVersionEntityMapper mapper;
+    private CPHearingResultEntityMapper mapper;
 
     @Test
     void toCaseHearingEntity_should_mapCaseUrnCourtHouseAndHearingDate() {
@@ -192,14 +192,14 @@ class CPVersionEntityMapperTest {
         final Defendant defendant = minimalDefendant();
         final HearingDetail hearing = HearingDetail.builder().courtApplications(List.of()).build();
 
-        final CPVersionWriteBundle bundle = mapper.toWriteBundle(defendant, hearing, CASE_HEARING_ID, CREATED_AT, EXPIRES_AT);
+        final CPEntitySet bundle = mapper.toWriteBundle(defendant, hearing, CASE_HEARING_ID, CREATED_AT, EXPIRES_AT);
 
         assertThat(bundle.version().getCpVersionPk()).isNotNull();
         assertThat(bundle.version().getCaseHearingId()).isEqualTo(CASE_HEARING_ID);
         assertThat(bundle.version().getDefendantId()).isEqualTo(DEFENDANT_ID);
         assertThat(bundle.version().getCreatedAt()).isEqualTo(CREATED_AT);
         assertThat(bundle.version().getExpiresAt()).isEqualTo(EXPIRES_AT);
-        assertThat(bundle.version().getSourceId()).isNull();
+        assertThat(bundle.version().getEventId()).isNull();
     }
 
     @Test
@@ -218,7 +218,7 @@ class CPVersionEntityMapperTest {
                 .build();
         final HearingDetail hearing = HearingDetail.builder().courtApplications(List.of()).build();
 
-        final CPVersionWriteBundle bundle = mapper.toWriteBundle(defendant, hearing, CASE_HEARING_ID, CREATED_AT, EXPIRES_AT);
+        final CPEntitySet bundle = mapper.toWriteBundle(defendant, hearing, CASE_HEARING_ID, CREATED_AT, EXPIRES_AT);
 
         assertThat(bundle.version().getTitle()).isEqualTo("Mr");
         assertThat(bundle.version().getFirstName()).isEqualTo("John");
@@ -234,7 +234,7 @@ class CPVersionEntityMapperTest {
 
     @Test
     void toWriteBundle_should_leavePiiNull_whenNoPersonDetails() {
-        final CPVersionWriteBundle bundle = mapper.toWriteBundle(minimalDefendant(),
+        final CPEntitySet bundle = mapper.toWriteBundle(minimalDefendant(),
                 HearingDetail.builder().courtApplications(List.of()).build(), CASE_HEARING_ID, CREATED_AT, EXPIRES_AT);
 
         assertThat(bundle.version().getFirstName()).isNull();
@@ -252,7 +252,7 @@ class CPVersionEntityMapperTest {
                 .build();
         final HearingDetail hearing = HearingDetail.builder().courtApplications(List.of()).build();
 
-        final CPVersionWriteBundle bundle = mapper.toWriteBundle(defendant, hearing, CASE_HEARING_ID, CREATED_AT, EXPIRES_AT);
+        final CPEntitySet bundle = mapper.toWriteBundle(defendant, hearing, CASE_HEARING_ID, CREATED_AT, EXPIRES_AT);
 
         assertThat(bundle.version().getCustodyLocation()).isEqualTo("HMP Dovegate");
         assertThat(bundle.version().getCustodyType()).isEqualTo("Prison");
@@ -260,7 +260,7 @@ class CPVersionEntityMapperTest {
 
     @Test
     void toWriteBundle_should_leaveCustodyTypeNull_whenNoCustodialEstablishment() {
-        final CPVersionWriteBundle bundle = mapper.toWriteBundle(minimalDefendant(),
+        final CPEntitySet bundle = mapper.toWriteBundle(minimalDefendant(),
                 HearingDetail.builder().courtApplications(List.of()).build(), CASE_HEARING_ID, CREATED_AT, EXPIRES_AT);
 
         assertThat(bundle.version().getCustodyType()).isNull();
@@ -283,7 +283,7 @@ class CPVersionEntityMapperTest {
                 .build();
         final HearingDetail hearing = HearingDetail.builder().courtApplications(List.of()).build();
 
-        final CPVersionWriteBundle bundle = mapper.toWriteBundle(defendant, hearing, CASE_HEARING_ID, CREATED_AT, EXPIRES_AT);
+        final CPEntitySet bundle = mapper.toWriteBundle(defendant, hearing, CASE_HEARING_ID, CREATED_AT, EXPIRES_AT);
 
         assertThat(bundle.offences()).hasSize(1);
         final CPOffenceEntity offenceEntity = bundle.offences().get(0);
@@ -317,7 +317,7 @@ class CPVersionEntityMapperTest {
                 .build();
         final HearingDetail hearing = HearingDetail.builder().courtApplications(List.of()).build();
 
-        final CPVersionWriteBundle bundle = mapper.toWriteBundle(defendant, hearing, CASE_HEARING_ID, CREATED_AT, EXPIRES_AT);
+        final CPEntitySet bundle = mapper.toWriteBundle(defendant, hearing, CASE_HEARING_ID, CREATED_AT, EXPIRES_AT);
 
         assertThat(bundle.offences().get(0).getSourceOffenceId())
                 .isEqualTo(UUID.fromString("9f4752be-7c1b-4eb5-9940-a26c5ae37ebe"));
@@ -333,7 +333,7 @@ class CPVersionEntityMapperTest {
                 .build();
         final HearingDetail hearing = HearingDetail.builder().courtApplications(List.of()).build();
 
-        final CPVersionWriteBundle bundle = mapper.toWriteBundle(defendant, hearing, CASE_HEARING_ID, CREATED_AT, EXPIRES_AT);
+        final CPEntitySet bundle = mapper.toWriteBundle(defendant, hearing, CASE_HEARING_ID, CREATED_AT, EXPIRES_AT);
 
         assertThat(bundle.offences().get(0).getSourceOffenceId()).isNull();
     }
@@ -359,7 +359,7 @@ class CPVersionEntityMapperTest {
                 .build();
         final HearingDetail hearing = HearingDetail.builder().courtApplications(List.of(application)).build();
 
-        final CPVersionWriteBundle bundle = mapper.toWriteBundle(defendant, hearing, CASE_HEARING_ID, CREATED_AT, EXPIRES_AT);
+        final CPEntitySet bundle = mapper.toWriteBundle(defendant, hearing, CASE_HEARING_ID, CREATED_AT, EXPIRES_AT);
 
         assertThat(bundle.courtApplications()).hasSize(1);
         final CPCourtApplicationEntity applicationEntity = bundle.courtApplications().get(0);
@@ -402,8 +402,8 @@ class CPVersionEntityMapperTest {
                 .offences(List.of())
                 .build();
 
-        final CPVersionWriteBundle bundleA = mapper.toWriteBundle(defendantA, hearing, CASE_HEARING_ID, CREATED_AT, EXPIRES_AT);
-        final CPVersionWriteBundle bundleB = mapper.toWriteBundle(defendantB, hearing, CASE_HEARING_ID, CREATED_AT, EXPIRES_AT);
+        final CPEntitySet bundleA = mapper.toWriteBundle(defendantA, hearing, CASE_HEARING_ID, CREATED_AT, EXPIRES_AT);
+        final CPEntitySet bundleB = mapper.toWriteBundle(defendantB, hearing, CASE_HEARING_ID, CREATED_AT, EXPIRES_AT);
 
         assertThat(bundleA.courtApplications().get(0).getId())
                 .isNotEqualTo(bundleB.courtApplications().get(0).getId());

@@ -11,8 +11,9 @@ import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import uk.gov.hmcts.cp.config.AppPropertiesBackend;
-import uk.gov.hmcts.cp.services.ResultsIngestionService;
-import uk.gov.hmcts.cp.services.ResultsPcrService;
+import uk.gov.hmcts.cp.services.PcrResultsService;
+import uk.gov.hmcts.cp.services.ingestion.CPEntityPersistenceService;
+import uk.gov.hmcts.cp.services.ingestion.ResultsIngestionService;
 
 import java.net.URL;
 import java.nio.file.Files;
@@ -40,11 +41,16 @@ public abstract class IntegrationTestBase {
     @MockitoBean
     ResultsIngestionService resultsIngestionService;
 
-    // ResultsPcrService is now repository-backed (7 JpaRepository constructor deps) — with
-    // DataSourceAutoConfiguration excluded above, those beans don't exist, so ResultsPcrController
+    // PcrResultsService is now repository-backed (7 JpaRepository constructor deps) — with
+    // DataSourceAutoConfiguration excluded above, those beans don't exist, so PcrResultsController
     // can't be constructed for real. Mocked for the same reason resultsIngestionService is.
     @MockitoBean
-    ResultsPcrService resultsPcrService;
+    PcrResultsService pcrResultsService;
+
+    // CPEntityPersistenceService holds the 5 repository dependencies ResultsIngestionService
+    // used to hold directly — same reason as above, mocked so its real constructor never runs.
+    @MockitoBean
+    CPEntityPersistenceService persistenceService;
 
     @SneakyThrows
     protected String readResourceContents(final String resourceName) {

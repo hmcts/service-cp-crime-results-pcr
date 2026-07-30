@@ -1,11 +1,11 @@
-package uk.gov.hmcts.cp.services.orchestrator;
+package uk.gov.hmcts.cp.services.pcrcompute;
 
 import org.junit.jupiter.api.Test;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.JudicialResult;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.JudicialResultPrompt;
-import uk.gov.hmcts.cp.domain.orchestrator.CPNowSubscription;
-import uk.gov.hmcts.cp.domain.orchestrator.CPNowSubscription.SubscriptionVocabulary;
-import uk.gov.hmcts.cp.domain.orchestrator.CPVocabulary;
+import uk.gov.hmcts.cp.domain.pcrcompute.CPNowSubscription;
+import uk.gov.hmcts.cp.domain.pcrcompute.CPNowSubscription.SubscriptionVocabulary;
+import uk.gov.hmcts.cp.domain.pcrcompute.CPVocabulary;
 
 import java.util.List;
 

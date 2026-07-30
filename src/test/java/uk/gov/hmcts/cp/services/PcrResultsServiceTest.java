@@ -10,7 +10,7 @@ import uk.gov.hmcts.cp.entities.CPCourtApplicationEntity;
 import uk.gov.hmcts.cp.entities.CPJudicialResultEntity;
 import uk.gov.hmcts.cp.entities.CPOffenceEntity;
 import uk.gov.hmcts.cp.entities.CPVersionEntity;
-import uk.gov.hmcts.cp.mappers.PcrHearingResultMapper;
+import uk.gov.hmcts.cp.mappers.PcrResultsMapper;
 import uk.gov.hmcts.cp.openapi.model.PcrHearingResult;
 import uk.gov.hmcts.cp.repositories.CPCaseHearingRepository;
 import uk.gov.hmcts.cp.repositories.CPCaseMarkerRepository;
@@ -32,7 +32,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class ResultsPcrServiceTest {
+class PcrResultsServiceTest {
 
     private static final String CASE_URN = "ABCD1234567";
     private static final UUID HEARING_ID = UUID.fromString("00000000-0000-0000-0000-000000000011");
@@ -55,16 +55,16 @@ class ResultsPcrServiceTest {
     @Mock
     private CPJudicialResultPromptRepository judicialResultPromptRepository;
     @Mock
-    private PcrHearingResultMapper mapper;
+    private PcrResultsMapper mapper;
 
     @InjectMocks
-    private ResultsPcrService resultsPcrService;
+    private PcrResultsService pcrResultsService;
 
     @Test
     void getPcrHearingResults_should_returnEmptyList_whenCaseHearingNotFound() {
         when(caseHearingRepository.findByCaseUrnAndHearingId(CASE_URN, HEARING_ID)).thenReturn(Optional.empty());
 
-        final List<PcrHearingResult> result = resultsPcrService.getPcrHearingResults(CASE_URN, HEARING_ID, DEFENDANT_ID);
+        final List<PcrHearingResult> result = pcrResultsService.getPcrHearingResults(CASE_URN, HEARING_ID, DEFENDANT_ID);
 
         assertThat(result).isEmpty();
         verify(versionRepository, never()).findByCaseHearingIdAndDefendantIdOrderByCreatedAtAsc(any(), any());
@@ -77,7 +77,7 @@ class ResultsPcrServiceTest {
         when(versionRepository.findByCaseHearingIdAndDefendantIdOrderByCreatedAtAsc(CASE_HEARING_ID, DEFENDANT_ID))
                 .thenReturn(List.of());
 
-        final List<PcrHearingResult> result = resultsPcrService.getPcrHearingResults(CASE_URN, HEARING_ID, DEFENDANT_ID);
+        final List<PcrHearingResult> result = pcrResultsService.getPcrHearingResults(CASE_URN, HEARING_ID, DEFENDANT_ID);
 
         assertThat(result).isEmpty();
     }
@@ -96,7 +96,7 @@ class ResultsPcrServiceTest {
         when(mapper.toPcrHearingResult(caseHearing, version, List.of(), List.of(), List.of(), List.of(), List.of()))
                 .thenReturn(mapped);
 
-        final List<PcrHearingResult> result = resultsPcrService.getPcrHearingResults(CASE_URN, HEARING_ID, DEFENDANT_ID);
+        final List<PcrHearingResult> result = pcrResultsService.getPcrHearingResults(CASE_URN, HEARING_ID, DEFENDANT_ID);
 
         assertThat(result).containsExactly(mapped);
     }
@@ -130,7 +130,7 @@ class ResultsPcrServiceTest {
         when(judicialResultPromptRepository.findByJudicialResultId(directResultId)).thenReturn(List.of());
         when(judicialResultPromptRepository.findByJudicialResultId(linkedResultId)).thenReturn(List.of());
 
-        resultsPcrService.getPcrHearingResults(CASE_URN, HEARING_ID, DEFENDANT_ID);
+        pcrResultsService.getPcrHearingResults(CASE_URN, HEARING_ID, DEFENDANT_ID);
 
         verify(judicialResultRepository, times(1)).findByOffenceId(directOffenceId);
         verify(judicialResultRepository, times(1)).findByOffenceId(linkedOffenceId);

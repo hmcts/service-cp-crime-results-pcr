@@ -29,7 +29,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Component
-public class PcrHearingResultMapper {
+public class PcrResultsMapper {
 
     public PcrHearingResult toPcrHearingResult(final CPCaseHearingEntity caseHearing, final CPVersionEntity version,
                                                 final List<CPCaseMarkerEntity> caseMarkers,

@@ -9,9 +9,9 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class JudicialResultPromptParserTest {
+class CPCPJudicialResultPromptParserTest {
 
-    private final JudicialResultPromptParser parser = new JudicialResultPromptParser();
+    private final CPJudicialResultPromptParser parser = new CPJudicialResultPromptParser();
 
     @Test
     void concurrent_should_parseBoolean_whenPromptPresent() {
