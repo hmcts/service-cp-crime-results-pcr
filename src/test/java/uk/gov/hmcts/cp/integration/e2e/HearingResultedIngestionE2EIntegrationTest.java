@@ -1,8 +1,5 @@
 package uk.gov.hmcts.cp.integration.e2e;
 
-import com.azure.core.util.BinaryData;
-import com.azure.messaging.servicebus.ServiceBusReceivedMessage;
-import com.azure.messaging.servicebus.ServiceBusReceivedMessageContext;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
@@ -10,11 +7,9 @@ import lombok.SneakyThrows;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import uk.gov.hmcts.cp.entities.CPCaseHearingEntity;
@@ -29,7 +24,6 @@ import uk.gov.hmcts.cp.repositories.CPJudicialResultPromptRepository;
 import uk.gov.hmcts.cp.repositories.CPJudicialResultRepository;
 import uk.gov.hmcts.cp.repositories.CPOffenceRepository;
 import uk.gov.hmcts.cp.repositories.CPVersionRepository;
-import uk.gov.hmcts.cp.servicebus.services.HearingResultedProcessorService;
 
 import java.net.URL;
 import java.nio.file.Files;
@@ -44,14 +38,10 @@ import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
 import static java.net.HttpURLConnection.HTTP_OK;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItems;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@ExtendWith(MockitoExtension.class)
 class HearingResultedIngestionE2EIntegrationTest extends IngestionE2ETestBase {
 
     private static final UUID HEARING_ID = UUID.fromString("5f75863f-270a-482a-9e67-eaccb2fd3130");
@@ -60,10 +50,9 @@ class HearingResultedIngestionE2EIntegrationTest extends IngestionE2ETestBase {
     private static final UUID DEFENDANT_ID = UUID.fromString("ea6b2d84-e99a-47ff-b031-a036e093f627");
     private static final String FIXTURE_PATH = "pcr-two-def-one-application/two-def-one-application.json";
     private static final String NOW_SUBSCRIPTIONS_FIXTURE_PATH = "referencedata/now-subscriptions-prison-court-register-fixture.json";
+    private static final String WEBHOOK_EVENT_FIXTURE_PATH = "webhook/hearing-resulted-webhook-event.json";
     private static final String CACHE_KEY = "INT_" + HEARING_ID + "_" + HEARING_DAY + "_result_";
 
-    @Autowired
-    private HearingResultedProcessorService processorService;
     @Autowired
     private StringRedisTemplate redisTemplate;
     @Autowired
@@ -78,11 +67,6 @@ class HearingResultedIngestionE2EIntegrationTest extends IngestionE2ETestBase {
     private CPJudicialResultRepository judicialResultRepository;
     @Autowired
     private CPJudicialResultPromptRepository judicialResultPromptRepository;
-
-    @Mock
-    private ServiceBusReceivedMessageContext context;
-    @Mock
-    private ServiceBusReceivedMessage message;
 
     private WireMockServer wireMockServer;
     private CPCaseHearingEntity caseHearing;
@@ -110,9 +94,8 @@ class HearingResultedIngestionE2EIntegrationTest extends IngestionE2ETestBase {
         given_a_matching_prison_court_register_subscription();
         given_the_real_hearing_payload_is_seeded_in_redis();
 
-        when_the_hearing_resulted_event_is_processed();
+        when_the_hearing_resulted_webhook_is_received();
 
-        then_the_message_is_completed_not_dead_lettered();
         then_the_case_hearing_is_persisted();
         then_the_version_is_persisted_with_defendant_pii_and_custody();
         then_the_court_application_is_persisted();
@@ -133,15 +116,11 @@ class HearingResultedIngestionE2EIntegrationTest extends IngestionE2ETestBase {
         redisTemplate.opsForValue().set(CACHE_KEY, readResourceContents(FIXTURE_PATH));
     }
 
-    private void when_the_hearing_resulted_event_is_processed() {
-        when(context.getMessage()).thenReturn(message);
-        when(message.getBody()).thenReturn(BinaryData.fromString(eventGridEnvelope()));
-        processorService.onMessage(context);
-    }
-
-    private void then_the_message_is_completed_not_dead_lettered() {
-        verify(context).complete();
-        verify(context, never()).deadLetter();
+    private void when_the_hearing_resulted_webhook_is_received() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.post("/internal/hearing-results")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(hearingResultedWebhookEvent()))
+                .andExpect(status().isOk());
     }
 
     private void then_the_case_hearing_is_persisted() {
@@ -240,8 +219,8 @@ class HearingResultedIngestionE2EIntegrationTest extends IngestionE2ETestBase {
                         .value(hasItems("imprisonmentPeriod", "totalCustodialPeriod", "prisonOrganisationName")));
     }
 
-    private String eventGridEnvelope() {
-        return readResourceContents("servicebus/hearing-resulted-event-grid-envelope.json")
+    private String hearingResultedWebhookEvent() {
+        return readResourceContents(WEBHOOK_EVENT_FIXTURE_PATH)
                 .formatted(HEARING_ID, HEARING_ID, HEARING_DAY);
     }
 
