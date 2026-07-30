@@ -2,6 +2,8 @@ package uk.gov.hmcts.cp.services.ingestion;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
@@ -27,6 +29,7 @@ import uk.gov.hmcts.cp.services.pcrcompute.CPResultsPcrFilter;
 import uk.gov.hmcts.cp.services.pcrcompute.CPVocabularyService;
 
 import java.time.Clock;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
@@ -38,6 +41,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -65,7 +69,10 @@ class ResultsIngestionServiceTest {
     private ClockService clockService = new ClockService(Clock.fixed(Instant.parse("2026-07-28T10:00:00Z"), ZoneOffset.UTC));
     @Mock
     private CPEntityPersistenceService persistenceService;
+    @Captor
+    private ArgumentCaptor<Duration> durationCaptor;
 
+    @Spy
     @InjectMocks
     private ResultsIngestionService ingestionService;
 
@@ -82,6 +89,7 @@ class ResultsIngestionServiceTest {
 
     @Test
     void ingest_should_throwIncompleteHearingDetailsException_whenCachedPayloadIsIncomplete() {
+        doNothing().when(ingestionService).sleepUninterruptibly(any());
         when(cacheClient.get(HEARING_ID, HEARING_DAY))
                 .thenReturn(Optional.of("{\"hearing\":{\"prosecutionCases\":[]}}"));
 
@@ -113,16 +121,42 @@ class ResultsIngestionServiceTest {
     }
 
     @Test
-    void ingest_should_throwIncompleteHearingDetailsException_whenFirstResponseIsIncomplete() {
-        // Single-tier retry, matching HRDS's shape: no in-process loop — one incomplete
-        // response fails fast and hands off to escalateOrDeadLetter's Service Bus escalation.
+    void ingest_should_returnResponse_whenSecondRestAttemptIsComplete() {
+        doNothing().when(ingestionService).sleepUninterruptibly(any());
+        when(cacheClient.get(HEARING_ID, HEARING_DAY)).thenReturn(Optional.empty());
+        when(resultsClient.getHearingDetails(HEARING_ID))
+                .thenReturn(incompleteResponse())
+                .thenReturn(completeResponse());
+
+        final HearingDetailsResponse result = ingestionService.ingestHearingResults(HEARING_ID, HEARING_DAY);
+
+        assertThat(result.getHearing().getProsecutionCases()).hasSize(1);
+        verify(resultsClient, times(2)).getHearingDetails(HEARING_ID);
+    }
+
+    @Test
+    void ingest_should_throwIncompleteHearingDetailsException_whenAllThreeAttemptsAreIncomplete() {
+        doNothing().when(ingestionService).sleepUninterruptibly(any());
         when(cacheClient.get(HEARING_ID, HEARING_DAY)).thenReturn(Optional.empty());
         when(resultsClient.getHearingDetails(HEARING_ID)).thenReturn(incompleteResponse());
 
         assertThatThrownBy(() -> ingestionService.ingestHearingResults(HEARING_ID, HEARING_DAY))
                 .isInstanceOf(IncompleteHearingDetailsException.class);
 
-        verify(resultsClient, times(1)).getHearingDetails(HEARING_ID);
+        verify(resultsClient, times(3)).getHearingDetails(HEARING_ID);
+    }
+
+    @Test
+    void ingest_should_sleepWithExponentialBackoff_betweenRetries() {
+        doNothing().when(ingestionService).sleepUninterruptibly(any());
+        when(cacheClient.get(HEARING_ID, HEARING_DAY)).thenReturn(Optional.empty());
+        when(resultsClient.getHearingDetails(HEARING_ID)).thenReturn(incompleteResponse());
+
+        assertThatThrownBy(() -> ingestionService.ingestHearingResults(HEARING_ID, HEARING_DAY))
+                .isInstanceOf(IncompleteHearingDetailsException.class);
+
+        verify(ingestionService, times(2)).sleepUninterruptibly(durationCaptor.capture());
+        assertThat(durationCaptor.getAllValues()).containsExactly(Duration.ofSeconds(2), Duration.ofSeconds(4));
     }
 
     private static final String CASE_URN = "ABCD1234567";
