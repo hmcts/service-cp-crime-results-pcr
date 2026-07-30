@@ -1,14 +1,12 @@
 # 002. Event-driven hearing ingestion via Azure Service Bus and Redis
 
-**Status:** Accepted, 23 Jul 2026
+**Status:** Superseded by [ADR-007](007-AMP-892-pcr-eventgrid-webhook-ingestion.md), 30 Jul 2026
 **Jira:** AMP-889 — inbound contract via Event Grid
 
-**TBD:** Techarc has proposed an alternative — replacing the self-provisioned Service Bus queue
-with a webhook POST endpoint (Event Grid → direct HTTP push instead of a queue a consumer polls).
-See AMP-892 / PR #20 (`feature/AMP-892-pcr-webhook-ingestion`) and its design doc,
-`docs/plans/2026-07-29-pcr-eventgrid-webhook-ingestion.md`. Not yet decided or merged — this ADR's
-Service Bus approach may be decommissioned if the webhook approach is accepted; don't treat this
-ADR as settled long-term.
+**Superseded:** AMP-892/PR #20 replaced the Service Bus queue ingestion path described below with
+a direct Event Grid webhook — see ADR-007. The Service Bus SDK, self-provisioned queue, and
+scheduled-redelivery retry this ADR adopted have been deleted from the codebase; this document is
+retained for historical context only.
 
 ## Context
 
