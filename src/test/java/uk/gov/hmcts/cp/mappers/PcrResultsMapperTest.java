@@ -133,6 +133,26 @@ class PcrResultsMapperTest {
     }
 
     @Test
+    void toPcrHearingResult_should_mapNextHearingCourtIncludingCourtHouseId() {
+        final UUID courtHouseId = UUID.fromString("f8254db1-1683-483e-afb3-b87fde5a0a26");
+        final CPVersionEntity version = minimalVersion().toBuilder()
+                .nextHearing(CPNextHearingEmbeddable.builder()
+                        .date(LocalDate.of(2026, 8, 1))
+                        .courtHouseId(courtHouseId)
+                        .courtHouseCode("B01LY00")
+                        .courtHouseName("Lavender Hill Magistrates' Court")
+                        .build())
+                .build();
+        final CPCaseHearingEntity caseHearing = CPCaseHearingEntity.builder().hearingId(HEARING_ID).build();
+
+        final PcrHearingResult result = mapper.toPcrHearingResult(caseHearing, version, List.of(), List.of(), List.of(), List.of(), List.of());
+
+        assertThat(result.getNextHearing().getCourt().getCourtHouseId()).isEqualTo(courtHouseId);
+        assertThat(result.getNextHearing().getCourt().getCourtHouseCode()).isEqualTo("B01LY00");
+        assertThat(result.getNextHearing().getCourt().getCourtHouseName()).isEqualTo("Lavender Hill Magistrates' Court");
+    }
+
+    @Test
     void toPcrHearingResult_should_mapDirectOffenceAndItsResultAndPrompt() {
         final CPCaseHearingEntity caseHearing = CPCaseHearingEntity.builder().hearingId(HEARING_ID).build();
         final CPVersionEntity version = minimalVersion();

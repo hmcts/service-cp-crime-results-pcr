@@ -5,12 +5,15 @@ import uk.gov.hmcts.cp.domain.HearingDetailsResponse.JudicialResult;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.JudicialResultPrompt;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
 @Component
 public class CPJudicialResultPromptParser {
+
+    private static final DateTimeFormatter CONSECUTIVE_TO_DATE_FORMAT = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
     private static final String CONCURRENT_PROMPT = "concurrent";
     private static final String CONSECUTIVE_TO_DATE_PROMPT = "consecutiveToSentenceImposedOn";
@@ -24,7 +27,9 @@ public class CPJudicialResultPromptParser {
     }
 
     public LocalDate consecutiveToDate(final JudicialResult result) {
-        return findPrompt(result, CONSECUTIVE_TO_DATE_PROMPT).map(LocalDate::parse).orElse(null);
+        return findPrompt(result, CONSECUTIVE_TO_DATE_PROMPT)
+                .map(value -> LocalDate.parse(value, CONSECUTIVE_TO_DATE_FORMAT))
+                .orElse(null);
     }
 
     public String consecutiveToCourtName(final JudicialResult result) {

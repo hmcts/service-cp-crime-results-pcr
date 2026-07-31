@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -173,7 +174,18 @@ public class HearingDetailsResponse {
         private LocalDate startDate;
         private LocalDate endDate;
         private LocalDate convictionDate;
+        private PleaDetails plea;
         private List<JudicialResult> judicialResults;
+    }
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Getter
+    public static class PleaDetails {
+        private String pleaValue;
+        private LocalDate pleaDate;
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
@@ -202,7 +214,13 @@ public class HearingDetailsResponse {
     @NoArgsConstructor
     @Getter
     public static class NextHearing {
-        private LocalDate date;
+        // CP's real payload has no bare `date` field — it sends `listedStartDateTime` (full
+        // ISO instant) and `courtCentre`, matching the shape already used for the hearing
+        // itself. `bookingReference` is the closest CP field identifying this specific future
+        // hearing occurrence.
+        private String bookingReference;
+        private Instant listedStartDateTime;
+        private CourtCentre courtCentre;
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)

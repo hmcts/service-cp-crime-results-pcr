@@ -91,6 +91,7 @@ erDiagram
         uuid master_defendant_id
         date next_hearing_date "embedded, nullable — see §3, CP's own nextHearing name"
         string next_hearing_time
+        uuid next_hearing_court_house_id "added V1.011 — CP's nextHearing.courtCentre.id"
         string next_hearing_court_house_code
         string next_hearing_court_house_name
         uuid next_hearing_id
@@ -240,7 +241,16 @@ case+hearing.
   per-defendant on `cp_version` rather than promoted to `cp_case_hearing`,
   because which offence's `nextHearing` should win when several diverge is
   still unconfirmed and may genuinely vary per defendant (field-mapping
-  analysis §7).
+  analysis §7). **Source confirmed 31 Jul 2026:** CP's `nextHearing` object
+  carries `listedStartDateTime` (full ISO instant, not a bare date) and a
+  `courtCentre` (`id`/`code`/`name`) — `HearingDetailsResponse.NextHearing`
+  originally only modelled a `date` field that never matched any real key,
+  so every `next_hearing_*` column was silently written null end-to-end
+  (drift-detection caught it — the legacy PDF has no separate "next hearing"
+  row to compare against, only free-text result narrative, so it went
+  unnoticed until AMP-898). Fixed by modelling `listedStartDateTime`/
+  `courtCentre`/`bookingReference` on the domain type and wiring
+  `CPHearingResultEntityMapper` to populate all five columns from them.
 - **`custody_location`:** included, but the API's own documentation is
   explicit that whether it's ever printed on the physical register could not
   be independently confirmed (the template is owned by an external

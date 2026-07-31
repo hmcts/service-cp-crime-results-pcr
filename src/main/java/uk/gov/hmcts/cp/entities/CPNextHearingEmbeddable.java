@@ -27,6 +27,9 @@ public class CPNextHearingEmbeddable {
     @Column(name = "next_hearing_time")
     private String time;
 
+    @Column(name = "next_hearing_court_house_id")
+    private UUID courtHouseId;
+
     @Column(name = "next_hearing_court_house_code")
     private String courtHouseCode;
 
