@@ -173,7 +173,18 @@ public class HearingDetailsResponse {
         private LocalDate startDate;
         private LocalDate endDate;
         private LocalDate convictionDate;
+        private PleaDetails plea;
         private List<JudicialResult> judicialResults;
+    }
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Getter
+    public static class PleaDetails {
+        private String pleaValue;
+        private LocalDate pleaDate;
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)

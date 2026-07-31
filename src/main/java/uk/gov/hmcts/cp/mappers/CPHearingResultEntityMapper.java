@@ -251,8 +251,11 @@ public class CPHearingResultEntityMapper {
                 .endDate(offence.getEndDate())
                 .listingNumber(offence.getListingNumber())
                 .convictionDate(offence.getConvictionDate())
+                .pleaValue(offence.getPlea() == null ? null : offence.getPlea().getPleaValue())
+                .pleaDate(offence.getPlea() == null ? null : offence.getPlea().getPleaDate())
                 .build();
-        // title/wording/pleaValue/pleaDate/verdictCode: left unset, same as PcrVersionMapper.toOffence
+        // title/wording/verdictCode: left unset, same as PcrVersionMapper.toOffence — no
+        // confirmed CP source for these three, unlike plea (ADR-004-style confirmation pending)
     }
 
     private void addResult(final JudicialResult result, final UUID offenceId, final UUID courtApplicationId,

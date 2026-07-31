@@ -17,6 +17,7 @@ import uk.gov.hmcts.cp.domain.HearingDetailsResponse.HearingDetail;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.JudicialResult;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.JudicialResultPrompt;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.Offence;
+import uk.gov.hmcts.cp.domain.HearingDetailsResponse.PleaDetails;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.PersonDefendant;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.PersonDetails;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.Address;
@@ -336,6 +337,42 @@ class CPHearingResultEntityMapperTest {
         final CPEntitySet bundle = mapper.toWriteBundle(defendant, hearing, CASE_HEARING_ID, CREATED_AT, EXPIRES_AT);
 
         assertThat(bundle.offences().get(0).getSourceOffenceId()).isNull();
+    }
+
+    @Test
+    void toWriteBundle_should_mapPleaValueAndPleaDate_whenPresent() {
+        final Offence offence = Offence.builder()
+                .offenceCode("TH68001")
+                .plea(PleaDetails.builder().pleaValue("GUILTY").pleaDate(LocalDate.of(2026, 7, 31)).build())
+                .judicialResults(List.of())
+                .build();
+        final Defendant defendant = Defendant.builder()
+                .id(DEFENDANT_ID.toString())
+                .personDefendant(PersonDefendant.builder().build())
+                .offences(List.of(offence))
+                .build();
+        final HearingDetail hearing = HearingDetail.builder().courtApplications(List.of()).build();
+
+        final CPEntitySet bundle = mapper.toWriteBundle(defendant, hearing, CASE_HEARING_ID, CREATED_AT, EXPIRES_AT);
+
+        assertThat(bundle.offences().get(0).getPleaValue()).isEqualTo("GUILTY");
+        assertThat(bundle.offences().get(0).getPleaDate()).isEqualTo(LocalDate.of(2026, 7, 31));
+    }
+
+    @Test
+    void toWriteBundle_should_leavePleaNull_whenAbsent() {
+        final Offence offence = Offence.builder().offenceCode("TH68001").judicialResults(List.of()).build();
+        final Defendant defendant = Defendant.builder()
+                .id(DEFENDANT_ID.toString())
+                .personDefendant(PersonDefendant.builder().build())
+                .offences(List.of(offence))
+                .build();
+        final HearingDetail hearing = HearingDetail.builder().courtApplications(List.of()).build();
+
+        final CPEntitySet bundle = mapper.toWriteBundle(defendant, hearing, CASE_HEARING_ID, CREATED_AT, EXPIRES_AT);
+
+        assertThat(bundle.offences().get(0).getPleaValue()).isNull();
+        assertThat(bundle.offences().get(0).getPleaDate()).isNull();
     }
 
     @Test

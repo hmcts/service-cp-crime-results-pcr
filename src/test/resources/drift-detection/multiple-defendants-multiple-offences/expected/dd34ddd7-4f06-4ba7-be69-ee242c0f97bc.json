@@ -62,8 +62,8 @@
           }
         ],
         "listingNumber": 1,
-        "pleaDate": null,
-        "pleaValue": null,
+        "pleaDate": "2026-07-31",
+        "pleaValue": "NOT_GUILTY",
         "startDate": "2026-05-01",
         "title": null,
         "verdictCode": null,
@@ -247,8 +247,8 @@
           }
         ],
         "listingNumber": 1,
-        "pleaDate": null,
-        "pleaValue": null,
+        "pleaDate": "2026-07-31",
+        "pleaValue": "NOT_GUILTY",
         "startDate": "2026-05-01",
         "title": null,
         "verdictCode": null,
