@@ -1,0 +1,175 @@
+[
+  {
+    "caseMarkers": [],
+    "caseURN": "TEST1234567",
+    "courtApplications": [
+      {
+        "decision": null,
+        "decisionDate": null,
+        "judicialResults": [
+          {
+            "category": null,
+            "concurrent": null,
+            "consecutiveToCourtName": null,
+            "consecutiveToDate": null,
+            "convicted": false,
+            "financial": false,
+            "fineAmount": null,
+            "imprisonmentPeriod": null,
+            "postHearingCustodyStatus": null,
+            "prompts": [],
+            "resultText": "Granted",
+            "totalCustodialPeriod": null
+          }
+        ],
+        "offences": [],
+        "reference": "TEST1234567",
+        "response": null,
+        "responseDate": null,
+        "type": "Application within criminal proceedings"
+      }
+    ],
+    "custodyLocation": {
+      "custodyType": "Prison",
+      "name": "HMP/YOI Eastwood Park"
+    },
+    "defendant": {
+      "address": {
+        "address1": "30 Church Street",
+        "address2": "Church Street",
+        "address3": "Edinburgh",
+        "address4": null,
+        "address5": null,
+        "postCode": "NW1 5BR"
+      },
+      "dateOfBirth": "2006-07-23",
+      "firstName": "Sophie",
+      "id": "ea6b2d84-e99a-47ff-b031-a036e093f627",
+      "lastName": "Reichel",
+      "masterDefendantId": "ea6b2d84-e99a-47ff-b031-a036e093f627",
+      "middleName": null,
+      "title": "Mr"
+    },
+    "hearing": {
+      "court": {
+        "courtHouseCode": "B52CM00",
+        "courtHouseId": null,
+        "courtHouseName": "Bristol Magistrates' Court"
+      },
+      "hearingDate": "2026-07-23",
+      "hearingOutcome": null,
+      "id": "5f75863f-270a-482a-9e67-eaccb2fd3130"
+    },
+    "nextHearing": null,
+    "offences": [
+      {
+        "code": "TH68013A",
+        "convictionDate": "2026-07-23",
+        "endDate": null,
+        "judicialResults": [
+          {
+            "category": null,
+            "concurrent": null,
+            "consecutiveToCourtName": null,
+            "consecutiveToDate": null,
+            "convicted": true,
+            "financial": false,
+            "fineAmount": null,
+            "imprisonmentPeriod": "6 Months",
+            "postHearingCustodyStatus": null,
+            "prompts": [
+              {
+                "label": null,
+                "reference": "totalCustodialPeriod",
+                "type": null,
+                "value": "5 Months"
+              },
+              {
+                "label": null,
+                "reference": "prisonOrganisationName",
+                "type": null,
+                "value": "HMP/YOI Bristol"
+              },
+              {
+                "label": null,
+                "reference": "prisonEmailAddress1",
+                "type": null,
+                "value": "OMU.Bristol@justice.gov.uk"
+              },
+              {
+                "label": null,
+                "reference": "prisonEmailAddress2",
+                "type": null,
+                "value": "Reception.Bristol@justice.gov.uk"
+              },
+              {
+                "label": null,
+                "reference": "conveyorcustodiannameOrganisationName",
+                "type": null,
+                "value": "Bristol Magistrates' Court: PECS"
+              },
+              {
+                "label": null,
+                "reference": "conveyorcustodiannameEmailAddress1",
+                "type": null,
+                "value": "PECSBristolMags@serco.com"
+              },
+              {
+                "label": null,
+                "reference": "probationteamtobenotifiedOrganisationName",
+                "type": null,
+                "value": "London Division NPS"
+              },
+              {
+                "label": null,
+                "reference": "probationteamtobenotifiedEmailAddress1",
+                "type": null,
+                "value": "londonnps.court@justice.gov.uk"
+              },
+              {
+                "label": null,
+                "reference": "imprisonmentPeriod",
+                "type": null,
+                "value": "6 Months"
+              },
+              {
+                "label": null,
+                "reference": "imprisonmentReasons",
+                "type": null,
+                "value": "failure to comply with requirements of post custodial sentence supervision"
+              },
+              {
+                "label": null,
+                "reference": "theReasonsForThis",
+                "type": null,
+                "value": "because of an unprovoked attack of a serious nature"
+              },
+              {
+                "label": null,
+                "reference": "bailRemandDaysToCountTaggedDays",
+                "type": null,
+                "value": "4"
+              },
+              {
+                "label": null,
+                "reference": "offenceAggByForeignPowerCondition",
+                "type": null,
+                "value": "true"
+              }
+            ],
+            "resultCode": "1002",
+            "resultText": "Imprisonment",
+            "totalCustodialPeriod": "5 Months"
+          }
+        ],
+        "listingNumber": 2,
+        "pleaDate": "2026-07-23",
+        "pleaValue": "NOT_GUILTY",
+        "startDate": "2026-04-24",
+        "title": null,
+        "verdictCode": null,
+        "wording": null
+      }
+    ]
+  }
+]

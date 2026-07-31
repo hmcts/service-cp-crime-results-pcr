@@ -1,38 +1,38 @@
 [
   {
     "caseMarkers": [],
-    "caseURN": "AS231157673",
+    "caseURN": "IQ231276955",
     "courtApplications": [],
     "custodyLocation": null,
     "defendant": {
       "address": {
-        "address1": "40 Market Place",
-        "address2": "Market Place",
-        "address3": "Bristol",
+        "address1": "99 Riverside Drive",
+        "address2": "Riverside Drive",
+        "address3": "Chester-le-Street",
         "address4": null,
         "address5": null,
-        "postCode": "BS1 1AA"
+        "postCode": "NW1 5BR"
       },
-      "dateOfBirth": "1981-07-30",
-      "firstName": "DroidAlan",
-      "id": "dd34ddd7-4f06-4ba7-be69-ee242c0f97bc",
-      "lastName": "DotMacejkovic",
-      "masterDefendantId": "dd34ddd7-4f06-4ba7-be69-ee242c0f97bc",
+      "dateOfBirth": "1986-07-30",
+      "firstName": "Maurine",
+      "id": "a81dd0b5-ebca-47bb-a3e1-205c40f2c4dc",
+      "lastName": "Sipes",
+      "masterDefendantId": "a81dd0b5-ebca-47bb-a3e1-205c40f2c4dc",
       "middleName": null,
       "title": "Mr"
     },
     "hearing": {
       "court": {
-        "courtHouseCode": "B52CM00",
+        "courtHouseCode": "B01DU00",
         "courtHouseId": null,
-        "courtHouseName": "Bristol Magistrates' Court"
+        "courtHouseName": "City of London Magistrates' Court"
       },
       "hearingDate": "2026-07-31",
       "hearingOutcome": null,
-      "id": "f15a49db-812e-43d2-bfc5-7f3c7ee9ede1"
+      "id": "5151e511-7989-4ae0-8e38-2e697834edc6"
     },
     "nextHearing": {
-      "hearingId": "cf1f6d0c-6f9c-461f-b91a-5458a16c6342",
+      "hearingId": "41a6176a-4304-4986-91b6-588969195c56",
       "dateTime": "2026-07-31T09:00:00Z",
       "court": {
         "courtHouseId": "f8254db1-1683-483e-afb3-b87fde5a0a26",
@@ -42,7 +42,7 @@
     },
     "offences": [
       {
-        "code": "FS13012",
+        "code": "TH68023",
         "convictionDate": null,
         "endDate": null,
         "judicialResults": [
@@ -59,63 +59,27 @@
             "prompts": [
               {
                 "label": null,
-                "reference": "details",
+                "reference": "93d014e1-b27e-4c2e-ab4c-214bbc77e2fd",
                 "type": null,
-                "value": "Complaint withdrawn"
-              }
-            ],
-            "resultCode": "2063",
-            "resultText": "Withdrawn",
-            "totalCustodialPeriod": null
-          }
-        ],
-        "listingNumber": 1,
-        "pleaDate": "2026-07-31",
-        "pleaValue": "NOT_GUILTY",
-        "startDate": "2026-05-01",
-        "title": null,
-        "verdictCode": null,
-        "wording": null
-      },
-      {
-        "code": "BC90005",
-        "convictionDate": null,
-        "endDate": null,
-        "judicialResults": [
-          {
-            "category": null,
-            "concurrent": null,
-            "consecutiveToCourtName": null,
-            "consecutiveToDate": null,
-            "convicted": false,
-            "financial": false,
-            "fineAmount": null,
-            "imprisonmentPeriod": null,
-            "postHearingCustodyStatus": null,
-            "prompts": [
-              {
-                "label": null,
-                "reference": "f6697070-25bf-4ad0-aed3-de4292fb806d",
-                "type": null,
-                "value": "Date of hearing:31/07/2026\nTime of hearing:10:00\nCourthouse organisation name:Lavender Hill Magistrates' Court\nCourthouse address line 1:176A Lavender Hill\nCourthouse address line 2:London\nCourthouse post code:SW11 1JU\nCourtroom:Courtroom 01\nHearing type:Appeal\nEstimated duration:30 MINUTES\nBooking reference:cf1f6d0c-6f9c-461f-b91a-5458a16c6342"
+                "value": "Date of hearing:31/07/2026\nTime of hearing:10:00\nCourthouse organisation name:Lavender Hill Magistrates' Court\nCourthouse address line 1:176A Lavender Hill\nCourthouse address line 2:London\nCourthouse post code:SW11 1JU\nCourtroom:Courtroom 01\nHearing type:Appeal\nEstimated duration:30 MINUTES\nBooking reference:dcb4cfc1-98a7-4be6-8dbe-22143e04a4ed"
               },
               {
                 "label": null,
                 "reference": "prisonOrganisationName",
                 "type": null,
-                "value": "HMP Ashfield"
+                "value": "HMP Birmingham"
               },
               {
                 "label": null,
                 "reference": "prisonEmailAddress1",
                 "type": null,
-                "value": "yoiashfield.premiercustody@premier-serco.cjsm.net"
+                "value": "Custody.Birmingham@justice.gov.uk"
               },
               {
                 "label": null,
                 "reference": "prisonEmailAddress2",
                 "type": null,
-                "value": "yoiashfield.premiercustody@premier-serco.cjsm.net"
+                "value": "Reception.Birmingham@justice.gov.uk"
               },
               {
                 "label": null,
@@ -149,13 +113,13 @@
               },
               {
                 "label": null,
-                "reference": "3de497cd-b6c4-4f6c-b0ca-706f37b293cd",
+                "reference": "80c26ea3-ecf7-4f0c-bb04-24e7e12b2b6f",
                 "type": null,
                 "value": ""
               },
               {
                 "label": null,
-                "reference": "05f8102e-2e33-40e6-8ad2-21cb9caae9ee",
+                "reference": "62b6dee0-e3cd-4581-89f9-4a29dd67f244",
                 "type": null,
                 "value": ""
               }
@@ -247,7 +211,7 @@
                 "label": null,
                 "reference": "bookingReference",
                 "type": null,
-                "value": "cf1f6d0c-6f9c-461f-b91a-5458a16c6342"
+                "value": "dcb4cfc1-98a7-4be6-8dbe-22143e04a4ed"
               }
             ],
             "resultText": "Next hearing in magistrates' court",
@@ -257,7 +221,7 @@
         "listingNumber": 1,
         "pleaDate": "2026-07-31",
         "pleaValue": "NOT_GUILTY",
-        "startDate": "2026-05-01",
+        "startDate": "2026-05-31",
         "title": null,
         "verdictCode": null,
         "wording": null

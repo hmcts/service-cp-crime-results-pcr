@@ -1,23 +1,52 @@
 [
   {
     "caseMarkers": [],
-    "caseURN": "AS231157673",
-    "courtApplications": [],
-    "custodyLocation": null,
+    "caseURN": "JS238681716",
+    "courtApplications": [
+      {
+        "decision": null,
+        "decisionDate": null,
+        "judicialResults": [
+          {
+            "category": null,
+            "concurrent": null,
+            "consecutiveToCourtName": null,
+            "consecutiveToDate": null,
+            "convicted": false,
+            "financial": false,
+            "fineAmount": null,
+            "imprisonmentPeriod": null,
+            "postHearingCustodyStatus": null,
+            "prompts": [],
+            "resultText": "Granted",
+            "totalCustodialPeriod": null
+          }
+        ],
+        "offences": [],
+        "reference": "JS238681716",
+        "response": null,
+        "responseDate": null,
+        "type": "Application within criminal proceedings"
+      }
+    ],
+    "custodyLocation": {
+      "custodyType": "Prison",
+      "name": "HMP Ashfield"
+    },
     "defendant": {
       "address": {
-        "address1": "40 Market Place",
-        "address2": "Market Place",
-        "address3": "Bristol",
+        "address1": "63 North Street",
+        "address2": "North Street",
+        "address3": "Guildford",
         "address4": null,
         "address5": null,
-        "postCode": "BS1 1AA"
+        "postCode": "NW1 5BR"
       },
-      "dateOfBirth": "1981-07-30",
-      "firstName": "DroidAlan",
-      "id": "dd34ddd7-4f06-4ba7-be69-ee242c0f97bc",
-      "lastName": "DotMacejkovic",
-      "masterDefendantId": "dd34ddd7-4f06-4ba7-be69-ee242c0f97bc",
+      "dateOfBirth": "1998-07-31",
+      "firstName": "Geraldo",
+      "id": "77807b6c-4d05-45ca-9fb7-cd4c1d1d7842",
+      "lastName": "Turner",
+      "masterDefendantId": "77807b6c-4d05-45ca-9fb7-cd4c1d1d7842",
       "middleName": null,
       "title": "Mr"
     },
@@ -29,11 +58,11 @@
       },
       "hearingDate": "2026-07-31",
       "hearingOutcome": null,
-      "id": "f15a49db-812e-43d2-bfc5-7f3c7ee9ede1"
+      "id": "9316e6f1-6824-443d-b6c2-8982f42549a3"
     },
     "nextHearing": {
-      "hearingId": "cf1f6d0c-6f9c-461f-b91a-5458a16c6342",
-      "dateTime": "2026-07-31T09:00:00Z",
+      "hearingId": "6b8aafdc-aa57-4158-bbd8-6f1ea525ba01",
+      "dateTime": "2026-08-03T09:00:00Z",
       "court": {
         "courtHouseId": "f8254db1-1683-483e-afb3-b87fde5a0a26",
         "courtHouseCode": "B01LY00",
@@ -42,7 +71,7 @@
     },
     "offences": [
       {
-        "code": "FS13012",
+        "code": "TH68013A",
         "convictionDate": null,
         "endDate": null,
         "judicialResults": [
@@ -59,103 +88,61 @@
             "prompts": [
               {
                 "label": null,
-                "reference": "details",
+                "reference": "ce0c66be-9d69-4cd1-971f-6012ceeba156",
                 "type": null,
-                "value": "Complaint withdrawn"
-              }
-            ],
-            "resultCode": "2063",
-            "resultText": "Withdrawn",
-            "totalCustodialPeriod": null
-          }
-        ],
-        "listingNumber": 1,
-        "pleaDate": "2026-07-31",
-        "pleaValue": "NOT_GUILTY",
-        "startDate": "2026-05-01",
-        "title": null,
-        "verdictCode": null,
-        "wording": null
-      },
-      {
-        "code": "BC90005",
-        "convictionDate": null,
-        "endDate": null,
-        "judicialResults": [
-          {
-            "category": null,
-            "concurrent": null,
-            "consecutiveToCourtName": null,
-            "consecutiveToDate": null,
-            "convicted": false,
-            "financial": false,
-            "fineAmount": null,
-            "imprisonmentPeriod": null,
-            "postHearingCustodyStatus": null,
-            "prompts": [
-              {
-                "label": null,
-                "reference": "f6697070-25bf-4ad0-aed3-de4292fb806d",
-                "type": null,
-                "value": "Date of hearing:31/07/2026\nTime of hearing:10:00\nCourthouse organisation name:Lavender Hill Magistrates' Court\nCourthouse address line 1:176A Lavender Hill\nCourthouse address line 2:London\nCourthouse post code:SW11 1JU\nCourtroom:Courtroom 01\nHearing type:Appeal\nEstimated duration:30 MINUTES\nBooking reference:cf1f6d0c-6f9c-461f-b91a-5458a16c6342"
+                "value": "Date of hearing:03/08/2026\nTime of hearing:10:00\nCourthouse organisation name:Lavender Hill Magistrates' Court\nCourthouse address line 1:176A Lavender Hill\nCourthouse address line 2:London\nCourthouse post code:SW11 1JU\nCourtroom:Courtroom 01\nHearing type:Plea\nEstimated duration:20 MINUTES\nBooking reference:6b8aafdc-aa57-4158-bbd8-6f1ea525ba01"
               },
               {
                 "label": null,
                 "reference": "prisonOrganisationName",
                 "type": null,
-                "value": "HMP Ashfield"
+                "value": "HMP/YOI Eastwood Park"
               },
               {
                 "label": null,
                 "reference": "prisonEmailAddress1",
                 "type": null,
-                "value": "yoiashfield.premiercustody@premier-serco.cjsm.net"
-              },
-              {
-                "label": null,
-                "reference": "prisonEmailAddress2",
-                "type": null,
-                "value": "yoiashfield.premiercustody@premier-serco.cjsm.net"
+                "value": "OMU.EastwoodPark@justice.gov.uk"
               },
               {
                 "label": null,
                 "reference": "conveyorcustodiannameOrganisationName",
                 "type": null,
-                "value": "Lavender Hill Magistrates' Court: PECS"
+                "value": "Cardiff Magistrates' Court: PECS"
               },
               {
                 "label": null,
                 "reference": "conveyorcustodiannameEmailAddress1",
                 "type": null,
-                "value": "periodicwarrants@geoamey.co.uk"
+                "value": "CardiffMC@geoamey.co.uk"
               },
               {
                 "label": null,
                 "reference": "remandBasis",
                 "type": null,
-                "value": "Charged with a violent or sexual offence"
+                "value": "Remanded for a medical report by a single medical practitioner"
               },
               {
                 "label": null,
                 "reference": "bailException",
                 "type": null,
-                "value": "Breach of bail"
+                "value": "Defendant charged with murder"
               },
               {
                 "label": null,
                 "reference": "bailExceptionReason",
                 "type": null,
-                "value": "Broken bail conditions"
+                "value": "Offended on bail"
               },
               {
                 "label": null,
-                "reference": "3de497cd-b6c4-4f6c-b0ca-706f37b293cd",
+                "reference": "e8d6693d-c32f-44f3-97f6-0828deb1615c",
                 "type": null,
                 "value": ""
               },
               {
                 "label": null,
-                "reference": "05f8102e-2e33-40e6-8ad2-21cb9caae9ee",
+                "reference": "b332f0b3-3f34-4c7e-9a94-637d2bd7028f",
                 "type": null,
                 "value": ""
               }
@@ -193,7 +180,7 @@
                 "label": null,
                 "reference": "HDATE",
                 "type": null,
-                "value": "31/07/2026"
+                "value": "03/08/2026"
               },
               {
                 "label": null,
@@ -235,29 +222,29 @@
                 "label": null,
                 "reference": "HTYPE",
                 "type": null,
-                "value": "Appeal"
+                "value": "Plea"
               },
               {
                 "label": null,
                 "reference": "HEST",
                 "type": null,
-                "value": "30 MINUTES"
+                "value": "20 MINUTES"
               },
               {
                 "label": null,
                 "reference": "bookingReference",
                 "type": null,
-                "value": "cf1f6d0c-6f9c-461f-b91a-5458a16c6342"
+                "value": "6b8aafdc-aa57-4158-bbd8-6f1ea525ba01"
               }
             ],
             "resultText": "Next hearing in magistrates' court",
             "totalCustodialPeriod": null
           }
         ],
-        "listingNumber": 1,
-        "pleaDate": "2026-07-31",
-        "pleaValue": "NOT_GUILTY",
-        "startDate": "2026-05-01",
+        "listingNumber": 2,
+        "pleaDate": null,
+        "pleaValue": null,
+        "startDate": "2026-05-02",
         "title": null,
         "verdictCode": null,
         "wording": null

@@ -17,6 +17,7 @@ import uk.gov.hmcts.cp.domain.HearingDetailsResponse.HearingDetail;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.JudicialResult;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.JudicialResultPrompt;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.Offence;
+import uk.gov.hmcts.cp.domain.HearingDetailsResponse.PleaDetails;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.PersonDefendant;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.PersonDetails;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.Address;
@@ -25,12 +26,15 @@ import uk.gov.hmcts.cp.domain.HearingDetailsResponse.ProsecutionCaseIdentifier;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.MasterDefendant;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.ApplicationParty;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.ApplicationType;
+import uk.gov.hmcts.cp.domain.HearingDetailsResponse;
 import uk.gov.hmcts.cp.entities.CPCaseHearingEntity;
 import uk.gov.hmcts.cp.entities.CPCaseMarkerEntity;
 import uk.gov.hmcts.cp.entities.CPCourtApplicationEntity;
 import uk.gov.hmcts.cp.entities.CPJudicialResultEntity;
+import uk.gov.hmcts.cp.entities.CPNextHearingEmbeddable;
 import uk.gov.hmcts.cp.entities.CPOffenceEntity;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
@@ -242,6 +246,46 @@ class CPHearingResultEntityMapperTest {
     }
 
     @Test
+    void toWriteBundle_should_mapNextHearing_fromRealCPPayloadShape() {
+        final HearingDetailsResponse.NextHearing nextHearing = HearingDetailsResponse.NextHearing.builder()
+                .bookingReference("41a6176a-4304-4986-91b6-588969195c56")
+                .listedStartDateTime(Instant.parse("2026-07-31T09:00:00Z"))
+                .courtCentre(CourtCentre.builder()
+                        .id("f8254db1-1683-483e-afb3-b87fde5a0a26")
+                        .code("B01LY00")
+                        .name("Lavender Hill Magistrates' Court")
+                        .build())
+                .build();
+        final JudicialResult result = JudicialResult.builder()
+                .cjsCode("1200").judicialResultPrompts(List.of()).nextHearing(nextHearing).build();
+        final Offence offence = Offence.builder().judicialResults(List.of(result)).build();
+        final ProsecutionCase prosecutionCase = ProsecutionCase.builder()
+                .prosecutionCaseIdentifier(ProsecutionCaseIdentifier.builder().caseURN(CASE_URN).build())
+                .caseMarkers(List.of())
+                .defendants(List.of(Defendant.builder()
+                        .id(DEFENDANT_ID.toString())
+                        .personDefendant(PersonDefendant.builder().build())
+                        .offences(List.of(offence))
+                        .build()))
+                .build();
+        final HearingDetail hearing = HearingDetail.builder()
+                .courtApplications(List.of())
+                .prosecutionCases(List.of(prosecutionCase))
+                .build();
+
+        final CPEntitySet bundle = mapper.toWriteBundle(minimalDefendant(), hearing, CASE_HEARING_ID, CREATED_AT, EXPIRES_AT);
+
+        final CPNextHearingEmbeddable mapped = bundle.version().getNextHearing();
+        assertThat(mapped).isNotNull();
+        assertThat(mapped.getDate()).isEqualTo(LocalDate.of(2026, 7, 31));
+        assertThat(mapped.getTime()).isEqualTo("09:00");
+        assertThat(mapped.getCourtHouseId()).isEqualTo(UUID.fromString("f8254db1-1683-483e-afb3-b87fde5a0a26"));
+        assertThat(mapped.getCourtHouseCode()).isEqualTo("B01LY00");
+        assertThat(mapped.getCourtHouseName()).isEqualTo("Lavender Hill Magistrates' Court");
+        assertThat(mapped.getId()).isEqualTo(UUID.fromString("41a6176a-4304-4986-91b6-588969195c56"));
+    }
+
+    @Test
     void toWriteBundle_should_mapCustodyType_whenCustodialEstablishmentPresent() {
         final Defendant defendant = Defendant.builder()
                 .id(DEFENDANT_ID.toString())
@@ -336,6 +380,42 @@ class CPHearingResultEntityMapperTest {
         final CPEntitySet bundle = mapper.toWriteBundle(defendant, hearing, CASE_HEARING_ID, CREATED_AT, EXPIRES_AT);
 
         assertThat(bundle.offences().get(0).getSourceOffenceId()).isNull();
+    }
+
+    @Test
+    void toWriteBundle_should_mapPleaValueAndPleaDate_whenPresent() {
+        final Offence offence = Offence.builder()
+                .offenceCode("TH68001")
+                .plea(PleaDetails.builder().pleaValue("GUILTY").pleaDate(LocalDate.of(2026, 7, 31)).build())
+                .judicialResults(List.of())
+                .build();
+        final Defendant defendant = Defendant.builder()
+                .id(DEFENDANT_ID.toString())
+                .personDefendant(PersonDefendant.builder().build())
+                .offences(List.of(offence))
+                .build();
+        final HearingDetail hearing = HearingDetail.builder().courtApplications(List.of()).build();
+
+        final CPEntitySet bundle = mapper.toWriteBundle(defendant, hearing, CASE_HEARING_ID, CREATED_AT, EXPIRES_AT);
+
+        assertThat(bundle.offences().get(0).getPleaValue()).isEqualTo("GUILTY");
+        assertThat(bundle.offences().get(0).getPleaDate()).isEqualTo(LocalDate.of(2026, 7, 31));
+    }
+
+    @Test
+    void toWriteBundle_should_leavePleaNull_whenAbsent() {
+        final Offence offence = Offence.builder().offenceCode("TH68001").judicialResults(List.of()).build();
+        final Defendant defendant = Defendant.builder()
+                .id(DEFENDANT_ID.toString())
+                .personDefendant(PersonDefendant.builder().build())
+                .offences(List.of(offence))
+                .build();
+        final HearingDetail hearing = HearingDetail.builder().courtApplications(List.of()).build();
+
+        final CPEntitySet bundle = mapper.toWriteBundle(defendant, hearing, CASE_HEARING_ID, CREATED_AT, EXPIRES_AT);
+
+        assertThat(bundle.offences().get(0).getPleaValue()).isNull();
+        assertThat(bundle.offences().get(0).getPleaDate()).isNull();
     }
 
     @Test

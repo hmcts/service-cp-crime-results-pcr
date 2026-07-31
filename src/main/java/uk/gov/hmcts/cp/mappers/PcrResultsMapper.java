@@ -88,19 +88,19 @@ public class PcrResultsMapper {
     }
 
     private HearingDetails toHearingDetails(final CPCaseHearingEntity caseHearing) {
+        // courtHouseId: no confirmed source on CPCaseHearingEntity today — left unset
         return HearingDetails.builder()
                 .id(caseHearing.getHearingId())
-                .court(toCourt(caseHearing.getCourtHouseCode(), caseHearing.getCourtHouseName()))
+                .court(toCourt(null, caseHearing.getCourtHouseCode(), caseHearing.getCourtHouseName()))
                 .hearingDate(caseHearing.getHearingDate())
                 .hearingOutcome(caseHearing.getHearingOutcome())
                 .build();
     }
 
-    private Court toCourt(final String courtHouseCode, final String courtHouseName) {
-        // courtHouseId: no confirmed source on CPCaseHearingEntity today — left unset
-        return courtHouseCode == null && courtHouseName == null
+    private Court toCourt(final UUID courtHouseId, final String courtHouseCode, final String courtHouseName) {
+        return courtHouseId == null && courtHouseCode == null && courtHouseName == null
                 ? null
-                : Court.builder().courtHouseCode(courtHouseCode).courtHouseName(courtHouseName).build();
+                : Court.builder().courtHouseId(courtHouseId).courtHouseCode(courtHouseCode).courtHouseName(courtHouseName).build();
     }
 
     private NextHearing toNextHearing(final CPNextHearingEmbeddable nextHearing) {
@@ -108,7 +108,7 @@ public class PcrResultsMapper {
                 ? null
                 : NextHearing.builder()
                         .hearingId(nextHearing.getId())
-                        .court(toCourt(nextHearing.getCourtHouseCode(), nextHearing.getCourtHouseName()))
+                        .court(toCourt(nextHearing.getCourtHouseId(), nextHearing.getCourtHouseCode(), nextHearing.getCourtHouseName()))
                         .dateTime(toNextHearingDateTime(nextHearing))
                         .build();
     }
