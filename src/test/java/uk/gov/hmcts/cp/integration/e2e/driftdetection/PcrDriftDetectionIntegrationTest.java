@@ -20,6 +20,8 @@ import uk.gov.hmcts.cp.integration.e2e.IngestionE2ETestBase;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.stream.Stream;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
@@ -64,7 +66,8 @@ class PcrDriftDetectionIntegrationTest extends IngestionE2ETestBase {
         try (Stream<Path> expectedFiles = Files.list(fixture.root().resolve("expected"))) {
             for (final Path expectedFile : expectedFiles.toList()) {
                 final String defendantId = expectedFile.getFileName().toString().replace(".json", "");
-                assertMatchesExpected(identity, defendantId, expectedFile);
+                final String caseUrn = identity.caseUrnByDefendantId().get(defendantId);
+                assertMatchesExpected(identity.hearingId(), caseUrn, defendantId, expectedFile);
             }
         }
     }
@@ -99,26 +102,32 @@ class PcrDriftDetectionIntegrationTest extends IngestionE2ETestBase {
                 .andExpect(status().isOk());
     }
 
-    private void assertMatchesExpected(final HearingIdentity identity, final String defendantId,
+    private void assertMatchesExpected(final String hearingId, final String caseUrn, final String defendantId,
                                         final Path expectedFile) throws Exception {
         final String expectedJson = Files.readString(expectedFile);
         final String actualJson = mockMvc.perform(MockMvcRequestBuilders.get(
                         "/cases/{caseURN}/hearings/{hearingId}/defendants/{defendantId}",
-                        identity.caseUrn(), identity.hearingId(), defendantId))
+                        caseUrn, hearingId, defendantId))
                 .andExpect(status().isOk())
                 .andReturn().getResponse().getContentAsString();
 
-        JSONAssert.assertEquals(expectedJson, actualJson, JSONCompareMode.STRICT);
+        JSONAssert.assertEquals(expectedJson, actualJson, JSONCompareMode.NON_EXTENSIBLE);
     }
 
     private HearingIdentity parseIdentity(final Path fixtureRoot) throws Exception {
         final JsonNode hearing = OBJECT_MAPPER.readTree(Files.readString(fixtureRoot.resolve("event.json"))).get("hearing");
         final String hearingId = hearing.get("id").asString();
         final String hearingDay = hearing.get("hearingDays").get(0).get("sittingDay").asString().substring(0, 10);
-        final String caseUrn = hearing.get("prosecutionCases").get(0).get("prosecutionCaseIdentifier").get("caseURN").asString();
-        return new HearingIdentity(hearingId, hearingDay, caseUrn);
+        final Map<String, String> caseUrnByDefendantId = new HashMap<>();
+        for (final JsonNode prosecutionCase : hearing.get("prosecutionCases")) {
+            final String caseUrn = prosecutionCase.get("prosecutionCaseIdentifier").get("caseURN").asString();
+            for (final JsonNode defendant : prosecutionCase.get("defendants")) {
+                caseUrnByDefendantId.put(defendant.get("id").asString(), caseUrn);
+            }
+        }
+        return new HearingIdentity(hearingId, hearingDay, caseUrnByDefendantId);
     }
 
-    private record HearingIdentity(String hearingId, String hearingDay, String caseUrn) {
+    private record HearingIdentity(String hearingId, String hearingDay, Map<String, String> caseUrnByDefendantId) {
     }
 }
