@@ -29,7 +29,7 @@ class CPJudicialResultPromptParserTest {
 
     @Test
     void consecutiveToDate_should_parseDate_whenPromptPresent() {
-        final JudicialResult result = resultWithPrompt("consecutiveToSentenceImposedOn", "2026-06-23");
+        final JudicialResult result = resultWithPrompt("consecutiveToSentenceImposedOn", "23/06/2026");
 
         assertThat(parser.consecutiveToDate(result)).isEqualTo(LocalDate.of(2026, 6, 23));
     }
