@@ -3,7 +3,7 @@
     "courtApplications": [
       {
         "applicant": {
-          "id": "a40ce658-43b1-407f-a84f-3ecf97467b1b",
+          "id": "34a9b613-620b-433f-ab40-8f55b663f56c",
           "notificationRequired": false,
           "prosecutingAuthority": {
             "address": {
@@ -24,14 +24,14 @@
           },
           "summonsRequired": false
         },
-        "applicationReceivedDate": "2026-07-24",
-        "applicationReference": "KR238264426",
+        "applicationReceivedDate": "2026-07-30",
+        "applicationReference": "KL238291232",
         "applicationStatus": "FINALISED",
         "courtApplicationCases": [
           {
             "caseStatus": "ACTIVE",
             "isSJP": false,
-            "prosecutionCaseId": "dfda9320-cd40-476b-804f-237333dafec8",
+            "prosecutionCaseId": "625fc5fb-bc2d-455c-afbc-16247a92aa14",
             "prosecutionCaseIdentifier": {
               "address": {
                 "address1": "Bishopsgate police station",
@@ -47,7 +47,7 @@
               "prosecutionAuthorityId": "baa2ec52-296b-3f38-922a-9e641c1f94d3",
               "prosecutionAuthorityName": "City of London Police",
               "prosecutionAuthorityOUCode": "0480000",
-              "caseURN": "KR238264426"
+              "caseURN": "KL238291232"
             }
           }
         ],
@@ -60,8 +60,8 @@
           "courtOrderOffences": [
             {
               "offence": {
-                "arrestDate": "2026-07-09",
-                "chargeDate": "2026-07-14",
+                "arrestDate": "2026-07-15",
+                "chargeDate": "2026-07-20",
                 "convictingCourt": {
                   "code": "B52CM00",
                   "id": "1a359d44-6b52-3919-b052-065413e4a801",
@@ -72,10 +72,10 @@
                   "name": "Bristol Magistrates' Court",
                   "roomId": "d7df1737-c35c-319a-b93a-6cd402a95db1"
                 },
-                "convictionDate": "2026-07-24",
+                "convictionDate": "2026-07-30",
                 "count": 0,
                 "endorsableFlag": false,
-                "id": "687faf72-267b-4b14-a778-e0247f78f81a",
+                "id": "c4016ff2-8118-40b4-be0f-dcd51876ce13",
                 "isDisposed": true,
                 "judicialResults": [
                   {
@@ -99,14 +99,14 @@
                     "isFinancialResult": false,
                     "isNewAmendment": true,
                     "isUnscheduled": false,
-                    "judicialResultId": "49799f59-8b7e-4f5e-ae50-da4b87a9bd29",
+                    "judicialResultId": "ee6837c1-a943-4dc2-9a59-884d87ebd06f",
                     "judicialResultTypeId": "2b3f7c20-8fc1-4fad-9076-df196c24b27e",
                     "label": "Granted",
-                    "lastSharedDateTime": "2026-07-24",
+                    "lastSharedDateTime": "2026-07-30",
                     "level": "O",
                     "lifeDuration": false,
-                    "orderedDate": "2026-07-24",
-                    "orderedHearingId": "c103593d-3945-4072-9a86-e4b85558e020",
+                    "orderedDate": "2026-07-30",
+                    "orderedHearingId": "81c4cdf1-5323-49e8-9a94-598c4f85e6bf",
                     "postHearingCustodyStatus": "A",
                     "preserveActiveOrder": false,
                     "publishedAsAPrompt": false,
@@ -114,7 +114,7 @@
                     "rank": 98500,
                     "resultText": "G - Granted",
                     "rollUpPrompts": true,
-                    "rootJudicialResultId": "49799f59-8b7e-4f5e-ae50-da4b87a9bd29",
+                    "rootJudicialResultId": "ee6837c1-a943-4dc2-9a59-884d87ebd06f",
                     "rootJudicialResultTypeId": "2b3f7c20-8fc1-4fad-9076-df196c24b27e",
                     "sentToCC": false,
                     "terminatesOffenceProceedings": false,
@@ -142,7 +142,7 @@
                     "isFinancialResult": false,
                     "isNewAmendment": true,
                     "isUnscheduled": false,
-                    "judicialResultId": "d7a843d5-bf85-4f48-953d-9dd327f70ea4",
+                    "judicialResultId": "bcfeb3aa-84df-4c4e-aea8-732f29a1e7da",
                     "judicialResultPrompts": [
                       {
                         "courtExtract": "Y",
@@ -159,11 +159,11 @@
                     ],
                     "judicialResultTypeId": "98138ec8-5dd3-11e8-9c2d-fa7ae01bbebc",
                     "label": "Text",
-                    "lastSharedDateTime": "2026-07-24",
+                    "lastSharedDateTime": "2026-07-30",
                     "level": "O",
                     "lifeDuration": false,
-                    "orderedDate": "2026-07-24",
-                    "orderedHearingId": "c103593d-3945-4072-9a86-e4b85558e020",
+                    "orderedDate": "2026-07-30",
+                    "orderedHearingId": "81c4cdf1-5323-49e8-9a94-598c4f85e6bf",
                     "postHearingCustodyStatus": "A",
                     "preserveActiveOrder": false,
                     "publishedAsAPrompt": false,
@@ -171,7 +171,7 @@
                     "rank": 200400,
                     "resultText": "TEXT - Text\nTest TEXT",
                     "rollUpPrompts": true,
-                    "rootJudicialResultId": "d7a843d5-bf85-4f48-953d-9dd327f70ea4",
+                    "rootJudicialResultId": "bcfeb3aa-84df-4c4e-aea8-732f29a1e7da",
                     "rootJudicialResultTypeId": "98138ec8-5dd3-11e8-9c2d-fa7ae01bbebc",
                     "sentToCC": false,
                     "terminatesOffenceProceedings": false,
@@ -196,15 +196,15 @@
                 "offenceTitleWelsh": "Dwyn oddi ar berson",
                 "orderIndex": 1,
                 "plea": {
-                  "offenceId": "687faf72-267b-4b14-a778-e0247f78f81a",
-                  "originatingHearingId": "8a9c6c27-a3ce-471b-a64f-0392604be40b",
-                  "pleaDate": "2026-07-24",
+                  "offenceId": "c4016ff2-8118-40b4-be0f-dcd51876ce13",
+                  "originatingHearingId": "c5fb9f7b-aa92-47fe-bc07-16d0863bef23",
+                  "pleaDate": "2026-07-30",
                   "pleaValue": "GUILTY"
                 },
-                "startDate": "2026-05-25",
-                "wording": "Original CaseURN: JX238214554, Re-sentenced Original code : TH68001, Original details: Theft from the person of another"
+                "startDate": "2026-05-31",
+                "wording": "Original CaseURN: GD238239881, Re-sentenced Original code : TH68001, Original details: Theft from the person of another"
               },
-              "prosecutionCaseId": "ee93a62c-ea6d-4fc8-88cd-b2999fde9fa6",
+              "prosecutionCaseId": "3148da55-f33d-428d-9cbb-a8ce1ab12fa2",
               "prosecutionCaseIdentifier": {
                 "address": {
                   "address1": "Bishopsgate police station",
@@ -220,22 +220,22 @@
                 "prosecutionAuthorityId": "baa2ec52-296b-3f38-922a-9e641c1f94d3",
                 "prosecutionAuthorityName": "City of London Police",
                 "prosecutionAuthorityOUCode": "0480000",
-                "caseURN": "JX238214554"
+                "caseURN": "GD238239881"
               }
             }
           ],
           "defendantIds": [
-            "2411da67-1cac-4aaa-bb6a-07bfcbf32909"
+            "1bcb7e51-edfe-4e6d-b67a-8033f38fc5af"
           ],
-          "endDate": "2026-08-23",
-          "expiryDate": "2027-08-23",
-          "id": "23c068bf-8442-4ef8-8c44-bd525641ae75",
+          "endDate": "2026-08-29",
+          "expiryDate": "2027-08-29",
+          "id": "35b20691-c9bf-45a9-a8cb-ce032e51ef4c",
           "isSJPOrder": false,
           "isUnpaidWork": true,
           "judicialResultTypeId": "418b3aa7-65ab-4a4a-bab9-2f96b698118c",
           "label": "Community order England / Wales",
-          "masterDefendantId": "2411da67-1cac-4aaa-bb6a-07bfcbf32909",
-          "orderDate": "2026-07-24",
+          "masterDefendantId": "1bcb7e51-edfe-4e6d-b67a-8033f38fc5af",
+          "orderDate": "2026-07-30",
           "orderingCourt": {
             "address": {
               "address1": "Marlborough St",
@@ -256,10 +256,10 @@
             "roomId": "d7df1737-c35c-319a-b93a-6cd402a95db1",
             "roomName": "Courtroom 04"
           },
-          "orderingHearingId": "8a9c6c27-a3ce-471b-a64f-0392604be40b",
-          "startDate": "2026-07-24"
+          "orderingHearingId": "c5fb9f7b-aa92-47fe-bc07-16d0863bef23",
+          "startDate": "2026-07-30"
         },
-        "id": "f2874bec-75b8-4d57-ad23-0a88aef5bb87",
+        "id": "ec42b8e8-3793-433f-8ce4-9888742fbaec",
         "judicialResults": [
           {
             "alwaysPublished": false,
@@ -283,14 +283,14 @@
             "isFinancialResult": false,
             "isNewAmendment": true,
             "isUnscheduled": false,
-            "judicialResultId": "905b66a6-0c63-4071-82e7-a9312425386d",
+            "judicialResultId": "070fe48a-ec57-4e69-b9e9-d49a4308bacb",
             "judicialResultTypeId": "1c70f1e0-7674-4acb-8710-1c5233e984c0",
             "label": "No adjudication - dealt with for original offence",
-            "lastSharedDateTime": "2026-07-24",
+            "lastSharedDateTime": "2026-07-30",
             "level": "O",
             "lifeDuration": false,
-            "orderedDate": "2026-07-24",
-            "orderedHearingId": "c103593d-3945-4072-9a86-e4b85558e020",
+            "orderedDate": "2026-07-30",
+            "orderedHearingId": "81c4cdf1-5323-49e8-9a94-598c4f85e6bf",
             "postHearingCustodyStatus": "A",
             "preserveActiveOrder": true,
             "publishedAsAPrompt": false,
@@ -298,7 +298,7 @@
             "rank": 36100,
             "resultText": "BRO - No adjudication - dealt with for original offence",
             "rollUpPrompts": false,
-            "rootJudicialResultId": "905b66a6-0c63-4071-82e7-a9312425386d",
+            "rootJudicialResultId": "070fe48a-ec57-4e69-b9e9-d49a4308bacb",
             "rootJudicialResultTypeId": "1c70f1e0-7674-4acb-8710-1c5233e984c0",
             "sentToCC": false,
             "terminatesOffenceProceedings": false,
@@ -327,7 +327,7 @@
             "isFinancialResult": false,
             "isNewAmendment": true,
             "isUnscheduled": false,
-            "judicialResultId": "d5639a6c-2848-4f8f-9725-ce2270f3bf30",
+            "judicialResultId": "116d84aa-f9a5-4565-89a8-7ef3ad0a17e3",
             "judicialResultPrompts": [
               {
                 "courtExtract": "Y",
@@ -338,9 +338,9 @@
                 "promptSequence": 100,
                 "type": "DATE",
                 "usergroups": [],
-                "value": "23/07/2026",
+                "value": "29/07/2026",
                 "welshLabel": "Dyddiad y gwnaethpwyd y gorchymyn gwreiddiol",
-                "welshValue": "23/07/2026"
+                "welshValue": "29/07/2026"
               },
               {
                 "courtExtract": "Y",
@@ -371,20 +371,20 @@
             ],
             "judicialResultTypeId": "2e83102c-a262-4bb3-a48d-c2107a094a66",
             "label": "Order revoked",
-            "lastSharedDateTime": "2026-07-24",
+            "lastSharedDateTime": "2026-07-30",
             "level": "O",
             "lifeDuration": false,
-            "orderedDate": "2026-07-24",
-            "orderedHearingId": "c103593d-3945-4072-9a86-e4b85558e020",
+            "orderedDate": "2026-07-30",
+            "orderedHearingId": "81c4cdf1-5323-49e8-9a94-598c4f85e6bf",
             "policeSubjectLineTitle": "Final Sentence",
             "postHearingCustodyStatus": "A",
             "preserveActiveOrder": false,
             "publishedAsAPrompt": false,
             "publishedForNows": false,
             "rank": 106000,
-            "resultText": "OREV - Order revoked\ncommunity order made by Bristol Magistrates' Court on 23/07/2026 revoked.",
+            "resultText": "OREV - Order revoked\ncommunity order made by Bristol Magistrates' Court on 29/07/2026 revoked.",
             "rollUpPrompts": true,
-            "rootJudicialResultId": "d5639a6c-2848-4f8f-9725-ce2270f3bf30",
+            "rootJudicialResultId": "116d84aa-f9a5-4565-89a8-7ef3ad0a17e3",
             "rootJudicialResultTypeId": "2e83102c-a262-4bb3-a48d-c2107a094a66",
             "sentToCC": false,
             "terminatesOffenceProceedings": false,
@@ -395,17 +395,17 @@
         ],
         "respondents": [
           {
-            "id": "69914199-f2ad-48b1-9600-bae1eb4f1398",
+            "id": "046bd285-1aed-45ed-a4e7-2dcb0509591f",
             "masterDefendant": {
               "defendantCase": [
                 {
-                  "caseId": "dfda9320-cd40-476b-804f-237333dafec8",
-                  "defendantId": "782cac73-21a6-401e-8792-2c760ccc2f76"
+                  "caseId": "625fc5fb-bc2d-455c-afbc-16247a92aa14",
+                  "defendantId": "4cc851c0-e2a3-477d-8168-3b335de7acd3"
                 }
               ],
-              "masterDefendantId": "2411da67-1cac-4aaa-bb6a-07bfcbf32909",
+              "masterDefendantId": "1bcb7e51-edfe-4e6d-b67a-8033f38fc5af",
               "personDefendant": {
-                "arrestSummonsNumber": "2391NX0000136934528D",
+                "arrestSummonsNumber": "2391NX0000441564938D",
                 "bailStatus": {
                   "code": "C",
                   "description": "Custody",
@@ -414,18 +414,18 @@
                 "driverNumber": "VANFL002222OW9PH",
                 "personDetails": {
                   "address": {
-                    "address1": "22 Castle Street",
-                    "address2": "Castle Street",
-                    "address3": "Canterbury",
-                    "address4": "Kent",
+                    "address1": "48 Elm Grove",
+                    "address2": "Elm Grove",
+                    "address3": "Horsham",
+                    "address4": "West Sussex",
                     "postcode": "NW1 5BR"
                   },
                   "contact": {
-                    "home": "0565765561",
-                    "mobile": "09326882929",
-                    "primaryEmail": "graham.halvorson@example.com"
+                    "home": "0153161236",
+                    "mobile": "09322892699",
+                    "primaryEmail": "rodrick.roberts@example.com"
                   },
-                  "dateOfBirth": "2002-07-24",
+                  "dateOfBirth": "1958-07-30",
                   "documentationLanguageNeeds": "ENGLISH",
                   "ethnicity": {
                     "observedEthnicityCode": "1",
@@ -435,10 +435,10 @@
                     "selfDefinedEthnicityDescription": "British",
                     "selfDefinedEthnicityId": "c4ca4238-a0b9-3382-8dcc-509a6f75849b"
                   },
-                  "firstName": "Graham",
+                  "firstName": "Rodrick",
                   "gender": "MALE",
                   "hearingLanguageNeeds": "ENGLISH",
-                  "lastName": "Halvorson",
+                  "lastName": "Roberts",
                   "title": "Mr"
                 },
                 "policeBailStatus": {
@@ -453,17 +453,17 @@
           }
         ],
         "subject": {
-          "id": "69914199-f2ad-48b1-9600-bae1eb4f1398",
+          "id": "046bd285-1aed-45ed-a4e7-2dcb0509591f",
           "masterDefendant": {
             "defendantCase": [
               {
-                "caseId": "dfda9320-cd40-476b-804f-237333dafec8",
-                "defendantId": "782cac73-21a6-401e-8792-2c760ccc2f76"
+                "caseId": "625fc5fb-bc2d-455c-afbc-16247a92aa14",
+                "defendantId": "4cc851c0-e2a3-477d-8168-3b335de7acd3"
               }
             ],
-            "masterDefendantId": "2411da67-1cac-4aaa-bb6a-07bfcbf32909",
+            "masterDefendantId": "1bcb7e51-edfe-4e6d-b67a-8033f38fc5af",
             "personDefendant": {
-              "arrestSummonsNumber": "2391NX0000136934528D",
+              "arrestSummonsNumber": "2391NX0000441564938D",
               "bailConditions": "",
               "bailStatus": {
                 "code": "A",
@@ -473,18 +473,18 @@
               "driverNumber": "VANFL002222OW9PH",
               "personDetails": {
                 "address": {
-                  "address1": "22 Castle Street",
-                  "address2": "Castle Street",
-                  "address3": "Canterbury",
-                  "address4": "Kent",
+                  "address1": "48 Elm Grove",
+                  "address2": "Elm Grove",
+                  "address3": "Horsham",
+                  "address4": "West Sussex",
                   "postcode": "NW1 5BR"
                 },
                 "contact": {
-                  "home": "0565765561",
-                  "mobile": "09326882929",
-                  "primaryEmail": "graham.halvorson@example.com"
+                  "home": "0153161236",
+                  "mobile": "09322892699",
+                  "primaryEmail": "rodrick.roberts@example.com"
                 },
-                "dateOfBirth": "2002-07-24",
+                "dateOfBirth": "1958-07-30",
                 "documentationLanguageNeeds": "ENGLISH",
                 "ethnicity": {
                   "observedEthnicityCode": "1",
@@ -494,10 +494,10 @@
                   "selfDefinedEthnicityDescription": "British",
                   "selfDefinedEthnicityId": "c4ca4238-a0b9-3382-8dcc-509a6f75849b"
                 },
-                "firstName": "Graham",
+                "firstName": "Rodrick",
                 "gender": "MALE",
                 "hearingLanguageNeeds": "ENGLISH",
-                "lastName": "Halvorson",
+                "lastName": "Roberts",
                 "title": "Mr"
               },
               "policeBailStatus": {
@@ -574,15 +574,15 @@
         "attendanceDays": [
           {
             "attendanceType": "IN_PERSON",
-            "day": "2026-07-24"
+            "day": "2026-07-30"
           }
         ],
-        "defendantId": "782cac73-21a6-401e-8792-2c760ccc2f76"
+        "defendantId": "4cc851c0-e2a3-477d-8168-3b335de7acd3"
       }
     ],
     "defendantJudicialResults": [
       {
-        "defendantId": "782cac73-21a6-401e-8792-2c760ccc2f76",
+        "defendantId": "4cc851c0-e2a3-477d-8168-3b335de7acd3",
         "judicialResult": {
           "alwaysPublished": false,
           "canBeSubjectOfBreach": false,
@@ -604,7 +604,7 @@
           "isFinancialResult": false,
           "isNewAmendment": true,
           "isUnscheduled": false,
-          "judicialResultId": "203009ff-8d7b-440a-a17f-96537a107a2d",
+          "judicialResultId": "2855d240-7f9e-49ab-ba2a-a7cbe87da9b1",
           "judicialResultPrompts": [
             {
               "courtExtract": "Y",
@@ -705,13 +705,13 @@
           ],
           "judicialResultTypeId": "6cb15971-c945-4398-b7c9-3f8b743a4de3",
           "label": "Total custodial period",
-          "lastSharedDateTime": "2026-07-24",
+          "lastSharedDateTime": "2026-07-30",
           "level": "D",
           "lifeDuration": false,
-          "offenceId": "2843d81f-a717-44fc-9356-77b14ccd5abe",
-          "orderedDate": "2026-07-24",
-          "orderedHearingId": "c103593d-3945-4072-9a86-e4b85558e020",
-          "parentJudicialResultId": "2d602d76-7ff8-4885-be32-0d606eb1fb69",
+          "offenceId": "e43317f2-6e54-4f14-b0f3-9efbaad5ba75",
+          "orderedDate": "2026-07-30",
+          "orderedHearingId": "81c4cdf1-5323-49e8-9a94-598c4f85e6bf",
+          "parentJudicialResultId": "cb7a69d3-128d-4765-acee-dda591632670",
           "parentJudicialResultTypeId": "abb95a52-2a75-40c3-8d3f-a1d75a199c47",
           "postHearingCustodyStatus": "A",
           "preserveActiveOrder": false,
@@ -720,17 +720,17 @@
           "rank": 400,
           "resultText": "Total custodial period is life.",
           "rollUpPrompts": true,
-          "rootJudicialResultId": "2d602d76-7ff8-4885-be32-0d606eb1fb69",
+          "rootJudicialResultId": "cb7a69d3-128d-4765-acee-dda591632670",
           "rootJudicialResultTypeId": "abb95a52-2a75-40c3-8d3f-a1d75a199c47",
           "sentToCC": false,
           "terminatesOffenceProceedings": false,
           "urgent": false,
           "usergroups": []
         },
-        "masterDefendantId": "2411da67-1cac-4aaa-bb6a-07bfcbf32909"
+        "masterDefendantId": "1bcb7e51-edfe-4e6d-b67a-8033f38fc5af"
       },
       {
-        "defendantId": "782cac73-21a6-401e-8792-2c760ccc2f76",
+        "defendantId": "4cc851c0-e2a3-477d-8168-3b335de7acd3",
         "judicialResult": {
           "alwaysPublished": false,
           "canBeSubjectOfBreach": false,
@@ -752,7 +752,7 @@
           "isFinancialResult": false,
           "isNewAmendment": true,
           "isUnscheduled": false,
-          "judicialResultId": "19b64827-63b7-463a-999a-f2e9f9bd2ea0",
+          "judicialResultId": "64eb8b00-3b03-4fef-9646-ee2b1412f036",
           "judicialResultPrompts": [
             {
               "courtExtract": "N",
@@ -770,13 +770,13 @@
           ],
           "judicialResultTypeId": "66105417-41c8-420d-820f-40b61b507442",
           "label": "Risk or vulnerability factors",
-          "lastSharedDateTime": "2026-07-24",
+          "lastSharedDateTime": "2026-07-30",
           "level": "D",
           "lifeDuration": false,
-          "offenceId": "2843d81f-a717-44fc-9356-77b14ccd5abe",
-          "orderedDate": "2026-07-24",
-          "orderedHearingId": "c103593d-3945-4072-9a86-e4b85558e020",
-          "parentJudicialResultId": "2d602d76-7ff8-4885-be32-0d606eb1fb69",
+          "offenceId": "e43317f2-6e54-4f14-b0f3-9efbaad5ba75",
+          "orderedDate": "2026-07-30",
+          "orderedHearingId": "81c4cdf1-5323-49e8-9a94-598c4f85e6bf",
+          "parentJudicialResultId": "cb7a69d3-128d-4765-acee-dda591632670",
           "parentJudicialResultTypeId": "abb95a52-2a75-40c3-8d3f-a1d75a199c47",
           "postHearingCustodyStatus": "A",
           "preserveActiveOrder": false,
@@ -785,7 +785,7 @@
           "rank": 800,
           "resultText": "vulnerability - Risk or vulnerability factors",
           "rollUpPrompts": false,
-          "rootJudicialResultId": "2d602d76-7ff8-4885-be32-0d606eb1fb69",
+          "rootJudicialResultId": "cb7a69d3-128d-4765-acee-dda591632670",
           "rootJudicialResultTypeId": "abb95a52-2a75-40c3-8d3f-a1d75a199c47",
           "sentToCC": false,
           "terminatesOffenceProceedings": false,
@@ -793,7 +793,7 @@
           "usergroups": [],
           "welshLabel": "Ffactorau risg neu fregusrwydd"
         },
-        "masterDefendantId": "2411da67-1cac-4aaa-bb6a-07bfcbf32909"
+        "masterDefendantId": "1bcb7e51-edfe-4e6d-b67a-8033f38fc5af"
       }
     ],
     "hasSharedResults": true,
@@ -805,11 +805,11 @@
         "isCancelled": false,
         "listedDurationMinutes": 20,
         "listingSequence": 0,
-        "sittingDay": "2026-07-24T10:30:00.000Z"
+        "sittingDay": "2026-07-30T10:30:00.000Z"
       }
     ],
     "hearingLanguage": "ENGLISH",
-    "id": "c103593d-3945-4072-9a86-e4b85558e020",
+    "id": "81c4cdf1-5323-49e8-9a94-598c4f85e6bf",
     "isGroupProceedings": false,
     "jurisdictionType": "MAGISTRATES",
     "prosecutionCases": [
@@ -818,23 +818,23 @@
         "cpsOrganisation": "A30AB00",
         "defendants": [
           {
-            "courtProceedingsInitiated": "2026-07-24T08:40:12.579Z",
-            "id": "782cac73-21a6-401e-8792-2c760ccc2f76",
+            "courtProceedingsInitiated": "2026-07-30T13:57:43.710Z",
+            "id": "4cc851c0-e2a3-477d-8168-3b335de7acd3",
             "isYouth": false,
-            "masterDefendantId": "2411da67-1cac-4aaa-bb6a-07bfcbf32909",
+            "masterDefendantId": "1bcb7e51-edfe-4e6d-b67a-8033f38fc5af",
             "offences": [
               {
                 "allocationDecision": {
-                  "allocationDecisionDate": "2026-07-24",
+                  "allocationDecisionDate": "2026-07-30",
                   "motReasonCode": "02",
                   "motReasonDescription": "Indictable-only offence",
                   "motReasonId": "4ba29b9f-9e57-32ed-b376-1840f4ba6c53",
-                  "offenceId": "2843d81f-a717-44fc-9356-77b14ccd5abe",
-                  "originatingHearingId": "c103593d-3945-4072-9a86-e4b85558e020",
+                  "offenceId": "e43317f2-6e54-4f14-b0f3-9efbaad5ba75",
+                  "originatingHearingId": "81c4cdf1-5323-49e8-9a94-598c4f85e6bf",
                   "sequenceNumber": 100
                 },
-                "arrestDate": "2026-07-09",
-                "chargeDate": "2026-07-14",
+                "arrestDate": "2026-07-15",
+                "chargeDate": "2026-07-20",
                 "convictingCourt": {
                   "code": "B01DU00",
                   "id": "c133d0de-c989-48b9-bd20-0431943e347e",
@@ -845,10 +845,10 @@
                   "name": "City of London Magistrates' Court",
                   "roomId": "6d335b1f-769f-3120-bcda-c5d7c0725d3a"
                 },
-                "convictionDate": "2026-07-24",
+                "convictionDate": "2026-07-30",
                 "count": 0,
                 "endorsableFlag": false,
-                "id": "2843d81f-a717-44fc-9356-77b14ccd5abe",
+                "id": "e43317f2-6e54-4f14-b0f3-9efbaad5ba75",
                 "isDisposed": true,
                 "judicialResults": [
                   {
@@ -879,7 +879,7 @@
                     "isFinancialResult": false,
                     "isNewAmendment": true,
                     "isUnscheduled": false,
-                    "judicialResultId": "2d602d76-7ff8-4885-be32-0d606eb1fb69",
+                    "judicialResultId": "cb7a69d3-128d-4765-acee-dda591632670",
                     "judicialResultPrompts": [
                       {
                         "courtExtract": "Y",
@@ -1045,7 +1045,7 @@
                         "courtExtract": "N",
                         "judicialResultPromptTypeId": "66105417-41c8-420d-820f-40b61b507442",
                         "label": "Risk or vulnerability factors",
-                        "promptReference": "19b64827-63b7-463a-999a-f2e9f9bd2ea0",
+                        "promptReference": "64eb8b00-3b03-4fef-9646-ee2b1412f036",
                         "promptSequence": 650,
                         "usergroups": [],
                         "value": "Risk or vulnerability factors:RiskFactor",
@@ -1054,11 +1054,11 @@
                     ],
                     "judicialResultTypeId": "abb95a52-2a75-40c3-8d3f-a1d75a199c47",
                     "label": "Imprisonment",
-                    "lastSharedDateTime": "2026-07-24",
+                    "lastSharedDateTime": "2026-07-30",
                     "level": "O",
                     "lifeDuration": false,
-                    "orderedDate": "2026-07-24",
-                    "orderedHearingId": "c103593d-3945-4072-9a86-e4b85558e020",
+                    "orderedDate": "2026-07-30",
+                    "orderedHearingId": "81c4cdf1-5323-49e8-9a94-598c4f85e6bf",
                     "policeSubjectLineTitle": "Final Sentence",
                     "postHearingCustodyStatus": "A",
                     "preserveActiveOrder": false,
@@ -1067,7 +1067,7 @@
                     "rank": 61000,
                     "resultText": "IMP - Imprisonment\nCommitted to prison for 15 Days. Reason: the offence(s) are so serious that only a custodial sentence can be justified because of an unprovoked attack of a serious nature. Bail remand days to count (Tagged Days): 0. Total custodial period is life.\n \n ",
                     "rollUpPrompts": true,
-                    "rootJudicialResultId": "2d602d76-7ff8-4885-be32-0d606eb1fb69",
+                    "rootJudicialResultId": "cb7a69d3-128d-4765-acee-dda591632670",
                     "rootJudicialResultTypeId": "abb95a52-2a75-40c3-8d3f-a1d75a199c47",
                     "sentToCC": false,
                     "terminatesOffenceProceedings": false,
@@ -1092,17 +1092,17 @@
                 "offenceTitleWelsh": "Ysbeilio/Lladrad",
                 "orderIndex": 1,
                 "plea": {
-                  "offenceId": "2843d81f-a717-44fc-9356-77b14ccd5abe",
-                  "originatingHearingId": "c103593d-3945-4072-9a86-e4b85558e020",
-                  "pleaDate": "2026-07-24",
+                  "offenceId": "e43317f2-6e54-4f14-b0f3-9efbaad5ba75",
+                  "originatingHearingId": "81c4cdf1-5323-49e8-9a94-598c4f85e6bf",
+                  "pleaDate": "2026-07-30",
                   "pleaValue": "GUILTY"
                 },
-                "startDate": "2026-05-25",
+                "startDate": "2026-05-31",
                 "wording": "Robbery"
               }
             ],
             "personDefendant": {
-              "arrestSummonsNumber": "2391NX0000136934528D",
+              "arrestSummonsNumber": "2391NX0000441564938D",
               "bailConditions": "",
               "bailStatus": {
                 "code": "A",
@@ -1112,18 +1112,18 @@
               "driverNumber": "VANFL002222OW9PH",
               "personDetails": {
                 "address": {
-                  "address1": "22 Castle Street",
-                  "address2": "Castle Street",
-                  "address3": "Canterbury",
-                  "address4": "Kent",
+                  "address1": "48 Elm Grove",
+                  "address2": "Elm Grove",
+                  "address3": "Horsham",
+                  "address4": "West Sussex",
                   "postcode": "NW1 5BR"
                 },
                 "contact": {
-                  "home": "0565765561",
-                  "mobile": "09326882929",
-                  "primaryEmail": "graham.halvorson@example.com"
+                  "home": "0153161236",
+                  "mobile": "09322892699",
+                  "primaryEmail": "rodrick.roberts@example.com"
                 },
-                "dateOfBirth": "2002-07-24",
+                "dateOfBirth": "1958-07-30",
                 "documentationLanguageNeeds": "ENGLISH",
                 "ethnicity": {
                   "observedEthnicityCode": "1",
@@ -1133,10 +1133,10 @@
                   "selfDefinedEthnicityDescription": "British",
                   "selfDefinedEthnicityId": "c4ca4238-a0b9-3382-8dcc-509a6f75849b"
                 },
-                "firstName": "Graham",
+                "firstName": "Rodrick",
                 "gender": "MALE",
                 "hearingLanguageNeeds": "ENGLISH",
-                "lastName": "Halvorson",
+                "lastName": "Roberts",
                 "title": "Mr"
               },
               "policeBailStatus": {
@@ -1145,11 +1145,11 @@
                 "id": "12e69486-4d01-3403-a50a-7419ca040635"
               }
             },
-            "prosecutionAuthorityReference": "2391NX0000136934528D",
-            "prosecutionCaseId": "dfda9320-cd40-476b-804f-237333dafec8"
+            "prosecutionAuthorityReference": "2391NX0000441564938D",
+            "prosecutionCaseId": "625fc5fb-bc2d-455c-afbc-16247a92aa14"
           }
         ],
-        "id": "dfda9320-cd40-476b-804f-237333dafec8",
+        "id": "625fc5fb-bc2d-455c-afbc-16247a92aa14",
         "initiationCode": "C",
         "originatingOrganisation": "0480000",
         "prosecutionCaseIdentifier": {
@@ -1167,7 +1167,7 @@
           "prosecutionAuthorityId": "baa2ec52-296b-3f38-922a-9e641c1f94d3",
           "prosecutionAuthorityName": "City of London Police",
           "prosecutionAuthorityOUCode": "0480000",
-          "caseURN": "KR238264426"
+          "caseURN": "KL238291232"
         }
       }
     ],
@@ -1176,5 +1176,5 @@
       "id": "4a0e892d-c0c5-3c51-95b8-704d8c781776"
     }
   },
-  "sharedTime": "2026-07-24T08:41:59.613Z"
+  "sharedTime": "2026-07-30T13:59:28.329Z"
 }
