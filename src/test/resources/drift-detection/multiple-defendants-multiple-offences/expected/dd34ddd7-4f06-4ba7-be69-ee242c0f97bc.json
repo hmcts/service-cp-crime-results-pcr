@@ -1,0 +1,259 @@
+[
+  {
+    "caseMarkers": [],
+    "caseURN": "AS231157673",
+    "courtApplications": [],
+    "custodyLocation": null,
+    "defendant": {
+      "address": {
+        "address1": "40 Market Place",
+        "address2": "Market Place",
+        "address3": "Bristol",
+        "address4": null,
+        "address5": null,
+        "postCode": "BS1 1AA"
+      },
+      "dateOfBirth": "1981-07-30",
+      "firstName": "DroidAlan",
+      "id": "dd34ddd7-4f06-4ba7-be69-ee242c0f97bc",
+      "lastName": "DotMacejkovic",
+      "masterDefendantId": "dd34ddd7-4f06-4ba7-be69-ee242c0f97bc",
+      "middleName": null,
+      "title": "Mr"
+    },
+    "hearing": {
+      "court": {
+        "courtHouseCode": "B52CM00",
+        "courtHouseId": null,
+        "courtHouseName": "Bristol Magistrates' Court"
+      },
+      "hearingDate": "2026-07-31",
+      "hearingOutcome": null,
+      "id": "f15a49db-812e-43d2-bfc5-7f3c7ee9ede1"
+    },
+    "nextHearing": null,
+    "offences": [
+      {
+        "code": "FS13012",
+        "convictionDate": null,
+        "endDate": null,
+        "judicialResults": [
+          {
+            "category": null,
+            "concurrent": null,
+            "consecutiveToCourtName": null,
+            "consecutiveToDate": null,
+            "convicted": false,
+            "financial": false,
+            "fineAmount": null,
+            "imprisonmentPeriod": null,
+            "postHearingCustodyStatus": null,
+            "prompts": [
+              {
+                "label": null,
+                "reference": "details",
+                "type": null,
+                "value": "Complaint withdrawn"
+              }
+            ],
+            "resultCode": "2063",
+            "resultText": "Withdrawn",
+            "totalCustodialPeriod": null
+          }
+        ],
+        "listingNumber": 1,
+        "pleaDate": null,
+        "pleaValue": null,
+        "startDate": "2026-05-01",
+        "title": null,
+        "verdictCode": null,
+        "wording": null
+      },
+      {
+        "code": "BC90005",
+        "convictionDate": null,
+        "endDate": null,
+        "judicialResults": [
+          {
+            "category": null,
+            "concurrent": null,
+            "consecutiveToCourtName": null,
+            "consecutiveToDate": null,
+            "convicted": false,
+            "financial": false,
+            "fineAmount": null,
+            "imprisonmentPeriod": null,
+            "postHearingCustodyStatus": null,
+            "prompts": [
+              {
+                "label": null,
+                "reference": "f6697070-25bf-4ad0-aed3-de4292fb806d",
+                "type": null,
+                "value": "Date of hearing:31/07/2026\nTime of hearing:10:00\nCourthouse organisation name:Lavender Hill Magistrates' Court\nCourthouse address line 1:176A Lavender Hill\nCourthouse address line 2:London\nCourthouse post code:SW11 1JU\nCourtroom:Courtroom 01\nHearing type:Appeal\nEstimated duration:30 MINUTES\nBooking reference:cf1f6d0c-6f9c-461f-b91a-5458a16c6342"
+              },
+              {
+                "label": null,
+                "reference": "prisonOrganisationName",
+                "type": null,
+                "value": "HMP Ashfield"
+              },
+              {
+                "label": null,
+                "reference": "prisonEmailAddress1",
+                "type": null,
+                "value": "yoiashfield.premiercustody@premier-serco.cjsm.net"
+              },
+              {
+                "label": null,
+                "reference": "prisonEmailAddress2",
+                "type": null,
+                "value": "yoiashfield.premiercustody@premier-serco.cjsm.net"
+              },
+              {
+                "label": null,
+                "reference": "conveyorcustodiannameOrganisationName",
+                "type": null,
+                "value": "Lavender Hill Magistrates' Court: PECS"
+              },
+              {
+                "label": null,
+                "reference": "conveyorcustodiannameEmailAddress1",
+                "type": null,
+                "value": "periodicwarrants@geoamey.co.uk"
+              },
+              {
+                "label": null,
+                "reference": "remandBasis",
+                "type": null,
+                "value": "Charged with a violent or sexual offence"
+              },
+              {
+                "label": null,
+                "reference": "bailException",
+                "type": null,
+                "value": "Breach of bail"
+              },
+              {
+                "label": null,
+                "reference": "bailExceptionReason",
+                "type": null,
+                "value": "Broken bail conditions"
+              },
+              {
+                "label": null,
+                "reference": "3de497cd-b6c4-4f6c-b0ca-706f37b293cd",
+                "type": null,
+                "value": ""
+              },
+              {
+                "label": null,
+                "reference": "05f8102e-2e33-40e6-8ad2-21cb9caae9ee",
+                "type": null,
+                "value": ""
+              }
+            ],
+            "resultCode": "4028",
+            "resultText": "Remanded in custody",
+            "totalCustodialPeriod": null
+          },
+          {
+            "category": null,
+            "concurrent": null,
+            "consecutiveToCourtName": null,
+            "consecutiveToDate": null,
+            "convicted": false,
+            "financial": false,
+            "fineAmount": null,
+            "imprisonmentPeriod": null,
+            "postHearingCustodyStatus": null,
+            "prompts": [],
+            "resultText": "To attend or a warrant to issue",
+            "totalCustodialPeriod": null
+          },
+          {
+            "category": null,
+            "concurrent": null,
+            "consecutiveToCourtName": null,
+            "consecutiveToDate": null,
+            "convicted": false,
+            "financial": false,
+            "fineAmount": null,
+            "imprisonmentPeriod": null,
+            "postHearingCustodyStatus": null,
+            "prompts": [
+              {
+                "label": null,
+                "reference": "HDATE",
+                "type": null,
+                "value": "31/07/2026"
+              },
+              {
+                "label": null,
+                "reference": "timeOfHearing",
+                "type": null,
+                "value": "10:00"
+              },
+              {
+                "label": null,
+                "reference": "hCHOUSEOrganisationName",
+                "type": null,
+                "value": "Lavender Hill Magistrates' Court"
+              },
+              {
+                "label": null,
+                "reference": "hCHOUSEAddress1",
+                "type": null,
+                "value": "176A Lavender Hill"
+              },
+              {
+                "label": null,
+                "reference": "hCHOUSEAddress2",
+                "type": null,
+                "value": "London"
+              },
+              {
+                "label": null,
+                "reference": "hCHOUSEPostCode",
+                "type": null,
+                "value": "SW11 1JU"
+              },
+              {
+                "label": null,
+                "reference": "HCROOM",
+                "type": null,
+                "value": "Courtroom 01"
+              },
+              {
+                "label": null,
+                "reference": "HTYPE",
+                "type": null,
+                "value": "Appeal"
+              },
+              {
+                "label": null,
+                "reference": "HEST",
+                "type": null,
+                "value": "30 MINUTES"
+              },
+              {
+                "label": null,
+                "reference": "bookingReference",
+                "type": null,
+                "value": "cf1f6d0c-6f9c-461f-b91a-5458a16c6342"
+              }
+            ],
+            "resultText": "Next hearing in magistrates' court",
+            "totalCustodialPeriod": null
+          }
+        ],
+        "listingNumber": 1,
+        "pleaDate": null,
+        "pleaValue": null,
+        "startDate": "2026-05-01",
+        "title": null,
+        "verdictCode": null,
+        "wording": null
+      }
+    ]
+  }
+]
