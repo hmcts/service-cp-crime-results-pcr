@@ -1,0 +1,389 @@
+[
+  {
+    "caseMarkers": [],
+    "caseURN": "28DI2927792",
+    "courtApplications": [],
+    "custodyLocation": null,
+    "defendant": {
+      "address": {
+        "address1": "9999A9999AAAA",
+        "address2": "Woodlane",
+        "address3": "addressline 3",
+        "address4": null,
+        "address5": null,
+        "postCode": "SW11 3TQ"
+      },
+      "dateOfBirth": "2005-11-11",
+      "firstName": "Tad",
+      "id": "86155787-50d0-47f6-808e-70378da66bf5",
+      "lastName": "Fay",
+      "masterDefendantId": "86155787-50d0-47f6-808e-70378da66bf5",
+      "middleName": null,
+      "title": "Mr"
+    },
+    "hearing": {
+      "court": {
+        "courtHouseCode": "B01BH00",
+        "courtHouseId": null,
+        "courtHouseName": "Bexley Magistrates' Court"
+      },
+      "hearingDate": "2026-07-29",
+      "hearingOutcome": null,
+      "id": "9c7e33d3-e6c0-4138-b7fb-b176554ae98c"
+    },
+    "nextHearing": null,
+    "offences": [
+      {
+        "code": "OF61102C",
+        "convictionDate": "2026-07-29",
+        "endDate": null,
+        "judicialResults": [
+          {
+            "category": null,
+            "concurrent": true,
+            "consecutiveToCourtName": "Bexley Magistrates' Court",
+            "consecutiveToDate": "2026-07-27",
+            "convicted": true,
+            "financial": false,
+            "fineAmount": null,
+            "imprisonmentPeriod": "4 Months 7 Weeks",
+            "postHearingCustodyStatus": null,
+            "prompts": [
+              {
+                "label": null,
+                "reference": "totalCustodialPeriod",
+                "type": null,
+                "value": "6 Months"
+              },
+              {
+                "label": null,
+                "reference": "consecutiveToSentenceImposedOn",
+                "type": null,
+                "value": "27/07/2026"
+              },
+              {
+                "label": null,
+                "reference": "whichWasImpBy",
+                "type": null,
+                "value": "Bexley Magistrates' Court"
+              },
+              {
+                "label": null,
+                "reference": "consecutiveToAllOtherTermsBeingServed",
+                "type": null,
+                "value": "true"
+              },
+              {
+                "label": null,
+                "reference": "minimumTerm",
+                "type": null,
+                "value": "5 Months"
+              },
+              {
+                "label": null,
+                "reference": "earlyReleaseProvisionsApply",
+                "type": null,
+                "value": "true"
+              },
+              {
+                "label": null,
+                "reference": "earlyReleaseProvisionsDoNotApply",
+                "type": null,
+                "value": "true"
+              },
+              {
+                "label": null,
+                "reference": "prisonOrganisationName",
+                "type": null,
+                "value": "HMP Ashfield"
+              },
+              {
+                "label": null,
+                "reference": "prisonEmailAddress1",
+                "type": null,
+                "value": "yoiashfield.premiercustody@premier-serco.cjsm.net"
+              },
+              {
+                "label": null,
+                "reference": "prisonEmailAddress2",
+                "type": null,
+                "value": "yoiashfield.premiercustody@premier-serco.cjsm.net"
+              },
+              {
+                "label": null,
+                "reference": "conveyorcustodiannameOrganisationName",
+                "type": null,
+                "value": "Bexley Magistrates' Court: PECS"
+              },
+              {
+                "label": null,
+                "reference": "conveyorcustodiannameEmailAddress1",
+                "type": null,
+                "value": "PECSBexleyheathMags@serco.com"
+              },
+              {
+                "label": null,
+                "reference": "reasonForSentenceWithoutPSR",
+                "type": null,
+                "value": "test Reason for sentence without PSR"
+              },
+              {
+                "label": null,
+                "reference": "probationteamtobenotifiedOrganisationName",
+                "type": null,
+                "value": "London Division NPS"
+              },
+              {
+                "label": null,
+                "reference": "probationteamtobenotifiedEmailAddress1",
+                "type": null,
+                "value": "londonnps.court@justice.gov.uk"
+              },
+              {
+                "label": null,
+                "reference": "sentencedInAbsence",
+                "type": null,
+                "value": "false"
+              },
+              {
+                "label": null,
+                "reference": "imprisonmentPeriod",
+                "type": null,
+                "value": "4 Months 7 Weeks"
+              },
+              {
+                "label": null,
+                "reference": "concurrent",
+                "type": null,
+                "value": "true"
+              },
+              {
+                "label": null,
+                "reference": "consecutiveToOffenceNumber",
+                "type": null,
+                "value": "test Consecutive to offence"
+              },
+              {
+                "label": null,
+                "reference": "whereConsecutiveToAnOffenceOnAnotherCaseSpecifyThatCaseNumber",
+                "type": null,
+                "value": "28DI2927792"
+              },
+              {
+                "label": null,
+                "reference": "imprisonmentReasons",
+                "type": null,
+                "value": "failure to comply with requirements of post custodial sentence supervision"
+              },
+              {
+                "label": null,
+                "reference": "theReasonsForThis",
+                "type": null,
+                "value": "because the offence was committed during the operational period of a suspended sentence, because the offence was aggravated by being committed whilst on bail, because the number and nature of the offences shows that the defendant is operating as a professional criminal"
+              },
+              {
+                "label": null,
+                "reference": "numberOfDaysInCustodyInForeignJurisdictionToCount",
+                "type": null,
+                "value": "5"
+              },
+              {
+                "label": null,
+                "reference": "bailRemandDaysToCountTaggedDays",
+                "type": null,
+                "value": "0"
+              },
+              {
+                "label": null,
+                "reference": "offenceAggByForeignPowerCondition",
+                "type": null,
+                "value": "true"
+              }
+            ],
+            "resultCode": "1002",
+            "resultText": "Imprisonment",
+            "totalCustodialPeriod": "6 Months"
+          },
+          {
+            "category": null,
+            "concurrent": null,
+            "consecutiveToCourtName": null,
+            "consecutiveToDate": null,
+            "convicted": false,
+            "financial": false,
+            "fineAmount": null,
+            "imprisonmentPeriod": null,
+            "postHearingCustodyStatus": null,
+            "prompts": [
+              {
+                "label": null,
+                "reference": "theCourtDeterminedATerroristConnectionUnderSection69OfTheSentencingAct2020AppliesToThisCount",
+                "type": null,
+                "value": "true"
+              }
+            ],
+            "resultCode": "3308",
+            "resultText": "Aggravated by a terrorist connection",
+            "totalCustodialPeriod": null
+          }
+        ],
+        "listingNumber": 1,
+        "pleaDate": "2026-07-29",
+        "pleaValue": "GUILTY",
+        "startDate": "2022-12-12",
+        "title": null,
+        "verdictCode": null,
+        "wording": null
+      },
+      {
+        "code": "PS90015",
+        "convictionDate": "2026-07-29",
+        "endDate": null,
+        "judicialResults": [
+          {
+            "category": null,
+            "concurrent": null,
+            "consecutiveToCourtName": null,
+            "consecutiveToDate": null,
+            "convicted": false,
+            "financial": false,
+            "fineAmount": null,
+            "imprisonmentPeriod": null,
+            "postHearingCustodyStatus": null,
+            "prompts": [
+              {
+                "label": null,
+                "reference": "431df144-1321-48f9-a750-52bd9f4da440",
+                "type": null,
+                "value": "Date of hearing:29/07/2026\nTime of hearing:14:00\nCourthouse organisation name:Bexley Magistrates' Court\nCourthouse address line 1:Norwich Place\nCourthouse address line 2:Bexleyheath\nCourthouse address line 3:Kent\nCourthouse post code:DA6 7ND\nCourtroom:Courtroom 01\nHearing type:Trial - no witnesses\nEstimated duration:20 MINUTES\nBooking reference:14085700-414d-4345-9dff-688a128f4177"
+              },
+              {
+                "label": null,
+                "reference": "defendantToAttendTheNextHearing",
+                "type": null,
+                "value": "true"
+              },
+              {
+                "label": null,
+                "reference": "22a6f656-905d-4d12-a32a-ed64c37da82c",
+                "type": null,
+                "value": ""
+              },
+              {
+                "label": null,
+                "reference": "74303755-9641-4725-927f-7b150170f339",
+                "type": null,
+                "value": ""
+              }
+            ],
+            "resultCode": "4506",
+            "resultText": "Adjournment",
+            "totalCustodialPeriod": null
+          },
+          {
+            "category": null,
+            "concurrent": null,
+            "consecutiveToCourtName": null,
+            "consecutiveToDate": null,
+            "convicted": false,
+            "financial": false,
+            "fineAmount": null,
+            "imprisonmentPeriod": null,
+            "postHearingCustodyStatus": null,
+            "prompts": [],
+            "resultText": "To attend or a warrant to issue",
+            "totalCustodialPeriod": null
+          },
+          {
+            "category": null,
+            "concurrent": null,
+            "consecutiveToCourtName": null,
+            "consecutiveToDate": null,
+            "convicted": false,
+            "financial": false,
+            "fineAmount": null,
+            "imprisonmentPeriod": null,
+            "postHearingCustodyStatus": null,
+            "prompts": [
+              {
+                "label": null,
+                "reference": "HDATE",
+                "type": null,
+                "value": "29/07/2026"
+              },
+              {
+                "label": null,
+                "reference": "timeOfHearing",
+                "type": null,
+                "value": "14:00"
+              },
+              {
+                "label": null,
+                "reference": "hCHOUSEOrganisationName",
+                "type": null,
+                "value": "Bexley Magistrates' Court"
+              },
+              {
+                "label": null,
+                "reference": "hCHOUSEAddress1",
+                "type": null,
+                "value": "Norwich Place"
+              },
+              {
+                "label": null,
+                "reference": "hCHOUSEAddress2",
+                "type": null,
+                "value": "Bexleyheath"
+              },
+              {
+                "label": null,
+                "reference": "hCHOUSEAddress3",
+                "type": null,
+                "value": "Kent"
+              },
+              {
+                "label": null,
+                "reference": "hCHOUSEPostCode",
+                "type": null,
+                "value": "DA6 7ND"
+              },
+              {
+                "label": null,
+                "reference": "HCROOM",
+                "type": null,
+                "value": "Courtroom 01"
+              },
+              {
+                "label": null,
+                "reference": "HTYPE",
+                "type": null,
+                "value": "Trial - no witnesses"
+              },
+              {
+                "label": null,
+                "reference": "HEST",
+                "type": null,
+                "value": "20 MINUTES"
+              },
+              {
+                "label": null,
+                "reference": "bookingReference",
+                "type": null,
+                "value": "14085700-414d-4345-9dff-688a128f4177"
+              }
+            ],
+            "resultText": "Next hearing in magistrates' court",
+            "totalCustodialPeriod": null
+          }
+        ],
+        "listingNumber": 1,
+        "pleaDate": "2026-07-29",
+        "pleaValue": "GUILTY",
+        "startDate": "2022-11-28",
+        "title": null,
+        "verdictCode": null,
+        "wording": null
+      }
+    ]
+  }
+]

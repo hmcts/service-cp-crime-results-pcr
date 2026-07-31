@@ -1,0 +1,206 @@
+[
+  {
+    "caseMarkers": [],
+    "caseURN": "28DI6046708",
+    "courtApplications": [],
+    "custodyLocation": null,
+    "defendant": {
+      "address": {
+        "address1": "9999A9999AAAA",
+        "address2": "Woodlane",
+        "address3": "addressline 3",
+        "address4": null,
+        "address5": null,
+        "postCode": "SW11 3TQ"
+      },
+      "dateOfBirth": "2005-11-11",
+      "firstName": "Avis",
+      "id": "e11ef48a-adab-4a78-9528-040af137f93d",
+      "lastName": "Strosin",
+      "masterDefendantId": "e11ef48a-adab-4a78-9528-040af137f93d",
+      "middleName": null,
+      "title": "Mr"
+    },
+    "hearing": {
+      "court": {
+        "courtHouseCode": "B01BH00",
+        "courtHouseId": null,
+        "courtHouseName": "Bexley Magistrates' Court"
+      },
+      "hearingDate": "2026-07-29",
+      "hearingOutcome": null,
+      "id": "76dc9641-e001-4b4b-b2c9-6ab3d98ef50b"
+    },
+    "nextHearing": null,
+    "offences": [
+      {
+        "code": "OF61102C",
+        "convictionDate": "2026-07-29",
+        "endDate": null,
+        "judicialResults": [
+          {
+            "category": null,
+            "concurrent": true,
+            "consecutiveToCourtName": null,
+            "consecutiveToDate": null,
+            "convicted": true,
+            "financial": false,
+            "fineAmount": null,
+            "imprisonmentPeriod": "7 Months",
+            "postHearingCustodyStatus": null,
+            "prompts": [
+              {
+                "label": null,
+                "reference": "totalCustodialPeriod",
+                "type": null,
+                "value": "7 Months"
+              },
+              {
+                "label": null,
+                "reference": "prisonOrganisationName",
+                "type": null,
+                "value": "HMP Ashfield"
+              },
+              {
+                "label": null,
+                "reference": "prisonEmailAddress1",
+                "type": null,
+                "value": "yoiashfield.premiercustody@premier-serco.cjsm.net"
+              },
+              {
+                "label": null,
+                "reference": "prisonEmailAddress2",
+                "type": null,
+                "value": "yoiashfield.premiercustody@premier-serco.cjsm.net"
+              },
+              {
+                "label": null,
+                "reference": "conveyorcustodiannameOrganisationName",
+                "type": null,
+                "value": "Bexley Magistrates' Court: PECS"
+              },
+              {
+                "label": null,
+                "reference": "conveyorcustodiannameEmailAddress1",
+                "type": null,
+                "value": "PECSBexleyheathMags@serco.com"
+              },
+              {
+                "label": null,
+                "reference": "probationteamtobenotifiedOrganisationName",
+                "type": null,
+                "value": "London Division NPS"
+              },
+              {
+                "label": null,
+                "reference": "probationteamtobenotifiedEmailAddress1",
+                "type": null,
+                "value": "londonnps.court@justice.gov.uk"
+              },
+              {
+                "label": null,
+                "reference": "imprisonmentPeriod",
+                "type": null,
+                "value": "7 Months"
+              },
+              {
+                "label": null,
+                "reference": "concurrent",
+                "type": null,
+                "value": "true"
+              },
+              {
+                "label": null,
+                "reference": "consecutiveToOffenceNumber",
+                "type": null,
+                "value": "test Consecutive to offence"
+              },
+              {
+                "label": null,
+                "reference": "whereConsecutiveToAnOffenceOnAnotherCaseSpecifyThatCaseNumber",
+                "type": null,
+                "value": "28DI6046708"
+              },
+              {
+                "label": null,
+                "reference": "imprisonmentReasons",
+                "type": null,
+                "value": "failure to comply with requirements of post custodial sentence supervision"
+              },
+              {
+                "label": null,
+                "reference": "theReasonsForThis",
+                "type": null,
+                "value": "because of an unprovoked attack of a serious nature"
+              },
+              {
+                "label": null,
+                "reference": "numberOfDaysInCustodyInForeignJurisdictionToCount",
+                "type": null,
+                "value": "10"
+              },
+              {
+                "label": null,
+                "reference": "bailRemandDaysToCountTaggedDays",
+                "type": null,
+                "value": "0"
+              },
+              {
+                "label": null,
+                "reference": "offenceAggByForeignPowerCondition",
+                "type": null,
+                "value": "true"
+              }
+            ],
+            "resultCode": "1002",
+            "resultText": "Imprisonment",
+            "totalCustodialPeriod": "7 Months"
+          }
+        ],
+        "listingNumber": 1,
+        "pleaDate": "2026-07-29",
+        "pleaValue": "NOT_GUILTY",
+        "startDate": "2022-12-12",
+        "title": null,
+        "verdictCode": null,
+        "wording": null
+      },
+      {
+        "code": "PS90015",
+        "convictionDate": "2026-07-29",
+        "endDate": null,
+        "judicialResults": [
+          {
+            "category": null,
+            "concurrent": null,
+            "consecutiveToCourtName": null,
+            "consecutiveToDate": null,
+            "convicted": true,
+            "financial": false,
+            "fineAmount": null,
+            "imprisonmentPeriod": null,
+            "postHearingCustodyStatus": null,
+            "prompts": [
+              {
+                "label": null,
+                "reference": "periodofConditionalDischarge",
+                "type": null,
+                "value": "7 Months"
+              }
+            ],
+            "resultCode": "1018",
+            "resultText": "Conditional discharge",
+            "totalCustodialPeriod": null
+          }
+        ],
+        "listingNumber": 1,
+        "pleaDate": "2026-07-29",
+        "pleaValue": "NOT_GUILTY",
+        "startDate": "2022-11-28",
+        "title": null,
+        "verdictCode": null,
+        "wording": null
+      }
+    ]
+  }
+]
