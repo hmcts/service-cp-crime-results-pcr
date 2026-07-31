@@ -60,7 +60,15 @@
       "hearingOutcome": null,
       "id": "9316e6f1-6824-443d-b6c2-8982f42549a3"
     },
-    "nextHearing": null,
+    "nextHearing": {
+      "hearingId": "6b8aafdc-aa57-4158-bbd8-6f1ea525ba01",
+      "dateTime": "2026-08-03T09:00:00Z",
+      "court": {
+        "courtHouseId": "f8254db1-1683-483e-afb3-b87fde5a0a26",
+        "courtHouseCode": "B01LY00",
+        "courtHouseName": "Lavender Hill Magistrates' Court"
+      }
+    },
     "offences": [
       {
         "code": "TH68013A",

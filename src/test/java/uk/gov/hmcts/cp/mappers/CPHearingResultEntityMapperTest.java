@@ -26,12 +26,15 @@ import uk.gov.hmcts.cp.domain.HearingDetailsResponse.ProsecutionCaseIdentifier;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.MasterDefendant;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.ApplicationParty;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.ApplicationType;
+import uk.gov.hmcts.cp.domain.HearingDetailsResponse;
 import uk.gov.hmcts.cp.entities.CPCaseHearingEntity;
 import uk.gov.hmcts.cp.entities.CPCaseMarkerEntity;
 import uk.gov.hmcts.cp.entities.CPCourtApplicationEntity;
 import uk.gov.hmcts.cp.entities.CPJudicialResultEntity;
+import uk.gov.hmcts.cp.entities.CPNextHearingEmbeddable;
 import uk.gov.hmcts.cp.entities.CPOffenceEntity;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
@@ -240,6 +243,46 @@ class CPHearingResultEntityMapperTest {
 
         assertThat(bundle.version().getFirstName()).isNull();
         assertThat(bundle.version().getDateOfBirth()).isNull();
+    }
+
+    @Test
+    void toWriteBundle_should_mapNextHearing_fromRealCPPayloadShape() {
+        final HearingDetailsResponse.NextHearing nextHearing = HearingDetailsResponse.NextHearing.builder()
+                .bookingReference("41a6176a-4304-4986-91b6-588969195c56")
+                .listedStartDateTime(Instant.parse("2026-07-31T09:00:00Z"))
+                .courtCentre(CourtCentre.builder()
+                        .id("f8254db1-1683-483e-afb3-b87fde5a0a26")
+                        .code("B01LY00")
+                        .name("Lavender Hill Magistrates' Court")
+                        .build())
+                .build();
+        final JudicialResult result = JudicialResult.builder()
+                .cjsCode("1200").judicialResultPrompts(List.of()).nextHearing(nextHearing).build();
+        final Offence offence = Offence.builder().judicialResults(List.of(result)).build();
+        final ProsecutionCase prosecutionCase = ProsecutionCase.builder()
+                .prosecutionCaseIdentifier(ProsecutionCaseIdentifier.builder().caseURN(CASE_URN).build())
+                .caseMarkers(List.of())
+                .defendants(List.of(Defendant.builder()
+                        .id(DEFENDANT_ID.toString())
+                        .personDefendant(PersonDefendant.builder().build())
+                        .offences(List.of(offence))
+                        .build()))
+                .build();
+        final HearingDetail hearing = HearingDetail.builder()
+                .courtApplications(List.of())
+                .prosecutionCases(List.of(prosecutionCase))
+                .build();
+
+        final CPEntitySet bundle = mapper.toWriteBundle(minimalDefendant(), hearing, CASE_HEARING_ID, CREATED_AT, EXPIRES_AT);
+
+        final CPNextHearingEmbeddable mapped = bundle.version().getNextHearing();
+        assertThat(mapped).isNotNull();
+        assertThat(mapped.getDate()).isEqualTo(LocalDate.of(2026, 7, 31));
+        assertThat(mapped.getTime()).isEqualTo("09:00");
+        assertThat(mapped.getCourtHouseId()).isEqualTo(UUID.fromString("f8254db1-1683-483e-afb3-b87fde5a0a26"));
+        assertThat(mapped.getCourtHouseCode()).isEqualTo("B01LY00");
+        assertThat(mapped.getCourtHouseName()).isEqualTo("Lavender Hill Magistrates' Court");
+        assertThat(mapped.getId()).isEqualTo(UUID.fromString("41a6176a-4304-4986-91b6-588969195c56"));
     }
 
     @Test

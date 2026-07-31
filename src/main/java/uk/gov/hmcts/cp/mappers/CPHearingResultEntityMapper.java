@@ -2,9 +2,11 @@ package uk.gov.hmcts.cp.mappers;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import uk.gov.hmcts.cp.domain.HearingDetailsResponse;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.Address;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.CaseMarker;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.CourtApplication;
+import uk.gov.hmcts.cp.domain.HearingDetailsResponse.CourtCentre;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.CustodialEstablishment;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.Defendant;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.HearingDetail;
@@ -24,6 +26,7 @@ import uk.gov.hmcts.cp.entities.CPVersionEntity;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
@@ -211,8 +214,22 @@ public class CPHearingResultEntityMapper {
                 .map(JudicialResult::getNextHearing)
                 .filter(Objects::nonNull)
                 .findFirst()
-                .map(n -> CPNextHearingEmbeddable.builder().date(n.getDate()).build())
+                .map(this::buildNextHearingEmbeddable)
                 .orElse(null);
+    }
+
+    private CPNextHearingEmbeddable buildNextHearingEmbeddable(final HearingDetailsResponse.NextHearing nextHearing) {
+        final OffsetDateTime listedStart = nextHearing.getListedStartDateTime() == null
+                ? null : nextHearing.getListedStartDateTime().atOffset(ZoneOffset.UTC);
+        final CourtCentre courtCentre = nextHearing.getCourtCentre();
+        return CPNextHearingEmbeddable.builder()
+                .date(listedStart == null ? null : listedStart.toLocalDate())
+                .time(listedStart == null ? null : listedStart.toLocalTime().toString())
+                .courtHouseId(courtCentre == null || courtCentre.getId() == null ? null : UUID.fromString(courtCentre.getId()))
+                .courtHouseCode(courtCentre == null ? null : courtCentre.getCode())
+                .courtHouseName(courtCentre == null ? null : courtCentre.getName())
+                .id(nextHearing.getBookingReference() == null ? null : UUID.fromString(nextHearing.getBookingReference()))
+                .build();
     }
 
     private CPCourtApplicationEntity toCourtApplicationEntity(final CourtApplication application, final UUID versionPk) {
