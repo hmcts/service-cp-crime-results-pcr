@@ -25,33 +25,33 @@
         "attendanceDays": [
           {
             "attendanceType": "IN_PERSON",
-            "day": "2026-07-24"
+            "day": "2026-07-31"
           }
         ],
-        "defendantId": "301ea78e-19c7-4496-8111-3af53fe90ae9"
+        "defendantId": "9cd40664-9497-4334-8caf-bdf0ac44ac9f"
       },
       {
         "attendanceDays": [
           {
             "attendanceType": "IN_PERSON",
-            "day": "2026-07-24"
+            "day": "2026-07-31"
           }
         ],
-        "defendantId": "0e0b9d72-e401-488e-a24e-64ed746fcc23"
+        "defendantId": "0f8306f4-b997-4d4c-81d6-999a646a7031"
       },
       {
         "attendanceDays": [
           {
             "attendanceType": "IN_PERSON",
-            "day": "2026-07-24"
+            "day": "2026-07-31"
           }
         ],
-        "defendantId": "fdfcaf0b-dd09-453f-81d9-2f158c31c1d0"
+        "defendantId": "dd34ddd7-4f06-4ba7-be69-ee242c0f97bc"
       }
     ],
     "defendantJudicialResults": [
       {
-        "defendantId": "0e0b9d72-e401-488e-a24e-64ed746fcc23",
+        "defendantId": "9cd40664-9497-4334-8caf-bdf0ac44ac9f",
         "judicialResult": {
           "alwaysPublished": true,
           "canBeSubjectOfBreach": false,
@@ -73,7 +73,7 @@
           "isFinancialResult": false,
           "isNewAmendment": true,
           "isUnscheduled": false,
-          "judicialResultId": "2351b1b1-1327-4dce-8857-be5c63796336",
+          "judicialResultId": "13077807-c58b-4853-a0fd-2b497098b5d3",
           "judicialResultPrompts": [
             {
               "courtExtract": "Y",
@@ -84,20 +84,20 @@
               "promptSequence": 100,
               "type": "DATE",
               "usergroups": [],
-              "value": "22/08/2026",
+              "value": "29/08/2026",
               "welshLabel": "Dyddiad terfyn ar gyfer talu'r swm llawn",
-              "welshValue": "22/08/2026"
+              "welshValue": "29/08/2026"
             }
           ],
           "judicialResultTypeId": "bcb5a496-f7cf-11e8-8eb2-f2801f1b9fd1",
           "label": "Pay by date",
-          "lastSharedDateTime": "2026-07-23",
+          "lastSharedDateTime": "2026-07-30",
           "level": "D",
           "lifeDuration": false,
-          "offenceId": "77eff36f-af1c-418a-92aa-deb3d9d3d629",
-          "orderedDate": "2026-07-24",
-          "orderedHearingId": "5cffb124-b49e-4039-8164-f8375e66ff2f",
-          "parentJudicialResultId": "2d359479-67af-4f3a-94e4-229ca1388559",
+          "offenceId": "4bf6553c-32c2-451f-a8ef-ee2b126c2d2e",
+          "orderedDate": "2026-07-31",
+          "orderedHearingId": "f15a49db-812e-43d2-bfc5-7f3c7ee9ede1",
+          "parentJudicialResultId": "b03f1813-8544-40ef-abfd-c6e095af6677",
           "parentJudicialResultTypeId": "4fdd9548-c521-48c9-baa3-1bd2f13a4fcc",
           "postHearingCustodyStatus": "A",
           "preserveActiveOrder": false,
@@ -105,9 +105,9 @@
           "publishedForNows": false,
           "rank": 120500,
           "resultDefinitionGroup": "Payment terms",
-          "resultText": "PDATE - Pay by date\nPay by date. Date to pay in full by: 22/08/2026.",
+          "resultText": "PDATE - Pay by date\nPay by date. Date to pay in full by: 29/08/2026.",
           "rollUpPrompts": false,
-          "rootJudicialResultId": "12b1e58a-1821-426c-bdd6-39008f0b7236",
+          "rootJudicialResultId": "687e955b-3c77-47dd-9018-f70b8c2a9d9a",
           "rootJudicialResultTypeId": "969f150c-cd05-46b0-9dd9-30891efcc766",
           "sentToCC": false,
           "terminatesOffenceProceedings": false,
@@ -115,7 +115,7 @@
           "usergroups": [],
           "welshLabel": "Dyddiad terfyn ar gyfer talu"
         },
-        "masterDefendantId": "0e0b9d72-e401-488e-a24e-64ed746fcc23"
+        "masterDefendantId": "9cd40664-9497-4334-8caf-bdf0ac44ac9f"
       }
     ],
     "hasSharedResults": true,
@@ -127,11 +127,11 @@
         "isCancelled": false,
         "listedDurationMinutes": 20,
         "listingSequence": 0,
-        "sittingDay": "2026-07-24T15:30:00.000Z"
+        "sittingDay": "2026-07-31T15:30:00.000Z"
       }
     ],
     "hearingLanguage": "ENGLISH",
-    "id": "5cffb124-b49e-4039-8164-f8375e66ff2f",
+    "id": "f15a49db-812e-43d2-bfc5-7f3c7ee9ede1",
     "isGroupProceedings": false,
     "jurisdictionType": "MAGISTRATES",
     "prosecutionCases": [
@@ -140,28 +140,28 @@
         "cpsOrganisation": "A30AB00",
         "defendants": [
           {
-            "courtProceedingsInitiated": "2026-07-23T14:55:08.470Z",
-            "id": "0e0b9d72-e401-488e-a24e-64ed746fcc23",
+            "courtProceedingsInitiated": "2026-07-30T13:42:25.584Z",
+            "id": "9cd40664-9497-4334-8caf-bdf0ac44ac9f",
             "isYouth": false,
-            "masterDefendantId": "0e0b9d72-e401-488e-a24e-64ed746fcc23",
+            "masterDefendantId": "9cd40664-9497-4334-8caf-bdf0ac44ac9f",
             "offences": [
               {
                 "allocationDecision": {
-                  "allocationDecisionDate": "2026-07-24",
+                  "allocationDecisionDate": "2026-07-31",
                   "motReasonCode": "01",
                   "motReasonDescription": "Summary-only offence",
                   "motReasonId": "b8c37e33-defd-351c-b91e-1e03e51657da",
-                  "offenceId": "77eff36f-af1c-418a-92aa-deb3d9d3d629",
-                  "originatingHearingId": "5cffb124-b49e-4039-8164-f8375e66ff2f",
+                  "offenceId": "4bf6553c-32c2-451f-a8ef-ee2b126c2d2e",
+                  "originatingHearingId": "f15a49db-812e-43d2-bfc5-7f3c7ee9ede1",
                   "sequenceNumber": 90
                 },
-                "aquittalDate": "2026-07-24",
-                "arrestDate": "2026-07-08",
-                "chargeDate": "2026-07-08",
+                "aquittalDate": "2026-07-31",
+                "arrestDate": "2026-07-15",
+                "chargeDate": "2026-07-15",
                 "count": 0,
                 "dvlaOffenceCode": "CU10",
                 "endorsableFlag": true,
-                "id": "77eff36f-af1c-418a-92aa-deb3d9d3d629",
+                "id": "4bf6553c-32c2-451f-a8ef-ee2b126c2d2e",
                 "isDisposed": true,
                 "judicialResults": [
                   {
@@ -187,7 +187,7 @@
                     "isFinancialResult": true,
                     "isNewAmendment": true,
                     "isUnscheduled": false,
-                    "judicialResultId": "12b1e58a-1821-426c-bdd6-39008f0b7236",
+                    "judicialResultId": "687e955b-3c77-47dd-9018-f70b8c2a9d9a",
                     "judicialResultPrompts": [
                       {
                         "courtExtract": "Y",
@@ -205,11 +205,11 @@
                     ],
                     "judicialResultTypeId": "969f150c-cd05-46b0-9dd9-30891efcc766",
                     "label": "Fine",
-                    "lastSharedDateTime": "2026-07-23",
+                    "lastSharedDateTime": "2026-07-30",
                     "level": "O",
                     "lifeDuration": false,
-                    "orderedDate": "2026-07-24",
-                    "orderedHearingId": "5cffb124-b49e-4039-8164-f8375e66ff2f",
+                    "orderedDate": "2026-07-31",
+                    "orderedHearingId": "f15a49db-812e-43d2-bfc5-7f3c7ee9ede1",
                     "policeSubjectLineTitle": "Final Sentence",
                     "postHearingCustodyStatus": "A",
                     "preserveActiveOrder": false,
@@ -219,7 +219,7 @@
                     "resultDefinitionGroup": "Imposition",
                     "resultText": "FO - Fine\nFined £222.00",
                     "rollUpPrompts": true,
-                    "rootJudicialResultId": "12b1e58a-1821-426c-bdd6-39008f0b7236",
+                    "rootJudicialResultId": "687e955b-3c77-47dd-9018-f70b8c2a9d9a",
                     "rootJudicialResultTypeId": "969f150c-cd05-46b0-9dd9-30891efcc766",
                     "sentToCC": false,
                     "terminatesOffenceProceedings": false,
@@ -238,30 +238,30 @@
                 "offenceTitle": "Vehicle defect - permit use of a motor vehicle / trailer with defective brakes",
                 "orderIndex": 1,
                 "plea": {
-                  "offenceId": "77eff36f-af1c-418a-92aa-deb3d9d3d629",
-                  "originatingHearingId": "5cffb124-b49e-4039-8164-f8375e66ff2f",
-                  "pleaDate": "2026-07-24",
+                  "offenceId": "4bf6553c-32c2-451f-a8ef-ee2b126c2d2e",
+                  "originatingHearingId": "f15a49db-812e-43d2-bfc5-7f3c7ee9ede1",
+                  "pleaDate": "2026-07-31",
                   "pleaValue": "NOT_GUILTY"
                 },
-                "startDate": "2026-04-24",
+                "startDate": "2026-05-01",
                 "wording": "Vehicle defect - permit use of a motor vehicle / trailer with defective brakes"
               },
               {
                 "allocationDecision": {
-                  "allocationDecisionDate": "2026-07-24",
+                  "allocationDecisionDate": "2026-07-31",
                   "motReasonCode": "02",
                   "motReasonDescription": "Indictable-only offence",
                   "motReasonId": "4ba29b9f-9e57-32ed-b376-1840f4ba6c53",
-                  "offenceId": "86f73649-e274-4894-95bf-1577ae99587a",
-                  "originatingHearingId": "5cffb124-b49e-4039-8164-f8375e66ff2f",
+                  "offenceId": "4262c113-0c14-42e7-ad2b-39934216e437",
+                  "originatingHearingId": "f15a49db-812e-43d2-bfc5-7f3c7ee9ede1",
                   "sequenceNumber": 100
                 },
-                "aquittalDate": "2026-07-24",
-                "arrestDate": "2026-07-08",
-                "chargeDate": "2026-07-08",
+                "aquittalDate": "2026-07-31",
+                "arrestDate": "2026-07-15",
+                "chargeDate": "2026-07-15",
                 "count": 0,
                 "endorsableFlag": false,
-                "id": "86f73649-e274-4894-95bf-1577ae99587a",
+                "id": "4262c113-0c14-42e7-ad2b-39934216e437",
                 "isDisposed": true,
                 "judicialResults": [
                   {
@@ -287,7 +287,7 @@
                     "isFinancialResult": true,
                     "isNewAmendment": true,
                     "isUnscheduled": false,
-                    "judicialResultId": "e31874f1-1039-4803-9821-5f45d3c2b54c",
+                    "judicialResultId": "95e205f7-ef0e-44b4-973c-832177227d9c",
                     "judicialResultPrompts": [
                       {
                         "courtExtract": "Y",
@@ -305,11 +305,11 @@
                     ],
                     "judicialResultTypeId": "969f150c-cd05-46b0-9dd9-30891efcc766",
                     "label": "Fine",
-                    "lastSharedDateTime": "2026-07-23",
+                    "lastSharedDateTime": "2026-07-30",
                     "level": "O",
                     "lifeDuration": false,
-                    "orderedDate": "2026-07-24",
-                    "orderedHearingId": "5cffb124-b49e-4039-8164-f8375e66ff2f",
+                    "orderedDate": "2026-07-31",
+                    "orderedHearingId": "f15a49db-812e-43d2-bfc5-7f3c7ee9ede1",
                     "policeSubjectLineTitle": "Final Sentence",
                     "postHearingCustodyStatus": "A",
                     "preserveActiveOrder": false,
@@ -319,7 +319,7 @@
                     "resultDefinitionGroup": "Imposition",
                     "resultText": "FO - Fine\nFined £230.00",
                     "rollUpPrompts": true,
-                    "rootJudicialResultId": "e31874f1-1039-4803-9821-5f45d3c2b54c",
+                    "rootJudicialResultId": "95e205f7-ef0e-44b4-973c-832177227d9c",
                     "rootJudicialResultTypeId": "969f150c-cd05-46b0-9dd9-30891efcc766",
                     "sentToCC": false,
                     "terminatesOffenceProceedings": false,
@@ -340,17 +340,17 @@
                 "offenceTitleWelsh": "Ysbeilio/Lladrad",
                 "orderIndex": 2,
                 "plea": {
-                  "offenceId": "86f73649-e274-4894-95bf-1577ae99587a",
-                  "originatingHearingId": "5cffb124-b49e-4039-8164-f8375e66ff2f",
-                  "pleaDate": "2026-07-24",
+                  "offenceId": "4262c113-0c14-42e7-ad2b-39934216e437",
+                  "originatingHearingId": "f15a49db-812e-43d2-bfc5-7f3c7ee9ede1",
+                  "pleaDate": "2026-07-31",
                   "pleaValue": "NOT_GUILTY"
                 },
-                "startDate": "2026-04-24",
+                "startDate": "2026-05-01",
                 "wording": "Robbery"
               }
             ],
             "personDefendant": {
-              "arrestSummonsNumber": "2391NX0000285556977D",
+              "arrestSummonsNumber": "2391NX0000119233146D",
               "bailConditions": "",
               "bailStatus": {
                 "code": "A",
@@ -360,18 +360,18 @@
               "driverNumber": "VANFL002222OW9PH",
               "personDetails": {
                 "address": {
-                  "address1": "18 George Square",
-                  "address2": "George Square",
-                  "address3": "Glasgow",
-                  "address4": "Glasgow City",
-                  "postcode": "G2 1QU"
+                  "address1": "68 College Road",
+                  "address2": "College Road",
+                  "address3": "Bangor",
+                  "address4": "Gwynedd",
+                  "postcode": "LL57 2DG"
                 },
                 "contact": {
-                  "home": "0174591351",
-                  "mobile": "09241792649",
-                  "primaryEmail": "bobcarmelita.botdach@example.com"
+                  "home": "0587539941",
+                  "mobile": "02885773499",
+                  "primaryEmail": "bobclint.botaufderhar@example.com"
                 },
-                "dateOfBirth": "1987-07-23",
+                "dateOfBirth": "1960-07-30",
                 "documentationLanguageNeeds": "ENGLISH",
                 "ethnicity": {
                   "observedEthnicityCode": "1",
@@ -381,10 +381,10 @@
                   "selfDefinedEthnicityDescription": "British",
                   "selfDefinedEthnicityId": "c4ca4238-a0b9-3382-8dcc-509a6f75849b"
                 },
-                "firstName": "BobCarmelita",
+                "firstName": "BobClint",
                 "gender": "MALE",
                 "hearingLanguageNeeds": "ENGLISH",
-                "lastName": "BotDach",
+                "lastName": "BotAufderhar",
                 "title": "Mr"
               },
               "policeBailStatus": {
@@ -393,23 +393,23 @@
                 "id": "12e69486-4d01-3403-a50a-7419ca040635"
               }
             },
-            "prosecutionAuthorityReference": "2391NX0000285556977D",
-            "prosecutionCaseId": "0b768764-168b-4b16-b5eb-573c794f3bc0"
+            "prosecutionAuthorityReference": "2391NX0000119233146D",
+            "prosecutionCaseId": "b78d917c-a9ba-4579-a60c-6f79acb503f0"
           },
           {
-            "courtProceedingsInitiated": "2026-07-23T14:55:08.471Z",
-            "id": "fdfcaf0b-dd09-453f-81d9-2f158c31c1d0",
+            "courtProceedingsInitiated": "2026-07-30T13:42:25.584Z",
+            "id": "dd34ddd7-4f06-4ba7-be69-ee242c0f97bc",
             "isYouth": false,
-            "masterDefendantId": "fdfcaf0b-dd09-453f-81d9-2f158c31c1d0",
+            "masterDefendantId": "dd34ddd7-4f06-4ba7-be69-ee242c0f97bc",
             "offences": [
               {
-                "aquittalDate": "2026-07-24",
-                "arrestDate": "2026-07-03",
-                "chargeDate": "2026-06-28",
+                "aquittalDate": "2026-07-31",
+                "arrestDate": "2026-07-10",
+                "chargeDate": "2026-07-05",
                 "count": 0,
-                "dateHeldInCustodySince": "2026-07-24",
+                "dateHeldInCustodySince": "2026-07-31",
                 "endorsableFlag": false,
-                "id": "cfa34fb3-1c10-4385-8259-b425355260ae",
+                "id": "8253b1e8-85ac-4ef2-a986-1772fce48ce4",
                 "isDisposed": true,
                 "judicialResults": [
                   {
@@ -434,7 +434,7 @@
                     "isFinancialResult": false,
                     "isNewAmendment": true,
                     "isUnscheduled": false,
-                    "judicialResultId": "d38b718a-b834-4b70-97a9-4b8a0cd55dc4",
+                    "judicialResultId": "07818204-c274-4121-9f0a-f25d6c9286c5",
                     "judicialResultPrompts": [
                       {
                         "courtExtract": "Y",
@@ -451,11 +451,11 @@
                     ],
                     "judicialResultTypeId": "eb2e4c4f-b738-4a4d-9cce-0572cecb7cb8",
                     "label": "Withdrawn",
-                    "lastSharedDateTime": "2026-07-23",
+                    "lastSharedDateTime": "2026-07-30",
                     "level": "O",
                     "lifeDuration": false,
-                    "orderedDate": "2026-07-24",
-                    "orderedHearingId": "5cffb124-b49e-4039-8164-f8375e66ff2f",
+                    "orderedDate": "2026-07-31",
+                    "orderedHearingId": "f15a49db-812e-43d2-bfc5-7f3c7ee9ede1",
                     "policeSubjectLineTitle": "Final Sentence",
                     "postHearingCustodyStatus": "A",
                     "preserveActiveOrder": true,
@@ -465,7 +465,7 @@
                     "resultDefinitionGroup": "WOAEXTEND",
                     "resultText": "WDRN - Withdrawn\nComplaint withdrawn.",
                     "rollUpPrompts": true,
-                    "rootJudicialResultId": "d38b718a-b834-4b70-97a9-4b8a0cd55dc4",
+                    "rootJudicialResultId": "07818204-c274-4121-9f0a-f25d6c9286c5",
                     "rootJudicialResultTypeId": "eb2e4c4f-b738-4a4d-9cce-0572cecb7cb8",
                     "sentToCC": false,
                     "terminatesOffenceProceedings": true,
@@ -484,21 +484,21 @@
                 "offenceTitle": "Keep cooked or reheated food at temperature below 63 Celsius",
                 "orderIndex": 1,
                 "plea": {
-                  "offenceId": "cfa34fb3-1c10-4385-8259-b425355260ae",
-                  "originatingHearingId": "5cffb124-b49e-4039-8164-f8375e66ff2f",
-                  "pleaDate": "2026-07-24",
+                  "offenceId": "8253b1e8-85ac-4ef2-a986-1772fce48ce4",
+                  "originatingHearingId": "f15a49db-812e-43d2-bfc5-7f3c7ee9ede1",
+                  "pleaDate": "2026-07-31",
                   "pleaValue": "NOT_GUILTY"
                 },
-                "startDate": "2026-04-24",
+                "startDate": "2026-05-01",
                 "wording": "Keep cooked or reheated food at temperature below 63 Celsius"
               },
               {
-                "arrestDate": "2026-06-23",
-                "chargeDate": "2026-06-18",
+                "arrestDate": "2026-06-30",
+                "chargeDate": "2026-06-25",
                 "count": 0,
-                "dateHeldInCustodySince": "2026-07-24",
+                "dateHeldInCustodySince": "2026-07-31",
                 "endorsableFlag": false,
-                "id": "20bd2d9d-8a6c-4f84-8764-c02fe89ea004",
+                "id": "8d39105b-eceb-410b-8d92-4afc0fd6f553",
                 "isDisposed": false,
                 "judicialResults": [
                   {
@@ -523,16 +523,16 @@
                     "isFinancialResult": false,
                     "isNewAmendment": true,
                     "isUnscheduled": false,
-                    "judicialResultId": "0b297e42-696f-4c2d-be27-195a238b9072",
+                    "judicialResultId": "a247e45c-8bf0-4c0d-bbda-3e07934dde6d",
                     "judicialResultPrompts": [
                       {
                         "courtExtract": "Y",
                         "judicialResultPromptTypeId": "70c98fa6-804d-11e8-adc0-fa7ae01bbebc",
                         "label": "Next hearing in magistrates' court",
-                        "promptReference": "aacb34fb-e656-47b5-8ead-b127987923e5",
+                        "promptReference": "f6697070-25bf-4ad0-aed3-de4292fb806d",
                         "promptSequence": 0,
                         "usergroups": [],
-                        "value": "Date of hearing:24/07/2026\nTime of hearing:10:00\nCourthouse organisation name:Lavender Hill Magistrates' Court\nCourthouse address line 1:176A Lavender Hill\nCourthouse address line 2:London\nCourthouse post code:SW11 1JU\nCourtroom:Courtroom 01\nHearing type:Appeal\nEstimated duration:30 MINUTES\nBooking reference:88b2f613-e78b-45c8-9be0-4b4188b4d4a2",
+                        "value": "Date of hearing:31/07/2026\nTime of hearing:10:00\nCourthouse organisation name:Lavender Hill Magistrates' Court\nCourthouse address line 1:176A Lavender Hill\nCourthouse address line 2:London\nCourthouse post code:SW11 1JU\nCourtroom:Courtroom 01\nHearing type:Appeal\nEstimated duration:30 MINUTES\nBooking reference:cf1f6d0c-6f9c-461f-b91a-5458a16c6342",
                         "welshLabel": "Ni wnaeth y Llys barhau â’r treial yn absenoldeb y diffynnydd"
                       },
                       {
@@ -639,7 +639,7 @@
                         "courtExtract": "Y",
                         "judicialResultPromptTypeId": "69ff04d5-84e8-4a61-8478-82c2999c1969",
                         "label": "To attend or a warrant to issue",
-                        "promptReference": "a0f9ba4f-6bb3-4051-b91f-155f4defd03e",
+                        "promptReference": "3de497cd-b6c4-4f6c-b0ca-706f37b293cd",
                         "promptSequence": 900,
                         "qualifier": "GE",
                         "usergroups": [],
@@ -650,7 +650,7 @@
                         "courtExtract": "Y",
                         "judicialResultPromptTypeId": "7fc17a01-2f5a-4433-aae9-28e0c959f73b",
                         "label": "Adjournment reasons",
-                        "promptReference": "f372f702-e774-45b7-b335-71ace434b610",
+                        "promptReference": "05f8102e-2e33-40e6-8ad2-21cb9caae9ee",
                         "promptSequence": 1000,
                         "usergroups": [],
                         "value": "",
@@ -659,12 +659,12 @@
                     ],
                     "judicialResultTypeId": "d0a369c9-5a28-40ec-99cb-da7943550b18",
                     "label": "Remanded in custody",
-                    "lastSharedDateTime": "2026-07-23",
+                    "lastSharedDateTime": "2026-07-30",
                     "level": "O",
                     "lifeDuration": false,
                     "nextHearing": {
                       "adjournmentReason": "To attend or a warrant to issue",
-                      "bookingReference": "88b2f613-e78b-45c8-9be0-4b4188b4d4a2",
+                      "bookingReference": "cf1f6d0c-6f9c-461f-b91a-5458a16c6342",
                       "courtCentre": {
                         "address": {
                           "address1": "176A Lavender Hill",
@@ -683,14 +683,14 @@
                       "estimatedDuration": "30 MINUTES",
                       "estimatedMinutes": 30,
                       "jurisdictionType": "MAGISTRATES",
-                      "listedStartDateTime": "2026-07-24T09:00:00.000Z",
+                      "listedStartDateTime": "2026-07-31T09:00:00.000Z",
                       "type": {
                         "description": "Appeal",
                         "id": "bd30a723-a375-3ae9-9332-871724cd8edd"
                       }
                     },
-                    "orderedDate": "2026-07-24",
-                    "orderedHearingId": "5cffb124-b49e-4039-8164-f8375e66ff2f",
+                    "orderedDate": "2026-07-31",
+                    "orderedHearingId": "f15a49db-812e-43d2-bfc5-7f3c7ee9ede1",
                     "policeSubjectLineTitle": "Remand",
                     "postHearingCustodyStatus": "C",
                     "preserveActiveOrder": false,
@@ -699,9 +699,9 @@
                     "qualifier": "MP,GE",
                     "rank": 34500,
                     "resultDefinitionGroup": "Remand in custody",
-                    "resultText": "RI - Remanded in custody\nRemanded in custody until hearing on 24/07/2026 at 10:00 in Courtroom 01, Lavender Hill Magistrates' Court. Basis: Charged with a violent or sexual offence. Adjournment reason: To attend or a warrant to issue. Bail exceptions: Breach of bail. Reason for applying: Broken bail conditions.",
+                    "resultText": "RI - Remanded in custody\nRemanded in custody until hearing on 31/07/2026 at 10:00 in Courtroom 01, Lavender Hill Magistrates' Court. Basis: Charged with a violent or sexual offence. Adjournment reason: To attend or a warrant to issue. Bail exceptions: Breach of bail. Reason for applying: Broken bail conditions.",
                     "rollUpPrompts": true,
-                    "rootJudicialResultId": "0b297e42-696f-4c2d-be27-195a238b9072",
+                    "rootJudicialResultId": "a247e45c-8bf0-4c0d-bbda-3e07934dde6d",
                     "rootJudicialResultTypeId": "d0a369c9-5a28-40ec-99cb-da7943550b18",
                     "sentToCC": false,
                     "terminatesOffenceProceedings": false,
@@ -730,15 +730,15 @@
                     "isFinancialResult": false,
                     "isNewAmendment": true,
                     "isUnscheduled": false,
-                    "judicialResultId": "a0f9ba4f-6bb3-4051-b91f-155f4defd03e",
+                    "judicialResultId": "3de497cd-b6c4-4f6c-b0ca-706f37b293cd",
                     "judicialResultTypeId": "69ff04d5-84e8-4a61-8478-82c2999c1969",
                     "label": "To attend or a warrant to issue",
-                    "lastSharedDateTime": "2026-07-23",
+                    "lastSharedDateTime": "2026-07-30",
                     "level": "O",
                     "lifeDuration": false,
-                    "orderedDate": "2026-07-24",
-                    "orderedHearingId": "5cffb124-b49e-4039-8164-f8375e66ff2f",
-                    "parentJudicialResultId": "f372f702-e774-45b7-b335-71ace434b610",
+                    "orderedDate": "2026-07-31",
+                    "orderedHearingId": "f15a49db-812e-43d2-bfc5-7f3c7ee9ede1",
+                    "parentJudicialResultId": "05f8102e-2e33-40e6-8ad2-21cb9caae9ee",
                     "parentJudicialResultTypeId": "7fc17a01-2f5a-4433-aae9-28e0c959f73b",
                     "postHearingCustodyStatus": "A",
                     "preserveActiveOrder": false,
@@ -749,7 +749,7 @@
                     "resultText": "To attend or a warrant to issue",
                     "resultWording": "",
                     "rollUpPrompts": false,
-                    "rootJudicialResultId": "0b297e42-696f-4c2d-be27-195a238b9072",
+                    "rootJudicialResultId": "a247e45c-8bf0-4c0d-bbda-3e07934dde6d",
                     "rootJudicialResultTypeId": "d0a369c9-5a28-40ec-99cb-da7943550b18",
                     "sentToCC": false,
                     "terminatesOffenceProceedings": false,
@@ -779,7 +779,7 @@
                     "isFinancialResult": false,
                     "isNewAmendment": true,
                     "isUnscheduled": false,
-                    "judicialResultId": "aacb34fb-e656-47b5-8ead-b127987923e5",
+                    "judicialResultId": "f6697070-25bf-4ad0-aed3-de4292fb806d",
                     "judicialResultPrompts": [
                       {
                         "courtExtract": "Y",
@@ -790,9 +790,9 @@
                         "promptSequence": 100,
                         "type": "DATE",
                         "usergroups": [],
-                        "value": "24/07/2026",
+                        "value": "31/07/2026",
                         "welshLabel": "Dyddiad y gwrandawiad",
-                        "welshValue": "24/07/2026"
+                        "welshValue": "31/07/2026"
                       },
                       {
                         "courtExtract": "Y",
@@ -903,19 +903,19 @@
                         "promptSequence": 700,
                         "type": "TXT",
                         "usergroups": [],
-                        "value": "88b2f613-e78b-45c8-9be0-4b4188b4d4a2",
+                        "value": "cf1f6d0c-6f9c-461f-b91a-5458a16c6342",
                         "welshLabel": "Cyfeirnod archebu",
-                        "welshValue": "88b2f613-e78b-45c8-9be0-4b4188b4d4a2"
+                        "welshValue": "cf1f6d0c-6f9c-461f-b91a-5458a16c6342"
                       }
                     ],
                     "judicialResultTypeId": "70c98fa6-804d-11e8-adc0-fa7ae01bbebc",
                     "label": "Next hearing in magistrates' court",
-                    "lastSharedDateTime": "2026-07-23",
+                    "lastSharedDateTime": "2026-07-30",
                     "level": "O",
                     "lifeDuration": false,
-                    "orderedDate": "2026-07-24",
-                    "orderedHearingId": "5cffb124-b49e-4039-8164-f8375e66ff2f",
-                    "parentJudicialResultId": "db459f4a-80cd-4fbc-8a7c-a22a7d9fb37e",
+                    "orderedDate": "2026-07-31",
+                    "orderedHearingId": "f15a49db-812e-43d2-bfc5-7f3c7ee9ede1",
+                    "parentJudicialResultId": "558fee48-0014-4b1b-a704-732da1ef6242",
                     "parentJudicialResultTypeId": "f00359b5-7303-403b-b59e-0b1a1daa89bc",
                     "postHearingCustodyStatus": "A",
                     "preserveActiveOrder": true,
@@ -923,10 +923,10 @@
                     "publishedForNows": true,
                     "rank": 500,
                     "resultDefinitionGroup": "Next hearing",
-                    "resultText": "hearing on 24/07/2026 at 10:00 in Courtroom 01, Lavender Hill Magistrates' Court",
+                    "resultText": "hearing on 31/07/2026 at 10:00 in Courtroom 01, Lavender Hill Magistrates' Court",
                     "resultWording": "",
                     "rollUpPrompts": false,
-                    "rootJudicialResultId": "0b297e42-696f-4c2d-be27-195a238b9072",
+                    "rootJudicialResultId": "a247e45c-8bf0-4c0d-bbda-3e07934dde6d",
                     "rootJudicialResultTypeId": "d0a369c9-5a28-40ec-99cb-da7943550b18",
                     "sentToCC": false,
                     "terminatesOffenceProceedings": false,
@@ -945,17 +945,17 @@
                 "offenceTitle": "Offer to supply a foreign satellite programme",
                 "orderIndex": 2,
                 "plea": {
-                  "offenceId": "20bd2d9d-8a6c-4f84-8764-c02fe89ea004",
-                  "originatingHearingId": "5cffb124-b49e-4039-8164-f8375e66ff2f",
-                  "pleaDate": "2026-07-24",
+                  "offenceId": "8d39105b-eceb-410b-8d92-4afc0fd6f553",
+                  "originatingHearingId": "f15a49db-812e-43d2-bfc5-7f3c7ee9ede1",
+                  "pleaDate": "2026-07-31",
                   "pleaValue": "NOT_GUILTY"
                 },
-                "startDate": "2026-04-24",
+                "startDate": "2026-05-01",
                 "wording": "Offer to supply a foreign satellite programme"
               }
             ],
             "personDefendant": {
-              "arrestSummonsNumber": "2391NX0000344885686D",
+              "arrestSummonsNumber": "2391NX0000354333172D",
               "bailConditions": "",
               "bailReasons": "Broken bail conditions",
               "bailStatus": {
@@ -966,18 +966,17 @@
               "driverNumber": "VANFL002222OW9PH",
               "personDetails": {
                 "address": {
-                  "address1": "96 Church Lane",
-                  "address2": "Church Lane",
-                  "address3": "Halesowen",
-                  "address4": "West Midlands",
-                  "postcode": "B62 8HX"
+                  "address1": "40 Market Place",
+                  "address2": "Market Place",
+                  "address3": "Bristol",
+                  "postcode": "BS1 1AA"
                 },
                 "contact": {
-                  "home": "0283362857",
-                  "mobile": "03881335599",
-                  "primaryEmail": "droidyuko.dotemmerich@example.com"
+                  "home": "0798352291",
+                  "mobile": "01164582389",
+                  "primaryEmail": "droidalan.dotmacejkovic@example.com"
                 },
-                "dateOfBirth": "1970-07-23",
+                "dateOfBirth": "1981-07-30",
                 "documentationLanguageNeeds": "ENGLISH",
                 "ethnicity": {
                   "observedEthnicityCode": "1",
@@ -987,10 +986,10 @@
                   "selfDefinedEthnicityDescription": "British",
                   "selfDefinedEthnicityId": "c4ca4238-a0b9-3382-8dcc-509a6f75849b"
                 },
-                "firstName": "DroidYuko",
+                "firstName": "DroidAlan",
                 "gender": "MALE",
                 "hearingLanguageNeeds": "ENGLISH",
-                "lastName": "DotEmmerich",
+                "lastName": "DotMacejkovic",
                 "title": "Mr"
               },
               "policeBailStatus": {
@@ -999,18 +998,18 @@
                 "id": "12e69486-4d01-3403-a50a-7419ca040635"
               }
             },
-            "prosecutionAuthorityReference": "2391NX0000344885686D",
-            "prosecutionCaseId": "0b768764-168b-4b16-b5eb-573c794f3bc0"
+            "prosecutionAuthorityReference": "2391NX0000354333172D",
+            "prosecutionCaseId": "b78d917c-a9ba-4579-a60c-6f79acb503f0"
           },
           {
-            "courtProceedingsInitiated": "2026-07-23T14:55:08.471Z",
-            "id": "301ea78e-19c7-4496-8111-3af53fe90ae9",
+            "courtProceedingsInitiated": "2026-07-30T13:42:25.585Z",
+            "id": "0f8306f4-b997-4d4c-81d6-999a646a7031",
             "isYouth": false,
-            "masterDefendantId": "301ea78e-19c7-4496-8111-3af53fe90ae9",
+            "masterDefendantId": "0f8306f4-b997-4d4c-81d6-999a646a7031",
             "offences": [
               {
-                "arrestDate": "2026-06-13",
-                "chargeDate": "2026-06-08",
+                "arrestDate": "2026-06-20",
+                "chargeDate": "2026-06-15",
                 "convictingCourt": {
                   "code": "B52CM00",
                   "id": "1a359d44-6b52-3919-b052-065413e4a801",
@@ -1021,12 +1020,12 @@
                   "name": "Bristol Magistrates' Court",
                   "roomId": "d7df1737-c35c-319a-b93a-6cd402a95db1"
                 },
-                "convictionDate": "2026-07-24",
+                "convictionDate": "2026-07-31",
                 "count": 0,
-                "dateHeldInCustodySince": "2026-07-24",
+                "dateHeldInCustodySince": "2026-07-31",
                 "dvlaOffenceCode": "NE99",
                 "endorsableFlag": false,
-                "id": "127f5a18-a3fe-423f-b358-78110bd8f90b",
+                "id": "66577bd1-1c3b-444e-b741-af7dc442110a",
                 "isDisposed": false,
                 "judicialResults": [
                   {
@@ -1051,16 +1050,16 @@
                     "isFinancialResult": false,
                     "isNewAmendment": true,
                     "isUnscheduled": false,
-                    "judicialResultId": "1d65c23d-2f6d-4c54-ab24-e03ff56dd956",
+                    "judicialResultId": "ffe7c603-1c8c-492a-b16f-40ae85c15311",
                     "judicialResultPrompts": [
                       {
                         "courtExtract": "Y",
                         "judicialResultPromptTypeId": "70c98fa6-804d-11e8-adc0-fa7ae01bbebc",
                         "label": "Next hearing in magistrates' court",
-                        "promptReference": "c4eeee5d-76a2-4017-a0ec-654518f061e4",
+                        "promptReference": "c28f7b90-e99c-4a8a-a378-c5f834c12970",
                         "promptSequence": 0,
                         "usergroups": [],
-                        "value": "Date of hearing:24/07/2026\nTime of hearing:10:00\nCourthouse organisation name:Lavender Hill Magistrates' Court\nCourthouse address line 1:176A Lavender Hill\nCourthouse address line 2:London\nCourthouse post code:SW11 1JU\nCourtroom:Courtroom 01\nHearing type:Appeal\nEstimated duration:30 MINUTES\nBooking reference:0263b56b-f70c-469f-af83-2fcb34b7dd33",
+                        "value": "Date of hearing:31/07/2026\nTime of hearing:10:00\nCourthouse organisation name:Lavender Hill Magistrates' Court\nCourthouse address line 1:176A Lavender Hill\nCourthouse address line 2:London\nCourthouse post code:SW11 1JU\nCourtroom:Courtroom 01\nHearing type:Appeal\nEstimated duration:30 MINUTES\nBooking reference:277bb4af-0109-420b-a640-3249b0fbe0ff",
                         "welshLabel": "Ni wnaeth y Llys barhau â’r treial yn absenoldeb y diffynnydd"
                       },
                       {
@@ -1167,7 +1166,7 @@
                         "courtExtract": "Y",
                         "judicialResultPromptTypeId": "69ff04d5-84e8-4a61-8478-82c2999c1969",
                         "label": "To attend or a warrant to issue",
-                        "promptReference": "beb57014-fe59-46e7-af88-11cc8d4d08ca",
+                        "promptReference": "4763077f-f96a-4e80-a37c-9f863777c10c",
                         "promptSequence": 900,
                         "qualifier": "GE",
                         "usergroups": [],
@@ -1178,7 +1177,7 @@
                         "courtExtract": "Y",
                         "judicialResultPromptTypeId": "7fc17a01-2f5a-4433-aae9-28e0c959f73b",
                         "label": "Adjournment reasons",
-                        "promptReference": "08ef8c17-c7f0-4a27-a071-a4a0257dc80a",
+                        "promptReference": "b8203e37-c146-42e7-aa31-c94277b4f607",
                         "promptSequence": 1000,
                         "usergroups": [],
                         "value": "",
@@ -1187,12 +1186,12 @@
                     ],
                     "judicialResultTypeId": "d0a369c9-5a28-40ec-99cb-da7943550b18",
                     "label": "Remanded in custody",
-                    "lastSharedDateTime": "2026-07-23",
+                    "lastSharedDateTime": "2026-07-30",
                     "level": "O",
                     "lifeDuration": false,
                     "nextHearing": {
                       "adjournmentReason": "To attend or a warrant to issue",
-                      "bookingReference": "0263b56b-f70c-469f-af83-2fcb34b7dd33",
+                      "bookingReference": "277bb4af-0109-420b-a640-3249b0fbe0ff",
                       "courtCentre": {
                         "address": {
                           "address1": "176A Lavender Hill",
@@ -1211,14 +1210,14 @@
                       "estimatedDuration": "30 MINUTES",
                       "estimatedMinutes": 30,
                       "jurisdictionType": "MAGISTRATES",
-                      "listedStartDateTime": "2026-07-24T09:00:00.000Z",
+                      "listedStartDateTime": "2026-07-31T09:00:00.000Z",
                       "type": {
                         "description": "Appeal",
                         "id": "bd30a723-a375-3ae9-9332-871724cd8edd"
                       }
                     },
-                    "orderedDate": "2026-07-24",
-                    "orderedHearingId": "5cffb124-b49e-4039-8164-f8375e66ff2f",
+                    "orderedDate": "2026-07-31",
+                    "orderedHearingId": "f15a49db-812e-43d2-bfc5-7f3c7ee9ede1",
                     "policeSubjectLineTitle": "Remand",
                     "postHearingCustodyStatus": "C",
                     "preserveActiveOrder": false,
@@ -1227,9 +1226,9 @@
                     "qualifier": "MP,GE",
                     "rank": 34500,
                     "resultDefinitionGroup": "Remand in custody",
-                    "resultText": "RI - Remanded in custody\nRemanded in custody until hearing on 24/07/2026 at 10:00 in Courtroom 01, Lavender Hill Magistrates' Court. Basis: Charged with a violent or sexual offence. Adjournment reason: To attend or a warrant to issue. Bail exceptions: Breach of bail. Reason for applying: Broken bail conditions.",
+                    "resultText": "RI - Remanded in custody\nRemanded in custody until hearing on 31/07/2026 at 10:00 in Courtroom 01, Lavender Hill Magistrates' Court. Basis: Charged with a violent or sexual offence. Adjournment reason: To attend or a warrant to issue. Bail exceptions: Breach of bail. Reason for applying: Broken bail conditions.",
                     "rollUpPrompts": true,
-                    "rootJudicialResultId": "1d65c23d-2f6d-4c54-ab24-e03ff56dd956",
+                    "rootJudicialResultId": "ffe7c603-1c8c-492a-b16f-40ae85c15311",
                     "rootJudicialResultTypeId": "d0a369c9-5a28-40ec-99cb-da7943550b18",
                     "sentToCC": false,
                     "terminatesOffenceProceedings": false,
@@ -1258,15 +1257,15 @@
                     "isFinancialResult": false,
                     "isNewAmendment": true,
                     "isUnscheduled": false,
-                    "judicialResultId": "beb57014-fe59-46e7-af88-11cc8d4d08ca",
+                    "judicialResultId": "4763077f-f96a-4e80-a37c-9f863777c10c",
                     "judicialResultTypeId": "69ff04d5-84e8-4a61-8478-82c2999c1969",
                     "label": "To attend or a warrant to issue",
-                    "lastSharedDateTime": "2026-07-23",
+                    "lastSharedDateTime": "2026-07-30",
                     "level": "O",
                     "lifeDuration": false,
-                    "orderedDate": "2026-07-24",
-                    "orderedHearingId": "5cffb124-b49e-4039-8164-f8375e66ff2f",
-                    "parentJudicialResultId": "08ef8c17-c7f0-4a27-a071-a4a0257dc80a",
+                    "orderedDate": "2026-07-31",
+                    "orderedHearingId": "f15a49db-812e-43d2-bfc5-7f3c7ee9ede1",
+                    "parentJudicialResultId": "b8203e37-c146-42e7-aa31-c94277b4f607",
                     "parentJudicialResultTypeId": "7fc17a01-2f5a-4433-aae9-28e0c959f73b",
                     "postHearingCustodyStatus": "A",
                     "preserveActiveOrder": false,
@@ -1277,7 +1276,7 @@
                     "resultText": "To attend or a warrant to issue",
                     "resultWording": "",
                     "rollUpPrompts": false,
-                    "rootJudicialResultId": "1d65c23d-2f6d-4c54-ab24-e03ff56dd956",
+                    "rootJudicialResultId": "ffe7c603-1c8c-492a-b16f-40ae85c15311",
                     "rootJudicialResultTypeId": "d0a369c9-5a28-40ec-99cb-da7943550b18",
                     "sentToCC": false,
                     "terminatesOffenceProceedings": false,
@@ -1307,7 +1306,7 @@
                     "isFinancialResult": false,
                     "isNewAmendment": true,
                     "isUnscheduled": false,
-                    "judicialResultId": "c4eeee5d-76a2-4017-a0ec-654518f061e4",
+                    "judicialResultId": "c28f7b90-e99c-4a8a-a378-c5f834c12970",
                     "judicialResultPrompts": [
                       {
                         "courtExtract": "Y",
@@ -1318,9 +1317,9 @@
                         "promptSequence": 100,
                         "type": "DATE",
                         "usergroups": [],
-                        "value": "24/07/2026",
+                        "value": "31/07/2026",
                         "welshLabel": "Dyddiad y gwrandawiad",
-                        "welshValue": "24/07/2026"
+                        "welshValue": "31/07/2026"
                       },
                       {
                         "courtExtract": "Y",
@@ -1431,19 +1430,19 @@
                         "promptSequence": 700,
                         "type": "TXT",
                         "usergroups": [],
-                        "value": "0263b56b-f70c-469f-af83-2fcb34b7dd33",
+                        "value": "277bb4af-0109-420b-a640-3249b0fbe0ff",
                         "welshLabel": "Cyfeirnod archebu",
-                        "welshValue": "0263b56b-f70c-469f-af83-2fcb34b7dd33"
+                        "welshValue": "277bb4af-0109-420b-a640-3249b0fbe0ff"
                       }
                     ],
                     "judicialResultTypeId": "70c98fa6-804d-11e8-adc0-fa7ae01bbebc",
                     "label": "Next hearing in magistrates' court",
-                    "lastSharedDateTime": "2026-07-23",
+                    "lastSharedDateTime": "2026-07-30",
                     "level": "O",
                     "lifeDuration": false,
-                    "orderedDate": "2026-07-24",
-                    "orderedHearingId": "5cffb124-b49e-4039-8164-f8375e66ff2f",
-                    "parentJudicialResultId": "3d4c56d4-e3fe-47dd-8846-3d19b72294aa",
+                    "orderedDate": "2026-07-31",
+                    "orderedHearingId": "f15a49db-812e-43d2-bfc5-7f3c7ee9ede1",
+                    "parentJudicialResultId": "99aa8a7b-a304-45a9-aaa4-06930d746c9b",
                     "parentJudicialResultTypeId": "f00359b5-7303-403b-b59e-0b1a1daa89bc",
                     "postHearingCustodyStatus": "A",
                     "preserveActiveOrder": true,
@@ -1451,10 +1450,10 @@
                     "publishedForNows": true,
                     "rank": 500,
                     "resultDefinitionGroup": "Next hearing",
-                    "resultText": "hearing on 24/07/2026 at 10:00 in Courtroom 01, Lavender Hill Magistrates' Court",
+                    "resultText": "hearing on 31/07/2026 at 10:00 in Courtroom 01, Lavender Hill Magistrates' Court",
                     "resultWording": "",
                     "rollUpPrompts": false,
-                    "rootJudicialResultId": "1d65c23d-2f6d-4c54-ab24-e03ff56dd956",
+                    "rootJudicialResultId": "ffe7c603-1c8c-492a-b16f-40ae85c15311",
                     "rootJudicialResultTypeId": "d0a369c9-5a28-40ec-99cb-da7943550b18",
                     "sentToCC": false,
                     "terminatesOffenceProceedings": false,
@@ -1475,26 +1474,26 @@
                 "offenceTitleWelsh": "Ymgais i ddwyn cerbyd modur",
                 "orderIndex": 1,
                 "plea": {
-                  "offenceId": "127f5a18-a3fe-423f-b358-78110bd8f90b",
-                  "originatingHearingId": "5cffb124-b49e-4039-8164-f8375e66ff2f",
-                  "pleaDate": "2026-07-24",
+                  "offenceId": "66577bd1-1c3b-444e-b741-af7dc442110a",
+                  "originatingHearingId": "f15a49db-812e-43d2-bfc5-7f3c7ee9ede1",
+                  "pleaDate": "2026-07-31",
                   "pleaValue": "GUILTY"
                 },
-                "startDate": "2026-04-24",
+                "startDate": "2026-05-01",
                 "wording": "Attempt theft to vehicle"
               },
               {
                 "allocationDecision": {
-                  "allocationDecisionDate": "2026-07-24",
+                  "allocationDecisionDate": "2026-07-31",
                   "motReasonCode": "01",
                   "motReasonDescription": "Summary-only offence",
                   "motReasonId": "b8c37e33-defd-351c-b91e-1e03e51657da",
-                  "offenceId": "b814a951-65d0-45b0-9739-7d66186d98d9",
-                  "originatingHearingId": "5cffb124-b49e-4039-8164-f8375e66ff2f",
+                  "offenceId": "5bfed757-7b64-407b-9aae-37efd5f0af16",
+                  "originatingHearingId": "f15a49db-812e-43d2-bfc5-7f3c7ee9ede1",
                   "sequenceNumber": 90
                 },
-                "arrestDate": "2026-06-03",
-                "chargeDate": "2026-05-29",
+                "arrestDate": "2026-06-10",
+                "chargeDate": "2026-06-05",
                 "convictingCourt": {
                   "code": "B52CM00",
                   "id": "1a359d44-6b52-3919-b052-065413e4a801",
@@ -1505,11 +1504,11 @@
                   "name": "Bristol Magistrates' Court",
                   "roomId": "d7df1737-c35c-319a-b93a-6cd402a95db1"
                 },
-                "convictionDate": "2026-07-24",
+                "convictionDate": "2026-07-31",
                 "count": 0,
-                "dateHeldInCustodySince": "2026-07-24",
+                "dateHeldInCustodySince": "2026-07-31",
                 "endorsableFlag": false,
-                "id": "b814a951-65d0-45b0-9739-7d66186d98d9",
+                "id": "5bfed757-7b64-407b-9aae-37efd5f0af16",
                 "isDisposed": false,
                 "judicialResults": [
                   {
@@ -1534,16 +1533,16 @@
                     "isFinancialResult": false,
                     "isNewAmendment": true,
                     "isUnscheduled": false,
-                    "judicialResultId": "e80a022c-a729-4368-bf2e-7eccb697c562",
+                    "judicialResultId": "fb409af0-cc6f-4ee3-ad11-4ac90e7ecd9d",
                     "judicialResultPrompts": [
                       {
                         "courtExtract": "Y",
                         "judicialResultPromptTypeId": "70c98fa6-804d-11e8-adc0-fa7ae01bbebc",
                         "label": "Next hearing in magistrates' court",
-                        "promptReference": "e59270e8-37a8-47c4-9ec9-af91e71cbecd",
+                        "promptReference": "fd4b6341-b911-4870-9c5a-212970ba745b",
                         "promptSequence": 0,
                         "usergroups": [],
-                        "value": "Date of hearing:24/07/2026\nTime of hearing:10:00\nCourthouse organisation name:Lavender Hill Magistrates' Court\nCourthouse address line 1:176A Lavender Hill\nCourthouse address line 2:London\nCourthouse post code:SW11 1JU\nCourtroom:Courtroom 01\nHearing type:Appeal\nEstimated duration:30 MINUTES\nBooking reference:fab88eb6-c58e-421d-8648-163c17aef73b",
+                        "value": "Date of hearing:31/07/2026\nTime of hearing:10:00\nCourthouse organisation name:Lavender Hill Magistrates' Court\nCourthouse address line 1:176A Lavender Hill\nCourthouse address line 2:London\nCourthouse post code:SW11 1JU\nCourtroom:Courtroom 01\nHearing type:Appeal\nEstimated duration:30 MINUTES\nBooking reference:6e0ae098-72a9-4866-97e6-992d3126a4ad",
                         "welshLabel": "Ni wnaeth y Llys barhau â’r treial yn absenoldeb y diffynnydd"
                       },
                       {
@@ -1650,7 +1649,7 @@
                         "courtExtract": "Y",
                         "judicialResultPromptTypeId": "69ff04d5-84e8-4a61-8478-82c2999c1969",
                         "label": "To attend or a warrant to issue",
-                        "promptReference": "e9040163-7fb1-4e9a-84e9-de8b662e67be",
+                        "promptReference": "7c51e5a5-bf74-4b35-875f-024f11caae1f",
                         "promptSequence": 900,
                         "qualifier": "GE",
                         "usergroups": [],
@@ -1661,7 +1660,7 @@
                         "courtExtract": "Y",
                         "judicialResultPromptTypeId": "7fc17a01-2f5a-4433-aae9-28e0c959f73b",
                         "label": "Adjournment reasons",
-                        "promptReference": "0254f99c-ecaa-4750-8a15-db28db2f4a79",
+                        "promptReference": "d7dd2068-7f2b-4c41-854c-9fd09beeff7e",
                         "promptSequence": 1000,
                         "usergroups": [],
                         "value": "",
@@ -1670,12 +1669,12 @@
                     ],
                     "judicialResultTypeId": "d0a369c9-5a28-40ec-99cb-da7943550b18",
                     "label": "Remanded in custody",
-                    "lastSharedDateTime": "2026-07-23",
+                    "lastSharedDateTime": "2026-07-30",
                     "level": "O",
                     "lifeDuration": false,
                     "nextHearing": {
                       "adjournmentReason": "To attend or a warrant to issue",
-                      "bookingReference": "fab88eb6-c58e-421d-8648-163c17aef73b",
+                      "bookingReference": "6e0ae098-72a9-4866-97e6-992d3126a4ad",
                       "courtCentre": {
                         "address": {
                           "address1": "176A Lavender Hill",
@@ -1694,14 +1693,14 @@
                       "estimatedDuration": "30 MINUTES",
                       "estimatedMinutes": 30,
                       "jurisdictionType": "MAGISTRATES",
-                      "listedStartDateTime": "2026-07-24T09:00:00.000Z",
+                      "listedStartDateTime": "2026-07-31T09:00:00.000Z",
                       "type": {
                         "description": "Appeal",
                         "id": "bd30a723-a375-3ae9-9332-871724cd8edd"
                       }
                     },
-                    "orderedDate": "2026-07-24",
-                    "orderedHearingId": "5cffb124-b49e-4039-8164-f8375e66ff2f",
+                    "orderedDate": "2026-07-31",
+                    "orderedHearingId": "f15a49db-812e-43d2-bfc5-7f3c7ee9ede1",
                     "policeSubjectLineTitle": "Remand",
                     "postHearingCustodyStatus": "C",
                     "preserveActiveOrder": false,
@@ -1710,9 +1709,9 @@
                     "qualifier": "MP,GE",
                     "rank": 34500,
                     "resultDefinitionGroup": "Remand in custody",
-                    "resultText": "RI - Remanded in custody\nRemanded in custody until hearing on 24/07/2026 at 10:00 in Courtroom 01, Lavender Hill Magistrates' Court. Basis: Charged with a violent or sexual offence. Adjournment reason: To attend or a warrant to issue. Bail exceptions: Breach of bail. Reason for applying: Broken bail conditions.",
+                    "resultText": "RI - Remanded in custody\nRemanded in custody until hearing on 31/07/2026 at 10:00 in Courtroom 01, Lavender Hill Magistrates' Court. Basis: Charged with a violent or sexual offence. Adjournment reason: To attend or a warrant to issue. Bail exceptions: Breach of bail. Reason for applying: Broken bail conditions.",
                     "rollUpPrompts": true,
-                    "rootJudicialResultId": "e80a022c-a729-4368-bf2e-7eccb697c562",
+                    "rootJudicialResultId": "fb409af0-cc6f-4ee3-ad11-4ac90e7ecd9d",
                     "rootJudicialResultTypeId": "d0a369c9-5a28-40ec-99cb-da7943550b18",
                     "sentToCC": false,
                     "terminatesOffenceProceedings": false,
@@ -1741,15 +1740,15 @@
                     "isFinancialResult": false,
                     "isNewAmendment": true,
                     "isUnscheduled": false,
-                    "judicialResultId": "e9040163-7fb1-4e9a-84e9-de8b662e67be",
+                    "judicialResultId": "7c51e5a5-bf74-4b35-875f-024f11caae1f",
                     "judicialResultTypeId": "69ff04d5-84e8-4a61-8478-82c2999c1969",
                     "label": "To attend or a warrant to issue",
-                    "lastSharedDateTime": "2026-07-23",
+                    "lastSharedDateTime": "2026-07-30",
                     "level": "O",
                     "lifeDuration": false,
-                    "orderedDate": "2026-07-24",
-                    "orderedHearingId": "5cffb124-b49e-4039-8164-f8375e66ff2f",
-                    "parentJudicialResultId": "0254f99c-ecaa-4750-8a15-db28db2f4a79",
+                    "orderedDate": "2026-07-31",
+                    "orderedHearingId": "f15a49db-812e-43d2-bfc5-7f3c7ee9ede1",
+                    "parentJudicialResultId": "d7dd2068-7f2b-4c41-854c-9fd09beeff7e",
                     "parentJudicialResultTypeId": "7fc17a01-2f5a-4433-aae9-28e0c959f73b",
                     "postHearingCustodyStatus": "A",
                     "preserveActiveOrder": false,
@@ -1760,7 +1759,7 @@
                     "resultText": "To attend or a warrant to issue",
                     "resultWording": "",
                     "rollUpPrompts": false,
-                    "rootJudicialResultId": "e80a022c-a729-4368-bf2e-7eccb697c562",
+                    "rootJudicialResultId": "fb409af0-cc6f-4ee3-ad11-4ac90e7ecd9d",
                     "rootJudicialResultTypeId": "d0a369c9-5a28-40ec-99cb-da7943550b18",
                     "sentToCC": false,
                     "terminatesOffenceProceedings": false,
@@ -1790,7 +1789,7 @@
                     "isFinancialResult": false,
                     "isNewAmendment": true,
                     "isUnscheduled": false,
-                    "judicialResultId": "e59270e8-37a8-47c4-9ec9-af91e71cbecd",
+                    "judicialResultId": "fd4b6341-b911-4870-9c5a-212970ba745b",
                     "judicialResultPrompts": [
                       {
                         "courtExtract": "Y",
@@ -1801,9 +1800,9 @@
                         "promptSequence": 100,
                         "type": "DATE",
                         "usergroups": [],
-                        "value": "24/07/2026",
+                        "value": "31/07/2026",
                         "welshLabel": "Dyddiad y gwrandawiad",
-                        "welshValue": "24/07/2026"
+                        "welshValue": "31/07/2026"
                       },
                       {
                         "courtExtract": "Y",
@@ -1914,19 +1913,19 @@
                         "promptSequence": 700,
                         "type": "TXT",
                         "usergroups": [],
-                        "value": "fab88eb6-c58e-421d-8648-163c17aef73b",
+                        "value": "6e0ae098-72a9-4866-97e6-992d3126a4ad",
                         "welshLabel": "Cyfeirnod archebu",
-                        "welshValue": "fab88eb6-c58e-421d-8648-163c17aef73b"
+                        "welshValue": "6e0ae098-72a9-4866-97e6-992d3126a4ad"
                       }
                     ],
                     "judicialResultTypeId": "70c98fa6-804d-11e8-adc0-fa7ae01bbebc",
                     "label": "Next hearing in magistrates' court",
-                    "lastSharedDateTime": "2026-07-23",
+                    "lastSharedDateTime": "2026-07-30",
                     "level": "O",
                     "lifeDuration": false,
-                    "orderedDate": "2026-07-24",
-                    "orderedHearingId": "5cffb124-b49e-4039-8164-f8375e66ff2f",
-                    "parentJudicialResultId": "b1e2b4c9-f53f-44b8-ac6c-a7b322b34a1a",
+                    "orderedDate": "2026-07-31",
+                    "orderedHearingId": "f15a49db-812e-43d2-bfc5-7f3c7ee9ede1",
+                    "parentJudicialResultId": "eea6ff47-f5f5-4134-9d6d-38d282a3b6de",
                     "parentJudicialResultTypeId": "f00359b5-7303-403b-b59e-0b1a1daa89bc",
                     "postHearingCustodyStatus": "A",
                     "preserveActiveOrder": true,
@@ -1934,10 +1933,10 @@
                     "publishedForNows": true,
                     "rank": 500,
                     "resultDefinitionGroup": "Next hearing",
-                    "resultText": "hearing on 24/07/2026 at 10:00 in Courtroom 01, Lavender Hill Magistrates' Court",
+                    "resultText": "hearing on 31/07/2026 at 10:00 in Courtroom 01, Lavender Hill Magistrates' Court",
                     "resultWording": "",
                     "rollUpPrompts": false,
-                    "rootJudicialResultId": "e80a022c-a729-4368-bf2e-7eccb697c562",
+                    "rootJudicialResultId": "fb409af0-cc6f-4ee3-ad11-4ac90e7ecd9d",
                     "rootJudicialResultTypeId": "d0a369c9-5a28-40ec-99cb-da7943550b18",
                     "sentToCC": false,
                     "terminatesOffenceProceedings": false,
@@ -1958,17 +1957,17 @@
                 "offenceTitleWelsh": "Meddu ar/mewn rheolaeth set deledu gan fwriadu i unigolyn arall ei ddefnyddio/osod heb drwydded",
                 "orderIndex": 2,
                 "plea": {
-                  "offenceId": "b814a951-65d0-45b0-9739-7d66186d98d9",
-                  "originatingHearingId": "5cffb124-b49e-4039-8164-f8375e66ff2f",
-                  "pleaDate": "2026-07-24",
+                  "offenceId": "5bfed757-7b64-407b-9aae-37efd5f0af16",
+                  "originatingHearingId": "f15a49db-812e-43d2-bfc5-7f3c7ee9ede1",
+                  "pleaDate": "2026-07-31",
                   "pleaValue": "GUILTY"
                 },
-                "startDate": "2026-04-24",
+                "startDate": "2026-05-01",
                 "wording": "Theft of pedal cycle"
               }
             ],
             "personDefendant": {
-              "arrestSummonsNumber": "2391NX0000936469189D",
+              "arrestSummonsNumber": "2391NX0000387749258D",
               "bailConditions": "",
               "bailReasons": "Broken bail conditions",
               "bailStatus": {
@@ -1979,17 +1978,18 @@
               "driverNumber": "VANFL002222OW9PH",
               "personDetails": {
                 "address": {
-                  "address1": "90 Mill Lane",
-                  "address2": "Mill Lane",
-                  "address3": "Cardiff",
-                  "postcode": "CF1 1AA"
+                  "address1": "18 George Square",
+                  "address2": "George Square",
+                  "address3": "Glasgow",
+                  "address4": "Glasgow City",
+                  "postcode": "G2 1QU"
                 },
                 "contact": {
-                  "home": "0666932118",
-                  "mobile": "07686976339",
-                  "primaryEmail": "mechdiego.machbrown@example.com"
+                  "home": "0255585576",
+                  "mobile": "04133745319",
+                  "primaryEmail": "mechtommie.machlarkin@example.com"
                 },
-                "dateOfBirth": "1989-07-23",
+                "dateOfBirth": "1969-07-30",
                 "documentationLanguageNeeds": "ENGLISH",
                 "ethnicity": {
                   "observedEthnicityCode": "1",
@@ -1999,10 +1999,10 @@
                   "selfDefinedEthnicityDescription": "British",
                   "selfDefinedEthnicityId": "c4ca4238-a0b9-3382-8dcc-509a6f75849b"
                 },
-                "firstName": "MechDiego",
+                "firstName": "MechTommie",
                 "gender": "MALE",
                 "hearingLanguageNeeds": "ENGLISH",
-                "lastName": "MachBrown",
+                "lastName": "MachLarkin",
                 "title": "Mr"
               },
               "policeBailStatus": {
@@ -2011,11 +2011,11 @@
                 "id": "12e69486-4d01-3403-a50a-7419ca040635"
               }
             },
-            "prosecutionAuthorityReference": "2391NX0000936469189D",
-            "prosecutionCaseId": "0b768764-168b-4b16-b5eb-573c794f3bc0"
+            "prosecutionAuthorityReference": "2391NX0000387749258D",
+            "prosecutionCaseId": "b78d917c-a9ba-4579-a60c-6f79acb503f0"
           }
         ],
-        "id": "0b768764-168b-4b16-b5eb-573c794f3bc0",
+        "id": "b78d917c-a9ba-4579-a60c-6f79acb503f0",
         "initiationCode": "C",
         "originatingOrganisation": "0480000",
         "prosecutionCaseIdentifier": {
@@ -2033,7 +2033,7 @@
           "prosecutionAuthorityId": "baa2ec52-296b-3f38-922a-9e641c1f94d3",
           "prosecutionAuthorityName": "City of London Police",
           "prosecutionAuthorityOUCode": "0480000",
-          "caseURN": "XH231168837"
+          "caseURN": "AS231157673"
         }
       }
     ],
@@ -2042,5 +2042,5 @@
       "id": "4a0e892d-c0c5-3c51-95b8-704d8c781776"
     }
   },
-  "sharedTime": "2026-07-23T14:58:26.879Z"
+  "sharedTime": "2026-07-30T13:45:43.563Z"
 }
