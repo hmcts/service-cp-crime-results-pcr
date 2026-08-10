@@ -170,6 +170,8 @@ public class HearingDetailsResponse {
         // it's retained as source_offence_id, not the primary key.
         private String id;
         private String offenceCode;
+        private String offenceTitle;
+        private String wording;
         private Integer listingNumber;
         private LocalDate startDate;
         private LocalDate endDate;
@@ -196,6 +198,8 @@ public class HearingDetailsResponse {
     public static class JudicialResult {
         private String cjsCode;
         private String label;
+        private String category;
+        private String postHearingCustodyStatus;
         private boolean isFinancialResult;
         private boolean isConvictedResult;
         // publishedForNows: the PCR eligibility flag (orchestrator design doc §3) — boxed,
@@ -231,6 +235,8 @@ public class HearingDetailsResponse {
     public static class JudicialResultPrompt {
         private String promptReference;
         private String value;
+        private String label;
+        private String type;
     }
 
     // Court applications are hearing-level, not nested per-defendant (confirmed —

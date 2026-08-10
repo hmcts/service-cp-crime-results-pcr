@@ -313,13 +313,16 @@ class CPHearingResultEntityMapperTest {
     @Test
     void toWriteBundle_should_mapDirectOffenceAndItsJudicialResultAndPrompts_withSurrogateOffenceId() {
         when(promptParser.fineAmount(any())).thenReturn(null);
-        final JudicialResultPrompt prompt = JudicialResultPrompt.builder().promptReference("prisonOrganisationName").value("HMP Dovegate").build();
+        final JudicialResultPrompt prompt = JudicialResultPrompt.builder().promptReference("prisonOrganisationName")
+                .value("HMP Dovegate").label("Prison organisation name").type("NAMEADDRESS").build();
         final JudicialResult result = JudicialResult.builder()
                 .cjsCode("1200").label("Imprisonment")
+                .category("FINAL").postHearingCustodyStatus("A")
                 .isFinancialResult(false).isConvictedResult(true)
                 .judicialResultPrompts(List.of(prompt))
                 .build();
-        final Offence offence = Offence.builder().offenceCode("TH68001").listingNumber(1).judicialResults(List.of(result)).build();
+        final Offence offence = Offence.builder().offenceCode("TH68001").offenceTitle("Theft").wording("Stole a thing")
+                .listingNumber(1).judicialResults(List.of(result)).build();
         final Defendant defendant = Defendant.builder()
                 .id(DEFENDANT_ID.toString())
                 .personDefendant(PersonDefendant.builder().build())
@@ -335,16 +338,22 @@ class CPHearingResultEntityMapperTest {
         assertThat(offenceEntity.getVersionPk()).isEqualTo(bundle.version().getCpVersionPk());
         assertThat(offenceEntity.getCourtApplicationId()).isNull();
         assertThat(offenceEntity.getCode()).isEqualTo("TH68001");
+        assertThat(offenceEntity.getTitle()).isEqualTo("Theft");
+        assertThat(offenceEntity.getWording()).isEqualTo("Stole a thing");
         assertThat(bundle.judicialResults()).hasSize(1);
         final CPJudicialResultEntity resultEntity = bundle.judicialResults().get(0);
         assertThat(resultEntity.getOffenceId()).isEqualTo(offenceEntity.getId());
         assertThat(resultEntity.getCourtApplicationId()).isNull();
         assertThat(resultEntity.getResultCode()).isEqualTo("1200");
+        assertThat(resultEntity.getCategory()).isEqualTo("FINAL");
+        assertThat(resultEntity.getPostHearingCustodyStatus()).isEqualTo("A");
         assertThat(resultEntity.getFinancial()).isFalse();
         assertThat(resultEntity.getConvicted()).isTrue();
         assertThat(bundle.judicialResultPrompts()).hasSize(1);
         assertThat(bundle.judicialResultPrompts().get(0).getJudicialResultId()).isEqualTo(resultEntity.getId());
         assertThat(bundle.judicialResultPrompts().get(0).getPromptReference()).isEqualTo("prisonOrganisationName");
+        assertThat(bundle.judicialResultPrompts().get(0).getLabel()).isEqualTo("Prison organisation name");
+        assertThat(bundle.judicialResultPrompts().get(0).getType()).isEqualTo("NAMEADDRESS");
     }
 
     @Test
