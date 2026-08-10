@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.JudicialResult;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.JudicialResultPrompt;
 import uk.gov.hmcts.cp.domain.pcrcompute.CPNowSubscription;
+import uk.gov.hmcts.cp.domain.pcrcompute.CPNowSubscription.CPResultPrompt;
 import uk.gov.hmcts.cp.domain.pcrcompute.CPNowSubscription.SubscriptionVocabulary;
 import uk.gov.hmcts.cp.domain.pcrcompute.CPVocabulary;
 
@@ -268,7 +269,10 @@ class CPNowSubscriptionMatcherTest {
     @Test
     void matches_should_returnTrue_whenIncludedPromptPresent() {
         final CPNowSubscription subscription = subscriptionWith(fullyPermissiveVocabulary().toBuilder()
-                .includedPrompts(List.of("prisonOrganisationName"))
+                .includedPrompts(List.of(CPResultPrompt.builder()
+                        .resultPromptId("a9ad5002-ea38-4374-a475-4b352cdfa207")
+                        .resultPromptReference("prisonOrganisationName")
+                        .build()))
                 .build());
         final JudicialResult result = JudicialResult.builder()
                 .cjsCode("1200")
@@ -282,7 +286,10 @@ class CPNowSubscriptionMatcherTest {
     @Test
     void matches_should_returnFalse_whenExcludedPromptPresent() {
         final CPNowSubscription subscription = subscriptionWith(fullyPermissiveVocabulary().toBuilder()
-                .excludedPrompts(List.of("prisonOrganisationName"))
+                .excludedPrompts(List.of(CPResultPrompt.builder()
+                        .resultPromptId("a9ad5002-ea38-4374-a475-4b352cdfa208")
+                        .resultPromptReference("prisonOrganisationName")
+                        .build()))
                 .build());
         final JudicialResult result = JudicialResult.builder()
                 .cjsCode("1200")

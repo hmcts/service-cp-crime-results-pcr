@@ -80,9 +80,21 @@ public class CPNowSubscription {
 
         // Prompt/result include-exclude lists — matched by exact promptReference/cjsCode value
         // (SubscriptionsService.js:212-238's NAMEADDRESS substring-match nuance is not modelled).
-        private List<String> includedPrompts;
-        private List<String> excludedPrompts;
+        // Prompts are objects on the real API, not bare strings — matched on resultPromptReference.
+        private List<CPResultPrompt> includedPrompts;
+        private List<CPResultPrompt> excludedPrompts;
         private List<String> includedResults;
         private List<String> excludedResults;
+    }
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Getter
+    public static class CPResultPrompt {
+
+        private String resultPromptId;
+        private String resultPromptReference;
     }
 }

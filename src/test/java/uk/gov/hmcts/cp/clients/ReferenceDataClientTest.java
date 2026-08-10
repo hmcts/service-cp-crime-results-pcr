@@ -73,6 +73,19 @@ class ReferenceDataClientTest {
         assertThat(subscriptions.get(0).isPrisonCourtRegisterSubscription()).isTrue();
     }
 
+    @Test
+    void getPrisonCourtRegisterSubscriptions_should_parseIncludedAndExcludedPromptsAsObjects() {
+        stubFor(readResourceContents("referencedata/now-subscriptions-with-prompts.json"));
+
+        final List<CPNowSubscription> subscriptions = referenceDataClient.getPrisonCourtRegisterSubscriptions(ON_DATE);
+
+        final CPNowSubscription.SubscriptionVocabulary vocabulary = subscriptions.get(0).getSubscriptionVocabulary();
+        assertThat(vocabulary.getIncludedPrompts()).extracting(
+                CPNowSubscription.CPResultPrompt::getResultPromptReference).containsExactly("suretyNameAndAddress");
+        assertThat(vocabulary.getExcludedPrompts()).extracting(
+                CPNowSubscription.CPResultPrompt::getResultPromptReference).containsExactly("witnessName");
+    }
+
     private void stubFor(final String body) {
         WireMock.stubFor(WireMock.get(WireMock.urlPathEqualTo(ReferenceDataClient.REFERENCE_DATA_PATH)).willReturn(aResponse()
                 .withStatus(HTTP_OK)
