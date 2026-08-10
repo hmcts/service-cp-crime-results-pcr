@@ -1,0 +1,37 @@
+{
+  "nowSubscriptions": [
+    {
+      "isPrisonCourtRegisterSubscription": true,
+      "applySubscriptionRules": true,
+      "subscriptionVocabulary": {
+        "appearedByVideoLink": false,
+        "appearedInPerson": false,
+        "anyAppearance": true,
+        "inCustody": false,
+        "custodyLocationIsPrison": false,
+        "custodyLocationIsPolice": false,
+        "allNonCustodialResults": false,
+        "atleastOneNonCustodialResult": true,
+        "atleastOneCustodialResult": true,
+        "youthDefendant": false,
+        "adultDefendant": false,
+        "adultOrYouthDefendant": true,
+        "welshCourtHearing": false,
+        "englishCourtHearing": false,
+        "anyCourtHearing": true,
+        "includedPrompts": [
+          {
+            "resultPromptId": "a9ad5002-ea38-4374-a475-4b352cdfa207",
+            "resultPromptReference": "suretyNameAndAddress"
+          }
+        ],
+        "excludedPrompts": [
+          {
+            "resultPromptId": "a9ad5002-ea38-4374-a475-4b352cdfa208",
+            "resultPromptReference": "witnessName"
+          }
+        ]
+      }
+    }
+  ]
+}

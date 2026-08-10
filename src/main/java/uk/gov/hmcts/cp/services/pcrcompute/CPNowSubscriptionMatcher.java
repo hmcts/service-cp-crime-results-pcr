@@ -4,6 +4,7 @@ import org.springframework.stereotype.Component;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.JudicialResult;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.JudicialResultPrompt;
 import uk.gov.hmcts.cp.domain.pcrcompute.CPNowSubscription;
+import uk.gov.hmcts.cp.domain.pcrcompute.CPNowSubscription.CPResultPrompt;
 import uk.gov.hmcts.cp.domain.pcrcompute.CPNowSubscription.SubscriptionVocabulary;
 import uk.gov.hmcts.cp.domain.pcrcompute.CPVocabulary;
 
@@ -97,8 +98,12 @@ public class CPNowSubscriptionMatcher {
                 .flatMap(r -> r.getJudicialResultPrompts().stream())
                 .map(JudicialResultPrompt::getPromptReference)
                 .toList();
-        return listMatches(subVoc.getIncludedPrompts(), promptReferences, true)
-                && listMatches(subVoc.getExcludedPrompts(), promptReferences, false);
+        return listMatches(resultPromptReferencesOf(subVoc.getIncludedPrompts()), promptReferences, true)
+                && listMatches(resultPromptReferencesOf(subVoc.getExcludedPrompts()), promptReferences, false);
+    }
+
+    private List<String> resultPromptReferencesOf(final List<CPResultPrompt> prompts) {
+        return prompts == null ? null : prompts.stream().map(CPResultPrompt::getResultPromptReference).toList();
     }
 
     private boolean resultTypeListsMatch(final SubscriptionVocabulary subVoc, final List<JudicialResult> results) {
