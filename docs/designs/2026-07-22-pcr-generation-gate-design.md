@@ -271,9 +271,19 @@ public class CPVocabularyService {
                 .anyMatch(p -> CUSTODIAL_RESULT_PROMPT.equals(p.promptReference()));
     }
 
-    // allNonCustodialResults/atleastOneNonCustodialResult: derived from the same
-    // per-result CUSTODIAL_RESULT_PROMPT scan as hasCustodialResult, over all vs. any
-    // of the defendant's results — needed by §4's checkIfCustodialResultMatch.
+    // allNonCustodialResults: negation of hasCustodialResult — correct as drafted.
+    //
+    // Corrected against VocabularyService.js:150-156 (getHasAtleastOneNonCustodialResult) —
+    // atleastOneNonCustodialResult is NOT "any result lacking the custodial prompt" (that's
+    // allNonCustodialResults). It's a two-branch short-circuit: when atleastOneCustodialResult
+    // is false, it equals allNonCustodialResults (true); when true, it falls through to a
+    // PER-PROMPT scan of every result for any promptReference other than
+    // CUSTODIAL_RESULT_PROMPT. A real custodial result almost always carries other prompts
+    // (duration, reasons, conveyor/custodian, probation team, ...), so this is nearly always
+    // true once a custodial result exists — the per-result draft here was wrong, and made
+    // every single-offence custodial hearing (the common case) fail subscriptions requiring
+    // both flags. Confirmed against a real STE hearing plus the legacy Function App's own
+    // trace for it (service-cp-crime-results-pcr PR #48).
 }
 ```
 
@@ -421,6 +431,15 @@ public record CPNowSubscription(
         List<String> excludedPrompts) {}
 ```
 
+Corrected: `includedPrompts`/`excludedPrompts` are **not** `List<String>` on the real
+`referencedata-query-api` response — each entry is an object,
+`{resultPromptId, resultPromptReference}` (confirmed against
+`cpp-context-azure-legalaidagency`'s `subscriptions-with-prompts.json`), matched on
+`resultPromptReference` only (`resultPromptId` is carried but never read by
+`getMatchingPrompt`). No fixture in this repo ever populated these fields, so the
+`List<String>` assumption shipped uncaught until a real STE hearing hit it — see
+`CPNowSubscription.CPResultPrompt` (`service-cp-crime-results-pcr` PR #47).
+
 ```java
 @Component
 public class CPNowSubscriptionMatcher {
@@ -492,6 +511,23 @@ public class CPNowSubscriptionMatcher {
                 || resultCodes.stream().noneMatch(subscription.excludedResultTypes()::contains);
         return includeOk && excludeOk;
     }
+```
+
+**Known defect, not yet fixed (this draft is wrong, and so is the shipped implementation
+that followed it).** Legacy `checkForMatchedResults` (`SubscriptionsService.js`) compares
+against `judicialResult.judicialResultTypeId` — a GUID — not `cjsCode`. Confirmed against
+real reference data: `includedResults`/`excludedResults` entries on a real STE subscription
+are GUID-shaped (e.g. YCS PCR Subscription's `includedResults`), which can never equal a
+`cjsCode` like `"1002"`. `JudicialResult`/`JudicialResultResponse` doesn't even carry a
+`judicialResultTypeId` field today. Net effect: any subscription with a non-empty
+`includedResults` can never match anything (always fails closed), and `excludedResults`
+can never actually exclude anything (always silently passes) — this is live in production
+today, not just a design-time slip. Not the cause of the `atleastOneNonCustodialResult`
+bug above (the one PCR subscription gated by `includedResults` for the hearing that
+surfaced that bug is youth-custody-specific and doesn't apply to an adult defendant either
+way), but it's a real, independent gap. Tracked as a follow-up, not fixed alongside PR #48.
+
+```java
 
     // promptListsMatch: same include/exclude shape as resultTypeListsMatch,
     // over judicialResultPrompts[].promptReference instead of cjsCode.
@@ -874,6 +910,13 @@ alongside the existing case/defendant lookups in
   `CP_BACKEND_URL` resolves to for this service in dev/SIT should reach
   the same host `service-cp-refdata-courthearing-courthouses` already
   reaches.
+
+  **Resolved as predicted.** `reference-data-client.url` dropped its unused
+  `REFERENCE_DATA_URL` override in favour of `CP_BACKEND_URL` directly
+  (`service-cp-crime-results-pcr` PR #46), and STE now confirms it: a live
+  call from inside the STE pod's network to `CP_BACKEND_URL`'s
+  `now-subscriptions` path returned 333 real subscriptions successfully.
+  `CP_BACKEND_URL` is the right host — nothing further to confirm here.
 
 ### Other findings, outside this document's scope but worth recording
 
