@@ -139,6 +139,35 @@ class CPVocabularyServiceTest {
     }
 
     @Test
+    void compute_should_setAtleastOneNonCustodialResultTrue_whenSoleCustodialResultHasOtherPrompts() {
+        final JudicialResult result = JudicialResult.builder()
+                .judicialResultPrompts(List.of(
+                        JudicialResultPrompt.builder().promptReference(CUSTODIAL_RESULT_PROMPT).build(),
+                        JudicialResultPrompt.builder().promptReference("imprisonmentPeriod").build()))
+                .build();
+        final Offence offence = Offence.builder().judicialResults(List.of(result)).build();
+        final Defendant defendant = defendantWithOffences(DEFENDANT_ID, MASTER_DEFENDANT_ID, List.of(offence));
+        final HearingDetail hearing = hearingWith(List.of(caseWith(defendant)), List.of());
+
+        final CPVocabulary vocabulary = vocabularyService.compute(defendant, hearing);
+
+        assertThat(vocabulary.atleastOneCustodialResult()).isTrue();
+        assertThat(vocabulary.atleastOneNonCustodialResult()).isTrue();
+    }
+
+    @Test
+    void compute_should_setAtleastOneNonCustodialResultFalse_whenSoleCustodialResultHasOnlyTheCustodialPrompt() {
+        final Offence offence = Offence.builder().judicialResults(List.of(resultWithCustodialPrompt())).build();
+        final Defendant defendant = defendantWithOffences(DEFENDANT_ID, MASTER_DEFENDANT_ID, List.of(offence));
+        final HearingDetail hearing = hearingWith(List.of(caseWith(defendant)), List.of());
+
+        final CPVocabulary vocabulary = vocabularyService.compute(defendant, hearing);
+
+        assertThat(vocabulary.atleastOneCustodialResult()).isTrue();
+        assertThat(vocabulary.atleastOneNonCustodialResult()).isFalse();
+    }
+
+    @Test
     void compute_should_setCpsProsecutedTrue_whenAnyProsecutionCaseOnHearingIsCps() {
         // Scans ALL prosecutionCases on the hearing, not scoped to the defendant's own case —
         // replicates legacy CPVocabularyService.js behaviour exactly (design doc §2).

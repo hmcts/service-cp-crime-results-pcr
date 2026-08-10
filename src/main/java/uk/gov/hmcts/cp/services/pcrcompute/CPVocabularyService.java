@@ -25,6 +25,9 @@ public class CPVocabularyService {
         final List<Defendant> masterDefendants = matchingDefendants(defendant, hearing);
         final List<JudicialResult> allResults = allJudicialResults(masterDefendants, matchingApplications(defendant, hearing));
         final boolean atleastOneCustodialResult = atleastOneCustodialResult(allResults);
+        final boolean atleastOneNonCustodialResult = atleastOneCustodialResult
+                ? hasNonCustodialPrompt(allResults)
+                : true;
         final boolean custodyLocationIsPolice = hasCustodyValue(masterDefendants, POLICE_STATION);
         final boolean custodyLocationIsPrison = hasCustodyValue(masterDefendants, PRISON);
         final boolean isYouth = Boolean.TRUE.equals(defendant.getIsYouth());
@@ -36,7 +39,7 @@ public class CPVocabularyService {
                 .inCustody(custodyLocationIsPolice || custodyLocationIsPrison)
                 .atleastOneCustodialResult(atleastOneCustodialResult)
                 .allNonCustodialResults(!atleastOneCustodialResult)
-                .atleastOneNonCustodialResult(atleastOneNonCustodialResult(allResults))
+                .atleastOneNonCustodialResult(atleastOneNonCustodialResult)
                 .cpsProsecuted(cpsProsecuted(hearing))
                 .youthDefendant(isYouth)
                 .adultDefendant(!isYouth)
@@ -109,8 +112,17 @@ public class CPVocabularyService {
         return results.stream().anyMatch(this::hasCustodialPrompt);
     }
 
-    private boolean atleastOneNonCustodialResult(final List<JudicialResult> results) {
-        return results.stream().anyMatch(r -> !hasCustodialPrompt(r));
+    // Legacy VocabularyService.js:getHasAtleastOneNonCustodialResult scans every prompt on every
+    // result for any promptReference other than the custodial one — not "a result with no
+    // custodial prompt" (that would be allNonCustodialResults). A single custodial result nearly
+    // always carries other prompts (duration, reasons, conveyor/custodian, probation team, ...),
+    // so this is almost always true once atleastOneCustodialResult is true — only reached from
+    // that branch in compute().
+    private boolean hasNonCustodialPrompt(final List<JudicialResult> results) {
+        return results.stream()
+                .flatMap(r -> Stream.ofNullable(r.getJudicialResultPrompts()).flatMap(List::stream))
+                .map(JudicialResultPrompt::getPromptReference)
+                .anyMatch(ref -> ref != null && !CUSTODIAL_RESULT_PROMPT.equals(ref));
     }
 
     private boolean hasCustodialPrompt(final JudicialResult result) {
