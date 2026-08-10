@@ -55,12 +55,11 @@ public class CPJudicialResultPromptParser {
     // prompt to imprisonmentPeriod, since a single-offence result carries duration under
     // imprisonmentPeriod rather than a separate totalCustodialPeriod prompt.
     public String totalCustodialPeriod(final JudicialResult result) {
-        if (isLife(result)) {
-            return LIFE;
-        }
-        return findPrompt(result, TOTAL_CUSTODIAL_PERIOD_PROMPT)
-                .or(() -> findPrompt(result, IMPRISONMENT_PERIOD_PROMPT))
-                .orElse(null);
+        return isLife(result)
+                ? LIFE
+                : findPrompt(result, TOTAL_CUSTODIAL_PERIOD_PROMPT)
+                        .or(() -> findPrompt(result, IMPRISONMENT_PERIOD_PROMPT))
+                        .orElse(null);
     }
 
     private boolean isLife(final JudicialResult result) {
