@@ -32,13 +32,13 @@
       "id": "5151e511-7989-4ae0-8e38-2e697834edc6"
     },
     "nextHearing": {
-      "hearingId": "41a6176a-4304-4986-91b6-588969195c56",
-      "dateTime": "2026-07-31T09:00:00Z",
       "court": {
-        "courtHouseId": "f8254db1-1683-483e-afb3-b87fde5a0a26",
         "courtHouseCode": "B01LY00",
+        "courtHouseId": "f8254db1-1683-483e-afb3-b87fde5a0a26",
         "courtHouseName": "Lavender Hill Magistrates' Court"
-      }
+      },
+      "dateTime": "2026-07-31T09:00:00Z",
+      "hearingId": "41a6176a-4304-4986-91b6-588969195c56"
     },
     "offences": [
       {
@@ -47,7 +47,7 @@
         "endDate": null,
         "judicialResults": [
           {
-            "category": null,
+            "category": "INTERMEDIARY",
             "concurrent": null,
             "consecutiveToCourtName": null,
             "consecutiveToDate": null,
@@ -55,70 +55,70 @@
             "financial": false,
             "fineAmount": null,
             "imprisonmentPeriod": null,
-            "postHearingCustodyStatus": null,
+            "postHearingCustodyStatus": "C",
             "prompts": [
               {
-                "label": null,
+                "label": "Next hearing in magistrates' court",
                 "reference": "e8f3216e-5eb4-4688-a00f-61e3d6e18411",
                 "type": null,
                 "value": "Date of hearing:31/07/2026\nTime of hearing:10:00\nCourthouse organisation name:Lavender Hill Magistrates' Court\nCourthouse address line 1:176A Lavender Hill\nCourthouse address line 2:London\nCourthouse post code:SW11 1JU\nCourtroom:Courtroom 01\nHearing type:Appeal\nEstimated duration:30 MINUTES\nBooking reference:41a6176a-4304-4986-91b6-588969195c56"
               },
               {
-                "label": null,
+                "label": "Prison organisation name",
                 "reference": "prisonOrganisationName",
-                "type": null,
+                "type": "NAMEADDRESS",
                 "value": "HMP Ashfield"
               },
               {
-                "label": null,
+                "label": "Prison email address 1",
                 "reference": "prisonEmailAddress1",
-                "type": null,
+                "type": "NAMEADDRESS",
                 "value": "yoiashfield.premiercustody@premier-serco.cjsm.net"
               },
               {
-                "label": null,
+                "label": "Prison email address 2",
                 "reference": "prisonEmailAddress2",
-                "type": null,
+                "type": "NAMEADDRESS",
                 "value": "yoiashfield.premiercustody@premier-serco.cjsm.net"
               },
               {
-                "label": null,
+                "label": "Conveyor / custodian name organisation name",
                 "reference": "conveyorcustodiannameOrganisationName",
-                "type": null,
+                "type": "NAMEADDRESS",
                 "value": "Lavender Hill Magistrates' Court: PECS"
               },
               {
-                "label": null,
+                "label": "Conveyor / custodian name email address 1",
                 "reference": "conveyorcustodiannameEmailAddress1",
-                "type": null,
+                "type": "NAMEADDRESS",
                 "value": "periodicwarrants@geoamey.co.uk"
               },
               {
-                "label": null,
+                "label": "Remand basis",
                 "reference": "remandBasis",
-                "type": null,
+                "type": "FIXL",
                 "value": "Charged with a violent or sexual offence"
               },
               {
-                "label": null,
+                "label": "Bail exception",
                 "reference": "bailException",
-                "type": null,
+                "type": "FIXLM",
                 "value": "Breach of bail"
               },
               {
-                "label": null,
+                "label": "Bail exception reason",
                 "reference": "bailExceptionReason",
-                "type": null,
+                "type": "FIXLOM",
                 "value": "Broken bail conditions"
               },
               {
-                "label": null,
+                "label": "To attend or a warrant to issue",
                 "reference": "ac96f601-be6f-4140-ba9a-8adb17f547b4",
                 "type": null,
                 "value": ""
               },
               {
-                "label": null,
+                "label": "Adjournment reasons",
                 "reference": "a1f8864a-32b7-40cd-9308-1819a7380955",
                 "type": null,
                 "value": ""
@@ -129,7 +129,7 @@
             "totalCustodialPeriod": null
           },
           {
-            "category": null,
+            "category": "ANCILLARY",
             "concurrent": null,
             "consecutiveToCourtName": null,
             "consecutiveToDate": null,
@@ -137,13 +137,13 @@
             "financial": false,
             "fineAmount": null,
             "imprisonmentPeriod": null,
-            "postHearingCustodyStatus": null,
+            "postHearingCustodyStatus": "A",
             "prompts": [],
             "resultText": "To attend or a warrant to issue",
             "totalCustodialPeriod": null
           },
           {
-            "category": null,
+            "category": "ANCILLARY",
             "concurrent": null,
             "consecutiveToCourtName": null,
             "consecutiveToDate": null,
@@ -151,66 +151,66 @@
             "financial": false,
             "fineAmount": null,
             "imprisonmentPeriod": null,
-            "postHearingCustodyStatus": null,
+            "postHearingCustodyStatus": "A",
             "prompts": [
               {
-                "label": null,
+                "label": "Date of hearing",
                 "reference": "HDATE",
-                "type": null,
+                "type": "DATE",
                 "value": "31/07/2026"
               },
               {
-                "label": null,
+                "label": "Time of hearing",
                 "reference": "timeOfHearing",
-                "type": null,
+                "type": "TIME",
                 "value": "10:00"
               },
               {
-                "label": null,
+                "label": "Courthouse organisation name",
                 "reference": "hCHOUSEOrganisationName",
-                "type": null,
+                "type": "NAMEADDRESS",
                 "value": "Lavender Hill Magistrates' Court"
               },
               {
-                "label": null,
+                "label": "Courthouse address line 1",
                 "reference": "hCHOUSEAddress1",
-                "type": null,
+                "type": "NAMEADDRESS",
                 "value": "176A Lavender Hill"
               },
               {
-                "label": null,
+                "label": "Courthouse address line 2",
                 "reference": "hCHOUSEAddress2",
-                "type": null,
+                "type": "NAMEADDRESS",
                 "value": "London"
               },
               {
-                "label": null,
+                "label": "Courthouse post code",
                 "reference": "hCHOUSEPostCode",
-                "type": null,
+                "type": "NAMEADDRESS",
                 "value": "SW11 1JU"
               },
               {
-                "label": null,
+                "label": "Courtroom",
                 "reference": "HCROOM",
-                "type": null,
+                "type": "INT",
                 "value": "Courtroom 01"
               },
               {
-                "label": null,
+                "label": "Hearing type",
                 "reference": "HTYPE",
-                "type": null,
+                "type": "TXT",
                 "value": "Appeal"
               },
               {
-                "label": null,
+                "label": "Estimated duration",
                 "reference": "HEST",
-                "type": null,
+                "type": "INT",
                 "value": "30 MINUTES"
               },
               {
-                "label": null,
+                "label": "Booking reference",
                 "reference": "bookingReference",
-                "type": null,
+                "type": "TXT",
                 "value": "41a6176a-4304-4986-91b6-588969195c56"
               }
             ],
@@ -222,9 +222,9 @@
         "pleaDate": "2026-07-31",
         "pleaValue": "NOT_GUILTY",
         "startDate": "2026-05-31",
-        "title": null,
+        "title": "Theft from the person of another",
         "verdictCode": null,
-        "wording": null
+        "wording": "Theft from the person of another"
       }
     ]
   }

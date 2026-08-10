@@ -39,7 +39,7 @@
         "endDate": null,
         "judicialResults": [
           {
-            "category": null,
+            "category": "FINAL",
             "concurrent": true,
             "consecutiveToCourtName": null,
             "consecutiveToDate": null,
@@ -47,108 +47,108 @@
             "financial": false,
             "fineAmount": null,
             "imprisonmentPeriod": "7 Months",
-            "postHearingCustodyStatus": null,
+            "postHearingCustodyStatus": "A",
             "prompts": [
               {
-                "label": null,
+                "label": "Total custodial period",
                 "reference": "totalCustodialPeriod",
-                "type": null,
+                "type": "INTM",
                 "value": "7 Months"
               },
               {
-                "label": null,
+                "label": "Prison organisation name",
                 "reference": "prisonOrganisationName",
-                "type": null,
+                "type": "NAMEADDRESS",
                 "value": "HMP Ashfield"
               },
               {
-                "label": null,
+                "label": "Prison email address 1",
                 "reference": "prisonEmailAddress1",
-                "type": null,
+                "type": "NAMEADDRESS",
                 "value": "yoiashfield.premiercustody@premier-serco.cjsm.net"
               },
               {
-                "label": null,
+                "label": "Prison email address 2",
                 "reference": "prisonEmailAddress2",
-                "type": null,
+                "type": "NAMEADDRESS",
                 "value": "yoiashfield.premiercustody@premier-serco.cjsm.net"
               },
               {
-                "label": null,
+                "label": "Conveyor / custodian name organisation name",
                 "reference": "conveyorcustodiannameOrganisationName",
-                "type": null,
+                "type": "NAMEADDRESS",
                 "value": "Bexley Magistrates' Court: PECS"
               },
               {
-                "label": null,
+                "label": "Conveyor / custodian name email address 1",
                 "reference": "conveyorcustodiannameEmailAddress1",
-                "type": null,
+                "type": "NAMEADDRESS",
                 "value": "PECSBexleyheathMags@serco.com"
               },
               {
-                "label": null,
+                "label": "Probation team to be notified organisation name",
                 "reference": "probationteamtobenotifiedOrganisationName",
-                "type": null,
+                "type": "NAMEADDRESS",
                 "value": "London Division NPS"
               },
               {
-                "label": null,
+                "label": "Probation team to be notified email address 1",
                 "reference": "probationteamtobenotifiedEmailAddress1",
-                "type": null,
+                "type": "NAMEADDRESS",
                 "value": "londonnps.court@justice.gov.uk"
               },
               {
-                "label": null,
+                "label": "Imprisonment Period",
                 "reference": "imprisonmentPeriod",
-                "type": null,
+                "type": "INTM",
                 "value": "7 Months"
               },
               {
-                "label": null,
+                "label": "Concurrent",
                 "reference": "concurrent",
-                "type": null,
+                "type": "YESBOX",
                 "value": "true"
               },
               {
-                "label": null,
+                "label": "Consecutive to offence",
                 "reference": "consecutiveToOffenceNumber",
-                "type": null,
+                "type": "TXT",
                 "value": "test Consecutive to offence"
               },
               {
-                "label": null,
+                "label": "which is on case number",
                 "reference": "whereConsecutiveToAnOffenceOnAnotherCaseSpecifyThatCaseNumber",
-                "type": null,
+                "type": "TXT",
                 "value": "28DI6046708"
               },
               {
-                "label": null,
+                "label": "Imprisonment reasons",
                 "reference": "imprisonmentReasons",
-                "type": null,
+                "type": "FIXL",
                 "value": "failure to comply with requirements of post custodial sentence supervision"
               },
               {
-                "label": null,
+                "label": "Reason for custody",
                 "reference": "theReasonsForThis",
-                "type": null,
+                "type": "FIXLOM",
                 "value": "because of an unprovoked attack of a serious nature"
               },
               {
-                "label": null,
+                "label": "Number of days in custody in foreign jurisdiction to count",
                 "reference": "numberOfDaysInCustodyInForeignJurisdictionToCount",
-                "type": null,
+                "type": "INT",
                 "value": "10"
               },
               {
-                "label": null,
+                "label": "Bail remand days to count (tagged days)",
                 "reference": "bailRemandDaysToCountTaggedDays",
-                "type": null,
+                "type": "INT",
                 "value": "0"
               },
               {
-                "label": null,
+                "label": "This offence is aggravated by the foreign power condition being met in relation to it as defined by section 31 of the National Security Act 2023",
                 "reference": "offenceAggByForeignPowerCondition",
-                "type": null,
+                "type": "BOOLEAN",
                 "value": "true"
               }
             ],
@@ -161,9 +161,9 @@
         "pleaDate": "2026-07-29",
         "pleaValue": "NOT_GUILTY",
         "startDate": "2022-12-12",
-        "title": null,
+        "title": "Conspire to assault a person thereby occasioning them actual bodily harm",
         "verdictCode": null,
-        "wording": null
+        "wording": "Avis Strosin at Runolfsdottir Burg, conspired together with Jessica Heller to assault Joanna Prosacco, thereby occasioning actual bodily harm."
       },
       {
         "code": "PS90015",
@@ -171,7 +171,7 @@
         "endDate": null,
         "judicialResults": [
           {
-            "category": null,
+            "category": "FINAL",
             "concurrent": null,
             "consecutiveToCourtName": null,
             "consecutiveToDate": null,
@@ -179,12 +179,12 @@
             "financial": false,
             "fineAmount": null,
             "imprisonmentPeriod": null,
-            "postHearingCustodyStatus": null,
+            "postHearingCustodyStatus": "A",
             "prompts": [
               {
-                "label": null,
+                "label": "Period\u00a0of conditional discharge",
                 "reference": "periodofConditionalDischarge",
-                "type": null,
+                "type": "INT",
                 "value": "7 Months"
               }
             ],
@@ -197,9 +197,9 @@
         "pleaDate": "2026-07-29",
         "pleaValue": "NOT_GUILTY",
         "startDate": "2022-11-28",
-        "title": null,
+        "title": "Public service vehicles - passenger failing to pay fare",
         "verdictCode": null,
-        "wording": null
+        "wording": "Public service vehicles - passenger failing to pay fare"
       }
     ]
   }

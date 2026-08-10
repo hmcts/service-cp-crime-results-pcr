@@ -8,7 +8,7 @@
         "decisionDate": null,
         "judicialResults": [
           {
-            "category": null,
+            "category": "FINAL",
             "concurrent": null,
             "consecutiveToCourtName": null,
             "consecutiveToDate": null,
@@ -16,7 +16,7 @@
             "financial": false,
             "fineAmount": null,
             "imprisonmentPeriod": null,
-            "postHearingCustodyStatus": null,
+            "postHearingCustodyStatus": "A",
             "prompts": [],
             "resultText": "Granted",
             "totalCustodialPeriod": null
@@ -68,7 +68,7 @@
         "endDate": null,
         "judicialResults": [
           {
-            "category": null,
+            "category": "FINAL",
             "concurrent": null,
             "consecutiveToCourtName": null,
             "consecutiveToDate": null,
@@ -76,84 +76,84 @@
             "financial": false,
             "fineAmount": null,
             "imprisonmentPeriod": "6 Months",
-            "postHearingCustodyStatus": null,
+            "postHearingCustodyStatus": "A",
             "prompts": [
               {
-                "label": null,
+                "label": "Total custodial period",
                 "reference": "totalCustodialPeriod",
-                "type": null,
+                "type": "INTM",
                 "value": "5 Months"
               },
               {
-                "label": null,
+                "label": "Prison organisation name",
                 "reference": "prisonOrganisationName",
-                "type": null,
+                "type": "NAMEADDRESS",
                 "value": "HMP/YOI Bristol"
               },
               {
-                "label": null,
+                "label": "Prison email address 1",
                 "reference": "prisonEmailAddress1",
-                "type": null,
+                "type": "NAMEADDRESS",
                 "value": "OMU.Bristol@justice.gov.uk"
               },
               {
-                "label": null,
+                "label": "Prison email address 2",
                 "reference": "prisonEmailAddress2",
-                "type": null,
+                "type": "NAMEADDRESS",
                 "value": "Reception.Bristol@justice.gov.uk"
               },
               {
-                "label": null,
+                "label": "Conveyor / custodian name organisation name",
                 "reference": "conveyorcustodiannameOrganisationName",
-                "type": null,
+                "type": "NAMEADDRESS",
                 "value": "Bristol Magistrates' Court: PECS"
               },
               {
-                "label": null,
+                "label": "Conveyor / custodian name email address 1",
                 "reference": "conveyorcustodiannameEmailAddress1",
-                "type": null,
+                "type": "NAMEADDRESS",
                 "value": "PECSBristolMags@serco.com"
               },
               {
-                "label": null,
+                "label": "Probation team to be notified organisation name",
                 "reference": "probationteamtobenotifiedOrganisationName",
-                "type": null,
+                "type": "NAMEADDRESS",
                 "value": "London Division NPS"
               },
               {
-                "label": null,
+                "label": "Probation team to be notified email address 1",
                 "reference": "probationteamtobenotifiedEmailAddress1",
-                "type": null,
+                "type": "NAMEADDRESS",
                 "value": "londonnps.court@justice.gov.uk"
               },
               {
-                "label": null,
+                "label": "Imprisonment Period",
                 "reference": "imprisonmentPeriod",
-                "type": null,
+                "type": "INTM",
                 "value": "6 Months"
               },
               {
-                "label": null,
+                "label": "Imprisonment reasons",
                 "reference": "imprisonmentReasons",
-                "type": null,
+                "type": "FIXL",
                 "value": "failure to comply with requirements of post custodial sentence supervision"
               },
               {
-                "label": null,
+                "label": "Reason for custody",
                 "reference": "theReasonsForThis",
-                "type": null,
+                "type": "FIXLOM",
                 "value": "because of an unprovoked attack of a serious nature"
               },
               {
-                "label": null,
+                "label": "Bail remand days to count (tagged days)",
                 "reference": "bailRemandDaysToCountTaggedDays",
-                "type": null,
+                "type": "INT",
                 "value": "4"
               },
               {
-                "label": null,
+                "label": "This offence is aggravated by the foreign power condition being met in relation to it as defined by section 31 of the National Security Act 2023",
                 "reference": "offenceAggByForeignPowerCondition",
-                "type": null,
+                "type": "BOOLEAN",
                 "value": "true"
               }
             ],
@@ -166,9 +166,9 @@
         "pleaDate": "2026-07-23",
         "pleaValue": "NOT_GUILTY",
         "startDate": "2026-04-24",
-        "title": null,
+        "title": "Attempt theft of motor vehicle",
         "verdictCode": null,
-        "wording": null
+        "wording": "Attempt theft to vehicle"
       }
     ]
   }

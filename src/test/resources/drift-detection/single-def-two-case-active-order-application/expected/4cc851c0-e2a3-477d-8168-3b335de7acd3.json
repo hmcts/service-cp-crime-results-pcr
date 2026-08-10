@@ -8,7 +8,7 @@
         "decisionDate": null,
         "judicialResults": [
           {
-            "category": null,
+            "category": "FINAL",
             "concurrent": null,
             "consecutiveToCourtName": null,
             "consecutiveToDate": null,
@@ -16,14 +16,14 @@
             "financial": false,
             "fineAmount": null,
             "imprisonmentPeriod": null,
-            "postHearingCustodyStatus": null,
+            "postHearingCustodyStatus": "A",
             "prompts": [],
             "resultCode": "3501",
             "resultText": "No adjudication - dealt with for original offence",
             "totalCustodialPeriod": null
           },
           {
-            "category": null,
+            "category": "FINAL",
             "concurrent": null,
             "consecutiveToCourtName": null,
             "consecutiveToDate": null,
@@ -31,24 +31,24 @@
             "financial": false,
             "fineAmount": null,
             "imprisonmentPeriod": null,
-            "postHearingCustodyStatus": null,
+            "postHearingCustodyStatus": "A",
             "prompts": [
               {
-                "label": null,
+                "label": "Date original order made",
                 "reference": "dateOriginalOrderMade",
-                "type": null,
+                "type": "DATE",
                 "value": "29/07/2026"
               },
               {
-                "label": null,
+                "label": "Order revoked",
                 "reference": "orderRevoked",
-                "type": null,
+                "type": "FIXL",
                 "value": "community order"
               },
               {
-                "label": null,
+                "label": "Court that made the original order",
                 "reference": "courtThatMadeTheOriginalOrder",
-                "type": null,
+                "type": "FIXL",
                 "value": "Bristol Magistrates' Court"
               }
             ],
@@ -100,7 +100,7 @@
         "endDate": null,
         "judicialResults": [
           {
-            "category": null,
+            "category": "FINAL",
             "concurrent": null,
             "consecutiveToCourtName": null,
             "consecutiveToDate": null,
@@ -108,88 +108,88 @@
             "financial": false,
             "fineAmount": null,
             "imprisonmentPeriod": "15 Days",
-            "postHearingCustodyStatus": null,
+            "postHearingCustodyStatus": "A",
             "prompts": [
               {
-                "label": null,
+                "label": "Total custodial period is life",
                 "reference": "totalCustodialPeriodIsLife",
-                "type": null,
+                "type": "BOOLEAN",
                 "value": "true"
               },
               {
-                "label": null,
+                "label": "Prison organisation name",
                 "reference": "prisonOrganisationName",
-                "type": null,
+                "type": "NAMEADDRESS",
                 "value": "HMP/YOI Low Newton"
               },
               {
-                "label": null,
+                "label": "Prison email address 1",
                 "reference": "prisonEmailAddress1",
-                "type": null,
+                "type": "NAMEADDRESS",
                 "value": "OMU.LowNewton@justice.gov.uk"
               },
               {
-                "label": null,
+                "label": "Prison email address 2",
                 "reference": "prisonEmailAddress2",
-                "type": null,
+                "type": "NAMEADDRESS",
                 "value": "Reception.LowNewton@justice.gov.uk"
               },
               {
-                "label": null,
+                "label": "Conveyor / custodian name organisation name",
                 "reference": "conveyorcustodiannameOrganisationName",
-                "type": null,
+                "type": "NAMEADDRESS",
                 "value": "North East Division NPS"
               },
               {
-                "label": null,
+                "label": "Conveyor / custodian name email address 1",
                 "reference": "conveyorcustodiannameEmailAddress1",
-                "type": null,
+                "type": "NAMEADDRESS",
                 "value": "nenps.court@justice.gov.uk"
               },
               {
-                "label": null,
+                "label": "Probation team to be notified organisation name",
                 "reference": "probationteamtobenotifiedOrganisationName",
-                "type": null,
+                "type": "NAMEADDRESS",
                 "value": "South West and Central Division NPS"
               },
               {
-                "label": null,
+                "label": "Probation team to be notified email address 1",
                 "reference": "probationteamtobenotifiedEmailAddress1",
-                "type": null,
+                "type": "NAMEADDRESS",
                 "value": "SWSCNPS.Court@justice.gov.uk"
               },
               {
-                "label": null,
+                "label": "Imprisonment Period",
                 "reference": "imprisonmentPeriod",
-                "type": null,
+                "type": "INTM",
                 "value": "15 Days"
               },
               {
-                "label": null,
+                "label": "Imprisonment reasons",
                 "reference": "imprisonmentReasons",
-                "type": null,
+                "type": "FIXL",
                 "value": "the offence(s) are so serious that only a custodial sentence can be justified"
               },
               {
-                "label": null,
+                "label": "Reason for custody",
                 "reference": "theReasonsForThis",
-                "type": null,
+                "type": "FIXLOM",
                 "value": "because of an unprovoked attack of a serious nature"
               },
               {
-                "label": null,
+                "label": "Bail remand days to count (tagged days)",
                 "reference": "bailRemandDaysToCountTaggedDays",
-                "type": null,
+                "type": "INT",
                 "value": "0"
               },
               {
-                "label": null,
+                "label": "This offence is aggravated by the foreign power condition being met in relation to it as defined by section 31 of the National Security Act 2023",
                 "reference": "offenceAggByForeignPowerCondition",
-                "type": null,
+                "type": "BOOLEAN",
                 "value": "false"
               },
               {
-                "label": null,
+                "label": "Risk or vulnerability factors",
                 "reference": "64eb8b00-3b03-4fef-9646-ee2b1412f036",
                 "type": null,
                 "value": "Risk or vulnerability factors:RiskFactor"
@@ -197,16 +197,16 @@
             ],
             "resultCode": "1002",
             "resultText": "Imprisonment",
-            "totalCustodialPeriod": null
+            "totalCustodialPeriod": "Life"
           }
         ],
         "listingNumber": 1,
         "pleaDate": "2026-07-30",
         "pleaValue": "GUILTY",
         "startDate": "2026-05-31",
-        "title": null,
+        "title": "Robbery",
         "verdictCode": null,
-        "wording": null
+        "wording": "Robbery"
       }
     ]
   }
