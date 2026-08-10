@@ -21,6 +21,8 @@ public class CPJudicialResultPromptParser {
     private static final String FINE_AMOUNT_PROMPT = "AOF";
     private static final String IMPRISONMENT_PERIOD_PROMPT = "imprisonmentPeriod";
     private static final String TOTAL_CUSTODIAL_PERIOD_PROMPT = "totalCustodialPeriod";
+    private static final String TOTAL_CUSTODIAL_PERIOD_IS_LIFE_PROMPT = "totalCustodialPeriodIsLife";
+    private static final String LIFE = "Life";
 
     public Boolean concurrent(final JudicialResult result) {
         return findPrompt(result, CONCURRENT_PROMPT).map(Boolean::parseBoolean).orElse(null);
@@ -47,8 +49,23 @@ public class CPJudicialResultPromptParser {
         return findPrompt(result, IMPRISONMENT_PERIOD_PROMPT).orElse(null);
     }
 
+    // "Life" takes priority over any duration prompt — a life sentence can still carry an
+    // imprisonmentPeriod/totalCustodialPeriod value (e.g. a minimum term), but the overall
+    // period is life regardless. Otherwise falls back from the specific totalCustodialPeriod
+    // prompt to imprisonmentPeriod, since a single-offence result carries duration under
+    // imprisonmentPeriod rather than a separate totalCustodialPeriod prompt.
     public String totalCustodialPeriod(final JudicialResult result) {
-        return findPrompt(result, TOTAL_CUSTODIAL_PERIOD_PROMPT).orElse(null);
+        return isLife(result)
+                ? LIFE
+                : findPrompt(result, TOTAL_CUSTODIAL_PERIOD_PROMPT)
+                        .or(() -> findPrompt(result, IMPRISONMENT_PERIOD_PROMPT))
+                        .orElse(null);
+    }
+
+    private boolean isLife(final JudicialResult result) {
+        return findPrompt(result, TOTAL_CUSTODIAL_PERIOD_IS_LIFE_PROMPT)
+                .map(Boolean::parseBoolean)
+                .orElse(false);
     }
 
     private Optional<String> findPrompt(final JudicialResult result, final String promptReference) {

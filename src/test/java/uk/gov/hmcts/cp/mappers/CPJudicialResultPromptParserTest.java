@@ -56,18 +56,40 @@ class CPJudicialResultPromptParserTest {
     }
 
     @Test
-    void totalCustodialPeriod_should_returnRawValue() {
+    void totalCustodialPeriod_should_returnRawValue_whenTotalCustodialPeriodPromptPresent() {
         final JudicialResult result = resultWithPrompt("totalCustodialPeriod", "6 Months 1 week");
 
         assertThat(parser.totalCustodialPeriod(result)).isEqualTo("6 Months 1 week");
     }
 
+    @Test
+    void totalCustodialPeriod_should_fallBackToImprisonmentPeriod_whenTotalCustodialPeriodPromptAbsent() {
+        final JudicialResult result = resultWithPrompt("imprisonmentPeriod", "8 Years");
+
+        assertThat(parser.totalCustodialPeriod(result)).isEqualTo("8 Years");
+    }
+
+    @Test
+    void totalCustodialPeriod_should_returnLife_whenIsLifePromptTrue() {
+        final JudicialResult result = resultWithPrompts(
+                JudicialResultPrompt.builder().promptReference("totalCustodialPeriodIsLife").value("true").build(),
+                JudicialResultPrompt.builder().promptReference("imprisonmentPeriod").value("8 Years").build());
+
+        assertThat(parser.totalCustodialPeriod(result)).isEqualTo("Life");
+    }
+
+    @Test
+    void totalCustodialPeriod_should_returnNull_whenNoDurationOrLifePromptPresent() {
+        final JudicialResult result = resultWithPrompt("other", "value");
+
+        assertThat(parser.totalCustodialPeriod(result)).isNull();
+    }
+
     private JudicialResult resultWithPrompt(final String promptReference, final String value) {
-        return JudicialResult.builder()
-                .judicialResultPrompts(List.of(JudicialResultPrompt.builder()
-                        .promptReference(promptReference)
-                        .value(value)
-                        .build()))
-                .build();
+        return resultWithPrompts(JudicialResultPrompt.builder().promptReference(promptReference).value(value).build());
+    }
+
+    private JudicialResult resultWithPrompts(final JudicialResultPrompt... prompts) {
+        return JudicialResult.builder().judicialResultPrompts(List.of(prompts)).build();
     }
 }

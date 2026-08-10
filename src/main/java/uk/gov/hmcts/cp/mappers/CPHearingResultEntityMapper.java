@@ -264,6 +264,8 @@ public class CPHearingResultEntityMapper {
                 .courtApplicationId(courtApplicationId)
                 .sourceOffenceId(offence.getId() == null ? null : UUID.fromString(offence.getId()))
                 .code(offence.getOffenceCode())
+                .title(offence.getOffenceTitle())
+                .wording(offence.getWording())
                 .startDate(offence.getStartDate())
                 .endDate(offence.getEndDate())
                 .listingNumber(offence.getListingNumber())
@@ -271,8 +273,9 @@ public class CPHearingResultEntityMapper {
                 .pleaValue(offence.getPlea() == null ? null : offence.getPlea().getPleaValue())
                 .pleaDate(offence.getPlea() == null ? null : offence.getPlea().getPleaDate())
                 .build();
-        // title/wording/verdictCode: left unset, same as PcrVersionMapper.toOffence — no
-        // confirmed CP source for these three, unlike plea (ADR-004-style confirmation pending)
+        // verdictCode: left unset — no verdict-code-shaped field found anywhere on a real
+        // offence payload (confirmed against a real amended hearing), unlike title/wording
+        // which are directly present as offenceTitle/wording.
     }
 
     private void addResult(final JudicialResult result, final UUID offenceId, final UUID courtApplicationId,
@@ -290,6 +293,8 @@ public class CPHearingResultEntityMapper {
                 .courtApplicationId(courtApplicationId)
                 .resultCode(result.getCjsCode())
                 .resultText(result.getLabel())
+                .category(result.getCategory())
+                .postHearingCustodyStatus(result.getPostHearingCustodyStatus())
                 .financial(result.isFinancialResult())
                 .convicted(result.isConvictedResult())
                 .concurrent(promptParser.concurrent(result))
@@ -299,8 +304,6 @@ public class CPHearingResultEntityMapper {
                 .imprisonmentPeriod(promptParser.imprisonmentPeriod(result))
                 .totalCustodialPeriod(promptParser.totalCustodialPeriod(result))
                 .build();
-        // postHearingCustodyStatus/category: need a real ResultDefinition lookup — left null,
-        // same as PcrVersionMapper.toJudicialResult
     }
 
     private List<CPJudicialResultPromptEntity> toPromptEntities(final JudicialResult result, final UUID judicialResultId) {
@@ -312,6 +315,8 @@ public class CPHearingResultEntityMapper {
                         .judicialResultId(judicialResultId)
                         .promptReference(p.getPromptReference())
                         .value(p.getValue())
+                        .label(p.getLabel())
+                        .type(p.getType())
                         .build())
                 .toList();
     }
