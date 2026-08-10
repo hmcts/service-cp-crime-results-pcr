@@ -182,9 +182,8 @@ run, in production or in tests; discovered the hard way when repository tests fa
 | Variable | Purpose | Default |
 |---|---|---|
 | `SERVER_PORT` | HTTP port | `8082` |
-| `CP_BACKEND_URL` | Results Query API base URL | `http://localhost:8081` |
+| `CP_BACKEND_URL` | Results Query API **and** Reference Data (`now-subscriptions`) base URL | `http://localhost:8081` |
 | `CJSCPPUID` | Client identity header sent to the Results Query API and Reference Data | `00000000-0000-0000-0000-000000000000` |
-| `REFERENCE_DATA_URL` | Reference Data (`now-subscriptions`) base URL — real dev/SIT value unconfirmed, see design doc §7 | falls back to `CP_BACKEND_URL` |
 | `REDIS_HOST` / `REDIS_PORT` | Hearing-result cache (read-only) | `localhost` / `6379` |
 | `rpe.AppInsightsInstrumentationKey` | Azure Application Insights key | `00000000-0000-0000-0000-000000000000` |
 

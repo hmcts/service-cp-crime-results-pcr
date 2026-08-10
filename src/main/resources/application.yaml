@@ -65,9 +65,5 @@ results-query-client:
   cjscppuid: ${CJSCPPUID:00000000-0000-0000-0000-000000000000}
 
 reference-data-client:
-  # Real dev/SIT host unconfirmed (design doc §7 — no non-localhost value exists in
-  # cpp-context-azure-legalaidagency) — defaults to CP_BACKEND_URL as a placeholder since
-  # service-cp-refdata-courthearing-courthouses already reaches referencedata-query-api from
-  # this org's AKS fleet; confirm the real value before this reaches a live environment.
-  url: ${REFERENCE_DATA_URL:${CP_BACKEND_URL:http://localhost:8081}}
+  url: ${CP_BACKEND_URL:http://localhost:8081}
   cjscppuid: ${CJSCPPUID:00000000-0000-0000-0000-000000000000}
