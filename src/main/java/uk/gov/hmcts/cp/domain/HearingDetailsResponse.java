@@ -263,10 +263,6 @@ public class HearingDetailsResponse {
         private ApplicationParty subject;
         private List<CourtApplicationCase> courtApplicationCases;
         private List<JudicialResult> judicialResults;
-        // Only present on breach/resentencing applications (type.resentencingActivationCode) —
-        // carries the offence the ORIGINAL order was made for, e.g. a robbery conviction being
-        // resentenced after breach of a community order. Confirmed against a real hearing's
-        // Redis-cached payload; courtApplicationCases[].offences does not carry this offence.
         private CourtOrder courtOrder;
     }
 
