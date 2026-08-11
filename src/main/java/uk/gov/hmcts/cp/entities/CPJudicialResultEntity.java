@@ -40,9 +40,6 @@ public class CPJudicialResultEntity {
     @Column(name = "result_text")
     private String resultText;
 
-    @Column(name = "post_hearing_custody_status")
-    private String postHearingCustodyStatus;
-
     private Boolean financial;
 
     private String category;

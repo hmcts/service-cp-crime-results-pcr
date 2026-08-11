@@ -14,6 +14,10 @@ import uk.gov.hmcts.cp.domain.HearingDetailsResponse.CourtOrder;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.CourtOrderOffence;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.CustodialEstablishment;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.Defendant;
+import uk.gov.hmcts.cp.domain.HearingDetailsResponse.DefendantAttendance;
+import uk.gov.hmcts.cp.domain.HearingDetailsResponse.AttendanceDay;
+import uk.gov.hmcts.cp.domain.HearingDetailsResponse.Verdict;
+import uk.gov.hmcts.cp.domain.HearingDetailsResponse.VerdictType;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.HearingDay;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.HearingDetail;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.JudicialResult;
@@ -273,6 +277,7 @@ class CPHearingResultEntityMapperTest {
                                 .dateOfBirth(LocalDate.of(1990, 1, 31))
                                 .address(Address.builder().address1("1 Example Street").address2("Townville")
                                         .address3("Countyshire").postcode("AB1 2CD").build())
+                                .gender("MALE").nationalityDescription("British")
                                 .build())
                         .build())
                 .offences(List.of())
@@ -291,6 +296,8 @@ class CPHearingResultEntityMapperTest {
         assertThat(bundle.version().getAddressLine3()).isEqualTo("Countyshire");
         assertThat(bundle.version().getAddressLine4()).isNull();
         assertThat(bundle.version().getPostCode()).isEqualTo("AB1 2CD");
+        assertThat(bundle.version().getGender()).isEqualTo("MALE");
+        assertThat(bundle.version().getNationality()).isEqualTo("British");
     }
 
     @Test
@@ -300,6 +307,8 @@ class CPHearingResultEntityMapperTest {
 
         assertThat(bundle.version().getFirstName()).isNull();
         assertThat(bundle.version().getDateOfBirth()).isNull();
+        assertThat(bundle.version().getGender()).isNull();
+        assertThat(bundle.version().getNationality()).isNull();
     }
 
     @Test
@@ -403,7 +412,6 @@ class CPHearingResultEntityMapperTest {
         assertThat(resultEntity.getCourtApplicationId()).isNull();
         assertThat(resultEntity.getResultCode()).isEqualTo("1200");
         assertThat(resultEntity.getCategory()).isEqualTo("FINAL");
-        assertThat(resultEntity.getPostHearingCustodyStatus()).isEqualTo("A");
         assertThat(resultEntity.getFinancial()).isFalse();
         assertThat(resultEntity.getConvicted()).isTrue();
         assertThat(bundle.judicialResultPrompts()).hasSize(1);
@@ -411,6 +419,131 @@ class CPHearingResultEntityMapperTest {
         assertThat(bundle.judicialResultPrompts().get(0).getPromptReference()).isEqualTo("prisonOrganisationName");
         assertThat(bundle.judicialResultPrompts().get(0).getLabel()).isEqualTo("Prison organisation name");
         assertThat(bundle.judicialResultPrompts().get(0).getType()).isEqualTo("NAMEADDRESS");
+    }
+
+    @Test
+    void toWriteBundle_should_mapVerdictCodeAndOffenceLegislation_whenPresent() {
+        final Offence offence = Offence.builder()
+                .offenceCode("TH68001")
+                .offenceLegislation("Contrary to section 1(1) and 7 of the Theft Act 1968.")
+                .verdict(Verdict.builder().verdictType(VerdictType.builder().verdictCode("G").build()).build())
+                .judicialResults(List.of())
+                .build();
+        final Defendant defendant = Defendant.builder()
+                .id(DEFENDANT_ID.toString())
+                .personDefendant(PersonDefendant.builder().build())
+                .offences(List.of(offence))
+                .build();
+        final HearingDetail hearing = HearingDetail.builder().courtApplications(List.of()).build();
+
+        final CPEntitySet bundle = mapper.toWriteBundle(defendant, hearing, CASE_HEARING_ID, CREATED_AT, EXPIRES_AT);
+
+        assertThat(bundle.offences().get(0).getVerdictCode()).isEqualTo("G");
+        assertThat(bundle.offences().get(0).getOffenceLegislation())
+                .isEqualTo("Contrary to section 1(1) and 7 of the Theft Act 1968.");
+    }
+
+    @Test
+    void toWriteBundle_should_leaveVerdictCodeNull_whenNoVerdict() {
+        final Offence offence = Offence.builder().offenceCode("TH68001").judicialResults(List.of()).build();
+        final Defendant defendant = Defendant.builder()
+                .id(DEFENDANT_ID.toString())
+                .personDefendant(PersonDefendant.builder().build())
+                .offences(List.of(offence))
+                .build();
+        final HearingDetail hearing = HearingDetail.builder().courtApplications(List.of()).build();
+
+        final CPEntitySet bundle = mapper.toWriteBundle(defendant, hearing, CASE_HEARING_ID, CREATED_AT, EXPIRES_AT);
+
+        assertThat(bundle.offences().get(0).getVerdictCode()).isNull();
+        assertThat(bundle.offences().get(0).getOffenceLegislation()).isNull();
+    }
+
+    @Test
+    void toWriteBundle_should_mapPostHearingCustodyStatus_toFirstNonNotApplicableCaseLevelResult() {
+        final JudicialResult notApplicable = JudicialResult.builder()
+                .postHearingCustodyStatus("Not Applicable").judicialResultPrompts(List.of()).build();
+        final JudicialResult meaningful = JudicialResult.builder()
+                .postHearingCustodyStatus("Bailed").judicialResultPrompts(List.of()).build();
+        final Defendant defendant = Defendant.builder()
+                .id(DEFENDANT_ID.toString())
+                .personDefendant(PersonDefendant.builder().build())
+                .offences(List.of())
+                .defendantCaseJudicialResults(List.of(notApplicable, meaningful))
+                .build();
+        final HearingDetail hearing = HearingDetail.builder().courtApplications(List.of()).build();
+
+        final CPEntitySet bundle = mapper.toWriteBundle(defendant, hearing, CASE_HEARING_ID, CREATED_AT, EXPIRES_AT);
+
+        assertThat(bundle.version().getPostHearingCustodyStatus()).isEqualTo("Bailed");
+    }
+
+    @Test
+    void toWriteBundle_should_defaultPostHearingCustodyStatus_whenNoneMeaningful() {
+        final Defendant defendant = minimalDefendant();
+        final HearingDetail hearing = HearingDetail.builder().courtApplications(List.of()).build();
+
+        final CPEntitySet bundle = mapper.toWriteBundle(defendant, hearing, CASE_HEARING_ID, CREATED_AT, EXPIRES_AT);
+
+        assertThat(bundle.version().getPostHearingCustodyStatus()).isEqualTo("Not Applicable");
+    }
+
+    @Test
+    void toWriteBundle_should_mapDefendantPresent_whenAttendanceMatchesSittingDay() {
+        final Defendant defendant = Defendant.builder()
+                .id(DEFENDANT_ID.toString())
+                .personDefendant(PersonDefendant.builder().build())
+                .offences(List.of())
+                .build();
+        final HearingDetail hearing = HearingDetail.builder()
+                .courtApplications(List.of())
+                .hearingDays(List.of(HearingDay.builder().sittingDay("2026-08-11").build()))
+                .defendantAttendance(List.of(DefendantAttendance.builder()
+                        .defendantId(DEFENDANT_ID.toString())
+                        .attendanceDays(List.of(AttendanceDay.builder().day("2026-08-11").attendanceType("IN_PERSON").build()))
+                        .build()))
+                .build();
+
+        final CPEntitySet bundle = mapper.toWriteBundle(defendant, hearing, CASE_HEARING_ID, CREATED_AT, EXPIRES_AT);
+
+        assertThat(bundle.version().getDefendantPresent()).isTrue();
+    }
+
+    // Legacy's own algorithm has a real bug here (`=` instead of `===`, always matching the
+    // first attendance entry) — this proves the fix: a SECOND defendant with no matching
+    // attendance entry of their own must not inherit the FIRST defendant's "present" result.
+    @Test
+    void toWriteBundle_should_notMatchAnotherDefendantsAttendance_forMultiDefendantHearing() {
+        final Defendant secondDefendant = Defendant.builder()
+                .id("44444444-4444-4444-4444-444444444444")
+                .personDefendant(PersonDefendant.builder().build())
+                .offences(List.of())
+                .build();
+        final HearingDetail hearing = HearingDetail.builder()
+                .courtApplications(List.of())
+                .hearingDays(List.of(HearingDay.builder().sittingDay("2026-08-11").build()))
+                .defendantAttendance(List.of(DefendantAttendance.builder()
+                        .defendantId(DEFENDANT_ID.toString())
+                        .attendanceDays(List.of(AttendanceDay.builder().day("2026-08-11").attendanceType("IN_PERSON").build()))
+                        .build()))
+                .build();
+
+        final CPEntitySet bundle = mapper.toWriteBundle(secondDefendant, hearing, CASE_HEARING_ID, CREATED_AT, EXPIRES_AT);
+
+        assertThat(bundle.version().getDefendantPresent()).isFalse();
+    }
+
+    @Test
+    void toWriteBundle_should_defaultDefendantPresentToFalse_whenNoAttendanceRecorded() {
+        final Defendant defendant = minimalDefendant();
+        final HearingDetail hearing = HearingDetail.builder()
+                .courtApplications(List.of())
+                .hearingDays(List.of(HearingDay.builder().sittingDay("2026-08-11").build()))
+                .build();
+
+        final CPEntitySet bundle = mapper.toWriteBundle(defendant, hearing, CASE_HEARING_ID, CREATED_AT, EXPIRES_AT);
+
+        assertThat(bundle.version().getDefendantPresent()).isFalse();
     }
 
     @Test

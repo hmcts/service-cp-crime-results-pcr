@@ -42,7 +42,7 @@ public class PcrResultsMapper {
                 .caseMarkers(caseMarkers.stream().map(this::toCaseMarker).toList())
                 .defendant(toDefendant(version))
                 .custodyLocation(toCustodyLocation(version))
-                .hearing(toHearingDetails(caseHearing))
+                .hearing(toHearingDetails(caseHearing, version))
                 .nextHearing(toNextHearing(version.getNextHearing()))
                 .offences(directOffences(offences, version.getCpVersionPk()).stream()
                         .map(o -> toOffence(o, judicialResults, prompts))
@@ -67,6 +67,9 @@ public class PcrResultsMapper {
                 .lastName(version.getLastName())
                 .dateOfBirth(version.getDateOfBirth())
                 .address(toAddress(version))
+                .gender(version.getGender())
+                .nationality(version.getNationality())
+                .postHearingCustodyStatus(version.getPostHearingCustodyStatus())
                 .build();
     }
 
@@ -87,7 +90,7 @@ public class PcrResultsMapper {
                 : CustodyLocation.builder().name(version.getCustodyLocation()).custodyType(version.getCustodyType()).build();
     }
 
-    private HearingDetails toHearingDetails(final CPCaseHearingEntity caseHearing) {
+    private HearingDetails toHearingDetails(final CPCaseHearingEntity caseHearing, final CPVersionEntity version) {
         // courtHouseId: no confirmed source on CPCaseHearingEntity today — left unset
         return HearingDetails.builder()
                 .id(caseHearing.getHearingId())
@@ -95,6 +98,8 @@ public class PcrResultsMapper {
                 .hearingDate(caseHearing.getHearingDate())
                 .hearingOutcome(caseHearing.getHearingOutcome())
                 .hearingType(caseHearing.getHearingType())
+                .jurisdiction(caseHearing.getJurisdiction())
+                .defendantPresent(version.getDefendantPresent())
                 .build();
     }
 
@@ -139,6 +144,7 @@ public class PcrResultsMapper {
                 .pleaValue(offence.getPleaValue())
                 .pleaDate(offence.getPleaDate())
                 .verdictCode(offence.getVerdictCode())
+                .offenceLegislation(offence.getOffenceLegislation())
                 .judicialResults(allResults.stream()
                         .filter(r -> offence.getId().equals(r.getOffenceId()))
                         .map(r -> toJudicialResult(r, allPrompts))
@@ -150,7 +156,6 @@ public class PcrResultsMapper {
         return JudicialResult.builder()
                 .resultCode(result.getResultCode())
                 .resultText(result.getResultText())
-                .postHearingCustodyStatus(result.getPostHearingCustodyStatus())
                 .financial(result.getFinancial())
                 .category(result.getCategory())
                 .convicted(result.getConvicted())

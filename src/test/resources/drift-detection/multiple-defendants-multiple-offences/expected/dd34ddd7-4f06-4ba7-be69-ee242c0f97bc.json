@@ -17,14 +17,17 @@
       "masterDefendantId": "dd34ddd7-4f06-4ba7-be69-ee242c0f97bc",
       "title": "Mr"
     },
+    "gender": "MALE",
     "hearing": {
       "court": {
         "courtHouseCode": "B52CM00",
         "courtHouseName": "Bristol Magistrates' Court"
       },
+      "defendantPresent": true,
       "hearingDate": "2026-07-31",
       "hearingType": "First hearing",
-      "id": "f15a49db-812e-43d2-bfc5-7f3c7ee9ede1"
+      "id": "f15a49db-812e-43d2-bfc5-7f3c7ee9ede1",
+      "jurisdiction": "MAGISTRATES"
     },
     "nextHearing": {
       "court": {
@@ -57,6 +60,7 @@
           }
         ],
         "listingNumber": 1,
+        "offenceLegislation": "Contrary to paragraph 6 of Schedule 4 to, and regulation 19(2) of, the Food Safety and Hygiene (England) Regulations 2013.",
         "pleaDate": "2026-07-31",
         "pleaValue": "NOT_GUILTY",
         "startDate": "2026-05-01",
@@ -218,12 +222,14 @@
           }
         ],
         "listingNumber": 1,
+        "offenceLegislation": "Contrary to section 178(2) and (4) of the Broadcasting Act 1990.",
         "pleaDate": "2026-07-31",
         "pleaValue": "NOT_GUILTY",
         "startDate": "2026-05-01",
         "title": "Offer to supply a foreign satellite programme",
         "wording": "Offer to supply a foreign satellite programme"
       }
-    ]
+    ],
+    "postHearingCustodyStatus": "Not Applicable"
   }
 ]

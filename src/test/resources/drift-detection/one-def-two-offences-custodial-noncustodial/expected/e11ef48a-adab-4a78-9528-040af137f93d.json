@@ -17,15 +17,19 @@
       "masterDefendantId": "e11ef48a-adab-4a78-9528-040af137f93d",
       "title": "Mr"
     },
+    "gender": "MALE",
     "hearing": {
       "court": {
         "courtHouseCode": "B01BH00",
         "courtHouseName": "Bexley Magistrates' Court"
       },
+      "defendantPresent": true,
       "hearingDate": "2026-07-29",
       "hearingType": "First hearing",
-      "id": "76dc9641-e001-4b4b-b2c9-6ab3d98ef50b"
+      "id": "76dc9641-e001-4b4b-b2c9-6ab3d98ef50b",
+      "jurisdiction": "MAGISTRATES"
     },
+    "nationality": "Unknown",
     "offences": [
       {
         "code": "OF61102C",
@@ -148,10 +152,12 @@
           }
         ],
         "listingNumber": 1,
+        "offenceLegislation": "Contrary to sections 1,1A and 3 of the Criminal Law Act 1977.",
         "pleaDate": "2026-07-29",
         "pleaValue": "NOT_GUILTY",
         "startDate": "2022-12-12",
         "title": "Conspire to assault a person thereby occasioning them actual bodily harm",
+        "verdictCode": "G",
         "wording": "Avis Strosin at Runolfsdottir Burg, conspired together with Jessica Heller to assault Joanna Prosacco, thereby occasioning actual bodily harm."
       },
       {
@@ -176,12 +182,15 @@
           }
         ],
         "listingNumber": 1,
+        "offenceLegislation": "Contrary to regulation 7(2)(b)(i) of the Public Service Vehicles (Conduct of Drivers, Inspectors, Conductors and Passengers) Regulations 1990 and section 25 of the Public Passengers Vehicles Act 1981.",
         "pleaDate": "2026-07-29",
         "pleaValue": "NOT_GUILTY",
         "startDate": "2022-11-28",
         "title": "Public service vehicles - passenger failing to pay fare",
+        "verdictCode": "G",
         "wording": "Public service vehicles - passenger failing to pay fare"
       }
-    ]
+    ],
+    "postHearingCustodyStatus": "Not Applicable"
   }
 ]

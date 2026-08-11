@@ -43,6 +43,16 @@ public class CPVersionEntity {
     @Column(name = "custody_type")
     private String custodyType;
 
+    @Column(name = "post_hearing_custody_status")
+    private String postHearingCustodyStatus;
+
+    private String gender;
+
+    private String nationality;
+
+    @Column(name = "defendant_present")
+    private Boolean defendantPresent;
+
     @Column(name = "master_defendant_id")
     private UUID masterDefendantId;
 

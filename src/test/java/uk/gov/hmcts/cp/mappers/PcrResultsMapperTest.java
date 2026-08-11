@@ -57,6 +57,7 @@ class PcrResultsMapperTest {
                 .title("Mr").firstName("John").middleName("Q").lastName("Doe")
                 .dateOfBirth(LocalDate.of(1990, 1, 31))
                 .addressLine1("1 Example Street").postCode("AB1 2CD")
+                .gender("MALE").nationality("British").postHearingCustodyStatus("Not Applicable")
                 .build();
         final CPCaseHearingEntity caseHearing = CPCaseHearingEntity.builder().hearingId(HEARING_ID).build();
 
@@ -68,6 +69,9 @@ class PcrResultsMapperTest {
         assertThat(result.getDefendant().getDateOfBirth()).isEqualTo(LocalDate.of(1990, 1, 31));
         assertThat(result.getDefendant().getAddress().getAddress1()).isEqualTo("1 Example Street");
         assertThat(result.getDefendant().getAddress().getPostCode()).isEqualTo("AB1 2CD");
+        assertThat(result.getDefendant().getGender()).isEqualTo("MALE");
+        assertThat(result.getDefendant().getNationality()).isEqualTo("British");
+        assertThat(result.getDefendant().getPostHearingCustodyStatus()).isEqualTo("Not Applicable");
     }
 
     @Test
@@ -86,15 +90,18 @@ class PcrResultsMapperTest {
     void toPcrHearingResult_should_mapHearingDetailsWithCourt() {
         final CPCaseHearingEntity caseHearing = CPCaseHearingEntity.builder()
                 .hearingId(HEARING_ID).courtHouseCode("B01LY").courtHouseName("Leeds Crown Court")
-                .hearingDate(LocalDate.of(2026, 7, 23)).hearingType("First hearing").build();
+                .hearingDate(LocalDate.of(2026, 7, 23)).hearingType("First hearing").jurisdiction("MAGISTRATES").build();
+        final CPVersionEntity version = minimalVersion().toBuilder().defendantPresent(true).build();
 
-        final PcrHearingResult result = mapper.toPcrHearingResult(caseHearing, minimalVersion(), List.of(), List.of(), List.of(), List.of(), List.of());
+        final PcrHearingResult result = mapper.toPcrHearingResult(caseHearing, version, List.of(), List.of(), List.of(), List.of(), List.of());
 
         assertThat(result.getHearing().getId()).isEqualTo(HEARING_ID);
         assertThat(result.getHearing().getCourt().getCourtHouseCode()).isEqualTo("B01LY");
         assertThat(result.getHearing().getCourt().getCourtHouseName()).isEqualTo("Leeds Crown Court");
         assertThat(result.getHearing().getHearingDate()).isEqualTo(LocalDate.of(2026, 7, 23));
         assertThat(result.getHearing().getHearingType()).isEqualTo("First hearing");
+        assertThat(result.getHearing().getJurisdiction()).isEqualTo("MAGISTRATES");
+        assertThat(result.getHearing().getDefendantPresent()).isTrue();
     }
 
     @Test
@@ -159,7 +166,8 @@ class PcrResultsMapperTest {
         final CPVersionEntity version = minimalVersion();
         final CPOffenceEntity offence = CPOffenceEntity.builder()
                 .id(UUID.fromString("00000000-0000-0000-0000-000000000044"))
-                .versionPk(version.getCpVersionPk()).code("TH68001").listingNumber(1).build();
+                .versionPk(version.getCpVersionPk()).code("TH68001").listingNumber(1)
+                .verdictCode("G").offenceLegislation("Contrary to section 1(1) and 7 of the Theft Act 1968.").build();
         final CPJudicialResultEntity judicialResult = CPJudicialResultEntity.builder()
                 .id(UUID.fromString("00000000-0000-0000-0000-000000000055"))
                 .offenceId(offence.getId()).resultCode("1200").resultText("Sentenced").financial(false).convicted(true).build();
@@ -171,6 +179,9 @@ class PcrResultsMapperTest {
 
         assertThat(result.getOffences()).hasSize(1);
         assertThat(result.getOffences().get(0).getCode()).isEqualTo("TH68001");
+        assertThat(result.getOffences().get(0).getVerdictCode()).isEqualTo("G");
+        assertThat(result.getOffences().get(0).getOffenceLegislation())
+                .isEqualTo("Contrary to section 1(1) and 7 of the Theft Act 1968.");
         assertThat(result.getOffences().get(0).getJudicialResults()).hasSize(1);
         final var mappedResult = result.getOffences().get(0).getJudicialResults().get(0);
         assertThat(mappedResult.getResultCode()).isEqualTo("1200");

@@ -17,14 +17,17 @@
       "masterDefendantId": "86155787-50d0-47f6-808e-70378da66bf5",
       "title": "Mr"
     },
+    "gender": "MALE",
     "hearing": {
       "court": {
         "courtHouseCode": "B01BH00",
         "courtHouseName": "Bexley Magistrates' Court"
       },
+      "defendantPresent": true,
       "hearingDate": "2026-07-29",
       "hearingType": "First hearing",
-      "id": "9c7e33d3-e6c0-4138-b7fb-b176554ae98c"
+      "id": "9c7e33d3-e6c0-4138-b7fb-b176554ae98c",
+      "jurisdiction": "MAGISTRATES"
     },
     "nextHearing": {
       "court": {
@@ -223,6 +226,7 @@
           }
         ],
         "listingNumber": 1,
+        "offenceLegislation": "Contrary to sections 1,1A and 3 of the Criminal Law Act 1977.",
         "pleaDate": "2026-07-29",
         "pleaValue": "GUILTY",
         "startDate": "2022-12-12",
@@ -349,12 +353,14 @@
           }
         ],
         "listingNumber": 1,
+        "offenceLegislation": "Contrary to regulation 7(2)(b)(i) of the Public Service Vehicles (Conduct of Drivers, Inspectors, Conductors and Passengers) Regulations 1990 and section 25 of the Public Passengers Vehicles Act 1981.",
         "pleaDate": "2026-07-29",
         "pleaValue": "GUILTY",
         "startDate": "2022-11-28",
         "title": "Public service vehicles - passenger failing to pay fare",
         "wording": "Public service vehicles - passenger failing to pay fare"
       }
-    ]
+    ],
+    "postHearingCustodyStatus": "Not Applicable"
   }
 ]

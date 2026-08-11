@@ -73,6 +73,7 @@
               }
             ],
             "listingNumber": 1,
+            "offenceLegislation": "Contrary to section 1(1) and 7 of the Theft Act 1968.",
             "pleaDate": "2026-07-30",
             "pleaValue": "GUILTY",
             "startDate": "2026-05-31",
@@ -98,14 +99,17 @@
       "masterDefendantId": "1bcb7e51-edfe-4e6d-b67a-8033f38fc5af",
       "title": "Mr"
     },
+    "gender": "MALE",
     "hearing": {
       "court": {
         "courtHouseCode": "B01DU00",
         "courtHouseName": "City of London Magistrates' Court"
       },
+      "defendantPresent": true,
       "hearingDate": "2026-07-30",
       "hearingType": "First hearing",
-      "id": "81c4cdf1-5323-49e8-9a94-598c4f85e6bf"
+      "id": "81c4cdf1-5323-49e8-9a94-598c4f85e6bf",
+      "jurisdiction": "MAGISTRATES"
     },
     "offences": [
       {
@@ -209,12 +213,14 @@
           }
         ],
         "listingNumber": 1,
+        "offenceLegislation": "Contrary to section 8(1) of the Theft Act 1968.",
         "pleaDate": "2026-07-30",
         "pleaValue": "GUILTY",
         "startDate": "2026-05-31",
         "title": "Robbery",
         "wording": "Robbery"
       }
-    ]
+    ],
+    "postHearingCustodyStatus": "Not Applicable"
   }
 ]

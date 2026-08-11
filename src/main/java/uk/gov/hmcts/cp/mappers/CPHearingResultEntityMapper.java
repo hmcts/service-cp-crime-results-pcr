@@ -39,6 +39,8 @@ import java.util.stream.Stream;
 @RequiredArgsConstructor
 public class CPHearingResultEntityMapper {
 
+    private static final String NOT_APPLICABLE = "Not Applicable";
+
     private final CPJudicialResultPromptParser promptParser;
 
     public CPCaseHearingEntity toCaseHearingEntity(final ProsecutionCase prosecutionCase, final HearingDetail hearing,
@@ -52,6 +54,7 @@ public class CPHearingResultEntityMapper {
                 .hearingDate(hearing.getHearingDays().isEmpty() ? null
                         : toSittingDay(hearing.getHearingDays().get(0).getSittingDay()))
                 .hearingType(hearing.getType() == null ? null : hearing.getType().getDescription())
+                .jurisdiction(hearing.getJurisdictionType())
                 .createdAt(createdAt)
                 .build();
         // hearingOutcome: left unset (null) — no confirmed CP source, data-store design doc §3
@@ -172,10 +175,42 @@ public class CPHearingResultEntityMapper {
                 .custodyType(toCustodyType(defendant))
                 .masterDefendantId(masterDefendantId(defendant))
                 .nextHearing(toNextHearingEmbeddable(hearing))
+                .postHearingCustodyStatus(populatePostHearingCustodyStatus(defendant))
+                .defendantPresent(toDefendantPresent(defendant, hearing))
                 .createdAt(createdAt)
                 .expiresAt(expiresAt);
         applyPersonDetails(builder, defendant.getPersonDefendant().getPersonDetails());
         return builder.build();
+    }
+
+    // Ports the legacy PCR pipeline's own DefendantMapper.js:populatePostHearingCustodyStatus
+    // exactly: the first case-level result (not tied to any specific offence) whose status
+    // isn't already "Not Applicable", defaulting to "Not Applicable" otherwise. A real
+    // judicial result can omit judicialResultPrompts/defendantCaseJudicialResults entirely —
+    // not always an empty list.
+    private String populatePostHearingCustodyStatus(final Defendant defendant) {
+        return Stream.ofNullable(defendant.getDefendantCaseJudicialResults()).flatMap(List::stream)
+                .map(JudicialResult::getPostHearingCustodyStatus)
+                .filter(status -> !NOT_APPLICABLE.equals(status))
+                .findFirst()
+                .orElse(NOT_APPLICABLE);
+    }
+
+    // Ports legacy's HearingMapper.js:isDefendantPresent, with its `=` (assignment, always
+    // matches the first attendance entry) corrected to `equals` — the intent is "this
+    // defendant's own attendance record", not "whichever defendant happens to be first".
+    private Boolean toDefendantPresent(final Defendant defendant, final HearingDetail hearing) {
+        return hearing.getDefendantAttendance() != null && !hearing.getHearingDays().isEmpty()
+                && isPresentOnSittingDay(defendant, hearing);
+    }
+
+    private boolean isPresentOnSittingDay(final Defendant defendant, final HearingDetail hearing) {
+        final String defendantId = defendant.getId() != null ? defendant.getId() : defendant.getMasterDefendantId();
+        final String sittingDay = toSittingDay(hearing.getHearingDays().get(0).getSittingDay()).toString();
+        return hearing.getDefendantAttendance().stream()
+                .filter(a -> defendantId != null && defendantId.equals(a.getDefendantId()))
+                .flatMap(a -> Stream.ofNullable(a.getAttendanceDays()).flatMap(List::stream))
+                .anyMatch(d -> sittingDay.equals(d.getDay()));
     }
 
     private UUID masterDefendantId(final Defendant defendant) {
@@ -200,7 +235,9 @@ public class CPHearingResultEntityMapper {
                 .firstName(personDetails.getFirstName())
                 .middleName(personDetails.getMiddleName())
                 .lastName(personDetails.getLastName())
-                .dateOfBirth(personDetails.getDateOfBirth());
+                .dateOfBirth(personDetails.getDateOfBirth())
+                .gender(personDetails.getGender())
+                .nationality(personDetails.getNationalityDescription());
         applyAddress(builder, personDetails.getAddress());
     }
 
@@ -284,10 +321,18 @@ public class CPHearingResultEntityMapper {
                 .convictionDate(offence.getConvictionDate())
                 .pleaValue(offence.getPlea() == null ? null : offence.getPlea().getPleaValue())
                 .pleaDate(offence.getPlea() == null ? null : offence.getPlea().getPleaDate())
+                .offenceLegislation(offence.getOffenceLegislation())
+                .verdictCode(toVerdictCode(offence))
                 .build();
-        // verdictCode: left unset — no verdict-code-shaped field found anywhere on a real
-        // offence payload (confirmed against a real amended hearing), unlike title/wording
-        // which are directly present as offenceTitle/wording.
+    }
+
+    // CP's own verdict code (e.g. "G" for guilty) — legacy's OffenceMapper.js sources its own
+    // "verdictCode" output from verdictType.description instead, a naming quirk on its part;
+    // this uses the real code field CP already provides.
+    private String toVerdictCode(final Offence offence) {
+        return offence.getVerdict() == null || offence.getVerdict().getVerdictType() == null
+                ? null
+                : offence.getVerdict().getVerdictType().getVerdictCode();
     }
 
     private void addResult(final JudicialResult result, final UUID offenceId, final UUID courtApplicationId,
@@ -306,7 +351,6 @@ public class CPHearingResultEntityMapper {
                 .resultCode(result.getCjsCode())
                 .resultText(result.getLabel())
                 .category(result.getCategory())
-                .postHearingCustodyStatus(result.getPostHearingCustodyStatus())
                 .financial(result.isFinancialResult())
                 .convicted(result.isConvictedResult())
                 .concurrent(promptParser.concurrent(result))

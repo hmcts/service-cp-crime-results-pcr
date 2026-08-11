@@ -51,7 +51,6 @@ class CPJudicialResultRepositoryTest extends RepositoryIntegrationTestBase {
                 .offenceId(OFFENCE_ID)
                 .resultCode("3120")
                 .resultText("Fine imposed")
-                .postHearingCustodyStatus("Released")
                 .financial(true)
                 .category("Financial")
                 .convicted(true)
@@ -71,7 +70,6 @@ class CPJudicialResultRepositoryTest extends RepositoryIntegrationTestBase {
         assertThat(found.get().getCourtApplicationId()).isNull();
         assertThat(found.get().getResultCode()).isEqualTo("3120");
         assertThat(found.get().getResultText()).isEqualTo("Fine imposed");
-        assertThat(found.get().getPostHearingCustodyStatus()).isEqualTo("Released");
         assertThat(found.get().getFinancial()).isTrue();
         assertThat(found.get().getCategory()).isEqualTo("Financial");
         assertThat(found.get().getConvicted()).isTrue();

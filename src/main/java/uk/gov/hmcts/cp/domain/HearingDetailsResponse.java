@@ -30,6 +30,28 @@ public class HearingDetailsResponse {
         private List<ProsecutionCase> prosecutionCases;
         private List<CourtApplication> courtApplications;
         private HearingType type;
+        private String jurisdictionType;
+        private List<DefendantAttendance> defendantAttendance;
+    }
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Getter
+    public static class DefendantAttendance {
+        private String defendantId;
+        private List<AttendanceDay> attendanceDays;
+    }
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Getter
+    public static class AttendanceDay {
+        private String day;
+        private String attendanceType;
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
@@ -120,6 +142,11 @@ public class HearingDetailsResponse {
         private Boolean isYouth;
         private PersonDefendant personDefendant;
         private List<Offence> offences;
+        // Case-level results attached directly to the defendant, not tied to any specific
+        // offence — a distinct CP concept from offences[].judicialResults. Confirmed via the
+        // legacy Function App's DefendantMapper.js/DefendantContextBaseService.js, which reads
+        // this exact field name.
+        private List<JudicialResult> defendantCaseJudicialResults;
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
@@ -157,6 +184,8 @@ public class HearingDetailsResponse {
         private String lastName;
         private LocalDate dateOfBirth;
         private Address address;
+        private String gender;
+        private String nationalityDescription;
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
@@ -189,6 +218,28 @@ public class HearingDetailsResponse {
         private LocalDate convictionDate;
         private PleaDetails plea;
         private List<JudicialResult> judicialResults;
+        private String offenceLegislation;
+        private Verdict verdict;
+    }
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Getter
+    public static class Verdict {
+        private VerdictType verdictType;
+    }
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Getter
+    public static class VerdictType {
+        // CP's own verdict code (e.g. "G" for guilty) — the field legacy's PCR pipeline
+        // should have used, but instead sourced its "verdictCode" output from `description`.
+        private String verdictCode;
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)

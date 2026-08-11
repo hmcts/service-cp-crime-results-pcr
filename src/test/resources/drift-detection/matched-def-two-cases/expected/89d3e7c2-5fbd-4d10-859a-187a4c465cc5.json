@@ -17,14 +17,17 @@
       "masterDefendantId": "a81dd0b5-ebca-47bb-a3e1-205c40f2c4dc",
       "title": "Mr"
     },
+    "gender": "MALE",
     "hearing": {
       "court": {
         "courtHouseCode": "B01DU00",
         "courtHouseName": "City of London Magistrates' Court"
       },
+      "defendantPresent": true,
       "hearingDate": "2026-07-31",
       "hearingType": "First hearing",
-      "id": "5151e511-7989-4ae0-8e38-2e697834edc6"
+      "id": "5151e511-7989-4ae0-8e38-2e697834edc6",
+      "jurisdiction": "MAGISTRATES"
     },
     "nextHearing": {
       "court": {
@@ -191,12 +194,14 @@
           }
         ],
         "listingNumber": 1,
+        "offenceLegislation": "Contrary to section 1(1) and 7 of the Theft Act 1968.",
         "pleaDate": "2026-07-31",
         "pleaValue": "NOT_GUILTY",
         "startDate": "2026-05-31",
         "title": "Theft from the person of another",
         "wording": "Theft from the person of another"
       }
-    ]
+    ],
+    "postHearingCustodyStatus": "Not Applicable"
   }
 ]

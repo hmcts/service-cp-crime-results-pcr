@@ -47,6 +47,8 @@ public class CPCaseHearingEntity {
     @Column(name = "hearing_type")
     private String hearingType;
 
+    private String jurisdiction;
+
     @Column(name = "created_at")
     private OffsetDateTime createdAt;
 }

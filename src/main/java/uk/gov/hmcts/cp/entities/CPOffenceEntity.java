@@ -62,4 +62,7 @@ public class CPOffenceEntity {
 
     @Column(name = "verdict_code")
     private String verdictCode;
+
+    @Column(name = "offence_legislation")
+    private String offenceLegislation;
 }
