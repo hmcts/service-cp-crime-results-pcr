@@ -10,6 +10,8 @@ import uk.gov.hmcts.cp.domain.HearingDetailsResponse.CaseMarker;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.CourtApplication;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.CourtCentre;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.CourtApplicationCase;
+import uk.gov.hmcts.cp.domain.HearingDetailsResponse.CourtOrder;
+import uk.gov.hmcts.cp.domain.HearingDetailsResponse.CourtOrderOffence;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.CustodialEstablishment;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.Defendant;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.HearingDay;
@@ -168,6 +170,31 @@ class CPHearingResultEntityMapperTest {
         final List<JudicialResult> eligible = mapper.eligibleResults(defendant, hearing);
 
         assertThat(eligible).containsExactlyInAnyOrder(applicationResult, linkedOffenceResult);
+    }
+
+    @Test
+    void eligibleResults_should_includeCourtOrderOffenceResults_onResentencingApplication() {
+        final JudicialResult applicationResult = JudicialResult.builder().cjsCode("APP1").judicialResultPrompts(List.of()).build();
+        final JudicialResult courtOrderOffenceResult = JudicialResult.builder().cjsCode("CJ03522").judicialResultPrompts(List.of()).build();
+        final Offence courtOrderOffence = Offence.builder().offenceCode("CJ03522").judicialResults(List.of(courtOrderOffenceResult)).build();
+        final CourtApplication resentencing = CourtApplication.builder()
+                .id("a9b8c7d6-e5f4-4321-9876-0a1b2c3d4e5f")
+                .subject(ApplicationParty.builder().masterDefendant(MasterDefendant.builder().masterDefendantId(MASTER_DEFENDANT_ID).build()).build())
+                .courtApplicationCases(List.of())
+                .courtOrder(CourtOrder.builder().courtOrderOffences(List.of(CourtOrderOffence.builder().offence(courtOrderOffence).build())).build())
+                .judicialResults(List.of(applicationResult))
+                .build();
+        final Defendant defendant = Defendant.builder()
+                .id(DEFENDANT_ID.toString())
+                .masterDefendantId(MASTER_DEFENDANT_ID)
+                .personDefendant(PersonDefendant.builder().build())
+                .offences(List.of())
+                .build();
+        final HearingDetail hearing = HearingDetail.builder().courtApplications(List.of(resentencing)).build();
+
+        final List<JudicialResult> eligible = mapper.eligibleResults(defendant, hearing);
+
+        assertThat(eligible).containsExactlyInAnyOrder(applicationResult, courtOrderOffenceResult);
     }
 
     @Test
@@ -466,6 +493,42 @@ class CPHearingResultEntityMapperTest {
                 .filter(r -> "APP1".equals(r.getResultCode())).findFirst().orElseThrow();
         assertThat(applicationLevelResult.getCourtApplicationId()).isEqualTo(applicationEntity.getId());
         assertThat(applicationLevelResult.getOffenceId()).isNull();
+    }
+
+    @Test
+    void toWriteBundle_should_mapCourtOrderOffence_onResentencingApplication() {
+        when(promptParser.fineAmount(any())).thenReturn(null);
+        final JudicialResult courtOrderOffenceResult = JudicialResult.builder().cjsCode("CJ03522").judicialResultPrompts(List.of()).build();
+        final Offence courtOrderOffence = Offence.builder().offenceCode("CJ03522")
+                .wording("Original CaseURN: YX123927526, Re-sentenced Original code : TH68023, Original details: Robbery")
+                .judicialResults(List.of(courtOrderOffenceResult)).build();
+        final CourtApplication resentencing = CourtApplication.builder()
+                .id("a9b8c7d6-e5f4-4321-9876-0a1b2c3d4e5f")
+                .applicationReference("REF1").type(ApplicationType.builder().type("Resentenced").build())
+                .subject(ApplicationParty.builder().masterDefendant(MasterDefendant.builder().masterDefendantId(MASTER_DEFENDANT_ID).build()).build())
+                .courtApplicationCases(List.of())
+                .courtOrder(CourtOrder.builder().courtOrderOffences(List.of(CourtOrderOffence.builder().offence(courtOrderOffence).build())).build())
+                .judicialResults(List.of())
+                .build();
+        final Defendant defendant = Defendant.builder()
+                .id(DEFENDANT_ID.toString())
+                .masterDefendantId(MASTER_DEFENDANT_ID)
+                .personDefendant(PersonDefendant.builder().build())
+                .offences(List.of())
+                .build();
+        final HearingDetail hearing = HearingDetail.builder().courtApplications(List.of(resentencing)).build();
+
+        final CPEntitySet bundle = mapper.toWriteBundle(defendant, hearing, CASE_HEARING_ID, CREATED_AT, EXPIRES_AT);
+
+        assertThat(bundle.courtApplications()).hasSize(1);
+        final CPCourtApplicationEntity applicationEntity = bundle.courtApplications().get(0);
+        assertThat(bundle.offences()).hasSize(1);
+        final CPOffenceEntity offenceEntity = bundle.offences().get(0);
+        assertThat(offenceEntity.getCode()).isEqualTo("CJ03522");
+        assertThat(offenceEntity.getCourtApplicationId()).isEqualTo(applicationEntity.getId());
+        assertThat(bundle.judicialResults()).hasSize(1);
+        assertThat(bundle.judicialResults().get(0).getResultCode()).isEqualTo("CJ03522");
+        assertThat(bundle.judicialResults().get(0).getOffenceId()).isEqualTo(offenceEntity.getId());
     }
 
     @Test

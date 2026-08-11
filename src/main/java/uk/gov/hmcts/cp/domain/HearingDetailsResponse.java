@@ -263,6 +263,25 @@ public class HearingDetailsResponse {
         private ApplicationParty subject;
         private List<CourtApplicationCase> courtApplicationCases;
         private List<JudicialResult> judicialResults;
+        private CourtOrder courtOrder;
+    }
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Getter
+    public static class CourtOrder {
+        private List<CourtOrderOffence> courtOrderOffences;
+    }
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Getter
+    public static class CourtOrderOffence {
+        private Offence offence;
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)

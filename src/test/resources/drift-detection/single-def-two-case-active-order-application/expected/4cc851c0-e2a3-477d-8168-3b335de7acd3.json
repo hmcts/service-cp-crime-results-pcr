@@ -43,7 +43,43 @@
             "resultText": "Order revoked"
           }
         ],
-        "offences": [],
+        "offences": [
+          {
+            "code": "CJ03522",
+            "convictionDate": "2026-07-30",
+            "judicialResults": [
+              {
+                "category": "FINAL",
+                "convicted": false,
+                "financial": false,
+                "postHearingCustodyStatus": "A",
+                "prompts": [],
+                "resultText": "Granted"
+              },
+              {
+                "category": "ANCILLARY",
+                "convicted": false,
+                "financial": false,
+                "postHearingCustodyStatus": "A",
+                "prompts": [
+                  {
+                    "label": "Text",
+                    "reference": "text",
+                    "type": "TXT",
+                    "value": "Test TEXT"
+                  }
+                ],
+                "resultText": "Text"
+              }
+            ],
+            "listingNumber": 1,
+            "pleaDate": "2026-07-30",
+            "pleaValue": "GUILTY",
+            "startDate": "2026-05-31",
+            "title": "Theft from the person of another",
+            "wording": "Original CaseURN: GD238239881, Re-sentenced Original code : TH68001, Original details: Theft from the person of another"
+          }
+        ],
         "reference": "KL238291232",
         "type": "Conviction of an offence while a community order is in force"
       }
