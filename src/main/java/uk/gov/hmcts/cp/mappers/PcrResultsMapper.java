@@ -94,6 +94,7 @@ public class PcrResultsMapper {
                 .court(toCourt(null, caseHearing.getCourtHouseCode(), caseHearing.getCourtHouseName()))
                 .hearingDate(caseHearing.getHearingDate())
                 .hearingOutcome(caseHearing.getHearingOutcome())
+                .hearingType(caseHearing.getHearingType())
                 .build();
     }
 

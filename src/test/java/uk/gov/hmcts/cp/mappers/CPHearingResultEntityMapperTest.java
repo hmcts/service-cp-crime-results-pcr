@@ -86,6 +86,36 @@ class CPHearingResultEntityMapperTest {
     }
 
     @Test
+    void toCaseHearingEntity_should_mapHearingType_whenPresent() {
+        final ProsecutionCase prosecutionCase = minimalProsecutionCase();
+        final HearingDetail hearing = HearingDetail.builder()
+                .hearingDays(List.of(HearingDay.builder().sittingDay("2026-07-23").build()))
+                .courtApplications(List.of())
+                .prosecutionCases(List.of())
+                .type(HearingDetailsResponse.HearingType.builder()
+                        .id("4a0e892d-c0c5-3c51-95b8-704d8c781776").description("First hearing").build())
+                .build();
+
+        final CPCaseHearingEntity result = mapper.toCaseHearingEntity(prosecutionCase, hearing, HEARING_ID, CREATED_AT);
+
+        assertThat(result.getHearingType()).isEqualTo("First hearing");
+    }
+
+    @Test
+    void toCaseHearingEntity_should_leaveHearingTypeNull_whenAbsent() {
+        final ProsecutionCase prosecutionCase = minimalProsecutionCase();
+        final HearingDetail hearing = HearingDetail.builder()
+                .hearingDays(List.of(HearingDay.builder().sittingDay("2026-07-23").build()))
+                .courtApplications(List.of())
+                .prosecutionCases(List.of())
+                .build();
+
+        final CPCaseHearingEntity result = mapper.toCaseHearingEntity(prosecutionCase, hearing, HEARING_ID, CREATED_AT);
+
+        assertThat(result.getHearingType()).isNull();
+    }
+
+    @Test
     void toCaseHearingEntity_should_leaveCourtHouseFieldsNull_whenNoCourtCentre() {
         final ProsecutionCase prosecutionCase = minimalProsecutionCase();
         final HearingDetail hearing = HearingDetail.builder()

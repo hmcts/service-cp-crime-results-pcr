@@ -51,6 +51,7 @@ public class CPHearingResultEntityMapper {
                 .courtHouseName(hearing.getCourtCentre() == null ? null : hearing.getCourtCentre().getName())
                 .hearingDate(hearing.getHearingDays().isEmpty() ? null
                         : toSittingDay(hearing.getHearingDays().get(0).getSittingDay()))
+                .hearingType(hearing.getType() == null ? null : hearing.getType().getDescription())
                 .createdAt(createdAt)
                 .build();
         // hearingOutcome: left unset (null) — no confirmed CP source, data-store design doc §3

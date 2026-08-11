@@ -104,6 +104,7 @@
         "courtHouseName": "City of London Magistrates' Court"
       },
       "hearingDate": "2026-07-30",
+      "hearingType": "First hearing",
       "id": "81c4cdf1-5323-49e8-9a94-598c4f85e6bf"
     },
     "offences": [

@@ -29,6 +29,17 @@ public class HearingDetailsResponse {
         private List<HearingDay> hearingDays;
         private List<ProsecutionCase> prosecutionCases;
         private List<CourtApplication> courtApplications;
+        private HearingType type;
+    }
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Getter
+    public static class HearingType {
+        private String id;
+        private String description;
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)

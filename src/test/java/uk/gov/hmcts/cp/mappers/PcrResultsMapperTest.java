@@ -86,7 +86,7 @@ class PcrResultsMapperTest {
     void toPcrHearingResult_should_mapHearingDetailsWithCourt() {
         final CPCaseHearingEntity caseHearing = CPCaseHearingEntity.builder()
                 .hearingId(HEARING_ID).courtHouseCode("B01LY").courtHouseName("Leeds Crown Court")
-                .hearingDate(LocalDate.of(2026, 7, 23)).build();
+                .hearingDate(LocalDate.of(2026, 7, 23)).hearingType("First hearing").build();
 
         final PcrHearingResult result = mapper.toPcrHearingResult(caseHearing, minimalVersion(), List.of(), List.of(), List.of(), List.of(), List.of());
 
@@ -94,6 +94,7 @@ class PcrResultsMapperTest {
         assertThat(result.getHearing().getCourt().getCourtHouseCode()).isEqualTo("B01LY");
         assertThat(result.getHearing().getCourt().getCourtHouseName()).isEqualTo("Leeds Crown Court");
         assertThat(result.getHearing().getHearingDate()).isEqualTo(LocalDate.of(2026, 7, 23));
+        assertThat(result.getHearing().getHearingType()).isEqualTo("First hearing");
     }
 
     @Test
