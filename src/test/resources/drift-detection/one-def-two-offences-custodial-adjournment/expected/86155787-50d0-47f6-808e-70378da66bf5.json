@@ -51,7 +51,6 @@
             "convicted": true,
             "financial": false,
             "imprisonmentPeriod": "4 Months 7 Weeks",
-            "postHearingCustodyStatus": "A",
             "prompts": [
               {
                 "label": "Total custodial period",
@@ -212,7 +211,6 @@
             "category": "ANCILLARY",
             "convicted": false,
             "financial": false,
-            "postHearingCustodyStatus": "A",
             "prompts": [
               {
                 "label": "The court determined a terrorist connection under Section 69 of the Sentencing Act 2020 applies to this count",
@@ -241,7 +239,6 @@
             "category": "INTERMEDIARY",
             "convicted": false,
             "financial": false,
-            "postHearingCustodyStatus": "A",
             "prompts": [
               {
                 "label": "Next hearing in magistrates' court",
@@ -272,7 +269,6 @@
             "category": "ANCILLARY",
             "convicted": false,
             "financial": false,
-            "postHearingCustodyStatus": "A",
             "prompts": [],
             "resultText": "To attend or a warrant to issue"
           },
@@ -280,7 +276,6 @@
             "category": "ANCILLARY",
             "convicted": false,
             "financial": false,
-            "postHearingCustodyStatus": "A",
             "prompts": [
               {
                 "label": "Date of hearing",

@@ -9,7 +9,6 @@
             "category": "FINAL",
             "convicted": false,
             "financial": false,
-            "postHearingCustodyStatus": "A",
             "prompts": [],
             "resultText": "Granted"
           }
@@ -59,7 +58,6 @@
             "convicted": true,
             "financial": false,
             "imprisonmentPeriod": "6 Months",
-            "postHearingCustodyStatus": "A",
             "prompts": [
               {
                 "label": "Total custodial period",

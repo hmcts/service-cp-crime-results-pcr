@@ -47,7 +47,6 @@
             "category": "INTERMEDIARY",
             "convicted": false,
             "financial": false,
-            "postHearingCustodyStatus": "C",
             "prompts": [
               {
                 "label": "Next hearing in magistrates' court",
@@ -120,7 +119,6 @@
             "category": "ANCILLARY",
             "convicted": false,
             "financial": false,
-            "postHearingCustodyStatus": "A",
             "prompts": [],
             "resultText": "To attend or a warrant to issue"
           },
@@ -128,7 +126,6 @@
             "category": "ANCILLARY",
             "convicted": false,
             "financial": false,
-            "postHearingCustodyStatus": "A",
             "prompts": [
               {
                 "label": "Date of hearing",
@@ -210,7 +207,6 @@
             "category": "INTERMEDIARY",
             "convicted": false,
             "financial": false,
-            "postHearingCustodyStatus": "C",
             "prompts": [
               {
                 "label": "Next hearing in magistrates' court",
@@ -283,7 +279,6 @@
             "category": "ANCILLARY",
             "convicted": false,
             "financial": false,
-            "postHearingCustodyStatus": "A",
             "prompts": [],
             "resultText": "To attend or a warrant to issue"
           },
@@ -291,7 +286,6 @@
             "category": "ANCILLARY",
             "convicted": false,
             "financial": false,
-            "postHearingCustodyStatus": "A",
             "prompts": [
               {
                 "label": "Date of hearing",
