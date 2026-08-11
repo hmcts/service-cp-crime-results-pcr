@@ -5,8 +5,8 @@ plugins {
   id 'io.spring.dependency-management' version '1.1.7'
   id 'jacoco'
   id 'maven-publish'
-  id 'com.github.ben-manes.versions' version '0.57.0'
-  id 'org.cyclonedx.bom' version '3.3.0'
+  id 'com.github.ben-manes.versions' version '0.60.0'
+  id 'org.cyclonedx.bom' version '3.4.0'
   id 'com.gorylenko.gradle-git-properties' version '4.0.1'
   // Starts the docker-compose Postgres service before `test` in CI — repository tests need a
   // real, externally-started Postgres (PostgresInitialise), matching HRDS's established pattern.
@@ -31,7 +31,7 @@ apply {
 dependencies {
   // Api spec
   implementation('uk.gov.hmcts.cp:api-cp-crime-results-pcr:1.1.2')
-  implementation 'io.swagger.core.v3:swagger-annotations:2.2.52'
+  implementation 'io.swagger.core.v3:swagger-annotations:2.2.53'
 
   // Java core
   implementation 'net.logstash.logback:logstash-logback-encoder:9.0'
