@@ -31,12 +31,13 @@
       },
       "dateOfBirth": "2006-07-23",
       "firstName": "Sophie",
+      "gender": "MALE",
       "id": "ea6b2d84-e99a-47ff-b031-a036e093f627",
       "lastName": "Reichel",
       "masterDefendantId": "ea6b2d84-e99a-47ff-b031-a036e093f627",
+      "postHearingCustodyStatus": "Not Applicable",
       "title": "Mr"
     },
-    "gender": "MALE",
     "hearing": {
       "court": {
         "courtHouseCode": "B52CM00",
@@ -152,7 +153,6 @@
         "verdictCode": "G",
         "wording": "Attempt theft to vehicle"
       }
-    ],
-    "postHearingCustodyStatus": "Not Applicable"
+    ]
   }
 ]

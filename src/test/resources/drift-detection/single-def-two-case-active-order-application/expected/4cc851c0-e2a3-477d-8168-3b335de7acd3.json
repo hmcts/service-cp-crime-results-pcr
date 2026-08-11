@@ -90,12 +90,13 @@
       },
       "dateOfBirth": "1958-07-30",
       "firstName": "Rodrick",
+      "gender": "MALE",
       "id": "4cc851c0-e2a3-477d-8168-3b335de7acd3",
       "lastName": "Roberts",
       "masterDefendantId": "1bcb7e51-edfe-4e6d-b67a-8033f38fc5af",
+      "postHearingCustodyStatus": "Not Applicable",
       "title": "Mr"
     },
-    "gender": "MALE",
     "hearing": {
       "court": {
         "courtHouseCode": "B01DU00",
@@ -215,7 +216,6 @@
         "title": "Robbery",
         "wording": "Robbery"
       }
-    ],
-    "postHearingCustodyStatus": "Not Applicable"
+    ]
   }
 ]

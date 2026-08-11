@@ -12,12 +12,14 @@
       },
       "dateOfBirth": "2005-11-11",
       "firstName": "Avis",
+      "gender": "MALE",
       "id": "e11ef48a-adab-4a78-9528-040af137f93d",
       "lastName": "Strosin",
       "masterDefendantId": "e11ef48a-adab-4a78-9528-040af137f93d",
+      "nationality": "Unknown",
+      "postHearingCustodyStatus": "Not Applicable",
       "title": "Mr"
     },
-    "gender": "MALE",
     "hearing": {
       "court": {
         "courtHouseCode": "B01BH00",
@@ -29,7 +31,6 @@
       "id": "76dc9641-e001-4b4b-b2c9-6ab3d98ef50b",
       "jurisdiction": "MAGISTRATES"
     },
-    "nationality": "Unknown",
     "offences": [
       {
         "code": "OF61102C",
@@ -188,7 +189,6 @@
         "verdictCode": "G",
         "wording": "Public service vehicles - passenger failing to pay fare"
       }
-    ],
-    "postHearingCustodyStatus": "Not Applicable"
+    ]
   }
 ]

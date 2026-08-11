@@ -12,12 +12,13 @@
       },
       "dateOfBirth": "1986-07-30",
       "firstName": "Maurine",
+      "gender": "MALE",
       "id": "a81dd0b5-ebca-47bb-a3e1-205c40f2c4dc",
       "lastName": "Sipes",
       "masterDefendantId": "a81dd0b5-ebca-47bb-a3e1-205c40f2c4dc",
+      "postHearingCustodyStatus": "Not Applicable",
       "title": "Mr"
     },
-    "gender": "MALE",
     "hearing": {
       "court": {
         "courtHouseCode": "B01DU00",
@@ -198,7 +199,6 @@
         "title": "Robbery",
         "wording": "Robbery"
       }
-    ],
-    "postHearingCustodyStatus": "Not Applicable"
+    ]
   }
 ]

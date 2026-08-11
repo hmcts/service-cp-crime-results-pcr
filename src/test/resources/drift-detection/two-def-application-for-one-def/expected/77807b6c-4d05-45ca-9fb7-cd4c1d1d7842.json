@@ -31,12 +31,14 @@
       },
       "dateOfBirth": "1998-07-31",
       "firstName": "Geraldo",
+      "gender": "MALE",
       "id": "77807b6c-4d05-45ca-9fb7-cd4c1d1d7842",
       "lastName": "Turner",
       "masterDefendantId": "77807b6c-4d05-45ca-9fb7-cd4c1d1d7842",
+      "nationality": "Unknown",
+      "postHearingCustodyStatus": "Not Applicable",
       "title": "Mr"
     },
-    "gender": "MALE",
     "hearing": {
       "court": {
         "courtHouseCode": "B52CM00",
@@ -48,7 +50,6 @@
       "id": "9316e6f1-6824-443d-b6c2-8982f42549a3",
       "jurisdiction": "MAGISTRATES"
     },
-    "nationality": "Unknown",
     "nextHearing": {
       "court": {
         "courtHouseCode": "B01LY00",
@@ -210,7 +211,6 @@
         "title": "Attempt theft of motor vehicle",
         "wording": "Attempt theft to vehicle"
       }
-    ],
-    "postHearingCustodyStatus": "Not Applicable"
+    ]
   }
 ]

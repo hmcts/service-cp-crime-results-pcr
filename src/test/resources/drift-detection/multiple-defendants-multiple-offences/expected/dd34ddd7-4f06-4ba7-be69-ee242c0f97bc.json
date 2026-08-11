@@ -12,12 +12,13 @@
       },
       "dateOfBirth": "1981-07-30",
       "firstName": "DroidAlan",
+      "gender": "MALE",
       "id": "dd34ddd7-4f06-4ba7-be69-ee242c0f97bc",
       "lastName": "DotMacejkovic",
       "masterDefendantId": "dd34ddd7-4f06-4ba7-be69-ee242c0f97bc",
+      "postHearingCustodyStatus": "Not Applicable",
       "title": "Mr"
     },
-    "gender": "MALE",
     "hearing": {
       "court": {
         "courtHouseCode": "B52CM00",
@@ -225,7 +226,6 @@
         "title": "Offer to supply a foreign satellite programme",
         "wording": "Offer to supply a foreign satellite programme"
       }
-    ],
-    "postHearingCustodyStatus": "Not Applicable"
+    ]
   }
 ]

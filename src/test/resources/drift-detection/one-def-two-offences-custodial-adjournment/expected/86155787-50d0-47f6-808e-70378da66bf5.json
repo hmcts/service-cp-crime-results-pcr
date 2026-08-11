@@ -12,12 +12,13 @@
       },
       "dateOfBirth": "2005-11-11",
       "firstName": "Tad",
+      "gender": "MALE",
       "id": "86155787-50d0-47f6-808e-70378da66bf5",
       "lastName": "Fay",
       "masterDefendantId": "86155787-50d0-47f6-808e-70378da66bf5",
+      "postHearingCustodyStatus": "Not Applicable",
       "title": "Mr"
     },
-    "gender": "MALE",
     "hearing": {
       "court": {
         "courtHouseCode": "B01BH00",
@@ -355,7 +356,6 @@
         "title": "Public service vehicles - passenger failing to pay fare",
         "wording": "Public service vehicles - passenger failing to pay fare"
       }
-    ],
-    "postHearingCustodyStatus": "Not Applicable"
+    ]
   }
 ]

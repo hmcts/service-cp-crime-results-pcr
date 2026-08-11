@@ -12,12 +12,13 @@
       },
       "dateOfBirth": "1969-07-30",
       "firstName": "MechTommie",
+      "gender": "MALE",
       "id": "0f8306f4-b997-4d4c-81d6-999a646a7031",
       "lastName": "MachLarkin",
       "masterDefendantId": "0f8306f4-b997-4d4c-81d6-999a646a7031",
+      "postHearingCustodyStatus": "Not Applicable",
       "title": "Mr"
     },
-    "gender": "MALE",
     "hearing": {
       "court": {
         "courtHouseCode": "B52CM00",
@@ -359,7 +360,6 @@
         "title": "Possess / control TV set with intent another use install without a licence",
         "wording": "Theft of pedal cycle"
       }
-    ],
-    "postHearingCustodyStatus": "Not Applicable"
+    ]
   }
 ]
