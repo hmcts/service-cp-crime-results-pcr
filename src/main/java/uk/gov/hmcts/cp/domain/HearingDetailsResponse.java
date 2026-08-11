@@ -263,6 +263,29 @@ public class HearingDetailsResponse {
         private ApplicationParty subject;
         private List<CourtApplicationCase> courtApplicationCases;
         private List<JudicialResult> judicialResults;
+        // Only present on breach/resentencing applications (type.resentencingActivationCode) —
+        // carries the offence the ORIGINAL order was made for, e.g. a robbery conviction being
+        // resentenced after breach of a community order. Confirmed against a real hearing's
+        // Redis-cached payload; courtApplicationCases[].offences does not carry this offence.
+        private CourtOrder courtOrder;
+    }
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Getter
+    public static class CourtOrder {
+        private List<CourtOrderOffence> courtOrderOffences;
+    }
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Getter
+    public static class CourtOrderOffence {
+        private Offence offence;
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)

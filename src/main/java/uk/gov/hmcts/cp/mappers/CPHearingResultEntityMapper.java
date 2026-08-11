@@ -7,6 +7,7 @@ import uk.gov.hmcts.cp.domain.HearingDetailsResponse.Address;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.CaseMarker;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.CourtApplication;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.CourtCentre;
+import uk.gov.hmcts.cp.domain.HearingDetailsResponse.CourtOrderOffence;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.CustodialEstablishment;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.Defendant;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.HearingDetail;
@@ -94,12 +95,23 @@ public class CPHearingResultEntityMapper {
 
     private Stream<JudicialResult> allResultsOf(final CourtApplication application) {
         final Stream<JudicialResult> ownResults = application.getJudicialResults().stream();
-        // A real courtApplicationCase can omit "offences" entirely (confirmed against a real
-        // hearing fixture) — not always an empty list.
-        final Stream<JudicialResult> linkedOffenceResults = application.getCourtApplicationCases().stream()
-                .flatMap(c -> Stream.ofNullable(c.getOffences()).flatMap(List::stream))
+        final Stream<JudicialResult> linkedOffenceResults = linkedOffencesOf(application)
                 .flatMap(o -> o.getJudicialResults().stream());
         return Stream.concat(ownResults, linkedOffenceResults);
+    }
+
+    // A real courtApplicationCase can omit "offences" entirely (confirmed against a real hearing
+    // fixture) — not always an empty list. courtOrder is only present on breach/resentencing
+    // applications and carries the original order's own offence, a sibling concept to the
+    // case-linked offences above, not a member of them.
+    private Stream<Offence> linkedOffencesOf(final CourtApplication application) {
+        final Stream<Offence> caseOffences = application.getCourtApplicationCases().stream()
+                .flatMap(c -> Stream.ofNullable(c.getOffences()).flatMap(List::stream));
+        final Stream<Offence> courtOrderOffences = application.getCourtOrder() == null
+                ? Stream.empty()
+                : Stream.ofNullable(application.getCourtOrder().getCourtOrderOffences()).flatMap(List::stream)
+                        .map(CourtOrderOffence::getOffence);
+        return Stream.concat(caseOffences, courtOrderOffences);
     }
 
     // `subject` is the only party role used for defendant-linkage — confirmed against
@@ -143,8 +155,7 @@ public class CPHearingResultEntityMapper {
     private void addLinkedApplicationContent(final CourtApplication application, final UUID courtApplicationId,
                                               final List<CPOffenceEntity> offences, final List<CPJudicialResultEntity> judicialResults,
                                               final List<CPJudicialResultPromptEntity> prompts) {
-        application.getCourtApplicationCases().stream()
-                .flatMap(c -> Stream.ofNullable(c.getOffences()).flatMap(List::stream))
+        linkedOffencesOf(application)
                 .forEach(o -> addLinkedOffence(o, courtApplicationId, offences, judicialResults, prompts));
         application.getJudicialResults().forEach(r -> addResult(r, null, courtApplicationId, judicialResults, prompts));
     }
