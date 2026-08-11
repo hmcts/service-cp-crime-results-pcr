@@ -23,6 +23,7 @@
         "courtHouseName": "Bexley Magistrates' Court"
       },
       "hearingDate": "2026-07-29",
+      "hearingType": "First hearing",
       "id": "9c7e33d3-e6c0-4138-b7fb-b176554ae98c"
     },
     "nextHearing": {

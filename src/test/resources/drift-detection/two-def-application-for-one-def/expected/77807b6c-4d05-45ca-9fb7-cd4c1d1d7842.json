@@ -43,6 +43,7 @@
         "courtHouseName": "Bristol Magistrates' Court"
       },
       "hearingDate": "2026-07-31",
+      "hearingType": "Application",
       "id": "9316e6f1-6824-443d-b6c2-8982f42549a3"
     },
     "nextHearing": {
