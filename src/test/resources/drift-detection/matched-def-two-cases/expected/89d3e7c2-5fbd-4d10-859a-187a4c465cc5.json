@@ -24,7 +24,7 @@
         "courtHouseCode": "B01DU00",
         "courtHouseName": "City of London Magistrates' Court"
       },
-      "defendantPresent": true,
+      "defendantPresent": false,
       "hearingDate": "2026-07-31",
       "hearingType": "First hearing",
       "id": "5151e511-7989-4ae0-8e38-2e697834edc6",
