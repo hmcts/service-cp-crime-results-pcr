@@ -44,6 +44,9 @@ public class CPCaseHearingEntity {
     @Column(name = "hearing_outcome")
     private String hearingOutcome;
 
+    @Column(name = "hearing_type")
+    private String hearingType;
+
     @Column(name = "created_at")
     private OffsetDateTime createdAt;
 }
