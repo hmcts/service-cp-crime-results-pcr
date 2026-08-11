@@ -4,28 +4,18 @@
     "caseURN": "TEST1234567",
     "courtApplications": [
       {
-        "decision": null,
-        "decisionDate": null,
         "judicialResults": [
           {
             "category": "FINAL",
-            "concurrent": null,
-            "consecutiveToCourtName": null,
-            "consecutiveToDate": null,
             "convicted": false,
             "financial": false,
-            "fineAmount": null,
-            "imprisonmentPeriod": null,
             "postHearingCustodyStatus": "A",
             "prompts": [],
-            "resultText": "Granted",
-            "totalCustodialPeriod": null
+            "resultText": "Granted"
           }
         ],
         "offences": [],
         "reference": "TEST1234567",
-        "response": null,
-        "responseDate": null,
         "type": "Application within criminal proceedings"
       }
     ],
@@ -38,8 +28,6 @@
         "address1": "30 Church Street",
         "address2": "Church Street",
         "address3": "Edinburgh",
-        "address4": null,
-        "address5": null,
         "postCode": "NW1 5BR"
       },
       "dateOfBirth": "2006-07-23",
@@ -47,34 +35,25 @@
       "id": "ea6b2d84-e99a-47ff-b031-a036e093f627",
       "lastName": "Reichel",
       "masterDefendantId": "ea6b2d84-e99a-47ff-b031-a036e093f627",
-      "middleName": null,
       "title": "Mr"
     },
     "hearing": {
       "court": {
         "courtHouseCode": "B52CM00",
-        "courtHouseId": null,
         "courtHouseName": "Bristol Magistrates' Court"
       },
       "hearingDate": "2026-07-23",
-      "hearingOutcome": null,
       "id": "5f75863f-270a-482a-9e67-eaccb2fd3130"
     },
-    "nextHearing": null,
     "offences": [
       {
         "code": "TH68013A",
         "convictionDate": "2026-07-23",
-        "endDate": null,
         "judicialResults": [
           {
             "category": "FINAL",
-            "concurrent": null,
-            "consecutiveToCourtName": null,
-            "consecutiveToDate": null,
             "convicted": true,
             "financial": false,
-            "fineAmount": null,
             "imprisonmentPeriod": "6 Months",
             "postHearingCustodyStatus": "A",
             "prompts": [
@@ -167,7 +146,6 @@
         "pleaValue": "NOT_GUILTY",
         "startDate": "2026-04-24",
         "title": "Attempt theft of motor vehicle",
-        "verdictCode": null,
         "wording": "Attempt theft to vehicle"
       }
     ]
