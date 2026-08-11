@@ -29,8 +29,6 @@ public class HearingDetailsResponse {
         private List<HearingDay> hearingDays;
         private List<ProsecutionCase> prosecutionCases;
         private List<CourtApplication> courtApplications;
-        // e.g. "First hearing" — confirmed present on a real hearing's Redis-cached payload and
-        // the live hearingDetails/internal response alike, as a sibling of the fields above.
         private HearingType type;
     }
 
