@@ -3,14 +3,11 @@
     "caseMarkers": [],
     "caseURN": "AS231157673",
     "courtApplications": [],
-    "custodyLocation": null,
     "defendant": {
       "address": {
         "address1": "40 Market Place",
         "address2": "Market Place",
         "address3": "Bristol",
-        "address4": null,
-        "address5": null,
         "postCode": "BS1 1AA"
       },
       "dateOfBirth": "1981-07-30",
@@ -18,17 +15,14 @@
       "id": "dd34ddd7-4f06-4ba7-be69-ee242c0f97bc",
       "lastName": "DotMacejkovic",
       "masterDefendantId": "dd34ddd7-4f06-4ba7-be69-ee242c0f97bc",
-      "middleName": null,
       "title": "Mr"
     },
     "hearing": {
       "court": {
         "courtHouseCode": "B52CM00",
-        "courtHouseId": null,
         "courtHouseName": "Bristol Magistrates' Court"
       },
       "hearingDate": "2026-07-31",
-      "hearingOutcome": null,
       "id": "f15a49db-812e-43d2-bfc5-7f3c7ee9ede1"
     },
     "nextHearing": {
@@ -43,18 +37,11 @@
     "offences": [
       {
         "code": "FS13012",
-        "convictionDate": null,
-        "endDate": null,
         "judicialResults": [
           {
             "category": "FINAL",
-            "concurrent": null,
-            "consecutiveToCourtName": null,
-            "consecutiveToDate": null,
             "convicted": false,
             "financial": false,
-            "fineAmount": null,
-            "imprisonmentPeriod": null,
             "postHearingCustodyStatus": "A",
             "prompts": [
               {
@@ -65,8 +52,7 @@
               }
             ],
             "resultCode": "2063",
-            "resultText": "Withdrawn",
-            "totalCustodialPeriod": null
+            "resultText": "Withdrawn"
           }
         ],
         "listingNumber": 1,
@@ -74,29 +60,20 @@
         "pleaValue": "NOT_GUILTY",
         "startDate": "2026-05-01",
         "title": "Keep cooked or reheated food at temperature below 63 Celsius",
-        "verdictCode": null,
         "wording": "Keep cooked or reheated food at temperature below 63 Celsius"
       },
       {
         "code": "BC90005",
-        "convictionDate": null,
-        "endDate": null,
         "judicialResults": [
           {
             "category": "INTERMEDIARY",
-            "concurrent": null,
-            "consecutiveToCourtName": null,
-            "consecutiveToDate": null,
             "convicted": false,
             "financial": false,
-            "fineAmount": null,
-            "imprisonmentPeriod": null,
             "postHearingCustodyStatus": "C",
             "prompts": [
               {
                 "label": "Next hearing in magistrates' court",
                 "reference": "f6697070-25bf-4ad0-aed3-de4292fb806d",
-                "type": null,
                 "value": "Date of hearing:31/07/2026\nTime of hearing:10:00\nCourthouse organisation name:Lavender Hill Magistrates' Court\nCourthouse address line 1:176A Lavender Hill\nCourthouse address line 2:London\nCourthouse post code:SW11 1JU\nCourtroom:Courtroom 01\nHearing type:Appeal\nEstimated duration:30 MINUTES\nBooking reference:cf1f6d0c-6f9c-461f-b91a-5458a16c6342"
               },
               {
@@ -150,43 +127,29 @@
               {
                 "label": "To attend or a warrant to issue",
                 "reference": "3de497cd-b6c4-4f6c-b0ca-706f37b293cd",
-                "type": null,
                 "value": ""
               },
               {
                 "label": "Adjournment reasons",
                 "reference": "05f8102e-2e33-40e6-8ad2-21cb9caae9ee",
-                "type": null,
                 "value": ""
               }
             ],
             "resultCode": "4028",
-            "resultText": "Remanded in custody",
-            "totalCustodialPeriod": null
+            "resultText": "Remanded in custody"
           },
           {
             "category": "ANCILLARY",
-            "concurrent": null,
-            "consecutiveToCourtName": null,
-            "consecutiveToDate": null,
             "convicted": false,
             "financial": false,
-            "fineAmount": null,
-            "imprisonmentPeriod": null,
             "postHearingCustodyStatus": "A",
             "prompts": [],
-            "resultText": "To attend or a warrant to issue",
-            "totalCustodialPeriod": null
+            "resultText": "To attend or a warrant to issue"
           },
           {
             "category": "ANCILLARY",
-            "concurrent": null,
-            "consecutiveToCourtName": null,
-            "consecutiveToDate": null,
             "convicted": false,
             "financial": false,
-            "fineAmount": null,
-            "imprisonmentPeriod": null,
             "postHearingCustodyStatus": "A",
             "prompts": [
               {
@@ -250,8 +213,7 @@
                 "value": "cf1f6d0c-6f9c-461f-b91a-5458a16c6342"
               }
             ],
-            "resultText": "Next hearing in magistrates' court",
-            "totalCustodialPeriod": null
+            "resultText": "Next hearing in magistrates' court"
           }
         ],
         "listingNumber": 1,
@@ -259,7 +221,6 @@
         "pleaValue": "NOT_GUILTY",
         "startDate": "2026-05-01",
         "title": "Offer to supply a foreign satellite programme",
-        "verdictCode": null,
         "wording": "Offer to supply a foreign satellite programme"
       }
     ]

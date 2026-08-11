@@ -4,33 +4,20 @@
     "caseURN": "KL238291232",
     "courtApplications": [
       {
-        "decision": null,
-        "decisionDate": null,
         "judicialResults": [
           {
             "category": "FINAL",
-            "concurrent": null,
-            "consecutiveToCourtName": null,
-            "consecutiveToDate": null,
             "convicted": false,
             "financial": false,
-            "fineAmount": null,
-            "imprisonmentPeriod": null,
             "postHearingCustodyStatus": "A",
             "prompts": [],
             "resultCode": "3501",
-            "resultText": "No adjudication - dealt with for original offence",
-            "totalCustodialPeriod": null
+            "resultText": "No adjudication - dealt with for original offence"
           },
           {
             "category": "FINAL",
-            "concurrent": null,
-            "consecutiveToCourtName": null,
-            "consecutiveToDate": null,
             "convicted": false,
             "financial": false,
-            "fineAmount": null,
-            "imprisonmentPeriod": null,
             "postHearingCustodyStatus": "A",
             "prompts": [
               {
@@ -53,25 +40,19 @@
               }
             ],
             "resultCode": "1029",
-            "resultText": "Order revoked",
-            "totalCustodialPeriod": null
+            "resultText": "Order revoked"
           }
         ],
         "offences": [],
         "reference": "KL238291232",
-        "response": null,
-        "responseDate": null,
         "type": "Conviction of an offence while a community order is in force"
       }
     ],
-    "custodyLocation": null,
     "defendant": {
       "address": {
         "address1": "48 Elm Grove",
         "address2": "Elm Grove",
         "address3": "Horsham",
-        "address4": null,
-        "address5": null,
         "postCode": "NW1 5BR"
       },
       "dateOfBirth": "1958-07-30",
@@ -79,34 +60,25 @@
       "id": "4cc851c0-e2a3-477d-8168-3b335de7acd3",
       "lastName": "Roberts",
       "masterDefendantId": "1bcb7e51-edfe-4e6d-b67a-8033f38fc5af",
-      "middleName": null,
       "title": "Mr"
     },
     "hearing": {
       "court": {
         "courtHouseCode": "B01DU00",
-        "courtHouseId": null,
         "courtHouseName": "City of London Magistrates' Court"
       },
       "hearingDate": "2026-07-30",
-      "hearingOutcome": null,
       "id": "81c4cdf1-5323-49e8-9a94-598c4f85e6bf"
     },
-    "nextHearing": null,
     "offences": [
       {
         "code": "TH68023",
         "convictionDate": "2026-07-30",
-        "endDate": null,
         "judicialResults": [
           {
             "category": "FINAL",
-            "concurrent": null,
-            "consecutiveToCourtName": null,
-            "consecutiveToDate": null,
             "convicted": true,
             "financial": false,
-            "fineAmount": null,
             "imprisonmentPeriod": "15 Days",
             "postHearingCustodyStatus": "A",
             "prompts": [
@@ -191,7 +163,6 @@
               {
                 "label": "Risk or vulnerability factors",
                 "reference": "64eb8b00-3b03-4fef-9646-ee2b1412f036",
-                "type": null,
                 "value": "Risk or vulnerability factors:RiskFactor"
               }
             ],
@@ -205,7 +176,6 @@
         "pleaValue": "GUILTY",
         "startDate": "2026-05-31",
         "title": "Robbery",
-        "verdictCode": null,
         "wording": "Robbery"
       }
     ]

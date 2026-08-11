@@ -4,28 +4,18 @@
     "caseURN": "JS238681716",
     "courtApplications": [
       {
-        "decision": null,
-        "decisionDate": null,
         "judicialResults": [
           {
             "category": "FINAL",
-            "concurrent": null,
-            "consecutiveToCourtName": null,
-            "consecutiveToDate": null,
             "convicted": false,
             "financial": false,
-            "fineAmount": null,
-            "imprisonmentPeriod": null,
             "postHearingCustodyStatus": "A",
             "prompts": [],
-            "resultText": "Granted",
-            "totalCustodialPeriod": null
+            "resultText": "Granted"
           }
         ],
         "offences": [],
         "reference": "JS238681716",
-        "response": null,
-        "responseDate": null,
         "type": "Application within criminal proceedings"
       }
     ],
@@ -38,8 +28,6 @@
         "address1": "63 North Street",
         "address2": "North Street",
         "address3": "Guildford",
-        "address4": null,
-        "address5": null,
         "postCode": "NW1 5BR"
       },
       "dateOfBirth": "1998-07-31",
@@ -47,17 +35,14 @@
       "id": "77807b6c-4d05-45ca-9fb7-cd4c1d1d7842",
       "lastName": "Turner",
       "masterDefendantId": "77807b6c-4d05-45ca-9fb7-cd4c1d1d7842",
-      "middleName": null,
       "title": "Mr"
     },
     "hearing": {
       "court": {
         "courtHouseCode": "B52CM00",
-        "courtHouseId": null,
         "courtHouseName": "Bristol Magistrates' Court"
       },
       "hearingDate": "2026-07-31",
-      "hearingOutcome": null,
       "id": "9316e6f1-6824-443d-b6c2-8982f42549a3"
     },
     "nextHearing": {
@@ -72,24 +57,16 @@
     "offences": [
       {
         "code": "TH68013A",
-        "convictionDate": null,
-        "endDate": null,
         "judicialResults": [
           {
             "category": "INTERMEDIARY",
-            "concurrent": null,
-            "consecutiveToCourtName": null,
-            "consecutiveToDate": null,
             "convicted": false,
             "financial": false,
-            "fineAmount": null,
-            "imprisonmentPeriod": null,
             "postHearingCustodyStatus": "C",
             "prompts": [
               {
                 "label": "Next hearing in magistrates' court",
                 "reference": "ce0c66be-9d69-4cd1-971f-6012ceeba156",
-                "type": null,
                 "value": "Date of hearing:03/08/2026\nTime of hearing:10:00\nCourthouse organisation name:Lavender Hill Magistrates' Court\nCourthouse address line 1:176A Lavender Hill\nCourthouse address line 2:London\nCourthouse post code:SW11 1JU\nCourtroom:Courtroom 01\nHearing type:Plea\nEstimated duration:20 MINUTES\nBooking reference:6b8aafdc-aa57-4158-bbd8-6f1ea525ba01"
               },
               {
@@ -137,43 +114,29 @@
               {
                 "label": "To attend or a warrant to issue",
                 "reference": "e8d6693d-c32f-44f3-97f6-0828deb1615c",
-                "type": null,
                 "value": ""
               },
               {
                 "label": "Adjournment reasons",
                 "reference": "b332f0b3-3f34-4c7e-9a94-637d2bd7028f",
-                "type": null,
                 "value": ""
               }
             ],
             "resultCode": "4028",
-            "resultText": "Remanded in custody",
-            "totalCustodialPeriod": null
+            "resultText": "Remanded in custody"
           },
           {
             "category": "ANCILLARY",
-            "concurrent": null,
-            "consecutiveToCourtName": null,
-            "consecutiveToDate": null,
             "convicted": false,
             "financial": false,
-            "fineAmount": null,
-            "imprisonmentPeriod": null,
             "postHearingCustodyStatus": "A",
             "prompts": [],
-            "resultText": "To attend or a warrant to issue",
-            "totalCustodialPeriod": null
+            "resultText": "To attend or a warrant to issue"
           },
           {
             "category": "ANCILLARY",
-            "concurrent": null,
-            "consecutiveToCourtName": null,
-            "consecutiveToDate": null,
             "convicted": false,
             "financial": false,
-            "fineAmount": null,
-            "imprisonmentPeriod": null,
             "postHearingCustodyStatus": "A",
             "prompts": [
               {
@@ -237,16 +200,12 @@
                 "value": "6b8aafdc-aa57-4158-bbd8-6f1ea525ba01"
               }
             ],
-            "resultText": "Next hearing in magistrates' court",
-            "totalCustodialPeriod": null
+            "resultText": "Next hearing in magistrates' court"
           }
         ],
         "listingNumber": 2,
-        "pleaDate": null,
-        "pleaValue": null,
         "startDate": "2026-05-02",
         "title": "Attempt theft of motor vehicle",
-        "verdictCode": null,
         "wording": "Attempt theft to vehicle"
       }
     ]
