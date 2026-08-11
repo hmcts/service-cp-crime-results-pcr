@@ -6,7 +6,8 @@
 ALTER TABLE cp_version
     ADD COLUMN gender varchar,
     ADD COLUMN nationality varchar,
-    ADD COLUMN defendant_present boolean;
+    ADD COLUMN defendant_present boolean,
+    ADD COLUMN post_hearing_custody_status varchar;
 
 ALTER TABLE cp_case_hearing
     ADD COLUMN jurisdiction varchar;
