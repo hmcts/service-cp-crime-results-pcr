@@ -153,7 +153,7 @@
             "value": "SWSCNPS.Court@justice.gov.uk"
           }
         ],
-        "resultText": "Total custodial period is life.",
+        "resultText": "Total custodial period",
         "totalCustodialPeriod": "Life"
       },
       {
@@ -168,7 +168,7 @@
             "value": "RiskFactor"
           }
         ],
-        "resultText": "vulnerability - Risk or vulnerability factors"
+        "resultText": "Risk or vulnerability factors"
       }
     ],
     "hearing": {
