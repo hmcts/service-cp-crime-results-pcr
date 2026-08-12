@@ -180,6 +180,9 @@
         "courtAddress": {
           "address1": "1 Queen Victoria Street",
           "address2": "London",
+          "address3": "",
+          "address4": "",
+          "address5": "",
           "postCode": "EC4N 4XY"
         },
         "ljaName": "Central London Magistrates' Court"

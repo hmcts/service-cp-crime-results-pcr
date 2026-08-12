@@ -30,6 +30,9 @@
         "courtAddress": {
           "address1": "Marlborough St",
           "address2": "Bristol",
+          "address3": "",
+          "address4": "",
+          "address5": "",
           "postCode": "BS1 3NU"
         },
         "ljaName": "Avon & Somerset Magistrates' Court"
