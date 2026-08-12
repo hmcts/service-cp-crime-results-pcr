@@ -1,0 +1,230 @@
+[
+  {
+    "caseMarkers": [
+      {
+        "code": "DV"
+      }
+    ],
+    "caseResults": [
+      {
+        "category": "ANCILLARY",
+        "convicted": false,
+        "financial": false,
+        "prompts": [],
+        "resultCode": "4592",
+        "resultText": "Defendant's details changed"
+      }
+    ],
+    "caseURN": "TM370142723",
+    "courtApplications": [],
+    "defendant": {
+      "address": {
+        "address1": "99 Riverside Drive",
+        "address2": "Riverside Drive",
+        "address3": "Chester-le-Street",
+        "postCode": "NW1 5BR"
+      },
+      "dateOfBirth": "1975-08-11",
+      "firstName": "Cristal",
+      "gender": "MALE",
+      "id": "beea4cae-7107-46d0-b994-979d02063411",
+      "lastName": "Kutch",
+      "masterDefendantId": "beea4cae-7107-46d0-b994-979d02063411",
+      "nationality": "British",
+      "postHearingCustodyStatus": "Not Applicable",
+      "title": "Mr"
+    },
+    "defendantResults": [],
+    "hearing": {
+      "courtDetails": {
+        "court": {
+          "courtHouseCode": "B01DU00",
+          "courtHouseName": "City of London Magistrates' Court"
+        },
+        "courtAddress": {
+          "address1": "1 Queen Victoria Street",
+          "address2": "London",
+          "address3": "",
+          "address4": "",
+          "address5": "",
+          "postCode": "EC4N 4XY"
+        },
+        "ljaName": "Central London Magistrates' Court"
+      },
+      "defendantAppearanceDetails": "By video link",
+      "hearingDate": "2026-08-11",
+      "hearingType": "First hearing",
+      "id": "24b88ffb-4290-4560-9518-d6084c125c54",
+      "jurisdiction": "MAGISTRATES"
+    },
+    "nextHearing": {
+      "court": {
+        "courtHouseCode": "B01DU00",
+        "courtHouseId": "c133d0de-c989-48b9-bd20-0431943e347e",
+        "courtHouseName": "City of London Magistrates' Court"
+      },
+      "dateTime": "2026-08-11T09:00:00Z",
+      "hearingId": "69304c69-7264-46b2-ac4c-0c94b26788dc"
+    },
+    "offences": [
+      {
+        "code": "TH68013A",
+        "convictionDate": "2026-08-11",
+        "indicatedPleaValue": "NO_INDICATION",
+        "judicialResults": [
+          {
+            "category": "INTERMEDIARY",
+            "convicted": false,
+            "financial": false,
+            "prompts": [
+              {
+                "label": "Remanded for medical reports under Section",
+                "reference": "remandedForMedicalReportsUnderSection",
+                "type": "TXT",
+                "value": "Act 1983"
+              },
+              {
+                "label": "Type of medical report required",
+                "reference": "typeOfMedicalReportRequired",
+                "type": "TXT",
+                "value": "Approved Clinician"
+              },
+              {
+                "label": "Reason for report",
+                "reference": "reasonForReport",
+                "type": "TXT",
+                "value": "Use in Legal Proceedings"
+              },
+              {
+                "label": "Medical history",
+                "reference": "medicalHistory",
+                "type": "TXT",
+                "value": "Psychiatric Diagnoses"
+              },
+              {
+                "label": "Offence details",
+                "reference": "offenceDetails",
+                "type": "TXT",
+                "value": "Attempt theft to vehicle"
+              },
+              {
+                "label": "Criminal record",
+                "reference": "criminalRecord",
+                "type": "TXT",
+                "value": "Shop Lifting"
+              },
+              {
+                "label": "Home circumstances",
+                "reference": "homeCircumstances",
+                "type": "TXT",
+                "value": "No signs of immediate danger or safety hazards"
+              },
+              {
+                "label": "Officer in case",
+                "reference": "officerInCase",
+                "type": "TXT",
+                "value": "Jane Smith"
+              },
+              {
+                "label": "Probation Officer",
+                "reference": "probationOfficer",
+                "type": "BOOLEAN",
+                "value": "true"
+              },
+              {
+                "label": "Next hearing in magistrates' court",
+                "reference": "e591b365-ec05-4e99-b917-0f513bcea26b",
+                "value": "Date of hearing:11/08/2026\nTime of hearing:10:00\nCourthouse organisation name:City of London Magistrates' Court\nCourthouse address line 1:1 Queen Victoria Street\nCourthouse address line 2:London\nCourthouse post code:EC4N 4XY\nCourtroom:Courtroom 02\nHearing type:Plea\nEstimated duration:20 MINUTES\nBooking reference:69304c69-7264-46b2-ac4c-0c94b26788dc"
+              },
+              {
+                "label": "Remand basis",
+                "reference": "remandBasis",
+                "type": "FIXL",
+                "value": "Remanded for psychiatric reports by two medical practitioners"
+              },
+              {
+                "label": "Prison organisation name",
+                "reference": "prisonOrganisationName",
+                "type": "NAMEADDRESS",
+                "value": "HMP/YOI High Down"
+              },
+              {
+                "label": "Prison email address 1",
+                "reference": "prisonEmailAddress1",
+                "type": "NAMEADDRESS",
+                "value": "OMU.Highdown@justice.gov.uk"
+              },
+              {
+                "label": "Prison email address 2",
+                "reference": "prisonEmailAddress2",
+                "type": "NAMEADDRESS",
+                "value": "Reception.Highdown@justice.gov.uk"
+              },
+              {
+                "label": "Bail date",
+                "reference": "bailDate",
+                "type": "DATE",
+                "value": "21/08/2026"
+              },
+              {
+                "label": "Bail time",
+                "reference": "bailTime",
+                "type": "TIME",
+                "value": "12:30"
+              },
+              {
+                "label": "Defendant attendance excused at the next hearing",
+                "reference": "isTheDefendantExcusedAttendanceAtTheNextHearing",
+                "type": "BOOLEAN",
+                "value": "false"
+              },
+              {
+                "label": "Conveyor / custodian name organisation name",
+                "reference": "conveyorcustodiannameOrganisationName",
+                "type": "NAMEADDRESS",
+                "value": "London Division NPS"
+              },
+              {
+                "label": "Conveyor / custodian name email address 1",
+                "reference": "conveyorcustodiannameEmailAddress1",
+                "type": "NAMEADDRESS",
+                "value": "londonnps.court@justice.gov.uk"
+              },
+              {
+                "label": "Bail condition reason",
+                "reference": "bailConditionReason",
+                "type": "FIXLM",
+                "value": "To attend an interview with a legal adviser"
+              },
+              {
+                "label": "Risk or vulnerability factors",
+                "reference": "e7834c1b-189c-4987-a29d-90efeba7bce3",
+                "value": "Risk or vulnerability factors:RiskFactor"
+              },
+              {
+                "label": "Notification of electronic monitoring order (bail)",
+                "reference": "45d98b87-bb03-4e0c-8894-90da976653e8",
+                "value": "Electronic monitoring contractor organisation name:Electronic Monitoring Contractor\nElectronic monitoring contractor email address 1:LPadmin@ems.co.uk\nFirst notification of electronic monitoring:Yes\nDefendant's mobile number:06652439119\nWas an interpreter used?:No\nDoes the offender have any special needs?:No"
+              },
+              {
+                "label": "Pre-release bail condition: Passport - give to the court any passport held",
+                "reference": "17428645-5b3e-463d-8156-f3e29a866f9f",
+                "value": ""
+              }
+            ],
+            "resultCode": "4046",
+            "resultText": "Remanded in custody with bail direction"
+          }
+        ],
+        "listingNumber": 1,
+        "offenceLegislation": "Contrary to section 1(1)    of the Criminal Attempts Act 1981.",
+        "pleaDate": "2026-08-11",
+        "pleaValue": "NOT_GUILTY",
+        "startDate": "2026-06-12",
+        "title": "Attempt theft of motor vehicle",
+        "verdict": "Found guilty",
+        "wording": "Attempt theft to vehicle"
+      }
+    ]
+  }
+]
