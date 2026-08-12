@@ -4,9 +4,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import uk.gov.hmcts.cp.openapi.model.HearingResultedWebhookEvent;
-import uk.gov.hmcts.cp.openapi.model.HearingResultedWebhookEventData;
-import uk.gov.hmcts.cp.openapi.model.WebhookAck;
+import uk.gov.hmcts.cp.openapi.model.HearingResultedEvent;
+import uk.gov.hmcts.cp.openapi.model.HearingResultedEventData;
 import uk.gov.hmcts.cp.services.ingestion.ResultsIngestionService;
 
 import java.util.List;
@@ -18,30 +17,30 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class HearingResultedWebhookService {
+public class HearingResultedEventService {
 
     private static final String HEARING_RESULTED_EVENT_TYPE = "Hearing_Resulted";
 
     private final ResultsIngestionService ingestionService;
 
-    public ResponseEntity<WebhookAck> handle(final List<HearingResultedWebhookEvent> events) {
-        final HearingResultedWebhookEvent event = firstEvent(events);
+    public ResponseEntity<Void> handle(final List<HearingResultedEvent> events) {
+        final HearingResultedEvent event = firstEvent(events);
         if (!HEARING_RESULTED_EVENT_TYPE.equals(event.getEventType())) {
             throw new IllegalArgumentException("Unrecognized eventType: " + event.getEventType());
         }
         return ingest(event);
     }
 
-    private HearingResultedWebhookEvent firstEvent(final List<HearingResultedWebhookEvent> events) {
+    private HearingResultedEvent firstEvent(final List<HearingResultedEvent> events) {
         if (events == null || events.isEmpty()) {
             throw new IllegalArgumentException("Empty Event Grid delivery — expected at least one event");
         }
         return events.get(0);
     }
 
-    private ResponseEntity<WebhookAck> ingest(final HearingResultedWebhookEvent event) {
-        final HearingResultedWebhookEventData data = event.getData();
+    private ResponseEntity<Void> ingest(final HearingResultedEvent event) {
+        final HearingResultedEventData data = event.getData();
         ingestionService.ingestAndPersist(data.getHearingId(), data.getHearingDay().toString());
-        return ResponseEntity.ok(new WebhookAck());
+        return ResponseEntity.ok().build();
     }
 }

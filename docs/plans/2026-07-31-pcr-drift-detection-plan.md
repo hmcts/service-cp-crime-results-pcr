@@ -13,7 +13,7 @@ as a parameterized integration test, per
 (`event.json`, `now-subscriptions.json`, `expected/<defendantId>.json`, `reference/*.pdf`). New
 `FixtureProvider` (JUnit `ArgumentsProvider`) scans that root. New
 `PcrDriftDetectionIntegrationTest` (`@ParameterizedTest`, extends the existing
-`IngestionE2ETestBase`) replays each fixture's event through the real webhook → generation-gate →
+`IngestionE2ETestBase`) replays each fixture's event through the real ingestion → generation-gate →
 persistence path, then diffs each defendant's `GET /pcr` response against its expected file with
 `JSONAssert.assertEquals(..., JSONCompareMode.STRICT)`.
 

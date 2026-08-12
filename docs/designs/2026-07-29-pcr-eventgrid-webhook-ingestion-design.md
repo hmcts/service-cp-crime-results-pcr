@@ -1,6 +1,17 @@
 # PCR Event Grid Webhook Ingestion Design
 
-**Status:** Accepted, 29 Jul 2026. Replaces
+**Status:** Accepted, 29 Jul 2026 — **partially superseded, 12 Aug 2026**. Event Grid no longer
+delivers directly to this service. `pcr-eventgrid-relay-function` (a standalone Azure Function
+App) now owns the Event Grid subscription and its subscription-validation handshake, and relays
+`Hearing_Resulted` verbatim to this service's `/internal/hearing-results` endpoint as a plain
+internal HTTP call — see [ADR-007](../pipeline/adrs/007-AMP-892-pcr-eventgrid-webhook-ingestion.md)'s
+own superseded note. The Redis-first/REST-fallback/completeness-retry sections below (§1, §3.2,
+§3.3a) are still accurate; the direct-Event-Grid-webhook sections (§2, §3.1, §3.1a, §3.4,
+including the subscription-validation handshake) describe a surface this service no longer has.
+`HearingResultedWebhookController`/`HearingResultedWebhookService` referenced throughout are now
+`HearingResultedEventController`/`HearingResultedEventService`.
+
+Replaces
 [`2026-07-22-pcr-hearing-event-ingestion-design.md`](2026-07-22-pcr-hearing-event-ingestion-design.md)
 ("the Service Bus doc") as the target ingestion architecture — this document supersedes its
 Event Grid → Service Bus → consumer sections (§2, §3.1, §3.1a, §3.4) but reuses its Redis-first/

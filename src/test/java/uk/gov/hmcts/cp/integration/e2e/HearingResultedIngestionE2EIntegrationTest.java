@@ -50,7 +50,7 @@ class HearingResultedIngestionE2EIntegrationTest extends IngestionE2ETestBase {
     private static final UUID DEFENDANT_ID = UUID.fromString("ea6b2d84-e99a-47ff-b031-a036e093f627");
     private static final String FIXTURE_PATH = "pcr-two-def-one-application/two-def-one-application.json";
     private static final String NOW_SUBSCRIPTIONS_FIXTURE_PATH = "referencedata/now-subscriptions-prison-court-register-fixture.json";
-    private static final String WEBHOOK_EVENT_FIXTURE_PATH = "webhook/hearing-resulted-webhook-event.json";
+    private static final String EVENT_FIXTURE_PATH = "events/hearing-resulted-event.json";
     private static final String CACHE_KEY = "INT_" + HEARING_ID + "_" + HEARING_DAY + "_result_";
 
     @Autowired
@@ -94,7 +94,7 @@ class HearingResultedIngestionE2EIntegrationTest extends IngestionE2ETestBase {
         given_a_matching_prison_court_register_subscription();
         given_the_real_hearing_payload_is_seeded_in_redis();
 
-        when_the_hearing_resulted_webhook_is_received();
+        when_the_hearing_resulted_event_is_received();
 
         then_the_case_hearing_is_persisted();
         then_the_version_is_persisted_with_defendant_pii_and_custody();
@@ -116,10 +116,10 @@ class HearingResultedIngestionE2EIntegrationTest extends IngestionE2ETestBase {
         redisTemplate.opsForValue().set(CACHE_KEY, readResourceContents(FIXTURE_PATH));
     }
 
-    private void when_the_hearing_resulted_webhook_is_received() throws Exception {
+    private void when_the_hearing_resulted_event_is_received() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.post("/internal/hearing-results")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(hearingResultedWebhookEvent()))
+                        .content(hearingResultedEventJson()))
                 .andExpect(status().isOk());
     }
 
@@ -219,8 +219,8 @@ class HearingResultedIngestionE2EIntegrationTest extends IngestionE2ETestBase {
                         .value(hasItems("imprisonmentPeriod", "totalCustodialPeriod", "prisonOrganisationName")));
     }
 
-    private String hearingResultedWebhookEvent() {
-        return readResourceContents(WEBHOOK_EVENT_FIXTURE_PATH)
+    private String hearingResultedEventJson() {
+        return readResourceContents(EVENT_FIXTURE_PATH)
                 .formatted(HEARING_ID, HEARING_ID, HEARING_DAY);
     }
 

@@ -10,7 +10,7 @@ Full design — architecture, trigger, transformation, versioning, retention/ack
 
 ## Upstream / downstream
 
-- **Upstream:** Azure Event Grid `Hearing_Resulted` (via `cpp-context-results`) routed through a Service Bus queue; Results Query Client (Redis first, REST fallback against the Results Query API); Reference Data (`ResultDefinition` lookups).
+- **Upstream:** Azure Event Grid `Hearing_Resulted` (via `cpp-context-results`), relayed by `pcr-eventgrid-relay-function` (which owns the Event Grid subscription and its handshake) to this service's `/internal/hearing-results` endpoint as a plain internal HTTP call; Results Query Client (Redis first, REST fallback against the Results Query API); Reference Data (`ResultDefinition` lookups).
 - **Downstream:** `service-cp-crime-hearing-results-document-subscription` — this service's Query API URL is wired into that service's existing subscriber callback payload.
 
 ## API contract

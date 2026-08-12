@@ -4,7 +4,13 @@
 
 **Repos:** `api-cp-crime-results-pcr` (OpenAPI spec) + `service-cp-crime-results-pcr` (Spring Boot service), Modern-by-Default pattern, scaffolded from `api-hmcts-crime-template` / `service-hmcts-crime-springboot-template`.
 
-**Status:** Draft, 16 Jul 2026, built from the epic/stories.
+**Status:** Draft, 16 Jul 2026, built from the epic/stories. **§4b/§4c's ingestion-trigger
+decision is superseded, 12 Aug 2026** — it recommended Event Grid → Service Bus → consume and
+rejected a direct Event Grid webhook; what was actually built (and has since evolved further) is
+the opposite: a direct webhook (ADR-007/AMP-892), now fronted by `pcr-eventgrid-relay-function`
+(a standalone Function App that owns the Event Grid subscription/handshake and relays
+`Hearing_Resulted` here as a plain internal call). Everything else in this document (versioning,
+retention/ack, generation-gate, read-path) is unaffected by the trigger mechanism and still holds.
 **Jira:** AMP-888 — see [`docs/pipeline/adrs/001-AMP-888-pcr-api-marketplace-pull-channel.md`](../pipeline/adrs/001-AMP-888-pcr-api-marketplace-pull-channel.md)
 for the decision this design doc's architecture was accepted under.
 

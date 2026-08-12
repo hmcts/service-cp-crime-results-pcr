@@ -1,4 +1,13 @@
+
 # PCR Event Grid Webhook Ingestion Implementation Plan
+
+> **Superseded, 12 Aug 2026:** this plan's Service-Bus-to-direct-webhook goal was carried out and
+> then itself superseded — Event Grid no longer delivers directly to this service.
+> `pcr-eventgrid-relay-function` now owns the subscription/handshake and relays
+> `Hearing_Resulted` here as a plain internal call. `HearingResultedWebhookController`/
+> `HearingResultedWebhookService` (built by this plan) are now `HearingResultedEventController`/
+> `HearingResultedEventService`. Retained as a historical record of the work this plan actually
+> executed, not as current instructions.
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 

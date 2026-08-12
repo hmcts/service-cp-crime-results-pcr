@@ -101,8 +101,8 @@ For each fixture folder, resolved via a `FixtureProvider` (`ArgumentsProvider`) 
    (`hearing.prosecutionCases[0].prosecutionCaseIdentifier.caseURN`) out of `event.json`.
 2. Stub the `now-subscriptions` WireMock endpoint with `now-subscriptions.json`.
 3. Seed Redis at `INT_{hearingId}_{hearingDay}_result_` with `event.json`'s raw content.
-4. POST the Event Grid webhook wrapper (same shape as
-   `src/test/resources/webhook/hearing-resulted-webhook-event.json`, formatted with the parsed
+4. POST the relayed Hearing_Resulted event wrapper (same shape as
+   `src/test/resources/events/hearing-resulted-event.json`, formatted with the parsed
    `hearingId`/`hearingDay`) to `/internal/hearing-results`, assert `200`.
 5. For every file under `expected/`, `GET
    /cases/{caseURN}/hearings/{hearingId}/defendants/{defendantId}` (defendantId = file's base
