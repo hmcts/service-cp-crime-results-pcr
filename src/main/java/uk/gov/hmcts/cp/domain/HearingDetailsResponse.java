@@ -95,7 +95,7 @@ public class HearingDetailsResponse {
         private Boolean welshCourtCentre;
         // lja/address confirmed via the legacy Function App's own HearingVenueMapper.js, which
         // reads hearing.courtCentre.lja.ljaName and hearing.courtCentre.address verbatim.
-        private Lja lja;
+        private LocalJusticeArea lja;
         private Address address;
     }
 
@@ -104,7 +104,7 @@ public class HearingDetailsResponse {
     @AllArgsConstructor
     @NoArgsConstructor
     @Getter
-    public static class Lja {
+    public static class LocalJusticeArea {
         private String ljaName;
     }
 

@@ -25,7 +25,7 @@ import uk.gov.hmcts.cp.domain.HearingDetailsResponse.HearingDetail;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.IndicatedPlea;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.JudicialResult;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.JudicialResultPrompt;
-import uk.gov.hmcts.cp.domain.HearingDetailsResponse.Lja;
+import uk.gov.hmcts.cp.domain.HearingDetailsResponse.LocalJusticeArea;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.Offence;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.PleaDetails;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.PersonDefendant;
@@ -132,7 +132,7 @@ class CPHearingResultEntityMapperTest {
                 .prosecutionCases(List.of())
                 .courtCentre(CourtCentre.builder()
                         .code("B01LY").name("Leeds Crown Court")
-                        .lja(Lja.builder().ljaName("South East London Magistrates' Court").build())
+                        .lja(LocalJusticeArea.builder().ljaName("South East London Magistrates' Court").build())
                         .address(Address.builder()
                                 .address1("1 Court Street").address2("Suite 2").address3("Town")
                                 .address4("County").address5("Country").postcode("SE1 1AA")
