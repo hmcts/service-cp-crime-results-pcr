@@ -13,4 +13,6 @@ public interface CPJudicialResultRepository extends JpaRepository<CPJudicialResu
     List<CPJudicialResultEntity> findByOffenceId(UUID offenceId);
 
     List<CPJudicialResultEntity> findByCourtApplicationId(UUID courtApplicationId);
+
+    List<CPJudicialResultEntity> findByVersionPk(UUID versionPk);
 }

@@ -1,6 +1,7 @@
 [
   {
     "caseMarkers": [],
+    "caseResults": [],
     "caseURN": "AS231157673",
     "courtApplications": [],
     "defendant": {
@@ -12,19 +13,35 @@
       },
       "dateOfBirth": "1969-07-30",
       "firstName": "MechTommie",
+      "gender": "MALE",
       "id": "0f8306f4-b997-4d4c-81d6-999a646a7031",
       "lastName": "MachLarkin",
       "masterDefendantId": "0f8306f4-b997-4d4c-81d6-999a646a7031",
+      "postHearingCustodyStatus": "Not Applicable",
       "title": "Mr"
     },
+    "defendantResults": [],
     "hearing": {
-      "court": {
-        "courtHouseCode": "B52CM00",
-        "courtHouseName": "Bristol Magistrates' Court"
+      "courtDetails": {
+        "court": {
+          "courtHouseCode": "B52CM00",
+          "courtHouseName": "Bristol Magistrates' Court"
+        },
+        "courtAddress": {
+          "address1": "Marlborough St",
+          "address2": "Bristol",
+          "address3": "",
+          "address4": "",
+          "address5": "",
+          "postCode": "BS1 3NU"
+        },
+        "ljaName": "Avon & Somerset Magistrates' Court"
       },
+      "defendantAppearanceDetails": "In person",
       "hearingDate": "2026-07-31",
       "hearingType": "First hearing",
-      "id": "f15a49db-812e-43d2-bfc5-7f3c7ee9ede1"
+      "id": "f15a49db-812e-43d2-bfc5-7f3c7ee9ede1",
+      "jurisdiction": "MAGISTRATES"
     },
     "nextHearing": {
       "court": {
@@ -44,7 +61,6 @@
             "category": "INTERMEDIARY",
             "convicted": false,
             "financial": false,
-            "postHearingCustodyStatus": "C",
             "prompts": [
               {
                 "label": "Next hearing in magistrates' court",
@@ -112,86 +128,10 @@
             ],
             "resultCode": "4028",
             "resultText": "Remanded in custody"
-          },
-          {
-            "category": "ANCILLARY",
-            "convicted": false,
-            "financial": false,
-            "postHearingCustodyStatus": "A",
-            "prompts": [],
-            "resultText": "To attend or a warrant to issue"
-          },
-          {
-            "category": "ANCILLARY",
-            "convicted": false,
-            "financial": false,
-            "postHearingCustodyStatus": "A",
-            "prompts": [
-              {
-                "label": "Date of hearing",
-                "reference": "HDATE",
-                "type": "DATE",
-                "value": "31/07/2026"
-              },
-              {
-                "label": "Time of hearing",
-                "reference": "timeOfHearing",
-                "type": "TIME",
-                "value": "10:00"
-              },
-              {
-                "label": "Courthouse organisation name",
-                "reference": "hCHOUSEOrganisationName",
-                "type": "NAMEADDRESS",
-                "value": "Lavender Hill Magistrates' Court"
-              },
-              {
-                "label": "Courthouse address line 1",
-                "reference": "hCHOUSEAddress1",
-                "type": "NAMEADDRESS",
-                "value": "176A Lavender Hill"
-              },
-              {
-                "label": "Courthouse address line 2",
-                "reference": "hCHOUSEAddress2",
-                "type": "NAMEADDRESS",
-                "value": "London"
-              },
-              {
-                "label": "Courthouse post code",
-                "reference": "hCHOUSEPostCode",
-                "type": "NAMEADDRESS",
-                "value": "SW11 1JU"
-              },
-              {
-                "label": "Courtroom",
-                "reference": "HCROOM",
-                "type": "INT",
-                "value": "Courtroom 01"
-              },
-              {
-                "label": "Hearing type",
-                "reference": "HTYPE",
-                "type": "TXT",
-                "value": "Appeal"
-              },
-              {
-                "label": "Estimated duration",
-                "reference": "HEST",
-                "type": "INT",
-                "value": "30 MINUTES"
-              },
-              {
-                "label": "Booking reference",
-                "reference": "bookingReference",
-                "type": "TXT",
-                "value": "277bb4af-0109-420b-a640-3249b0fbe0ff"
-              }
-            ],
-            "resultText": "Next hearing in magistrates' court"
           }
         ],
         "listingNumber": 1,
+        "offenceLegislation": "Contrary to section 1(1)    of the Criminal Attempts Act 1981.",
         "pleaDate": "2026-07-31",
         "pleaValue": "GUILTY",
         "startDate": "2026-05-01",
@@ -199,6 +139,7 @@
         "wording": "Attempt theft to vehicle"
       },
       {
+        "allocationDecision": "Summary-only offence",
         "code": "CA03012",
         "convictionDate": "2026-07-31",
         "judicialResults": [
@@ -206,7 +147,6 @@
             "category": "INTERMEDIARY",
             "convicted": false,
             "financial": false,
-            "postHearingCustodyStatus": "C",
             "prompts": [
               {
                 "label": "Next hearing in magistrates' court",
@@ -274,86 +214,10 @@
             ],
             "resultCode": "4028",
             "resultText": "Remanded in custody"
-          },
-          {
-            "category": "ANCILLARY",
-            "convicted": false,
-            "financial": false,
-            "postHearingCustodyStatus": "A",
-            "prompts": [],
-            "resultText": "To attend or a warrant to issue"
-          },
-          {
-            "category": "ANCILLARY",
-            "convicted": false,
-            "financial": false,
-            "postHearingCustodyStatus": "A",
-            "prompts": [
-              {
-                "label": "Date of hearing",
-                "reference": "HDATE",
-                "type": "DATE",
-                "value": "31/07/2026"
-              },
-              {
-                "label": "Time of hearing",
-                "reference": "timeOfHearing",
-                "type": "TIME",
-                "value": "10:00"
-              },
-              {
-                "label": "Courthouse organisation name",
-                "reference": "hCHOUSEOrganisationName",
-                "type": "NAMEADDRESS",
-                "value": "Lavender Hill Magistrates' Court"
-              },
-              {
-                "label": "Courthouse address line 1",
-                "reference": "hCHOUSEAddress1",
-                "type": "NAMEADDRESS",
-                "value": "176A Lavender Hill"
-              },
-              {
-                "label": "Courthouse address line 2",
-                "reference": "hCHOUSEAddress2",
-                "type": "NAMEADDRESS",
-                "value": "London"
-              },
-              {
-                "label": "Courthouse post code",
-                "reference": "hCHOUSEPostCode",
-                "type": "NAMEADDRESS",
-                "value": "SW11 1JU"
-              },
-              {
-                "label": "Courtroom",
-                "reference": "HCROOM",
-                "type": "INT",
-                "value": "Courtroom 01"
-              },
-              {
-                "label": "Hearing type",
-                "reference": "HTYPE",
-                "type": "TXT",
-                "value": "Appeal"
-              },
-              {
-                "label": "Estimated duration",
-                "reference": "HEST",
-                "type": "INT",
-                "value": "30 MINUTES"
-              },
-              {
-                "label": "Booking reference",
-                "reference": "bookingReference",
-                "type": "TXT",
-                "value": "6e0ae098-72a9-4866-97e6-992d3126a4ad"
-              }
-            ],
-            "resultText": "Next hearing in magistrates' court"
           }
         ],
         "listingNumber": 1,
+        "offenceLegislation": "Contrary to section 363(3)(b) and (4) of the Communications Act 2003.",
         "pleaDate": "2026-07-31",
         "pleaValue": "GUILTY",
         "startDate": "2026-05-01",

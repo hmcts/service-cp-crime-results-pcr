@@ -1,6 +1,7 @@
 [
   {
     "caseMarkers": [],
+    "caseResults": [],
     "caseURN": "AS231157673",
     "courtApplications": [],
     "defendant": {
@@ -12,19 +13,35 @@
       },
       "dateOfBirth": "1981-07-30",
       "firstName": "DroidAlan",
+      "gender": "MALE",
       "id": "dd34ddd7-4f06-4ba7-be69-ee242c0f97bc",
       "lastName": "DotMacejkovic",
       "masterDefendantId": "dd34ddd7-4f06-4ba7-be69-ee242c0f97bc",
+      "postHearingCustodyStatus": "Not Applicable",
       "title": "Mr"
     },
+    "defendantResults": [],
     "hearing": {
-      "court": {
-        "courtHouseCode": "B52CM00",
-        "courtHouseName": "Bristol Magistrates' Court"
+      "courtDetails": {
+        "court": {
+          "courtHouseCode": "B52CM00",
+          "courtHouseName": "Bristol Magistrates' Court"
+        },
+        "courtAddress": {
+          "address1": "Marlborough St",
+          "address2": "Bristol",
+          "address3": "",
+          "address4": "",
+          "address5": "",
+          "postCode": "BS1 3NU"
+        },
+        "ljaName": "Avon & Somerset Magistrates' Court"
       },
+      "defendantAppearanceDetails": "In person",
       "hearingDate": "2026-07-31",
       "hearingType": "First hearing",
-      "id": "f15a49db-812e-43d2-bfc5-7f3c7ee9ede1"
+      "id": "f15a49db-812e-43d2-bfc5-7f3c7ee9ede1",
+      "jurisdiction": "MAGISTRATES"
     },
     "nextHearing": {
       "court": {
@@ -43,7 +60,6 @@
             "category": "FINAL",
             "convicted": false,
             "financial": false,
-            "postHearingCustodyStatus": "A",
             "prompts": [
               {
                 "label": "Details",
@@ -57,6 +73,7 @@
           }
         ],
         "listingNumber": 1,
+        "offenceLegislation": "Contrary to paragraph 6 of Schedule 4 to, and regulation 19(2) of, the Food Safety and Hygiene (England) Regulations 2013.",
         "pleaDate": "2026-07-31",
         "pleaValue": "NOT_GUILTY",
         "startDate": "2026-05-01",
@@ -70,7 +87,6 @@
             "category": "INTERMEDIARY",
             "convicted": false,
             "financial": false,
-            "postHearingCustodyStatus": "C",
             "prompts": [
               {
                 "label": "Next hearing in magistrates' court",
@@ -138,86 +154,10 @@
             ],
             "resultCode": "4028",
             "resultText": "Remanded in custody"
-          },
-          {
-            "category": "ANCILLARY",
-            "convicted": false,
-            "financial": false,
-            "postHearingCustodyStatus": "A",
-            "prompts": [],
-            "resultText": "To attend or a warrant to issue"
-          },
-          {
-            "category": "ANCILLARY",
-            "convicted": false,
-            "financial": false,
-            "postHearingCustodyStatus": "A",
-            "prompts": [
-              {
-                "label": "Date of hearing",
-                "reference": "HDATE",
-                "type": "DATE",
-                "value": "31/07/2026"
-              },
-              {
-                "label": "Time of hearing",
-                "reference": "timeOfHearing",
-                "type": "TIME",
-                "value": "10:00"
-              },
-              {
-                "label": "Courthouse organisation name",
-                "reference": "hCHOUSEOrganisationName",
-                "type": "NAMEADDRESS",
-                "value": "Lavender Hill Magistrates' Court"
-              },
-              {
-                "label": "Courthouse address line 1",
-                "reference": "hCHOUSEAddress1",
-                "type": "NAMEADDRESS",
-                "value": "176A Lavender Hill"
-              },
-              {
-                "label": "Courthouse address line 2",
-                "reference": "hCHOUSEAddress2",
-                "type": "NAMEADDRESS",
-                "value": "London"
-              },
-              {
-                "label": "Courthouse post code",
-                "reference": "hCHOUSEPostCode",
-                "type": "NAMEADDRESS",
-                "value": "SW11 1JU"
-              },
-              {
-                "label": "Courtroom",
-                "reference": "HCROOM",
-                "type": "INT",
-                "value": "Courtroom 01"
-              },
-              {
-                "label": "Hearing type",
-                "reference": "HTYPE",
-                "type": "TXT",
-                "value": "Appeal"
-              },
-              {
-                "label": "Estimated duration",
-                "reference": "HEST",
-                "type": "INT",
-                "value": "30 MINUTES"
-              },
-              {
-                "label": "Booking reference",
-                "reference": "bookingReference",
-                "type": "TXT",
-                "value": "cf1f6d0c-6f9c-461f-b91a-5458a16c6342"
-              }
-            ],
-            "resultText": "Next hearing in magistrates' court"
           }
         ],
         "listingNumber": 1,
+        "offenceLegislation": "Contrary to section 178(2) and (4) of the Broadcasting Act 1990.",
         "pleaDate": "2026-07-31",
         "pleaValue": "NOT_GUILTY",
         "startDate": "2026-05-01",

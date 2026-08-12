@@ -55,7 +55,7 @@ public class PcrResultsService {
                                                  final List<CPCaseMarkerEntity> caseMarkers) {
         final List<CPCourtApplicationEntity> courtApplications = courtApplicationRepository.findByVersionPk(version.getCpVersionPk());
         final List<CPOffenceEntity> offences = allOffences(version.getCpVersionPk(), courtApplications);
-        final List<CPJudicialResultEntity> judicialResults = allJudicialResults(offences, courtApplications);
+        final List<CPJudicialResultEntity> judicialResults = allJudicialResults(version.getCpVersionPk(), offences, courtApplications);
         return mapper.toPcrHearingResult(
                 caseHearing,
                 version,
@@ -73,13 +73,16 @@ public class PcrResultsService {
         return Stream.concat(direct, linked).toList();
     }
 
-    private List<CPJudicialResultEntity> allJudicialResults(
+    private List<CPJudicialResultEntity> allJudicialResults(final UUID versionPk,
             final List<CPOffenceEntity> offences, final List<CPCourtApplicationEntity> courtApplications) {
         final Stream<CPJudicialResultEntity> offenceResults = offences.stream()
                 .flatMap(o -> judicialResultRepository.findByOffenceId(o.getId()).stream());
         final Stream<CPJudicialResultEntity> applicationResults = courtApplications.stream()
                 .flatMap(a -> judicialResultRepository.findByCourtApplicationId(a.getId()).stream());
-        return Stream.concat(offenceResults, applicationResults).toList();
+        // Third parent (design doc §3 extension) — defendantResults/caseResults, distinguished
+        // from each other by level, not by a separate repository lookup.
+        final Stream<CPJudicialResultEntity> versionResults = judicialResultRepository.findByVersionPk(versionPk).stream();
+        return Stream.concat(Stream.concat(offenceResults, applicationResults), versionResults).toList();
     }
 
     private List<CPJudicialResultPromptEntity> allPrompts(final List<CPJudicialResultEntity> judicialResults) {

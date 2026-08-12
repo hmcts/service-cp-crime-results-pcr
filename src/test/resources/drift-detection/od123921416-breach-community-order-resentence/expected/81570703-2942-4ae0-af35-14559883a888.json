@@ -2,18 +2,10 @@
   {
     "caseMarkers": [],
     "caseResults": [],
-    "caseURN": "KL238291232",
+    "caseURN": "OD123921416",
     "courtApplications": [
       {
         "judicialResults": [
-          {
-            "category": "FINAL",
-            "convicted": false,
-            "financial": false,
-            "prompts": [],
-            "resultCode": "3501",
-            "resultText": "No adjudication - dealt with for original offence"
-          },
           {
             "category": "FINAL",
             "convicted": false,
@@ -23,7 +15,7 @@
                 "label": "Date original order made",
                 "reference": "dateOriginalOrderMade",
                 "type": "DATE",
-                "value": "29/07/2026"
+                "value": "10/08/2026"
               },
               {
                 "label": "Order revoked",
@@ -35,7 +27,7 @@
                 "label": "Court that made the original order",
                 "reference": "courtThatMadeTheOriginalOrder",
                 "type": "FIXL",
-                "value": "Bristol Magistrates' Court"
+                "value": "Bexley Magistrates' Court"
               }
             ],
             "resultCode": "1029",
@@ -44,57 +36,78 @@
         ],
         "offences": [
           {
+            "allocationDecision": "Indictable-only offence",
             "code": "CJ03522",
-            "convictionDate": "2026-07-30",
+            "convictionDate": "2026-08-11",
             "judicialResults": [
               {
                 "category": "FINAL",
-                "convicted": false,
+                "convicted": true,
                 "financial": false,
-                "prompts": [],
-                "resultText": "Granted"
-              },
-              {
-                "category": "ANCILLARY",
-                "convicted": false,
-                "financial": false,
+                "imprisonmentPeriod": "15 Days",
                 "prompts": [
                   {
-                    "label": "Text",
-                    "reference": "text",
-                    "type": "TXT",
-                    "value": "Test TEXT"
+                    "label": "Imprisonment Period",
+                    "reference": "imprisonmentPeriod",
+                    "type": "INTM",
+                    "value": "15 Days"
+                  },
+                  {
+                    "label": "Imprisonment reasons",
+                    "reference": "imprisonmentReasons",
+                    "type": "FIXL",
+                    "value": "the offence(s) are so serious that only a custodial sentence can be justified"
+                  },
+                  {
+                    "label": "Reason for custody",
+                    "reference": "theReasonsForThis",
+                    "type": "FIXLOM",
+                    "value": "because of an unprovoked attack of a serious nature"
+                  },
+                  {
+                    "label": "Bail remand days to count (tagged days)",
+                    "reference": "bailRemandDaysToCountTaggedDays",
+                    "type": "INT",
+                    "value": "0"
+                  },
+                  {
+                    "label": "This offence is aggravated by the foreign power condition being met in relation to it as defined by section 31 of the National Security Act 2023",
+                    "reference": "offenceAggByForeignPowerCondition",
+                    "type": "BOOLEAN",
+                    "value": "false"
                   }
                 ],
-                "resultText": "Text"
+                "resultCode": "1002",
+                "resultText": "Imprisonment",
+                "totalCustodialPeriod": "15 Days"
               }
             ],
             "listingNumber": 1,
-            "offenceLegislation": "Contrary to section 1(1) and 7 of the Theft Act 1968.",
-            "pleaDate": "2026-07-30",
+            "offenceLegislation": "Contrary to section 8(1) of the Theft Act 1968.",
+            "pleaDate": "2026-08-11",
             "pleaValue": "GUILTY",
-            "startDate": "2026-05-31",
-            "title": "Theft from the person of another",
-            "wording": "Original CaseURN: GD238239881, Re-sentenced Original code : TH68001, Original details: Theft from the person of another"
+            "startDate": "2026-06-12",
+            "title": "Robbery",
+            "wording": "Original CaseURN: YX123927526, Re-sentenced Original code : TH68023, Original details: Robbery"
           }
         ],
-        "reference": "KL238291232",
+        "reference": "OD123921416",
         "type": "Conviction of an offence while a community order is in force"
       }
     ],
     "defendant": {
       "address": {
-        "address1": "48 Elm Grove",
-        "address2": "Elm Grove",
-        "address3": "Horsham",
+        "address1": "90 Mill Lane",
+        "address2": "Mill Lane",
+        "address3": "Cardiff",
         "postCode": "NW1 5BR"
       },
-      "dateOfBirth": "1958-07-30",
-      "firstName": "Rodrick",
+      "dateOfBirth": "1971-08-11",
+      "firstName": "Marya",
       "gender": "MALE",
-      "id": "4cc851c0-e2a3-477d-8168-3b335de7acd3",
-      "lastName": "Roberts",
-      "masterDefendantId": "1bcb7e51-edfe-4e6d-b67a-8033f38fc5af",
+      "id": "81570703-2942-4ae0-af35-14559883a888",
+      "lastName": "Klocko",
+      "masterDefendantId": "f4b5e73e-e7f7-421a-9b9f-88003d5355c3",
       "postHearingCustodyStatus": "Not Applicable",
       "title": "Mr"
     },
@@ -102,30 +115,30 @@
     "hearing": {
       "courtDetails": {
         "court": {
-          "courtHouseCode": "B01DU00",
-          "courtHouseName": "City of London Magistrates' Court"
+          "courtHouseCode": "B01BH00",
+          "courtHouseName": "Bexley Magistrates' Court"
         },
         "courtAddress": {
-          "address1": "1 Queen Victoria Street",
-          "address2": "London",
-          "address3": "",
+          "address1": "Norwich Place",
+          "address2": "Bexleyheath",
+          "address3": "Kent",
           "address4": "",
           "address5": "",
-          "postCode": "EC4N 4XY"
+          "postCode": "DA6 7ND"
         },
-        "ljaName": "Central London Magistrates' Court"
+        "ljaName": "South East London Magistrates' Court"
       },
       "defendantAppearanceDetails": "In person",
-      "hearingDate": "2026-07-30",
+      "hearingDate": "2026-08-11",
       "hearingType": "First hearing",
-      "id": "81c4cdf1-5323-49e8-9a94-598c4f85e6bf",
+      "id": "cd274eae-19f3-4a4a-b615-ad85dace6331",
       "jurisdiction": "MAGISTRATES"
     },
     "offences": [
       {
         "allocationDecision": "Indictable-only offence",
         "code": "TH68023",
-        "convictionDate": "2026-07-30",
+        "convictionDate": "2026-08-11",
         "judicialResults": [
           {
             "category": "FINAL",
@@ -213,7 +226,7 @@
               },
               {
                 "label": "Risk or vulnerability factors",
-                "reference": "64eb8b00-3b03-4fef-9646-ee2b1412f036",
+                "reference": "017807d7-2103-47f3-a2a1-02132b5d3028",
                 "value": "Risk or vulnerability factors:RiskFactor"
               }
             ],
@@ -224,9 +237,9 @@
         ],
         "listingNumber": 1,
         "offenceLegislation": "Contrary to section 8(1) of the Theft Act 1968.",
-        "pleaDate": "2026-07-30",
+        "pleaDate": "2026-08-11",
         "pleaValue": "GUILTY",
-        "startDate": "2026-05-31",
+        "startDate": "2026-06-12",
         "title": "Robbery",
         "wording": "Robbery"
       }

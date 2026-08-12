@@ -1,6 +1,7 @@
 [
   {
     "caseMarkers": [],
+    "caseResults": [],
     "caseURN": "TEST1234567",
     "courtApplications": [
       {
@@ -9,7 +10,6 @@
             "category": "FINAL",
             "convicted": false,
             "financial": false,
-            "postHearingCustodyStatus": "A",
             "prompts": [],
             "resultText": "Granted"
           }
@@ -32,31 +32,47 @@
       },
       "dateOfBirth": "2006-07-23",
       "firstName": "Sophie",
+      "gender": "MALE",
       "id": "ea6b2d84-e99a-47ff-b031-a036e093f627",
       "lastName": "Reichel",
       "masterDefendantId": "ea6b2d84-e99a-47ff-b031-a036e093f627",
+      "postHearingCustodyStatus": "Not Applicable",
       "title": "Mr"
     },
+    "defendantResults": [],
     "hearing": {
-      "court": {
-        "courtHouseCode": "B52CM00",
-        "courtHouseName": "Bristol Magistrates' Court"
+      "courtDetails": {
+        "court": {
+          "courtHouseCode": "B52CM00",
+          "courtHouseName": "Bristol Magistrates' Court"
+        },
+        "courtAddress": {
+          "address1": "Marlborough St",
+          "address2": "Bristol",
+          "address3": "",
+          "address4": "",
+          "address5": "",
+          "postCode": "BS1 3NU"
+        },
+        "ljaName": "Avon & Somerset Magistrates' Court"
       },
+      "defendantAppearanceDetails": "In person",
       "hearingDate": "2026-07-23",
       "hearingType": "Application",
-      "id": "5f75863f-270a-482a-9e67-eaccb2fd3130"
+      "id": "5f75863f-270a-482a-9e67-eaccb2fd3130",
+      "jurisdiction": "MAGISTRATES"
     },
     "offences": [
       {
         "code": "TH68013A",
         "convictionDate": "2026-07-23",
+        "indicatedPleaValue": "INDICATED_NOT_GUILTY",
         "judicialResults": [
           {
             "category": "FINAL",
             "convicted": true,
             "financial": false,
             "imprisonmentPeriod": "6 Months",
-            "postHearingCustodyStatus": "A",
             "prompts": [
               {
                 "label": "Total custodial period",
@@ -143,10 +159,12 @@
           }
         ],
         "listingNumber": 2,
+        "offenceLegislation": "Contrary to section 1(1)    of the Criminal Attempts Act 1981.",
         "pleaDate": "2026-07-23",
         "pleaValue": "NOT_GUILTY",
         "startDate": "2026-04-24",
         "title": "Attempt theft of motor vehicle",
+        "verdict": "Found guilty",
         "wording": "Attempt theft to vehicle"
       }
     ]

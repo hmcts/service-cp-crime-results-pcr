@@ -1,6 +1,7 @@
 [
   {
     "caseMarkers": [],
+    "caseResults": [],
     "caseURN": "28DI2927792",
     "courtApplications": [],
     "defendant": {
@@ -12,19 +13,35 @@
       },
       "dateOfBirth": "2005-11-11",
       "firstName": "Tad",
+      "gender": "MALE",
       "id": "86155787-50d0-47f6-808e-70378da66bf5",
       "lastName": "Fay",
       "masterDefendantId": "86155787-50d0-47f6-808e-70378da66bf5",
+      "postHearingCustodyStatus": "Not Applicable",
       "title": "Mr"
     },
+    "defendantResults": [],
     "hearing": {
-      "court": {
-        "courtHouseCode": "B01BH00",
-        "courtHouseName": "Bexley Magistrates' Court"
+      "courtDetails": {
+        "court": {
+          "courtHouseCode": "B01BH00",
+          "courtHouseName": "Bexley Magistrates' Court"
+        },
+        "courtAddress": {
+          "address1": "Norwich Place",
+          "address2": "Bexleyheath",
+          "address3": "Kent",
+          "address4": "",
+          "address5": "",
+          "postCode": "DA6 7ND"
+        },
+        "ljaName": "South East London Magistrates' Court"
       },
+      "defendantAppearanceDetails": "In person",
       "hearingDate": "2026-07-29",
       "hearingType": "First hearing",
-      "id": "9c7e33d3-e6c0-4138-b7fb-b176554ae98c"
+      "id": "9c7e33d3-e6c0-4138-b7fb-b176554ae98c",
+      "jurisdiction": "MAGISTRATES"
     },
     "nextHearing": {
       "court": {
@@ -37,6 +54,7 @@
     },
     "offences": [
       {
+        "allocationDecision": "Indictable-only offence",
         "code": "OF61102C",
         "convictionDate": "2026-07-29",
         "judicialResults": [
@@ -48,7 +66,6 @@
             "convicted": true,
             "financial": false,
             "imprisonmentPeriod": "4 Months 7 Weeks",
-            "postHearingCustodyStatus": "A",
             "prompts": [
               {
                 "label": "Total custodial period",
@@ -209,7 +226,6 @@
             "category": "ANCILLARY",
             "convicted": false,
             "financial": false,
-            "postHearingCustodyStatus": "A",
             "prompts": [
               {
                 "label": "The court determined a terrorist connection under Section 69 of the Sentencing Act 2020 applies to this count",
@@ -223,6 +239,7 @@
           }
         ],
         "listingNumber": 1,
+        "offenceLegislation": "Contrary to sections 1,1A and 3 of the Criminal Law Act 1977.",
         "pleaDate": "2026-07-29",
         "pleaValue": "GUILTY",
         "startDate": "2022-12-12",
@@ -230,6 +247,7 @@
         "wording": "Tad Fay at Ruth Club, conspired together with Nadine Hoppe to assault Douglas Wolff, thereby occasioning actual bodily harm."
       },
       {
+        "allocationDecision": "Summary-only offence",
         "code": "PS90015",
         "convictionDate": "2026-07-29",
         "judicialResults": [
@@ -237,7 +255,6 @@
             "category": "INTERMEDIARY",
             "convicted": false,
             "financial": false,
-            "postHearingCustodyStatus": "A",
             "prompts": [
               {
                 "label": "Next hearing in magistrates' court",
@@ -263,92 +280,10 @@
             ],
             "resultCode": "4506",
             "resultText": "Adjournment"
-          },
-          {
-            "category": "ANCILLARY",
-            "convicted": false,
-            "financial": false,
-            "postHearingCustodyStatus": "A",
-            "prompts": [],
-            "resultText": "To attend or a warrant to issue"
-          },
-          {
-            "category": "ANCILLARY",
-            "convicted": false,
-            "financial": false,
-            "postHearingCustodyStatus": "A",
-            "prompts": [
-              {
-                "label": "Date of hearing",
-                "reference": "HDATE",
-                "type": "DATE",
-                "value": "29/07/2026"
-              },
-              {
-                "label": "Time of hearing",
-                "reference": "timeOfHearing",
-                "type": "TIME",
-                "value": "14:00"
-              },
-              {
-                "label": "Courthouse organisation name",
-                "reference": "hCHOUSEOrganisationName",
-                "type": "NAMEADDRESS",
-                "value": "Bexley Magistrates' Court"
-              },
-              {
-                "label": "Courthouse address line 1",
-                "reference": "hCHOUSEAddress1",
-                "type": "NAMEADDRESS",
-                "value": "Norwich Place"
-              },
-              {
-                "label": "Courthouse address line 2",
-                "reference": "hCHOUSEAddress2",
-                "type": "NAMEADDRESS",
-                "value": "Bexleyheath"
-              },
-              {
-                "label": "Courthouse address line 3",
-                "reference": "hCHOUSEAddress3",
-                "type": "NAMEADDRESS",
-                "value": "Kent"
-              },
-              {
-                "label": "Courthouse post code",
-                "reference": "hCHOUSEPostCode",
-                "type": "NAMEADDRESS",
-                "value": "DA6 7ND"
-              },
-              {
-                "label": "Courtroom",
-                "reference": "HCROOM",
-                "type": "INT",
-                "value": "Courtroom 01"
-              },
-              {
-                "label": "Hearing type",
-                "reference": "HTYPE",
-                "type": "TXT",
-                "value": "Trial - no witnesses"
-              },
-              {
-                "label": "Estimated duration",
-                "reference": "HEST",
-                "type": "INT",
-                "value": "20 MINUTES"
-              },
-              {
-                "label": "Booking reference",
-                "reference": "bookingReference",
-                "type": "TXT",
-                "value": "14085700-414d-4345-9dff-688a128f4177"
-              }
-            ],
-            "resultText": "Next hearing in magistrates' court"
           }
         ],
         "listingNumber": 1,
+        "offenceLegislation": "Contrary to regulation 7(2)(b)(i) of the Public Service Vehicles (Conduct of Drivers, Inspectors, Conductors and Passengers) Regulations 1990 and section 25 of the Public Passengers Vehicles Act 1981.",
         "pleaDate": "2026-07-29",
         "pleaValue": "GUILTY",
         "startDate": "2022-11-28",

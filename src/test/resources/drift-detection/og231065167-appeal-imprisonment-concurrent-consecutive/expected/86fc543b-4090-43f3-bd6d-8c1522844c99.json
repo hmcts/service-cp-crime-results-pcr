@@ -1,54 +1,135 @@
 [
   {
-    "caseMarkers": [],
-    "caseResults": [],
-    "caseURN": "28DI6046708",
+    "caseMarkers": [
+      {
+        "code": "DV"
+      }
+    ],
+    "caseResults": [
+      {
+        "category": "FINAL",
+        "convicted": true,
+        "financial": true,
+        "prompts": [
+          {
+            "label": "Amount of costs",
+            "reference": "AOC",
+            "type": "CURR",
+            "value": "\u00a3567.00"
+          },
+          {
+            "label": "Major creditor organisation name",
+            "reference": "cREDNAMEOrganisationName",
+            "type": "NAMEADDRESS",
+            "value": "City of London Police"
+          },
+          {
+            "label": "Major creditor address line 1",
+            "reference": "cREDNAMEAddress1",
+            "type": "NAMEADDRESS",
+            "value": "Bishopsgate police station"
+          },
+          {
+            "label": "Major creditor address line 2",
+            "reference": "cREDNAMEAddress2",
+            "type": "NAMEADDRESS",
+            "value": "182, Bishopsgate"
+          },
+          {
+            "label": "Major creditor address line 5",
+            "reference": "cREDNAMEAddress5",
+            "type": "NAMEADDRESS",
+            "value": "London"
+          },
+          {
+            "label": "Major creditor post code",
+            "reference": "cREDNAMEPostCode",
+            "type": "NAMEADDRESS",
+            "value": "EC2M 4NP"
+          }
+        ],
+        "resultCode": "3011",
+        "resultText": "Costs"
+      }
+    ],
+    "caseURN": "OG231065167",
     "courtApplications": [],
+    "custodyLocation": {
+      "custodyType": "Prison",
+      "name": "HMP Ashfield"
+    },
     "defendant": {
       "address": {
-        "address1": "9999A9999AAAA",
-        "address2": "Woodlane",
-        "address3": "addressline 3",
-        "postCode": "SW11 3TQ"
+        "address1": "12 King Street",
+        "address2": "King Street",
+        "address3": "Covent Garden",
+        "postCode": "NW1 5BR"
       },
-      "dateOfBirth": "2005-11-11",
-      "firstName": "Avis",
+      "dateOfBirth": "1993-08-11",
+      "firstName": "Rita",
       "gender": "MALE",
-      "id": "e11ef48a-adab-4a78-9528-040af137f93d",
-      "lastName": "Strosin",
-      "masterDefendantId": "e11ef48a-adab-4a78-9528-040af137f93d",
-      "nationality": "Unknown",
-      "postHearingCustodyStatus": "Not Applicable",
+      "id": "86fc543b-4090-43f3-bd6d-8c1522844c99",
+      "lastName": "Wyman",
+      "masterDefendantId": "86fc543b-4090-43f3-bd6d-8c1522844c99",
+      "nationality": "British",
+      "postHearingCustodyStatus": "A",
       "title": "Mr"
     },
-    "defendantResults": [],
+    "defendantResults": [
+      {
+        "category": "ANCILLARY",
+        "convicted": false,
+        "financial": false,
+        "prompts": [
+          {
+            "label": "Collection order type",
+            "reference": "collectionOrderType",
+            "type": "FIXL",
+            "value": "Make payments as ordered"
+          }
+        ],
+        "resultText": "Collection order"
+      },
+      {
+        "category": "FINAL",
+        "convicted": false,
+        "financial": false,
+        "prompts": [
+          {
+            "label": "Date to pay in full by",
+            "reference": "PBD",
+            "type": "DATE",
+            "value": "19/08/2026"
+          }
+        ],
+        "resultText": "Pay by date"
+      }
+    ],
     "hearing": {
       "courtDetails": {
         "court": {
-          "courtHouseCode": "B01BH00",
-          "courtHouseName": "Bexley Magistrates' Court"
+          "courtHouseCode": "B01LY00",
+          "courtHouseName": "Lavender Hill Magistrates' Court"
         },
         "courtAddress": {
-          "address1": "Norwich Place",
-          "address2": "Bexleyheath",
-          "address3": "Kent",
+          "address1": "176A Lavender Hill",
+          "address2": "London",
+          "address3": "",
           "address4": "",
           "address5": "",
-          "postCode": "DA6 7ND"
+          "postCode": "SW11 1JU"
         },
-        "ljaName": "South East London Magistrates' Court"
+        "ljaName": "South West London Magistrates' Court"
       },
       "defendantAppearanceDetails": "In person",
-      "hearingDate": "2026-07-29",
-      "hearingType": "First hearing",
-      "id": "76dc9641-e001-4b4b-b2c9-6ab3d98ef50b",
+      "hearingDate": "2026-08-12",
+      "hearingType": "Appeal",
+      "id": "c95ea2d2-0845-40d9-adbe-71ac88af4962",
       "jurisdiction": "MAGISTRATES"
     },
     "offences": [
       {
-        "allocationDecision": "Indictable-only offence",
-        "code": "OF61102C",
-        "convictionDate": "2026-07-29",
+        "code": "TH68001",
         "judicialResults": [
           {
             "category": "FINAL",
@@ -67,31 +148,31 @@
                 "label": "Prison organisation name",
                 "reference": "prisonOrganisationName",
                 "type": "NAMEADDRESS",
-                "value": "HMP Ashfield"
+                "value": "HMP/YOI High Down"
               },
               {
                 "label": "Prison email address 1",
                 "reference": "prisonEmailAddress1",
                 "type": "NAMEADDRESS",
-                "value": "yoiashfield.premiercustody@premier-serco.cjsm.net"
+                "value": "OMU.Highdown@justice.gov.uk"
               },
               {
                 "label": "Prison email address 2",
                 "reference": "prisonEmailAddress2",
                 "type": "NAMEADDRESS",
-                "value": "yoiashfield.premiercustody@premier-serco.cjsm.net"
+                "value": "Reception.Highdown@justice.gov.uk"
               },
               {
                 "label": "Conveyor / custodian name organisation name",
                 "reference": "conveyorcustodiannameOrganisationName",
                 "type": "NAMEADDRESS",
-                "value": "Bexley Magistrates' Court: PECS"
+                "value": "London Division NPS"
               },
               {
                 "label": "Conveyor / custodian name email address 1",
                 "reference": "conveyorcustodiannameEmailAddress1",
                 "type": "NAMEADDRESS",
-                "value": "PECSBexleyheathMags@serco.com"
+                "value": "londonnps.court@justice.gov.uk"
               },
               {
                 "label": "Probation team to be notified organisation name",
@@ -127,19 +208,19 @@
                 "label": "which is on case number",
                 "reference": "whereConsecutiveToAnOffenceOnAnotherCaseSpecifyThatCaseNumber",
                 "type": "TXT",
-                "value": "28DI6046708"
+                "value": "OG231065167"
               },
               {
                 "label": "Imprisonment reasons",
                 "reference": "imprisonmentReasons",
                 "type": "FIXL",
-                "value": "failure to comply with requirements of post custodial sentence supervision"
+                "value": "failure to comply with a pre-sentence drug testing order"
               },
               {
                 "label": "Reason for custody",
                 "reference": "theReasonsForThis",
                 "type": "FIXLOM",
-                "value": "because of an unprovoked attack of a serious nature"
+                "value": "because of an unprovoked attack of a serious nature, test"
               },
               {
                 "label": "Number of days in custody in foreign jurisdiction to count",
@@ -165,44 +246,14 @@
             "totalCustodialPeriod": "7 Months"
           }
         ],
-        "listingNumber": 1,
-        "offenceLegislation": "Contrary to sections 1,1A and 3 of the Criminal Law Act 1977.",
-        "pleaDate": "2026-07-29",
+        "listingNumber": 2,
+        "offenceLegislation": "Contrary to section 1(1) and 7 of the Theft Act 1968.",
+        "pleaDate": "2026-08-11",
         "pleaValue": "NOT_GUILTY",
-        "startDate": "2022-12-12",
-        "title": "Conspire to assault a person thereby occasioning them actual bodily harm",
-        "verdict": "Found guilty",
-        "wording": "Avis Strosin at Runolfsdottir Burg, conspired together with Jessica Heller to assault Joanna Prosacco, thereby occasioning actual bodily harm."
-      },
-      {
-        "allocationDecision": "Summary-only offence",
-        "code": "PS90015",
-        "convictionDate": "2026-07-29",
-        "judicialResults": [
-          {
-            "category": "FINAL",
-            "convicted": true,
-            "financial": false,
-            "prompts": [
-              {
-                "label": "Period\u00a0of conditional discharge",
-                "reference": "periodofConditionalDischarge",
-                "type": "INT",
-                "value": "7 Months"
-              }
-            ],
-            "resultCode": "1018",
-            "resultText": "Conditional discharge"
-          }
-        ],
-        "listingNumber": 1,
-        "offenceLegislation": "Contrary to regulation 7(2)(b)(i) of the Public Service Vehicles (Conduct of Drivers, Inspectors, Conductors and Passengers) Regulations 1990 and section 25 of the Public Passengers Vehicles Act 1981.",
-        "pleaDate": "2026-07-29",
-        "pleaValue": "NOT_GUILTY",
-        "startDate": "2022-11-28",
-        "title": "Public service vehicles - passenger failing to pay fare",
-        "verdict": "Found guilty",
-        "wording": "Public service vehicles - passenger failing to pay fare"
+        "startDate": "2026-06-12",
+        "title": "Theft from the person of another",
+        "verdict": "Autrefois convict",
+        "wording": "Theft from the person of another"
       }
     ]
   }
