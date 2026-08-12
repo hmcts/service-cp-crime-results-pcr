@@ -8,29 +8,11 @@ import java.util.UUID;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 class HearingResultedWebhookControllerIntegrationTest extends IntegrationTestBase {
 
     private static final UUID HEARING_ID = UUID.fromString("00000000-0000-0000-0000-000000000011");
-
-    @Test
-    void receiveHearingResultedWebhook_should_echoValidationCode() throws Exception {
-        final String body = """
-                [{
-                  "id": "evt-1",
-                  "eventType": "Microsoft.EventGrid.SubscriptionValidationEvent",
-                  "data": { "validationCode": "abc123" }
-                }]
-                """;
-
-        mockMvc.perform(post("/internal/hearing-results")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(body))
-                .andExpect(status().isOk())
-                .andExpect(content().json("{\"validationResponse\":\"abc123\"}"));
-    }
 
     @Test
     void receiveHearingResultedWebhook_should_ingestAndReturn200_whenHearingResultedEvent() throws Exception {

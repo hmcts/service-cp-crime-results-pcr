@@ -1,6 +1,14 @@
 # 007. Replace Service Bus queue ingestion with a direct Event Grid webhook
 
-**Status:** Accepted, 29 Jul 2026
+**Status:** Accepted, 29 Jul 2026 — **partially superseded, 12 Aug 2026**. Event Grid no longer
+delivers directly to this service. `pcr-eventgrid-relay-function` (a standalone Azure Function
+App) now owns the Event Grid subscription and its subscription-validation handshake, and relays
+`Hearing_Resulted` verbatim to this service's `/internal/hearing-results` endpoint as a plain
+internal HTTP call. This service's own contract and code no longer have any Event Grid-specific
+surface (no handshake handling, no `aeg-event-type` awareness) — everything below describing that
+surface is historical context for *why* the endpoint exists, not a description of its current
+inbound caller. See that repo's own docs for the current design and its rationale.
+
 **Jira:** AMP-892 — replace Service Bus queue with webhook ingestion
 
 ## Context

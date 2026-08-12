@@ -10,18 +10,24 @@ as a new pull-based read channel for API Marketplace subscribers. The contract i
 to any single consumer's stated needs — decisions here apply platform-wide, not to one
 subscriber.
 
-**Pattern**: Hybrid — synchronous stateless proxy (`GET /pcr`) implemented; Azure Event Grid
-webhook ingestion (`POST /internal/hearing-results`) wired end-to-end into the DB-backed version
-store (Postgres/Flyway, `cp_version` rows), gated by the generation-gate check.
+**Pattern**: Hybrid — synchronous stateless proxy (`GET /pcr`) implemented; Event Grid-sourced
+ingestion (`POST /internal/hearing-results`) wired end-to-end into the DB-backed version store
+(Postgres/Flyway, `cp_version` rows), gated by the generation-gate check.
 **Spring Boot version**: 4.1.0
 **Implements**: `api-cp-crime-results-pcr` v1.1.8 (`PcrApi`/`InternalApi` — see `build.gradle`)
 
-Replaces the earlier self-provisioned Service Bus queue ingestion path (ADR-002/AMP-889) with a
-direct Event Grid webhook per ADR-007/AMP-892 — see
-`docs/plans/2026-07-29-pcr-eventgrid-webhook-ingestion.md`.
+Replaces the earlier self-provisioned Service Bus queue ingestion path (ADR-002/AMP-889). ADR-007
+/AMP-892 (`docs/plans/2026-07-29-pcr-eventgrid-webhook-ingestion.md`) originally had Event Grid
+delivering straight to a webhook on this service; that design has since been superseded by
+`pcr-eventgrid-relay-function` — a standalone Function App that owns the Event Grid subscription,
+answers its subscription-validation handshake itself (via its own `@EventGridTrigger` binding), and
+relays each `Hearing_Resulted` event verbatim to this same `/internal/hearing-results` endpoint as
+a plain internal HTTP call. This service's own contract and code have **no Event Grid-specific
+surface left** — no handshake handling, no `aeg-event-type` awareness — it just receives an
+ordinary internal POST.
 
-**Status**: `GET /pcr` now reads from the data store; the webhook ingestion path drives the
-generation gate and the data store as one connected pipeline:
+**Status**: `GET /pcr` now reads from the data store; the ingestion path drives the generation
+gate and the data store as one connected pipeline:
 - `GET /cases/{caseURN}/hearings/{hearingId}/defendants/{defendantId}`
   (`PcrResultsController` → `PcrResultsService`) reads `cp_version` (plus its offences, court
   applications, judicial results, and prompts) via the repository layer and returns the full
@@ -29,12 +35,12 @@ generation gate and the data store as one connected pipeline:
   param, no live call to `ResultsClient` or the Results Query API at all. See
   `docs/designs/2026-07-28-pcr-read-path-data-store-design.md`.
 - `POST /internal/hearing-results` (`HearingResultedWebhookController` → `HearingResultedWebhookService`
-  → `ResultsIngestionService`) receives Azure Event Grid's `Hearing_Resulted` pointer event (and its
-  subscription-validation handshake) directly, checks Redis-then-REST for complete hearing data with
-  an in-process 2s/4s/8s retry, and — via `ResultsIngestionService.ingestAndPersist` — **does persist**:
-  for each defendant it invokes the generation gate, then delegates to `CPEntityPersistenceService`
-  to find-or-create a `cp_case_hearing` row and write a `cp_version` row (plus its offences, court
-  applications, judicial results, and prompts) through the repository layer.
+  → `ResultsIngestionService`) receives the relayed `Hearing_Resulted` pointer event, checks
+  Redis-then-REST for complete hearing data with an in-process 2s/4s/8s retry, and — via
+  `ResultsIngestionService.ingestAndPersist` — **does persist**: for each defendant it invokes the
+  generation gate, then delegates to `CPEntityPersistenceService` to find-or-create a
+  `cp_case_hearing` row and write a `cp_version` row (plus its offences, court applications,
+  judicial results, and prompts) through the repository layer.
 - The generation-gate package (`CPVocabularyService`, `CPResultsPcrFilter`,
   `CPNowSubscriptionMatcher`, `ReferenceDataClient`) is now called — `ResultsIngestionService`
   computes a `CPVocabulary` per defendant and invokes `isPrisonCourtRegisterRequired` to decide
@@ -53,7 +59,7 @@ that looks arbitrary; it likely isn't.
 
 | Component | Technology | Purpose |
 |---|---|---|
-| Ingestion trigger | Azure Event Grid `Hearing_Resulted` → `POST /internal/hearing-results` (`HearingResultedWebhookController` → `HearingResultedWebhookService`, ADR-007/AMP-892) | Delivered as a JSON array of the generated `HearingResultedWebhookEvent` model; also receives Event Grid's subscription-validation handshake (`Microsoft.EventGrid.SubscriptionValidationEvent`), echoed back via `WebhookAck.validationResponse`. Malformed/unrecognized payloads return `400`, not silently dropped |
+| Ingestion trigger | `pcr-eventgrid-relay-function` (owns the Event Grid subscription and its handshake) → `POST /internal/hearing-results` (`HearingResultedWebhookController` → `HearingResultedWebhookService`) | Delivered as a JSON array of the generated `HearingResultedWebhookEvent` model, relayed verbatim by the Function App — this service never sees Event Grid's subscription-validation handshake. Malformed/unrecognized payloads return `400`, not silently dropped |
 | Results Query Client | `HearingResultedCacheClient` (Redis, read-only `StringRedisTemplate`) first, `ResultsClient` (`RestClient`) REST fallback against `results-query-api/.../hearingDetails/internal/{hearingId}` | Two-step retrieval per design §4a/4b — **ingestion path only**; `GET /pcr` calls neither of these, it reads the data store |
 | Completeness retry | `ResultsIngestionService.ingestHearingResults` in-process retry (`sleepUninterruptibly`) | On an incomplete hearing, retries up to 3 attempts with 2s/4s exponential backoff before throwing `IncompleteHearingDetailsException`, mapped to `503` by `GlobalExceptionHandler` — Event Grid redelivers per its own retry policy on `503` |
 | Reference Data — `ResultDefinition` | Lookups, offence metadata (e.g. `startDate`) | Not yet built — "to be analysed" per design §8 |

@@ -38,16 +38,6 @@ class HearingResultedWebhookServiceTest {
     private HearingResultedWebhookService webhookService;
 
     @Test
-    void handle_should_echoValidationCode_whenSubscriptionValidationEvent() {
-        final HearingResultedWebhookEvent event = validationEvent("abc123");
-
-        final ResponseEntity<WebhookAck> response = webhookService.handle(List.of(event));
-
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(response.getBody().getValidationResponse()).isEqualTo("abc123");
-    }
-
-    @Test
     void handle_should_ingestAndReturn200_whenHearingResultedEvent() {
         final HearingResultedWebhookEvent event = hearingResultedEvent();
 
@@ -76,13 +66,6 @@ class HearingResultedWebhookServiceTest {
                 .isInstanceOf(IllegalArgumentException.class);
 
         verify(ingestionService, never()).ingestAndPersist(any(), any());
-    }
-
-    private HearingResultedWebhookEvent validationEvent(final String validationCode) {
-        return new HearingResultedWebhookEvent()
-                .id("evt-1")
-                .eventType("Microsoft.EventGrid.SubscriptionValidationEvent")
-                .data(new HearingResultedWebhookEventData().validationCode(validationCode));
     }
 
     private HearingResultedWebhookEvent hearingResultedEvent() {

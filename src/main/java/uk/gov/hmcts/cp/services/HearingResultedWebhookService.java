@@ -11,23 +11,25 @@ import uk.gov.hmcts.cp.services.ingestion.ResultsIngestionService;
 
 import java.util.List;
 
+// pcr-eventgrid-relay-function now absorbs Event Grid's subscription-validation handshake
+// upstream (its own @EventGridTrigger binding answers it) and relays only real Hearing_Resulted
+// events here via a plain internal HTTP call — this service no longer branches on eventType for
+// a handshake it will never receive.
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class HearingResultedWebhookService {
 
-    private static final String VALIDATION_EVENT_TYPE = "Microsoft.EventGrid.SubscriptionValidationEvent";
     private static final String HEARING_RESULTED_EVENT_TYPE = "Hearing_Resulted";
 
     private final ResultsIngestionService ingestionService;
 
     public ResponseEntity<WebhookAck> handle(final List<HearingResultedWebhookEvent> events) {
         final HearingResultedWebhookEvent event = firstEvent(events);
-        return switch (event.getEventType()) {
-            case VALIDATION_EVENT_TYPE -> echoValidation(event);
-            case HEARING_RESULTED_EVENT_TYPE -> ingest(event);
-            default -> throw new IllegalArgumentException("Unrecognized eventType: " + event.getEventType());
-        };
+        if (!HEARING_RESULTED_EVENT_TYPE.equals(event.getEventType())) {
+            throw new IllegalArgumentException("Unrecognized eventType: " + event.getEventType());
+        }
+        return ingest(event);
     }
 
     private HearingResultedWebhookEvent firstEvent(final List<HearingResultedWebhookEvent> events) {
@@ -35,11 +37,6 @@ public class HearingResultedWebhookService {
             throw new IllegalArgumentException("Empty Event Grid delivery — expected at least one event");
         }
         return events.get(0);
-    }
-
-    private ResponseEntity<WebhookAck> echoValidation(final HearingResultedWebhookEvent event) {
-        log.info("Echoing Event Grid subscription validation handshake");
-        return ResponseEntity.ok(new WebhookAck().validationResponse(event.getData().getValidationCode()));
     }
 
     private ResponseEntity<WebhookAck> ingest(final HearingResultedWebhookEvent event) {
