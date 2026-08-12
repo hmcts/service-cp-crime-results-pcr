@@ -121,6 +121,26 @@ class CPJudicialResultRepositoryTest extends RepositoryIntegrationTestBase {
         assertThat(found).extracting(CPJudicialResultEntity::getResultCode).containsExactly("1201");
     }
 
+    @Transactional
+    @Test
+    void findByVersionPk_should_returnDefendantAndCaseLevelResults() {
+        saveParents();
+        final CPJudicialResultEntity defendantResult = CPJudicialResultEntity.builder()
+                .id(UUID.fromString("00000000-0000-0000-0000-000000000088"))
+                .versionPk(VERSION_PK).level("D").resultCode("D1").build();
+        final CPJudicialResultEntity caseResult = CPJudicialResultEntity.builder()
+                .id(UUID.fromString("00000000-0000-0000-0000-000000000089"))
+                .versionPk(VERSION_PK).level("C").resultCode("C1").build();
+        cpJudicialResultRepository.save(defendantResult);
+        cpJudicialResultRepository.save(caseResult);
+
+        final List<CPJudicialResultEntity> found = cpJudicialResultRepository.findByVersionPk(VERSION_PK);
+
+        assertThat(found).extracting(CPJudicialResultEntity::getResultCode).containsExactlyInAnyOrder("D1", "C1");
+        assertThat(found).extracting(CPJudicialResultEntity::getOffenceId).containsOnlyNulls();
+        assertThat(found).extracting(CPJudicialResultEntity::getCourtApplicationId).containsOnlyNulls();
+    }
+
     private void saveParents() {
         cpCaseHearingRepository.save(CPCaseHearingEntity.builder()
                 .id(CASE_HEARING_ID)

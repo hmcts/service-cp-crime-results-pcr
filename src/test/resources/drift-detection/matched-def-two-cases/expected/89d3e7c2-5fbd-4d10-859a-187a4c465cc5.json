@@ -1,6 +1,7 @@
 [
   {
     "caseMarkers": [],
+    "caseResults": [],
     "caseURN": "TH231233964",
     "courtApplications": [],
     "defendant": {
@@ -19,12 +20,20 @@
       "postHearingCustodyStatus": "Not Applicable",
       "title": "Mr"
     },
+    "defendantResults": [],
     "hearing": {
-      "court": {
-        "courtHouseCode": "B01DU00",
-        "courtHouseName": "City of London Magistrates' Court"
+      "courtDetails": {
+        "court": {
+          "courtHouseCode": "B01DU00",
+          "courtHouseName": "City of London Magistrates' Court"
+        },
+        "courtAddress": {
+          "address1": "1 Queen Victoria Street",
+          "address2": "London",
+          "postCode": "EC4N 4XY"
+        },
+        "ljaName": "Central London Magistrates' Court"
       },
-      "defendantPresent": false,
       "hearingDate": "2026-07-31",
       "hearingType": "First hearing",
       "id": "5151e511-7989-4ae0-8e38-2e697834edc6",

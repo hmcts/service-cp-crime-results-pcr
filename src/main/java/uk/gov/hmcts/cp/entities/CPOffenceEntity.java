@@ -60,9 +60,14 @@ public class CPOffenceEntity {
     @Column(name = "plea_date")
     private LocalDate pleaDate;
 
-    @Column(name = "verdict_code")
-    private String verdictCode;
+    private String verdict;
 
     @Column(name = "offence_legislation")
     private String offenceLegislation;
+
+    @Column(name = "allocation_decision")
+    private String allocationDecision;
+
+    @Column(name = "indicated_plea_value")
+    private String indicatedPleaValue;
 }

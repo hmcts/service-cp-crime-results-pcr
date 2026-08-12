@@ -1,6 +1,7 @@
 [
   {
     "caseMarkers": [],
+    "caseResults": [],
     "caseURN": "AS231157673",
     "courtApplications": [],
     "defendant": {
@@ -19,12 +20,21 @@
       "postHearingCustodyStatus": "Not Applicable",
       "title": "Mr"
     },
+    "defendantResults": [],
     "hearing": {
-      "court": {
-        "courtHouseCode": "B52CM00",
-        "courtHouseName": "Bristol Magistrates' Court"
+      "courtDetails": {
+        "court": {
+          "courtHouseCode": "B52CM00",
+          "courtHouseName": "Bristol Magistrates' Court"
+        },
+        "courtAddress": {
+          "address1": "Marlborough St",
+          "address2": "Bristol",
+          "postCode": "BS1 3NU"
+        },
+        "ljaName": "Avon & Somerset Magistrates' Court"
       },
-      "defendantPresent": true,
+      "defendantAppearanceDetails": "In person",
       "hearingDate": "2026-07-31",
       "hearingType": "First hearing",
       "id": "f15a49db-812e-43d2-bfc5-7f3c7ee9ede1",
@@ -201,6 +211,7 @@
         "wording": "Attempt theft to vehicle"
       },
       {
+        "allocationDecision": "Summary-only offence",
         "code": "CA03012",
         "convictionDate": "2026-07-31",
         "judicialResults": [

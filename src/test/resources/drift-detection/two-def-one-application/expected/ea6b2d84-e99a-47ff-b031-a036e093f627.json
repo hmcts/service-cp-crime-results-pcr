@@ -1,6 +1,7 @@
 [
   {
     "caseMarkers": [],
+    "caseResults": [],
     "caseURN": "TEST1234567",
     "courtApplications": [
       {
@@ -38,12 +39,79 @@
       "postHearingCustodyStatus": "Not Applicable",
       "title": "Mr"
     },
+    "defendantResults": [
+      {
+        "category": "ANCILLARY",
+        "convicted": false,
+        "financial": false,
+        "prompts": [
+          {
+            "label": "Total custodial period",
+            "reference": "totalCustodialPeriod",
+            "type": "INTM",
+            "value": "5 Months"
+          },
+          {
+            "label": "Prison organisation name",
+            "reference": "prisonOrganisationName",
+            "type": "NAMEADDRESS",
+            "value": "HMP/YOI Bristol"
+          },
+          {
+            "label": "Prison email address 1",
+            "reference": "prisonEmailAddress1",
+            "type": "NAMEADDRESS",
+            "value": "OMU.Bristol@justice.gov.uk"
+          },
+          {
+            "label": "Prison email address 2",
+            "reference": "prisonEmailAddress2",
+            "type": "NAMEADDRESS",
+            "value": "Reception.Bristol@justice.gov.uk"
+          },
+          {
+            "label": "Conveyor / custodian name organisation name",
+            "reference": "conveyorcustodiannameOrganisationName",
+            "type": "NAMEADDRESS",
+            "value": "Bristol Magistrates' Court: PECS"
+          },
+          {
+            "label": "Conveyor / custodian name email address 1",
+            "reference": "conveyorcustodiannameEmailAddress1",
+            "type": "NAMEADDRESS",
+            "value": "PECSBristolMags@serco.com"
+          },
+          {
+            "label": "Probation team to be notified organisation name",
+            "reference": "probationteamtobenotifiedOrganisationName",
+            "type": "NAMEADDRESS",
+            "value": "London Division NPS"
+          },
+          {
+            "label": "Probation team to be notified email address 1",
+            "reference": "probationteamtobenotifiedEmailAddress1",
+            "type": "NAMEADDRESS",
+            "value": "londonnps.court@justice.gov.uk"
+          }
+        ],
+        "resultText": "Total custodial period: 5 Months.",
+        "totalCustodialPeriod": "5 Months"
+      }
+    ],
     "hearing": {
-      "court": {
-        "courtHouseCode": "B52CM00",
-        "courtHouseName": "Bristol Magistrates' Court"
+      "courtDetails": {
+        "court": {
+          "courtHouseCode": "B52CM00",
+          "courtHouseName": "Bristol Magistrates' Court"
+        },
+        "courtAddress": {
+          "address1": "Marlborough St",
+          "address2": "Bristol",
+          "postCode": "BS1 3NU"
+        },
+        "ljaName": "Avon & Somerset Magistrates' Court"
       },
-      "defendantPresent": true,
+      "defendantAppearanceDetails": "In person",
       "hearingDate": "2026-07-23",
       "hearingType": "Application",
       "id": "5f75863f-270a-482a-9e67-eaccb2fd3130",
@@ -53,6 +121,7 @@
       {
         "code": "TH68013A",
         "convictionDate": "2026-07-23",
+        "indicatedPleaValue": "INDICATED_NOT_GUILTY",
         "judicialResults": [
           {
             "category": "FINAL",
@@ -150,7 +219,7 @@
         "pleaValue": "NOT_GUILTY",
         "startDate": "2026-04-24",
         "title": "Attempt theft of motor vehicle",
-        "verdictCode": "G",
+        "verdict": "Found guilty",
         "wording": "Attempt theft to vehicle"
       }
     ]

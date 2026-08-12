@@ -1,6 +1,7 @@
 [
   {
     "caseMarkers": [],
+    "caseResults": [],
     "caseURN": "28DI2927792",
     "courtApplications": [],
     "defendant": {
@@ -19,12 +20,130 @@
       "postHearingCustodyStatus": "Not Applicable",
       "title": "Mr"
     },
+    "defendantResults": [
+      {
+        "category": "ANCILLARY",
+        "consecutiveToCourtName": "Bexley Magistrates' Court",
+        "consecutiveToDate": "2026-07-27",
+        "convicted": false,
+        "financial": false,
+        "prompts": [
+          {
+            "label": "Total custodial period",
+            "reference": "totalCustodialPeriod",
+            "type": "INTM",
+            "value": "6 Months"
+          },
+          {
+            "label": "Consecutive to sentence imposed on",
+            "reference": "consecutiveToSentenceImposedOn",
+            "type": "DATE",
+            "value": "27/07/2026"
+          },
+          {
+            "label": "which was imposed by",
+            "reference": "whichWasImpBy",
+            "type": "FIXL",
+            "value": "Bexley Magistrates' Court"
+          },
+          {
+            "label": "Consecutive to all other terms being served",
+            "reference": "consecutiveToAllOtherTermsBeingServed",
+            "type": "BOOLEAN",
+            "value": "true"
+          },
+          {
+            "label": "Minimum term",
+            "reference": "minimumTerm",
+            "type": "INTM",
+            "value": "5 Months"
+          },
+          {
+            "label": "Early release provisions apply",
+            "reference": "earlyReleaseProvisionsApply",
+            "type": "BOOLEAN",
+            "value": "true"
+          },
+          {
+            "label": "Early release provisions do not apply - sentence is a whole life order",
+            "reference": "earlyReleaseProvisionsDoNotApply",
+            "type": "BOOLEAN",
+            "value": "true"
+          },
+          {
+            "label": "Prison organisation name",
+            "reference": "prisonOrganisationName",
+            "type": "NAMEADDRESS",
+            "value": "HMP Ashfield"
+          },
+          {
+            "label": "Prison email address 1",
+            "reference": "prisonEmailAddress1",
+            "type": "NAMEADDRESS",
+            "value": "yoiashfield.premiercustody@premier-serco.cjsm.net"
+          },
+          {
+            "label": "Prison email address 2",
+            "reference": "prisonEmailAddress2",
+            "type": "NAMEADDRESS",
+            "value": "yoiashfield.premiercustody@premier-serco.cjsm.net"
+          },
+          {
+            "label": "Conveyor / custodian name organisation name",
+            "reference": "conveyorcustodiannameOrganisationName",
+            "type": "NAMEADDRESS",
+            "value": "Bexley Magistrates' Court: PECS"
+          },
+          {
+            "label": "Conveyor / custodian name email address 1",
+            "reference": "conveyorcustodiannameEmailAddress1",
+            "type": "NAMEADDRESS",
+            "value": "PECSBexleyheathMags@serco.com"
+          },
+          {
+            "label": "Reason for sentence without PSR",
+            "reference": "reasonForSentenceWithoutPSR",
+            "type": "TXT",
+            "value": "test Reason for sentence without PSR"
+          },
+          {
+            "label": "Probation team to be notified organisation name",
+            "reference": "probationteamtobenotifiedOrganisationName",
+            "type": "NAMEADDRESS",
+            "value": "London Division NPS"
+          },
+          {
+            "label": "Probation team to be notified email address 1",
+            "reference": "probationteamtobenotifiedEmailAddress1",
+            "type": "NAMEADDRESS",
+            "value": "londonnps.court@justice.gov.uk"
+          },
+          {
+            "label": "Sentenced in absence",
+            "reference": "sentencedInAbsence",
+            "type": "BOOLEAN",
+            "value": "false"
+          }
+        ],
+        "resultText": "Total custodial period: 6 Months. Consecutive to sentence imposed on 27/07/2026, which was imposed by Bexley Magistrates' Court. Consecutive to all other terms being served. Minimum term: 5 Months. Early release provisions apply. Early release provisions do not apply - sentence is a whole life order. Defendant sentenced without a pre-sentence report because test Reason for sentence without PSR.",
+        "totalCustodialPeriod": "6 Months"
+      }
+    ],
     "hearing": {
-      "court": {
-        "courtHouseCode": "B01BH00",
-        "courtHouseName": "Bexley Magistrates' Court"
+      "courtDetails": {
+        "court": {
+          "courtHouseCode": "B01BH00",
+          "courtHouseName": "Bexley Magistrates' Court"
+        },
+        "courtAddress": {
+          "address1": "Norwich Place",
+          "address2": "Bexleyheath",
+          "address3": "Kent",
+          "postCode": "DA6 7ND"
+        },
+        "ljaName": "South East London Magistrates' Court"
       },
-      "defendantPresent": true,
+      "defendantAppearanceDetails": "In person",
       "hearingDate": "2026-07-29",
       "hearingType": "First hearing",
       "id": "9c7e33d3-e6c0-4138-b7fb-b176554ae98c",
@@ -41,6 +160,7 @@
     },
     "offences": [
       {
+        "allocationDecision": "Indictable-only offence",
         "code": "OF61102C",
         "convictionDate": "2026-07-29",
         "judicialResults": [
@@ -233,6 +353,7 @@
         "wording": "Tad Fay at Ruth Club, conspired together with Nadine Hoppe to assault Douglas Wolff, thereby occasioning actual bodily harm."
       },
       {
+        "allocationDecision": "Summary-only offence",
         "code": "PS90015",
         "convictionDate": "2026-07-29",
         "judicialResults": [

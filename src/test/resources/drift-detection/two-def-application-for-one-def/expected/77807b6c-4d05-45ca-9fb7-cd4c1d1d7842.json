@@ -1,6 +1,7 @@
 [
   {
     "caseMarkers": [],
+    "caseResults": [],
     "caseURN": "JS238681716",
     "courtApplications": [
       {
@@ -39,12 +40,21 @@
       "postHearingCustodyStatus": "Not Applicable",
       "title": "Mr"
     },
+    "defendantResults": [],
     "hearing": {
-      "court": {
-        "courtHouseCode": "B52CM00",
-        "courtHouseName": "Bristol Magistrates' Court"
+      "courtDetails": {
+        "court": {
+          "courtHouseCode": "B52CM00",
+          "courtHouseName": "Bristol Magistrates' Court"
+        },
+        "courtAddress": {
+          "address1": "Marlborough St",
+          "address2": "Bristol",
+          "postCode": "BS1 3NU"
+        },
+        "ljaName": "Avon & Somerset Magistrates' Court"
       },
-      "defendantPresent": true,
+      "defendantAppearanceDetails": "In person",
       "hearingDate": "2026-07-31",
       "hearingType": "Application",
       "id": "9316e6f1-6824-443d-b6c2-8982f42549a3",

@@ -50,8 +50,8 @@ public class CPVersionEntity {
 
     private String nationality;
 
-    @Column(name = "defendant_present")
-    private Boolean defendantPresent;
+    @Column(name = "defendant_appearance_details")
+    private String defendantAppearanceDetails;
 
     @Column(name = "master_defendant_id")
     private UUID masterDefendantId;

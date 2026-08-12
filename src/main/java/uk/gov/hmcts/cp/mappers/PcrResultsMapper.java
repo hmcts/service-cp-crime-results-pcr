@@ -13,6 +13,7 @@ import uk.gov.hmcts.cp.openapi.model.Address;
 import uk.gov.hmcts.cp.openapi.model.CaseMarker;
 import uk.gov.hmcts.cp.openapi.model.Court;
 import uk.gov.hmcts.cp.openapi.model.CourtApplication;
+import uk.gov.hmcts.cp.openapi.model.CourtDetails;
 import uk.gov.hmcts.cp.openapi.model.CustodyLocation;
 import uk.gov.hmcts.cp.openapi.model.Defendant;
 import uk.gov.hmcts.cp.openapi.model.HearingDetails;
@@ -30,6 +31,10 @@ import java.util.UUID;
 
 @Component
 public class PcrResultsMapper {
+
+    // Matches legacy's own LevelTypeEnum literally: {DEFENDANT:'D', CASE:'C', OFFENCE:'O', APPLICATION:'A'}.
+    private static final String LEVEL_DEFENDANT = "D";
+    private static final String LEVEL_CASE = "C";
 
     public PcrHearingResult toPcrHearingResult(final CPCaseHearingEntity caseHearing, final CPVersionEntity version,
                                                 final List<CPCaseMarkerEntity> caseMarkers,
@@ -49,6 +54,14 @@ public class PcrResultsMapper {
                         .toList())
                 .courtApplications(courtApplications.stream()
                         .map(a -> toCourtApplication(a, offences, judicialResults, prompts))
+                        .toList())
+                .defendantResults(judicialResults.stream()
+                        .filter(r -> LEVEL_DEFENDANT.equals(r.getLevel()))
+                        .map(r -> toJudicialResult(r, prompts))
+                        .toList())
+                .caseResults(judicialResults.stream()
+                        .filter(r -> LEVEL_CASE.equals(r.getLevel()))
+                        .map(r -> toJudicialResult(r, prompts))
                         .toList())
                 .build();
     }
@@ -94,12 +107,12 @@ public class PcrResultsMapper {
         // courtHouseId: no confirmed source on CPCaseHearingEntity today — left unset
         return HearingDetails.builder()
                 .id(caseHearing.getHearingId())
-                .court(toCourt(null, caseHearing.getCourtHouseCode(), caseHearing.getCourtHouseName()))
+                .courtDetails(toCourtDetails(caseHearing))
                 .hearingDate(caseHearing.getHearingDate())
                 .hearingOutcome(caseHearing.getHearingOutcome())
                 .hearingType(caseHearing.getHearingType())
                 .jurisdiction(caseHearing.getJurisdiction())
-                .defendantPresent(version.getDefendantPresent())
+                .defendantAppearanceDetails(version.getDefendantAppearanceDetails())
                 .build();
     }
 
@@ -107,6 +120,29 @@ public class PcrResultsMapper {
         return courtHouseId == null && courtHouseCode == null && courtHouseName == null
                 ? null
                 : Court.builder().courtHouseId(courtHouseId).courtHouseCode(courtHouseCode).courtHouseName(courtHouseName).build();
+    }
+
+    private CourtDetails toCourtDetails(final CPCaseHearingEntity caseHearing) {
+        final Court court = toCourt(null, caseHearing.getCourtHouseCode(), caseHearing.getCourtHouseName());
+        final Address courtAddress = toCourtAddress(caseHearing);
+        return court == null && courtAddress == null && caseHearing.getLjaName() == null
+                ? null
+                : CourtDetails.builder().court(court).courtAddress(courtAddress).ljaName(caseHearing.getLjaName()).build();
+    }
+
+    private Address toCourtAddress(final CPCaseHearingEntity caseHearing) {
+        return caseHearing.getCourtAddressLine1() == null && caseHearing.getCourtAddressLine2() == null
+                && caseHearing.getCourtAddressLine3() == null && caseHearing.getCourtAddressLine4() == null
+                && caseHearing.getCourtAddressLine5() == null && caseHearing.getCourtPostCode() == null
+                ? null
+                : Address.builder()
+                        .address1(caseHearing.getCourtAddressLine1())
+                        .address2(caseHearing.getCourtAddressLine2())
+                        .address3(caseHearing.getCourtAddressLine3())
+                        .address4(caseHearing.getCourtAddressLine4())
+                        .address5(caseHearing.getCourtAddressLine5())
+                        .postCode(caseHearing.getCourtPostCode())
+                        .build();
     }
 
     private NextHearing toNextHearing(final CPNextHearingEmbeddable nextHearing) {
@@ -143,8 +179,10 @@ public class PcrResultsMapper {
                 .convictionDate(offence.getConvictionDate())
                 .pleaValue(offence.getPleaValue())
                 .pleaDate(offence.getPleaDate())
-                .verdictCode(offence.getVerdictCode())
+                .verdict(offence.getVerdict())
                 .offenceLegislation(offence.getOffenceLegislation())
+                .allocationDecision(offence.getAllocationDecision())
+                .indicatedPleaValue(offence.getIndicatedPleaValue())
                 .judicialResults(allResults.stream()
                         .filter(r -> offence.getId().equals(r.getOffenceId()))
                         .map(r -> toJudicialResult(r, allPrompts))

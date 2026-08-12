@@ -66,7 +66,7 @@ class CPOffenceRepositoryTest extends RepositoryIntegrationTestBase {
                 .convictionDate(LocalDate.of(2026, 7, 23))
                 .pleaValue("GUILTY")
                 .pleaDate(LocalDate.of(2026, 7, 23))
-                .verdictCode("G")
+                .verdict("Found guilty")
                 .build();
 
         cpOffenceRepository.save(entity);
@@ -85,7 +85,7 @@ class CPOffenceRepositoryTest extends RepositoryIntegrationTestBase {
         assertThat(found.get().getConvictionDate()).isEqualTo(LocalDate.of(2026, 7, 23));
         assertThat(found.get().getPleaValue()).isEqualTo("GUILTY");
         assertThat(found.get().getPleaDate()).isEqualTo(LocalDate.of(2026, 7, 23));
-        assertThat(found.get().getVerdictCode()).isEqualTo("G");
+        assertThat(found.get().getVerdict()).isEqualTo("Found guilty");
     }
 
     @Transactional

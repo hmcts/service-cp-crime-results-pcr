@@ -1,6 +1,7 @@
 [
   {
     "caseMarkers": [],
+    "caseResults": [],
     "caseURN": "KL238291232",
     "courtApplications": [
       {
@@ -97,12 +98,93 @@
       "postHearingCustodyStatus": "Not Applicable",
       "title": "Mr"
     },
-    "hearing": {
-      "court": {
-        "courtHouseCode": "B01DU00",
-        "courtHouseName": "City of London Magistrates' Court"
+    "defendantResults": [
+      {
+        "category": "ANCILLARY",
+        "convicted": false,
+        "financial": false,
+        "prompts": [
+          {
+            "label": "Total custodial period is life",
+            "reference": "totalCustodialPeriodIsLife",
+            "type": "BOOLEAN",
+            "value": "true"
+          },
+          {
+            "label": "Prison organisation name",
+            "reference": "prisonOrganisationName",
+            "type": "NAMEADDRESS",
+            "value": "HMP/YOI Low Newton"
+          },
+          {
+            "label": "Prison email address 1",
+            "reference": "prisonEmailAddress1",
+            "type": "NAMEADDRESS",
+            "value": "OMU.LowNewton@justice.gov.uk"
+          },
+          {
+            "label": "Prison email address 2",
+            "reference": "prisonEmailAddress2",
+            "type": "NAMEADDRESS",
+            "value": "Reception.LowNewton@justice.gov.uk"
+          },
+          {
+            "label": "Conveyor / custodian name organisation name",
+            "reference": "conveyorcustodiannameOrganisationName",
+            "type": "NAMEADDRESS",
+            "value": "North East Division NPS"
+          },
+          {
+            "label": "Conveyor / custodian name email address 1",
+            "reference": "conveyorcustodiannameEmailAddress1",
+            "type": "NAMEADDRESS",
+            "value": "nenps.court@justice.gov.uk"
+          },
+          {
+            "label": "Probation team to be notified organisation name",
+            "reference": "probationteamtobenotifiedOrganisationName",
+            "type": "NAMEADDRESS",
+            "value": "South West and Central Division NPS"
+          },
+          {
+            "label": "Probation team to be notified email address 1",
+            "reference": "probationteamtobenotifiedEmailAddress1",
+            "type": "NAMEADDRESS",
+            "value": "SWSCNPS.Court@justice.gov.uk"
+          }
+        ],
+        "resultText": "Total custodial period is life.",
+        "totalCustodialPeriod": "Life"
       },
-      "defendantPresent": true,
+      {
+        "category": "ANCILLARY",
+        "convicted": false,
+        "financial": false,
+        "prompts": [
+          {
+            "label": "Risk or vulnerability factors",
+            "reference": "riskOrVulnerabilityFactors",
+            "type": "TXT",
+            "value": "RiskFactor"
+          }
+        ],
+        "resultText": "vulnerability - Risk or vulnerability factors"
+      }
+    ],
+    "hearing": {
+      "courtDetails": {
+        "court": {
+          "courtHouseCode": "B01DU00",
+          "courtHouseName": "City of London Magistrates' Court"
+        },
+        "courtAddress": {
+          "address1": "1 Queen Victoria Street",
+          "address2": "London",
+          "postCode": "EC4N 4XY"
+        },
+        "ljaName": "Central London Magistrates' Court"
+      },
+      "defendantAppearanceDetails": "In person",
       "hearingDate": "2026-07-30",
       "hearingType": "First hearing",
       "id": "81c4cdf1-5323-49e8-9a94-598c4f85e6bf",
@@ -110,6 +192,7 @@
     },
     "offences": [
       {
+        "allocationDecision": "Indictable-only offence",
         "code": "TH68023",
         "convictionDate": "2026-07-30",
         "judicialResults": [

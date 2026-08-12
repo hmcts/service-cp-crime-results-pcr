@@ -1,6 +1,7 @@
 [
   {
     "caseMarkers": [],
+    "caseResults": [],
     "caseURN": "28DI6046708",
     "courtApplications": [],
     "defendant": {
@@ -20,12 +21,80 @@
       "postHearingCustodyStatus": "Not Applicable",
       "title": "Mr"
     },
+    "defendantResults": [
+      {
+        "category": "ANCILLARY",
+        "convicted": false,
+        "financial": false,
+        "prompts": [
+          {
+            "label": "Total custodial period",
+            "reference": "totalCustodialPeriod",
+            "type": "INTM",
+            "value": "7 Months"
+          },
+          {
+            "label": "Prison organisation name",
+            "reference": "prisonOrganisationName",
+            "type": "NAMEADDRESS",
+            "value": "HMP Ashfield"
+          },
+          {
+            "label": "Prison email address 1",
+            "reference": "prisonEmailAddress1",
+            "type": "NAMEADDRESS",
+            "value": "yoiashfield.premiercustody@premier-serco.cjsm.net"
+          },
+          {
+            "label": "Prison email address 2",
+            "reference": "prisonEmailAddress2",
+            "type": "NAMEADDRESS",
+            "value": "yoiashfield.premiercustody@premier-serco.cjsm.net"
+          },
+          {
+            "label": "Conveyor / custodian name organisation name",
+            "reference": "conveyorcustodiannameOrganisationName",
+            "type": "NAMEADDRESS",
+            "value": "Bexley Magistrates' Court: PECS"
+          },
+          {
+            "label": "Conveyor / custodian name email address 1",
+            "reference": "conveyorcustodiannameEmailAddress1",
+            "type": "NAMEADDRESS",
+            "value": "PECSBexleyheathMags@serco.com"
+          },
+          {
+            "label": "Probation team to be notified organisation name",
+            "reference": "probationteamtobenotifiedOrganisationName",
+            "type": "NAMEADDRESS",
+            "value": "London Division NPS"
+          },
+          {
+            "label": "Probation team to be notified email address 1",
+            "reference": "probationteamtobenotifiedEmailAddress1",
+            "type": "NAMEADDRESS",
+            "value": "londonnps.court@justice.gov.uk"
+          }
+        ],
+        "resultText": "Total custodial period: 7 Months.",
+        "totalCustodialPeriod": "7 Months"
+      }
+    ],
     "hearing": {
-      "court": {
-        "courtHouseCode": "B01BH00",
-        "courtHouseName": "Bexley Magistrates' Court"
+      "courtDetails": {
+        "court": {
+          "courtHouseCode": "B01BH00",
+          "courtHouseName": "Bexley Magistrates' Court"
+        },
+        "courtAddress": {
+          "address1": "Norwich Place",
+          "address2": "Bexleyheath",
+          "address3": "Kent",
+          "postCode": "DA6 7ND"
+        },
+        "ljaName": "South East London Magistrates' Court"
       },
-      "defendantPresent": true,
+      "defendantAppearanceDetails": "In person",
       "hearingDate": "2026-07-29",
       "hearingType": "First hearing",
       "id": "76dc9641-e001-4b4b-b2c9-6ab3d98ef50b",
@@ -33,6 +102,7 @@
     },
     "offences": [
       {
+        "allocationDecision": "Indictable-only offence",
         "code": "OF61102C",
         "convictionDate": "2026-07-29",
         "judicialResults": [
@@ -157,10 +227,11 @@
         "pleaValue": "NOT_GUILTY",
         "startDate": "2022-12-12",
         "title": "Conspire to assault a person thereby occasioning them actual bodily harm",
-        "verdictCode": "G",
+        "verdict": "Found guilty",
         "wording": "Avis Strosin at Runolfsdottir Burg, conspired together with Jessica Heller to assault Joanna Prosacco, thereby occasioning actual bodily harm."
       },
       {
+        "allocationDecision": "Summary-only offence",
         "code": "PS90015",
         "convictionDate": "2026-07-29",
         "judicialResults": [
@@ -186,7 +257,7 @@
         "pleaValue": "NOT_GUILTY",
         "startDate": "2022-11-28",
         "title": "Public service vehicles - passenger failing to pay fare",
-        "verdictCode": "G",
+        "verdict": "Found guilty",
         "wording": "Public service vehicles - passenger failing to pay fare"
       }
     ]

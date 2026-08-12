@@ -49,6 +49,27 @@ public class CPCaseHearingEntity {
 
     private String jurisdiction;
 
+    @Column(name = "lja_name")
+    private String ljaName;
+
+    @Column(name = "court_address_line_1")
+    private String courtAddressLine1;
+
+    @Column(name = "court_address_line_2")
+    private String courtAddressLine2;
+
+    @Column(name = "court_address_line_3")
+    private String courtAddressLine3;
+
+    @Column(name = "court_address_line_4")
+    private String courtAddressLine4;
+
+    @Column(name = "court_address_line_5")
+    private String courtAddressLine5;
+
+    @Column(name = "court_post_code")
+    private String courtPostCode;
+
     @Column(name = "created_at")
     private OffsetDateTime createdAt;
 }
