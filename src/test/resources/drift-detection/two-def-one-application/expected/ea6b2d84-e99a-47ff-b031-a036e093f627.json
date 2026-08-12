@@ -39,65 +39,7 @@
       "postHearingCustodyStatus": "Not Applicable",
       "title": "Mr"
     },
-    "defendantResults": [
-      {
-        "category": "ANCILLARY",
-        "convicted": false,
-        "financial": false,
-        "prompts": [
-          {
-            "label": "Total custodial period",
-            "reference": "totalCustodialPeriod",
-            "type": "INTM",
-            "value": "5 Months"
-          },
-          {
-            "label": "Prison organisation name",
-            "reference": "prisonOrganisationName",
-            "type": "NAMEADDRESS",
-            "value": "HMP/YOI Bristol"
-          },
-          {
-            "label": "Prison email address 1",
-            "reference": "prisonEmailAddress1",
-            "type": "NAMEADDRESS",
-            "value": "OMU.Bristol@justice.gov.uk"
-          },
-          {
-            "label": "Prison email address 2",
-            "reference": "prisonEmailAddress2",
-            "type": "NAMEADDRESS",
-            "value": "Reception.Bristol@justice.gov.uk"
-          },
-          {
-            "label": "Conveyor / custodian name organisation name",
-            "reference": "conveyorcustodiannameOrganisationName",
-            "type": "NAMEADDRESS",
-            "value": "Bristol Magistrates' Court: PECS"
-          },
-          {
-            "label": "Conveyor / custodian name email address 1",
-            "reference": "conveyorcustodiannameEmailAddress1",
-            "type": "NAMEADDRESS",
-            "value": "PECSBristolMags@serco.com"
-          },
-          {
-            "label": "Probation team to be notified organisation name",
-            "reference": "probationteamtobenotifiedOrganisationName",
-            "type": "NAMEADDRESS",
-            "value": "London Division NPS"
-          },
-          {
-            "label": "Probation team to be notified email address 1",
-            "reference": "probationteamtobenotifiedEmailAddress1",
-            "type": "NAMEADDRESS",
-            "value": "londonnps.court@justice.gov.uk"
-          }
-        ],
-        "resultText": "Total custodial period",
-        "totalCustodialPeriod": "5 Months"
-      }
-    ],
+    "defendantResults": [],
     "hearing": {
       "courtDetails": {
         "court": {

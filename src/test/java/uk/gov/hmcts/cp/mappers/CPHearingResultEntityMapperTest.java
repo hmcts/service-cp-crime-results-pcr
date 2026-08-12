@@ -424,6 +424,50 @@ class CPHearingResultEntityMapperTest {
         assertThat(bundle.version().getCustodyType()).isNull();
     }
 
+    // Confirmed against DefendantContextBaseService.js/RegisterFragmentService.js: OFFENCE and
+    // APPLICATION level results are pushed into the same combined array as DEFENDANT/CASE level
+    // ones, and publishedForNows is filtered out of that whole array before any level reads from
+    // it — the exclusion is not specific to defendantResults/caseResults.
+    @Test
+    void toWriteBundle_should_excludePublishedForNows_fromDirectAndLinkedOffenceResults() {
+        final JudicialResult keep = JudicialResult.builder().cjsCode("KEEP").label("Keep").judicialResultPrompts(List.of()).build();
+        final JudicialResult drop = JudicialResult.builder().cjsCode("DROP").label("Drop").publishedForNows(true).judicialResultPrompts(List.of()).build();
+        final Offence offence = Offence.builder().offenceCode("TH68001").judicialResults(List.of(keep, drop)).build();
+        final Defendant defendant = Defendant.builder()
+                .id(DEFENDANT_ID.toString())
+                .personDefendant(PersonDefendant.builder().build())
+                .offences(List.of(offence))
+                .build();
+        final HearingDetail hearing = HearingDetail.builder().courtApplications(List.of()).build();
+
+        final CPEntitySet bundle = mapper.toWriteBundle(defendant, hearing, CASE_HEARING_ID, CREATED_AT, EXPIRES_AT);
+
+        assertThat(bundle.judicialResults()).extracting(CPJudicialResultEntity::getResultCode).containsExactly("KEEP");
+    }
+
+    @Test
+    void toWriteBundle_should_excludePublishedForNows_fromCourtApplicationOwnResults() {
+        final JudicialResult keep = JudicialResult.builder().cjsCode("KEEP").label("Keep").judicialResultPrompts(List.of()).build();
+        final JudicialResult drop = JudicialResult.builder().cjsCode("DROP").label("Drop").publishedForNows(true).judicialResultPrompts(List.of()).build();
+        final CourtApplication application = CourtApplication.builder()
+                .id(UUID.randomUUID().toString())
+                .subject(ApplicationParty.builder().masterDefendant(MasterDefendant.builder().masterDefendantId(MASTER_DEFENDANT_ID).build()).build())
+                .courtApplicationCases(List.of())
+                .judicialResults(List.of(keep, drop))
+                .build();
+        final Defendant defendant = Defendant.builder()
+                .id(DEFENDANT_ID.toString())
+                .masterDefendantId(MASTER_DEFENDANT_ID)
+                .personDefendant(PersonDefendant.builder().build())
+                .offences(List.of())
+                .build();
+        final HearingDetail hearing = HearingDetail.builder().courtApplications(List.of(application)).build();
+
+        final CPEntitySet bundle = mapper.toWriteBundle(defendant, hearing, CASE_HEARING_ID, CREATED_AT, EXPIRES_AT);
+
+        assertThat(bundle.judicialResults()).extracting(CPJudicialResultEntity::getResultCode).containsExactly("KEEP");
+    }
+
     @Test
     void toWriteBundle_should_mapDirectOffenceAndItsJudicialResultAndPrompts_withSurrogateOffenceId() {
         when(promptParser.fineAmount(any())).thenReturn(null);
@@ -593,6 +637,35 @@ class CPHearingResultEntityMapperTest {
         assertThat(result.getVersionPk()).isEqualTo(bundle.version().getCpVersionPk());
         assertThat(result.getLevel()).isEqualTo("D");
         assertThat(result.getResultCode()).isEqualTo("D1");
+    }
+
+    // Confirmed against a real hearing fixture: every hearing.defendantJudicialResults entry
+    // observed so far is publishedForNows=true, meaning it never actually reaches the register —
+    // RegisterFragmentService.js's filterJudicialResultsApplicableForRegisters excludes it before
+    // any level split, same rule CPResultsPcrFilter.excludePublishedForNows already applies to
+    // the PCR-required gate.
+    @Test
+    void toWriteBundle_should_excludePublishedForNows_fromDefendantAndCaseResults() {
+        final JudicialResult publishedForNowsResult = JudicialResult.builder()
+                .cjsCode("D1").label("Collection order").publishedForNows(true).judicialResultPrompts(List.of()).build();
+        final JudicialResult caseResult = JudicialResult.builder()
+                .cjsCode("C1").label("Costs").publishedForNows(true).judicialResultPrompts(List.of()).build();
+        final Defendant defendant = Defendant.builder()
+                .id(DEFENDANT_ID.toString())
+                .masterDefendantId(MASTER_DEFENDANT_ID)
+                .personDefendant(PersonDefendant.builder().build())
+                .offences(List.of())
+                .defendantCaseJudicialResults(List.of(caseResult))
+                .build();
+        final HearingDetail hearing = HearingDetail.builder()
+                .courtApplications(List.of())
+                .defendantJudicialResults(List.of(
+                        DefendantJudicialResult.builder().masterDefendantId(MASTER_DEFENDANT_ID).judicialResult(publishedForNowsResult).build()))
+                .build();
+
+        final CPEntitySet bundle = mapper.toWriteBundle(defendant, hearing, CASE_HEARING_ID, CREATED_AT, EXPIRES_AT);
+
+        assertThat(bundle.judicialResults()).isEmpty();
     }
 
     @Test

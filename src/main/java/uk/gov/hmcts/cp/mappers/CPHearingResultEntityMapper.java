@@ -189,12 +189,25 @@ public class CPHearingResultEntityMapper {
     // populatePostHearingCustodyStatus, now also persisted as their own content) — the two
     // remaining PDF content collections, confirmed via
     // PrisonCourtRegisterPdfPayloadGenerator.buildDefendantResults/buildCaseResults.
+    // excludePublishedForNows applies here (see its own comment for why it applies uniformly).
     private void addDefendantAndCaseLevelResults(final Defendant defendant, final HearingDetail hearing, final UUID versionPk,
                                                   final List<CPJudicialResultEntity> judicialResults, final List<CPJudicialResultPromptEntity> prompts) {
-        matchingDefendantJudicialResults(defendant, hearing)
+        excludePublishedForNows(matchingDefendantJudicialResults(defendant, hearing))
                 .forEach(r -> addResult(r, null, null, versionPk, LEVEL_DEFENDANT, judicialResults, prompts));
-        Stream.ofNullable(defendant.getDefendantCaseJudicialResults()).flatMap(List::stream)
+        excludePublishedForNows(Stream.ofNullable(defendant.getDefendantCaseJudicialResults()).flatMap(List::stream))
                 .forEach(r -> addResult(r, null, null, versionPk, LEVEL_CASE, judicialResults, prompts));
+    }
+
+    // Mirrors RegisterFragmentService.js's filterJudicialResultsApplicableForRegisters — same
+    // rule as CPResultsPcrFilter.excludePublishedForNows, kept local here rather than injecting
+    // that service's heavier ReferenceDataClient/subscription-matcher dependencies into this
+    // mapper for one field check. Confirmed against DefendantContextBaseService.js that OFFENCE
+    // and APPLICATION level results are pushed into the exact same defendantBase.results array
+    // as DEFENDANT/CASE level ones, and the filter runs on that single combined array before any
+    // level-specific mapper reads from it — so this applies to every level's content, not just
+    // defendantResults/caseResults.
+    private Stream<JudicialResult> excludePublishedForNows(final Stream<JudicialResult> results) {
+        return results.filter(r -> !Boolean.TRUE.equals(r.getPublishedForNows()));
     }
 
     private Stream<JudicialResult> matchingDefendantJudicialResults(final Defendant defendant, final HearingDetail hearing) {
@@ -211,7 +224,8 @@ public class CPHearingResultEntityMapper {
                                               final List<CPJudicialResultPromptEntity> prompts) {
         linkedOffencesOf(application)
                 .forEach(o -> addLinkedOffence(o, courtApplicationId, offences, judicialResults, prompts));
-        application.getJudicialResults().forEach(r -> addResult(r, null, courtApplicationId, judicialResults, prompts));
+        excludePublishedForNows(application.getJudicialResults().stream())
+                .forEach(r -> addResult(r, null, courtApplicationId, judicialResults, prompts));
     }
 
     private CPVersionEntity toVersionEntity(final Defendant defendant, final HearingDetail hearing, final UUID caseHearingId,
@@ -361,14 +375,16 @@ public class CPHearingResultEntityMapper {
                                    final List<CPJudicialResultEntity> judicialResults, final List<CPJudicialResultPromptEntity> prompts) {
         final CPOffenceEntity offenceEntity = toOffenceEntity(offence, versionPk, null);
         offences.add(offenceEntity);
-        offence.getJudicialResults().forEach(r -> addResult(r, offenceEntity.getId(), null, judicialResults, prompts));
+        excludePublishedForNows(offence.getJudicialResults().stream())
+                .forEach(r -> addResult(r, offenceEntity.getId(), null, judicialResults, prompts));
     }
 
     private void addLinkedOffence(final Offence offence, final UUID courtApplicationId, final List<CPOffenceEntity> offences,
                                    final List<CPJudicialResultEntity> judicialResults, final List<CPJudicialResultPromptEntity> prompts) {
         final CPOffenceEntity offenceEntity = toOffenceEntity(offence, null, courtApplicationId);
         offences.add(offenceEntity);
-        offence.getJudicialResults().forEach(r -> addResult(r, offenceEntity.getId(), null, judicialResults, prompts));
+        excludePublishedForNows(offence.getJudicialResults().stream())
+                .forEach(r -> addResult(r, offenceEntity.getId(), null, judicialResults, prompts));
     }
 
     private CPOffenceEntity toOffenceEntity(final Offence offence, final UUID versionPk, final UUID courtApplicationId) {

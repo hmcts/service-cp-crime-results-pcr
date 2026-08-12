@@ -21,65 +21,7 @@
       "postHearingCustodyStatus": "Not Applicable",
       "title": "Mr"
     },
-    "defendantResults": [
-      {
-        "category": "ANCILLARY",
-        "convicted": false,
-        "financial": false,
-        "prompts": [
-          {
-            "label": "Total custodial period",
-            "reference": "totalCustodialPeriod",
-            "type": "INTM",
-            "value": "7 Months"
-          },
-          {
-            "label": "Prison organisation name",
-            "reference": "prisonOrganisationName",
-            "type": "NAMEADDRESS",
-            "value": "HMP Ashfield"
-          },
-          {
-            "label": "Prison email address 1",
-            "reference": "prisonEmailAddress1",
-            "type": "NAMEADDRESS",
-            "value": "yoiashfield.premiercustody@premier-serco.cjsm.net"
-          },
-          {
-            "label": "Prison email address 2",
-            "reference": "prisonEmailAddress2",
-            "type": "NAMEADDRESS",
-            "value": "yoiashfield.premiercustody@premier-serco.cjsm.net"
-          },
-          {
-            "label": "Conveyor / custodian name organisation name",
-            "reference": "conveyorcustodiannameOrganisationName",
-            "type": "NAMEADDRESS",
-            "value": "Bexley Magistrates' Court: PECS"
-          },
-          {
-            "label": "Conveyor / custodian name email address 1",
-            "reference": "conveyorcustodiannameEmailAddress1",
-            "type": "NAMEADDRESS",
-            "value": "PECSBexleyheathMags@serco.com"
-          },
-          {
-            "label": "Probation team to be notified organisation name",
-            "reference": "probationteamtobenotifiedOrganisationName",
-            "type": "NAMEADDRESS",
-            "value": "London Division NPS"
-          },
-          {
-            "label": "Probation team to be notified email address 1",
-            "reference": "probationteamtobenotifiedEmailAddress1",
-            "type": "NAMEADDRESS",
-            "value": "londonnps.court@justice.gov.uk"
-          }
-        ],
-        "resultText": "Total custodial period",
-        "totalCustodialPeriod": "7 Months"
-      }
-    ],
+    "defendantResults": [],
     "hearing": {
       "courtDetails": {
         "court": {
