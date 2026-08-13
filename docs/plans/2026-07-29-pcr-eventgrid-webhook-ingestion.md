@@ -4,10 +4,15 @@
 > **Superseded, 12 Aug 2026:** this plan's Service-Bus-to-direct-webhook goal was carried out and
 > then itself superseded — Event Grid no longer delivers directly to this service.
 > `pcr-eventgrid-relay-function` now owns the subscription/handshake and relays
-> `Hearing_Resulted` here as a plain internal call. `HearingResultedWebhookController`/
-> `HearingResultedWebhookService` (built by this plan) are now `HearingResultedEventController`/
-> `HearingResultedEventService`. Retained as a historical record of the work this plan actually
-> executed, not as current instructions.
+> `Hearing_Resulted` here as a plain internal call. Every `*Webhook*` name this plan introduces has
+> since been renamed: `HearingResultedWebhookController`/`HearingResultedWebhookService` →
+> `HearingResultedEventController`/`HearingResultedEventService`; the generated
+> `HearingResultedWebhookEvent`/`HearingResultedWebhookEventData` models (and the
+> `receiveHearingResultedWebhook` operationId that produced them) → `HearingResultedEvent`/
+> `HearingResultedEventData`/`receiveHearingResultedEvent`; `WebhookAck` was removed entirely
+> (the operation now returns a plain `200` with no body). The code snippets below still show the
+> original names — retained as a historical record of the work this plan actually executed, not
+> as current instructions.
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
