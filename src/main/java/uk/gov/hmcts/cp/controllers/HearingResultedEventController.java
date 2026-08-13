@@ -20,3 +20,4 @@ public class HearingResultedEventController implements InternalApi {
         return eventService.handle(hearingResultedEvent);
     }
 }
+
