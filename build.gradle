@@ -30,7 +30,7 @@ apply {
 // Sadly, dependabot does not track dependencies in the apply-from files
 dependencies {
   // Api spec
-  implementation('uk.gov.hmcts.cp:api-cp-crime-results-pcr:2.0.0')
+  implementation('uk.gov.hmcts.cp:api-cp-crime-results-pcr:1.1.9-3886ee3')
   implementation 'io.swagger.core.v3:swagger-annotations:2.2.53'
 
   // Java core
