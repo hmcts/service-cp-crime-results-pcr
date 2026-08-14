@@ -194,7 +194,7 @@ class HearingResultedIngestionE2EIntegrationTest extends IngestionE2ETestBase {
                         CASE_URN, HEARING_ID, DEFENDANT_ID))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].caseURN").value(CASE_URN))
+                .andExpect(jsonPath("$[0].prosecutionCase.caseURN").value(CASE_URN))
                 .andExpect(jsonPath("$[0].defendant.masterDefendantId").value(DEFENDANT_ID.toString()))
                 .andExpect(jsonPath("$[0].defendant.firstName").value("Sophie"))
                 .andExpect(jsonPath("$[0].defendant.lastName").value("Reichel"))
@@ -210,13 +210,8 @@ class HearingResultedIngestionE2EIntegrationTest extends IngestionE2ETestBase {
                 .andExpect(jsonPath("$[0].courtApplications[0].reference").value(CASE_URN))
                 .andExpect(jsonPath("$[0].courtApplications[0].type").value("Application within criminal proceedings"))
                 .andExpect(jsonPath("$[0].offences[0].code").value("TH68013A"))
-                .andExpect(jsonPath("$[0].offences[0].judicialResults[0].resultCode").value("1002"))
-                .andExpect(jsonPath("$[0].offences[0].judicialResults[0].convicted").value(true))
-                .andExpect(jsonPath("$[0].offences[0].judicialResults[0].financial").value(false))
-                .andExpect(jsonPath("$[0].offences[0].judicialResults[0].imprisonmentPeriod").value("6 Months"))
-                .andExpect(jsonPath("$[0].offences[0].judicialResults[0].totalCustodialPeriod").value("5 Months"))
-                .andExpect(jsonPath("$[0].offences[0].judicialResults[0].prompts[*].reference")
-                        .value(hasItems("imprisonmentPeriod", "totalCustodialPeriod", "prisonOrganisationName")));
+                .andExpect(jsonPath("$[0].offences[0].results[0].resultTexts[*].label")
+                        .value(hasItems("Imprisonment Period", "Total custodial period", "Prison organisation name")));
     }
 
     private String hearingResultedWebhookEvent() {

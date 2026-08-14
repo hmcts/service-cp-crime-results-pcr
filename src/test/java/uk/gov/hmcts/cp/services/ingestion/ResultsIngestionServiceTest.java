@@ -178,7 +178,7 @@ class ResultsIngestionServiceTest {
         ingestionService.ingestAndPersist(HEARING_ID, HEARING_DAY);
 
         verify(persistenceService).findOrCreateCaseHearing(any(), any(), eq(HEARING_ID));
-        verify(persistenceService).persist(any(), any(), eq(CASE_HEARING_ID), any(), any());
+        verify(persistenceService).persist(any(), any(), eq(CASE_HEARING_ID), any(), any(), any());
     }
 
     @Test
@@ -194,7 +194,7 @@ class ResultsIngestionServiceTest {
         ingestionService.ingestAndPersist(HEARING_ID, HEARING_DAY);
 
         verify(persistenceService, never()).findOrCreateCaseHearing(any(), any(), any());
-        verify(persistenceService, never()).persist(any(), any(), any(), any(), any());
+        verify(persistenceService, never()).persist(any(), any(), any(), any(), any(), any());
     }
 
     @Test
@@ -211,7 +211,7 @@ class ResultsIngestionServiceTest {
         ingestionService.ingestAndPersist(HEARING_ID, HEARING_DAY);
 
         verify(persistenceService, times(1)).findOrCreateCaseHearing(any(), any(), eq(HEARING_ID));
-        verify(persistenceService, times(2)).persist(any(), any(), eq(CASE_HEARING_ID), any(), any());
+        verify(persistenceService, times(2)).persist(any(), any(), eq(CASE_HEARING_ID), any(), any(), any());
     }
 
     private HearingDetailsResponse hearingWithTwoDefendantsOnOneCase() {

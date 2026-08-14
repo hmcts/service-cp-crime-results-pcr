@@ -1,21 +1,14 @@
 [
   {
-    "caseMarkers": [],
-    "caseResults": [],
-    "caseURN": "JS238681716",
     "courtApplications": [
       {
-        "judicialResults": [
-          {
-            "category": "FINAL",
-            "convicted": false,
-            "financial": false,
-            "prompts": [],
-            "resultText": "Granted"
-          }
-        ],
         "offences": [],
         "reference": "JS238681716",
+        "results": [
+          {
+            "resultTexts": []
+          }
+        ],
         "type": "Application within criminal proceedings"
       }
     ],
@@ -38,9 +31,9 @@
       "masterDefendantId": "77807b6c-4d05-45ca-9fb7-cd4c1d1d7842",
       "nationality": "Unknown",
       "postHearingCustodyStatus": "Not Applicable",
+      "results": [],
       "title": "Mr"
     },
-    "defendantResults": [],
     "hearing": {
       "courtDetails": {
         "court": {
@@ -61,94 +54,78 @@
       "hearingDate": "2026-07-31",
       "hearingType": "Application",
       "id": "9316e6f1-6824-443d-b6c2-8982f42549a3",
-      "jurisdiction": "MAGISTRATES"
-    },
-    "nextHearing": {
-      "court": {
-        "courtHouseCode": "B01LY00",
-        "courtHouseId": "f8254db1-1683-483e-afb3-b87fde5a0a26",
-        "courtHouseName": "Lavender Hill Magistrates' Court"
+      "jurisdiction": "MAGISTRATES",
+      "nextHearing": {
+        "court": {
+          "courtHouseCode": "B01LY00",
+          "courtHouseId": "f8254db1-1683-483e-afb3-b87fde5a0a26",
+          "courtHouseName": "Lavender Hill Magistrates' Court"
+        },
+        "dateTime": "2026-08-03T09:00:00Z",
+        "hearingId": "6b8aafdc-aa57-4158-bbd8-6f1ea525ba01"
       },
-      "dateTime": "2026-08-03T09:00:00Z",
-      "hearingId": "6b8aafdc-aa57-4158-bbd8-6f1ea525ba01"
+      "sharedTime": "2026-07-31T08:33:21.608Z"
     },
     "offences": [
       {
         "code": "TH68013A",
-        "judicialResults": [
+        "listingNumber": 2,
+        "offenceLegislation": "Contrary to section 1(1)    of the Criminal Attempts Act 1981.",
+        "results": [
           {
-            "category": "INTERMEDIARY",
-            "convicted": false,
-            "financial": false,
-            "prompts": [
+            "resultTexts": [
               {
                 "label": "Next hearing in magistrates' court",
-                "reference": "ce0c66be-9d69-4cd1-971f-6012ceeba156",
                 "value": "Date of hearing:03/08/2026\nTime of hearing:10:00\nCourthouse organisation name:Lavender Hill Magistrates' Court\nCourthouse address line 1:176A Lavender Hill\nCourthouse address line 2:London\nCourthouse post code:SW11 1JU\nCourtroom:Courtroom 01\nHearing type:Plea\nEstimated duration:20 MINUTES\nBooking reference:6b8aafdc-aa57-4158-bbd8-6f1ea525ba01"
               },
               {
                 "label": "Prison organisation name",
-                "reference": "prisonOrganisationName",
-                "type": "NAMEADDRESS",
                 "value": "HMP/YOI Eastwood Park"
               },
               {
                 "label": "Prison email address 1",
-                "reference": "prisonEmailAddress1",
-                "type": "NAMEADDRESS",
                 "value": "OMU.EastwoodPark@justice.gov.uk"
               },
               {
                 "label": "Conveyor / custodian name organisation name",
-                "reference": "conveyorcustodiannameOrganisationName",
-                "type": "NAMEADDRESS",
                 "value": "Cardiff Magistrates' Court: PECS"
               },
               {
                 "label": "Conveyor / custodian name email address 1",
-                "reference": "conveyorcustodiannameEmailAddress1",
-                "type": "NAMEADDRESS",
                 "value": "CardiffMC@geoamey.co.uk"
               },
               {
                 "label": "Remand basis",
-                "reference": "remandBasis",
-                "type": "FIXL",
                 "value": "Remanded for a medical report by a single medical practitioner"
               },
               {
                 "label": "Bail exception",
-                "reference": "bailException",
-                "type": "FIXLM",
                 "value": "Defendant charged with murder"
               },
               {
                 "label": "Bail exception reason",
-                "reference": "bailExceptionReason",
-                "type": "FIXLOM",
                 "value": "Offended on bail"
               },
               {
                 "label": "To attend or a warrant to issue",
-                "reference": "e8d6693d-c32f-44f3-97f6-0828deb1615c",
                 "value": ""
               },
               {
                 "label": "Adjournment reasons",
-                "reference": "b332f0b3-3f34-4c7e-9a94-637d2bd7028f",
                 "value": ""
               }
-            ],
-            "resultCode": "4028",
-            "resultText": "Remanded in custody"
+            ]
           }
         ],
-        "listingNumber": 2,
-        "offenceLegislation": "Contrary to section 1(1)    of the Criminal Attempts Act 1981.",
         "startDate": "2026-05-02",
         "title": "Attempt theft of motor vehicle",
         "wording": "Attempt theft to vehicle"
       }
-    ]
+    ],
+    "prosecutionCase": {
+      "caseMarkers": [],
+      "caseURN": "JS238681716",
+      "results": []
+    }
   }
 ]

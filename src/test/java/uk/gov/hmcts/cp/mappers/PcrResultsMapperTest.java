@@ -16,6 +16,7 @@ import uk.gov.hmcts.cp.openapi.model.PcrHearingResult;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
 import java.util.UUID;
@@ -42,12 +43,12 @@ class PcrResultsMapperTest {
         final CPCaseHearingEntity caseHearing = CPCaseHearingEntity.builder().caseUrn("ABCD1234567").hearingId(HEARING_ID).build();
         final CPVersionEntity version = minimalVersion();
         final List<CPCaseMarkerEntity> markers = List.of(
-                CPCaseMarkerEntity.builder().code("DomesticViolence").description("Domestic violence case marker").build());
+                CPCaseMarkerEntity.builder().code("DomesticViolence").description("Domestic Violence").build());
 
         final PcrHearingResult result = mapper.toPcrHearingResult(caseHearing, version, markers, List.of(), List.of(), List.of(), List.of());
 
-        assertThat(result.getCaseURN()).isEqualTo("ABCD1234567");
-        assertThat(result.getCaseMarkers()).extracting("code").containsExactly("DomesticViolence");
+        assertThat(result.getProsecutionCase().getCaseURN()).isEqualTo("ABCD1234567");
+        assertThat(result.getProsecutionCase().getCaseMarkers()).extracting("description").containsExactly("Domestic Violence");
     }
 
     @Test
@@ -105,6 +106,26 @@ class PcrResultsMapperTest {
     }
 
     @Test
+    void toPcrHearingResult_should_mapSharedTime_whenPresent() {
+        final CPVersionEntity version = minimalVersion().toBuilder()
+                .sharedTime(OffsetDateTime.parse("2026-07-31T08:33:21.608Z")).build();
+        final CPCaseHearingEntity caseHearing = CPCaseHearingEntity.builder().hearingId(HEARING_ID).build();
+
+        final PcrHearingResult result = mapper.toPcrHearingResult(caseHearing, version, List.of(), List.of(), List.of(), List.of(), List.of());
+
+        assertThat(result.getHearing().getSharedTime()).isEqualTo(Instant.parse("2026-07-31T08:33:21.608Z"));
+    }
+
+    @Test
+    void toPcrHearingResult_should_leaveSharedTimeNull_whenAbsent() {
+        final CPCaseHearingEntity caseHearing = CPCaseHearingEntity.builder().hearingId(HEARING_ID).build();
+
+        final PcrHearingResult result = mapper.toPcrHearingResult(caseHearing, minimalVersion(), List.of(), List.of(), List.of(), List.of(), List.of());
+
+        assertThat(result.getHearing().getSharedTime()).isNull();
+    }
+
+    @Test
     void toPcrHearingResult_should_mapCourtDetailsAddressAndLjaName() {
         final CPCaseHearingEntity caseHearing = CPCaseHearingEntity.builder()
                 .hearingId(HEARING_ID)
@@ -143,8 +164,8 @@ class PcrResultsMapperTest {
         final PcrHearingResult result = mapper.toPcrHearingResult(caseHearing, version, List.of(),
                 List.of(), List.of(), List.of(defendantResult, caseResult), List.of());
 
-        assertThat(result.getDefendantResults()).extracting("resultCode").containsExactly("D1");
-        assertThat(result.getCaseResults()).extracting("resultCode").containsExactly("C1");
+        assertThat(result.getDefendant().getResults()).hasSize(1);
+        assertThat(result.getProsecutionCase().getResults()).hasSize(1);
     }
 
     @Test
@@ -153,7 +174,7 @@ class PcrResultsMapperTest {
 
         final PcrHearingResult result = mapper.toPcrHearingResult(caseHearing, minimalVersion(), List.of(), List.of(), List.of(), List.of(), List.of());
 
-        assertThat(result.getNextHearing()).isNull();
+        assertThat(result.getHearing().getNextHearing()).isNull();
     }
 
     @Test
@@ -165,8 +186,8 @@ class PcrResultsMapperTest {
 
         final PcrHearingResult result = mapper.toPcrHearingResult(caseHearing, version, List.of(), List.of(), List.of(), List.of(), List.of());
 
-        assertThat(result.getNextHearing()).isNotNull();
-        assertThat(result.getNextHearing().getDateTime())
+        assertThat(result.getHearing().getNextHearing()).isNotNull();
+        assertThat(result.getHearing().getNextHearing().getDateTime())
                 .isEqualTo(LocalDate.of(2026, 8, 1).atStartOfDay(ZoneOffset.UTC).toInstant());
     }
 
@@ -179,8 +200,8 @@ class PcrResultsMapperTest {
 
         final PcrHearingResult result = mapper.toPcrHearingResult(caseHearing, version, List.of(), List.of(), List.of(), List.of(), List.of());
 
-        assertThat(result.getNextHearing()).isNotNull();
-        assertThat(result.getNextHearing().getDateTime()).isEqualTo(Instant.parse("2026-08-01T10:00:00Z"));
+        assertThat(result.getHearing().getNextHearing()).isNotNull();
+        assertThat(result.getHearing().getNextHearing().getDateTime()).isEqualTo(Instant.parse("2026-08-01T10:00:00Z"));
     }
 
     @Test
@@ -198,9 +219,9 @@ class PcrResultsMapperTest {
 
         final PcrHearingResult result = mapper.toPcrHearingResult(caseHearing, version, List.of(), List.of(), List.of(), List.of(), List.of());
 
-        assertThat(result.getNextHearing().getCourt().getCourtHouseId()).isEqualTo(courtHouseId);
-        assertThat(result.getNextHearing().getCourt().getCourtHouseCode()).isEqualTo("B01LY00");
-        assertThat(result.getNextHearing().getCourt().getCourtHouseName()).isEqualTo("Lavender Hill Magistrates' Court");
+        assertThat(result.getHearing().getNextHearing().getCourt().getCourtHouseId()).isEqualTo(courtHouseId);
+        assertThat(result.getHearing().getNextHearing().getCourt().getCourtHouseCode()).isEqualTo("B01LY00");
+        assertThat(result.getHearing().getNextHearing().getCourt().getCourtHouseName()).isEqualTo("Lavender Hill Magistrates' Court");
     }
 
     @Test
@@ -214,9 +235,10 @@ class PcrResultsMapperTest {
                 .allocationDecision("Summarily").indicatedPleaValue("GUILTY").build();
         final CPJudicialResultEntity judicialResult = CPJudicialResultEntity.builder()
                 .id(UUID.fromString("00000000-0000-0000-0000-000000000055"))
-                .offenceId(offence.getId()).resultCode("1200").resultText("Sentenced").financial(false).convicted(true).build();
+                .offenceId(offence.getId()).resultCode("1200").resultText("Sentenced").build();
         final CPJudicialResultPromptEntity prompt = CPJudicialResultPromptEntity.builder()
-                .judicialResultId(judicialResult.getId()).promptReference("prisonOrganisationName").value("HMP Dovegate").build();
+                .judicialResultId(judicialResult.getId()).promptReference("prisonOrganisationName")
+                .label("Prison organisation name").value("HMP Dovegate").build();
 
         final PcrHearingResult result = mapper.toPcrHearingResult(caseHearing, version, List.of(),
                 List.of(), List.of(offence), List.of(judicialResult), List.of(prompt));
@@ -228,13 +250,11 @@ class PcrResultsMapperTest {
                 .isEqualTo("Contrary to section 1(1) and 7 of the Theft Act 1968.");
         assertThat(result.getOffences().get(0).getAllocationDecision()).isEqualTo("Summarily");
         assertThat(result.getOffences().get(0).getIndicatedPleaValue()).isEqualTo("GUILTY");
-        assertThat(result.getOffences().get(0).getJudicialResults()).hasSize(1);
-        final var mappedResult = result.getOffences().get(0).getJudicialResults().get(0);
-        assertThat(mappedResult.getResultCode()).isEqualTo("1200");
-        assertThat(mappedResult.getFinancial()).isFalse();
-        assertThat(mappedResult.getConvicted()).isTrue();
-        assertThat(mappedResult.getPrompts()).hasSize(1);
-        assertThat(mappedResult.getPrompts().get(0).getReference()).isEqualTo("prisonOrganisationName");
+        assertThat(result.getOffences().get(0).getResults()).hasSize(1);
+        final var mappedResult = result.getOffences().get(0).getResults().get(0);
+        assertThat(mappedResult.getResultTexts()).hasSize(1);
+        assertThat(mappedResult.getResultTexts().get(0).getLabel()).isEqualTo("Prison organisation name");
+        assertThat(mappedResult.getResultTexts().get(0).getValue()).isEqualTo("HMP Dovegate");
     }
 
     @Test
@@ -249,7 +269,7 @@ class PcrResultsMapperTest {
                 .courtApplicationId(application.getId()).code("LINKOFF").build();
         final CPJudicialResultEntity applicationResult = CPJudicialResultEntity.builder()
                 .id(UUID.fromString("00000000-0000-0000-0000-000000000068"))
-                .courtApplicationId(application.getId()).resultCode("APP1").build();
+                .courtApplicationId(application.getId()).resultText("APP1").build();
 
         final PcrHearingResult result = mapper.toPcrHearingResult(caseHearing, version, List.of(),
                 List.of(application), List.of(linkedOffence), List.of(applicationResult), List.of());
@@ -257,7 +277,7 @@ class PcrResultsMapperTest {
         assertThat(result.getCourtApplications()).hasSize(1);
         final var mappedApplication = result.getCourtApplications().get(0);
         assertThat(mappedApplication.getReference()).isEqualTo("REF1");
-        assertThat(mappedApplication.getJudicialResults()).extracting("resultCode").containsExactly("APP1");
+        assertThat(mappedApplication.getResults()).hasSize(1);
         assertThat(mappedApplication.getOffences()).extracting("code").containsExactly("LINKOFF");
     }
 }

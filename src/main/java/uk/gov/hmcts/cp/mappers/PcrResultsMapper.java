@@ -17,11 +17,12 @@ import uk.gov.hmcts.cp.openapi.model.CourtDetails;
 import uk.gov.hmcts.cp.openapi.model.CustodyLocation;
 import uk.gov.hmcts.cp.openapi.model.Defendant;
 import uk.gov.hmcts.cp.openapi.model.HearingDetails;
-import uk.gov.hmcts.cp.openapi.model.JudicialResult;
-import uk.gov.hmcts.cp.openapi.model.JudicialResultPrompt;
 import uk.gov.hmcts.cp.openapi.model.NextHearing;
 import uk.gov.hmcts.cp.openapi.model.Offence;
 import uk.gov.hmcts.cp.openapi.model.PcrHearingResult;
+import uk.gov.hmcts.cp.openapi.model.ProsecutionCase;
+import uk.gov.hmcts.cp.openapi.model.ResultText;
+import uk.gov.hmcts.cp.openapi.model.Text;
 
 import java.time.Instant;
 import java.time.LocalTime;
@@ -43,34 +44,37 @@ public class PcrResultsMapper {
                                                 final List<CPJudicialResultEntity> judicialResults,
                                                 final List<CPJudicialResultPromptEntity> prompts) {
         return PcrHearingResult.builder()
-                .caseURN(caseHearing.getCaseUrn())
-                .caseMarkers(caseMarkers.stream().map(this::toCaseMarker).toList())
-                .defendant(toDefendant(version))
+                .prosecutionCase(toProsecutionCase(caseHearing, caseMarkers, judicialResults, prompts))
+                .defendant(toDefendant(version, judicialResults, prompts))
                 .custodyLocation(toCustodyLocation(version))
                 .hearing(toHearingDetails(caseHearing, version))
-                .nextHearing(toNextHearing(version.getNextHearing()))
                 .offences(directOffences(offences, version.getCpVersionPk()).stream()
                         .map(o -> toOffence(o, judicialResults, prompts))
                         .toList())
                 .courtApplications(courtApplications.stream()
                         .map(a -> toCourtApplication(a, offences, judicialResults, prompts))
                         .toList())
-                .defendantResults(judicialResults.stream()
-                        .filter(r -> LEVEL_DEFENDANT.equals(r.getLevel()))
-                        .map(r -> toJudicialResult(r, prompts))
-                        .toList())
-                .caseResults(judicialResults.stream()
+                .build();
+    }
+
+    private ProsecutionCase toProsecutionCase(final CPCaseHearingEntity caseHearing, final List<CPCaseMarkerEntity> caseMarkers,
+                                               final List<CPJudicialResultEntity> judicialResults, final List<CPJudicialResultPromptEntity> prompts) {
+        return ProsecutionCase.builder()
+                .caseURN(caseHearing.getCaseUrn())
+                .caseMarkers(caseMarkers.stream().map(this::toCaseMarker).toList())
+                .results(judicialResults.stream()
                         .filter(r -> LEVEL_CASE.equals(r.getLevel()))
-                        .map(r -> toJudicialResult(r, prompts))
+                        .map(r -> toResultText(r, prompts))
                         .toList())
                 .build();
     }
 
     private CaseMarker toCaseMarker(final CPCaseMarkerEntity marker) {
-        return CaseMarker.builder().code(marker.getCode()).description(marker.getDescription()).build();
+        return CaseMarker.builder().description(marker.getDescription()).build();
     }
 
-    private Defendant toDefendant(final CPVersionEntity version) {
+    private Defendant toDefendant(final CPVersionEntity version, final List<CPJudicialResultEntity> judicialResults,
+                                   final List<CPJudicialResultPromptEntity> prompts) {
         return Defendant.builder()
                 .id(version.getDefendantId())
                 .masterDefendantId(version.getMasterDefendantId())
@@ -83,6 +87,10 @@ public class PcrResultsMapper {
                 .gender(version.getGender())
                 .nationality(version.getNationality())
                 .postHearingCustodyStatus(version.getPostHearingCustodyStatus())
+                .results(judicialResults.stream()
+                        .filter(r -> LEVEL_DEFENDANT.equals(r.getLevel()))
+                        .map(r -> toResultText(r, prompts))
+                        .toList())
                 .build();
     }
 
@@ -113,6 +121,8 @@ public class PcrResultsMapper {
                 .hearingType(caseHearing.getHearingType())
                 .jurisdiction(caseHearing.getJurisdiction())
                 .defendantAppearanceDetails(version.getDefendantAppearanceDetails())
+                .sharedTime(version.getSharedTime() == null ? null : version.getSharedTime().toInstant())
+                .nextHearing(toNextHearing(version.getNextHearing()))
                 .build();
     }
 
@@ -183,39 +193,26 @@ public class PcrResultsMapper {
                 .offenceLegislation(offence.getOffenceLegislation())
                 .allocationDecision(offence.getAllocationDecision())
                 .indicatedPleaValue(offence.getIndicatedPleaValue())
-                .judicialResults(allResults.stream()
+                .results(allResults.stream()
                         .filter(r -> offence.getId().equals(r.getOffenceId()))
-                        .map(r -> toJudicialResult(r, allPrompts))
+                        .map(r -> toResultText(r, allPrompts))
                         .toList())
                 .build();
     }
 
-    private JudicialResult toJudicialResult(final CPJudicialResultEntity result, final List<CPJudicialResultPromptEntity> allPrompts) {
-        return JudicialResult.builder()
-                .resultCode(result.getResultCode())
-                .resultText(result.getResultText())
-                .financial(result.getFinancial())
-                .category(result.getCategory())
-                .convicted(result.getConvicted())
-                .prompts(allPrompts.stream()
+    private ResultText toResultText(final CPJudicialResultEntity result, final List<CPJudicialResultPromptEntity> allPrompts) {
+        return ResultText.builder()
+                .resultTexts(allPrompts.stream()
                         .filter(p -> result.getId().equals(p.getJudicialResultId()))
-                        .map(this::toJudicialResultPrompt)
+                        .map(this::toText)
                         .toList())
-                .concurrent(result.getConcurrent())
-                .consecutiveToDate(result.getConsecutiveToDate())
-                .consecutiveToCourtName(result.getConsecutiveToCourtName())
-                .fineAmount(result.getFineAmount() == null ? null : result.getFineAmount().doubleValue())
-                .imprisonmentPeriod(result.getImprisonmentPeriod())
-                .totalCustodialPeriod(result.getTotalCustodialPeriod())
                 .build();
     }
 
-    private JudicialResultPrompt toJudicialResultPrompt(final CPJudicialResultPromptEntity prompt) {
-        return JudicialResultPrompt.builder()
+    private Text toText(final CPJudicialResultPromptEntity prompt) {
+        return Text.builder()
                 .label(prompt.getLabel())
                 .value(prompt.getValue())
-                .reference(prompt.getPromptReference())
-                .type(prompt.getType())
                 .build();
     }
 
@@ -228,9 +225,9 @@ public class PcrResultsMapper {
                 .decisionDate(application.getDecisionDate())
                 .response(application.getResponse())
                 .responseDate(application.getResponseDate())
-                .judicialResults(allResults.stream()
+                .results(allResults.stream()
                         .filter(r -> application.getId().equals(r.getCourtApplicationId()))
-                        .map(r -> toJudicialResult(r, allPrompts))
+                        .map(r -> toResultText(r, allPrompts))
                         .toList())
                 .offences(allOffences.stream()
                         .filter(o -> application.getId().equals(o.getCourtApplicationId()))

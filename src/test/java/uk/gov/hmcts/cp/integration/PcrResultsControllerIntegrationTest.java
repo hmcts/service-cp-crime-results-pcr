@@ -64,13 +64,11 @@ class PcrResultsControllerIntegrationTest extends ControllerRepositoryIntegratio
         mockMvc.perform(get("/cases/{caseURN}/hearings/{hearingId}/defendants/{defendantId}", CASE_URN, HEARING_ID, DEFENDANT_ID))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].caseURN").value(CASE_URN))
+                .andExpect(jsonPath("$[0].prosecutionCase.caseURN").value(CASE_URN))
                 .andExpect(jsonPath("$[0].defendant.masterDefendantId").value(MASTER_DEFENDANT_ID))
-                .andExpect(jsonPath("$[0].caseMarkers[0].code").value("DomesticViolence"))
+                .andExpect(jsonPath("$[0].prosecutionCase.caseMarkers[0].description").value("Domestic Violence"))
                 .andExpect(jsonPath("$[0].offences[0].code").value("TH68001"))
-                .andExpect(jsonPath("$[0].offences[0].judicialResults[0].resultCode").value("1200"))
-                .andExpect(jsonPath("$[0].offences[0].judicialResults[0].convicted").value(true))
-                .andExpect(jsonPath("$[0].offences[0].judicialResults[0].financial").value(false));
+                .andExpect(jsonPath("$[0].offences[0].results.length()").value(1));
     }
 
     @Transactional
@@ -105,7 +103,7 @@ class PcrResultsControllerIntegrationTest extends ControllerRepositoryIntegratio
     private void seedOneVersion() {
         final ProsecutionCase prosecutionCase = ProsecutionCase.builder()
                 .prosecutionCaseIdentifier(ProsecutionCaseIdentifier.builder().caseURN(CASE_URN).build())
-                .caseMarkers(List.of(CaseMarker.builder().markerTypeCode("DomesticViolence").build()))
+                .caseMarkers(List.of(CaseMarker.builder().markerTypeCode("DomesticViolence").markerTypeDescription("Domestic Violence").build()))
                 .defendants(List.of())
                 .build();
         final HearingDetail hearing = HearingDetail.builder()
@@ -126,7 +124,7 @@ class PcrResultsControllerIntegrationTest extends ControllerRepositoryIntegratio
                 .personDefendant(PersonDefendant.builder().build())
                 .offences(List.of(offenceWithResult()))
                 .build();
-        final CPEntitySet bundle = mapper.toWriteBundle(defendant, hearing, caseHearing.getId(), createdAt, createdAt.plusDays(30));
+        final CPEntitySet bundle = mapper.toWriteBundle(defendant, hearing, caseHearing.getId(), null, createdAt, createdAt.plusDays(30));
         versionRepository.save(bundle.version());
         offenceRepository.saveAll(bundle.offences());
         judicialResultRepository.saveAll(bundle.judicialResults());

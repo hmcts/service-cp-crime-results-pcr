@@ -59,6 +59,9 @@ public class CPVersionEntity {
     @Embedded
     private CPNextHearingEmbeddable nextHearing;
 
+    @Column(name = "shared_time")
+    private OffsetDateTime sharedTime;
+
     @Column(name = "created_at")
     private OffsetDateTime createdAt;
 

@@ -18,6 +18,9 @@ import java.util.List;
 public class HearingDetailsResponse {
 
     private HearingDetail hearing;
+    // Sibling of hearing in CP's own payload, not nested under it — a version-correlation
+    // candidate (design §7), not yet used to correlate anything.
+    private Instant sharedTime;
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     @Builder
@@ -156,6 +159,7 @@ public class HearingDetailsResponse {
     @Getter
     public static class CaseMarker {
         private String markerTypeCode;
+        private String markerTypeDescription;
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)

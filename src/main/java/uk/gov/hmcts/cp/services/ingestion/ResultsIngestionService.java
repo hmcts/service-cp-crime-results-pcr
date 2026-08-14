@@ -23,6 +23,7 @@ import uk.gov.hmcts.cp.services.pcrcompute.CPResultsPcrFilter;
 import uk.gov.hmcts.cp.services.pcrcompute.CPVocabularyService;
 
 import java.time.Duration;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.List;
@@ -83,13 +84,14 @@ public class ResultsIngestionService {
     public void ingestAndPersist(final UUID hearingId, final String hearingDay) {
         final HearingDetailsResponse hearingDetails = ingestHearingResults(hearingId, hearingDay);
         final HearingDetail hearing = hearingDetails.getHearing();
+        final Instant sharedTime = hearingDetails.getSharedTime();
         final LocalDate activeAt = resolveActiveAt(hearing, hearingId);
         final List<CPNowSubscription> subscriptions = pcrFilter.fetchPrisonCourtRegisterSubscriptions(activeAt);
-        hearing.getProsecutionCases().forEach(c -> processProsecutionCase(c, hearing, hearingId, subscriptions));
+        hearing.getProsecutionCases().forEach(c -> processProsecutionCase(c, hearing, hearingId, sharedTime, subscriptions));
     }
 
     private void processProsecutionCase(final ProsecutionCase prosecutionCase, final HearingDetail hearing,
-                                         final UUID hearingId, final List<CPNowSubscription> subscriptions) {
+                                         final UUID hearingId, final Instant sharedTime, final List<CPNowSubscription> subscriptions) {
         final List<Defendant> requiredDefendants = prosecutionCase.getDefendants().stream()
                 .filter(defendant -> isPcrRequired(defendant, hearing, hearingId, subscriptions))
                 .toList();
@@ -97,7 +99,7 @@ public class ResultsIngestionService {
             return;
         }
         final UUID caseHearingId = persistenceService.findOrCreateCaseHearing(prosecutionCase, hearing, hearingId);
-        requiredDefendants.forEach(defendant -> persistCPEntitySet(defendant, hearing, caseHearingId));
+        requiredDefendants.forEach(defendant -> persistCPEntitySet(defendant, hearing, caseHearingId, sharedTime));
     }
 
     private boolean isPcrRequired(final Defendant defendant, final HearingDetail hearing, final UUID hearingId,
@@ -111,9 +113,10 @@ public class ResultsIngestionService {
         return required;
     }
 
-    private void persistCPEntitySet(final Defendant defendant, final HearingDetail hearing, final UUID caseHearingId) {
+    private void persistCPEntitySet(final Defendant defendant, final HearingDetail hearing, final UUID caseHearingId,
+                                     final Instant sharedTime) {
         final OffsetDateTime createdAt = clockService.nowOffsetUTC();
-        persistenceService.persist(defendant, hearing, caseHearingId, createdAt, createdAt.plusDays(30));
+        persistenceService.persist(defendant, hearing, caseHearingId, sharedTime, createdAt, createdAt.plusDays(30));
     }
 
     private LocalDate resolveActiveAt(final HearingDetail hearing, final UUID hearingId) {

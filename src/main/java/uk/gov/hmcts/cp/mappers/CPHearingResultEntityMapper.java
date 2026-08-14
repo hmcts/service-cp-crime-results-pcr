@@ -27,6 +27,7 @@ import uk.gov.hmcts.cp.entities.CPOffenceEntity;
 import uk.gov.hmcts.cp.entities.CPVersionEntity;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
@@ -113,6 +114,7 @@ public class CPHearingResultEntityMapper {
                 .id(UUID.randomUUID())
                 .caseHearingId(caseHearingId)
                 .code(marker.getMarkerTypeCode())
+                .description(marker.getMarkerTypeDescription())
                 .build();
     }
 
@@ -167,8 +169,8 @@ public class CPHearingResultEntityMapper {
     }
 
     public CPEntitySet toWriteBundle(final Defendant defendant, final HearingDetail hearing, final UUID caseHearingId,
-                                               final OffsetDateTime createdAt, final OffsetDateTime expiresAt) {
-        final CPVersionEntity version = toVersionEntity(defendant, hearing, caseHearingId, createdAt, expiresAt);
+                                               final Instant sharedTime, final OffsetDateTime createdAt, final OffsetDateTime expiresAt) {
+        final CPVersionEntity version = toVersionEntity(defendant, hearing, caseHearingId, sharedTime, createdAt, expiresAt);
         final List<CourtApplication> linkedApplications = matchingCourtApplications(defendant, hearing);
         final List<CPCourtApplicationEntity> courtApplications = linkedApplications.stream()
                 .map(a -> toCourtApplicationEntity(a, version.getCpVersionPk()))
@@ -229,7 +231,7 @@ public class CPHearingResultEntityMapper {
     }
 
     private CPVersionEntity toVersionEntity(final Defendant defendant, final HearingDetail hearing, final UUID caseHearingId,
-                                             final OffsetDateTime createdAt, final OffsetDateTime expiresAt) {
+                                             final Instant sharedTime, final OffsetDateTime createdAt, final OffsetDateTime expiresAt) {
         final CPVersionEntity.CPVersionEntityBuilder builder = CPVersionEntity.builder()
                 .cpVersionPk(UUID.randomUUID())
                 .eventId(null) // no event-correlation pipeline yet — data-store design doc §3
@@ -239,6 +241,7 @@ public class CPHearingResultEntityMapper {
                 .custodyType(toCustodyType(defendant))
                 .masterDefendantId(masterDefendantId(defendant))
                 .nextHearing(toNextHearingEmbeddable(hearing))
+                .sharedTime(sharedTime == null ? null : sharedTime.atOffset(ZoneOffset.UTC))
                 .postHearingCustodyStatus(populatePostHearingCustodyStatus(defendant))
                 .defendantAppearanceDetails(toDefendantAppearanceDetails(defendant, hearing))
                 .createdAt(createdAt)
