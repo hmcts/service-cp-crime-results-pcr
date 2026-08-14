@@ -49,126 +49,87 @@
         "allocationDecision": "Indictable-only offence",
         "code": "OF61102C",
         "convictionDate": "2026-07-29",
-        "judicialResults": [
-          {
-            "category": "FINAL",
-            "concurrent": true,
-            "convicted": true,
-            "financial": false,
-            "imprisonmentPeriod": "7 Months",
-            "prompts": [
-              {
-                "label": "Total custodial period",
-                "reference": "totalCustodialPeriod",
-                "type": "INTM",
-                "value": "7 Months"
-              },
-              {
-                "label": "Prison organisation name",
-                "reference": "prisonOrganisationName",
-                "type": "NAMEADDRESS",
-                "value": "HMP Ashfield"
-              },
-              {
-                "label": "Prison email address 1",
-                "reference": "prisonEmailAddress1",
-                "type": "NAMEADDRESS",
-                "value": "yoiashfield.premiercustody@premier-serco.cjsm.net"
-              },
-              {
-                "label": "Prison email address 2",
-                "reference": "prisonEmailAddress2",
-                "type": "NAMEADDRESS",
-                "value": "yoiashfield.premiercustody@premier-serco.cjsm.net"
-              },
-              {
-                "label": "Conveyor / custodian name organisation name",
-                "reference": "conveyorcustodiannameOrganisationName",
-                "type": "NAMEADDRESS",
-                "value": "Bexley Magistrates' Court: PECS"
-              },
-              {
-                "label": "Conveyor / custodian name email address 1",
-                "reference": "conveyorcustodiannameEmailAddress1",
-                "type": "NAMEADDRESS",
-                "value": "PECSBexleyheathMags@serco.com"
-              },
-              {
-                "label": "Probation team to be notified organisation name",
-                "reference": "probationteamtobenotifiedOrganisationName",
-                "type": "NAMEADDRESS",
-                "value": "London Division NPS"
-              },
-              {
-                "label": "Probation team to be notified email address 1",
-                "reference": "probationteamtobenotifiedEmailAddress1",
-                "type": "NAMEADDRESS",
-                "value": "londonnps.court@justice.gov.uk"
-              },
-              {
-                "label": "Imprisonment Period",
-                "reference": "imprisonmentPeriod",
-                "type": "INTM",
-                "value": "7 Months"
-              },
-              {
-                "label": "Concurrent",
-                "reference": "concurrent",
-                "type": "YESBOX",
-                "value": "true"
-              },
-              {
-                "label": "Consecutive to offence",
-                "reference": "consecutiveToOffenceNumber",
-                "type": "TXT",
-                "value": "test Consecutive to offence"
-              },
-              {
-                "label": "which is on case number",
-                "reference": "whereConsecutiveToAnOffenceOnAnotherCaseSpecifyThatCaseNumber",
-                "type": "TXT",
-                "value": "28DI6046708"
-              },
-              {
-                "label": "Imprisonment reasons",
-                "reference": "imprisonmentReasons",
-                "type": "FIXL",
-                "value": "failure to comply with requirements of post custodial sentence supervision"
-              },
-              {
-                "label": "Reason for custody",
-                "reference": "theReasonsForThis",
-                "type": "FIXLOM",
-                "value": "because of an unprovoked attack of a serious nature"
-              },
-              {
-                "label": "Number of days in custody in foreign jurisdiction to count",
-                "reference": "numberOfDaysInCustodyInForeignJurisdictionToCount",
-                "type": "INT",
-                "value": "10"
-              },
-              {
-                "label": "Bail remand days to count (tagged days)",
-                "reference": "bailRemandDaysToCountTaggedDays",
-                "type": "INT",
-                "value": "0"
-              },
-              {
-                "label": "This offence is aggravated by the foreign power condition being met in relation to it as defined by section 31 of the National Security Act 2023",
-                "reference": "offenceAggByForeignPowerCondition",
-                "type": "BOOLEAN",
-                "value": "true"
-              }
-            ],
-            "resultCode": "1002",
-            "resultText": "Imprisonment",
-            "totalCustodialPeriod": "7 Months"
-          }
-        ],
         "listingNumber": 1,
         "offenceLegislation": "Contrary to sections 1,1A and 3 of the Criminal Law Act 1977.",
         "pleaDate": "2026-07-29",
         "pleaValue": "NOT_GUILTY",
+        "resultTexts": [
+          {
+            "resultCode": "1002",
+            "resultText": "Imprisonment",
+            "texts": [
+              {
+                "label": "Total custodial period",
+                "value": "7 Months"
+              },
+              {
+                "label": "Prison organisation name",
+                "value": "HMP Ashfield"
+              },
+              {
+                "label": "Prison email address 1",
+                "value": "yoiashfield.premiercustody@premier-serco.cjsm.net"
+              },
+              {
+                "label": "Prison email address 2",
+                "value": "yoiashfield.premiercustody@premier-serco.cjsm.net"
+              },
+              {
+                "label": "Conveyor / custodian name organisation name",
+                "value": "Bexley Magistrates' Court: PECS"
+              },
+              {
+                "label": "Conveyor / custodian name email address 1",
+                "value": "PECSBexleyheathMags@serco.com"
+              },
+              {
+                "label": "Probation team to be notified organisation name",
+                "value": "London Division NPS"
+              },
+              {
+                "label": "Probation team to be notified email address 1",
+                "value": "londonnps.court@justice.gov.uk"
+              },
+              {
+                "label": "Imprisonment Period",
+                "value": "7 Months"
+              },
+              {
+                "label": "Concurrent",
+                "value": "true"
+              },
+              {
+                "label": "Consecutive to offence",
+                "value": "test Consecutive to offence"
+              },
+              {
+                "label": "which is on case number",
+                "value": "28DI6046708"
+              },
+              {
+                "label": "Imprisonment reasons",
+                "value": "failure to comply with requirements of post custodial sentence supervision"
+              },
+              {
+                "label": "Reason for custody",
+                "value": "because of an unprovoked attack of a serious nature"
+              },
+              {
+                "label": "Number of days in custody in foreign jurisdiction to count",
+                "value": "10"
+              },
+              {
+                "label": "Bail remand days to count (tagged days)",
+                "value": "0"
+              },
+              {
+                "label": "This offence is aggravated by the foreign power condition being met in relation to it as defined by section 31 of the National Security Act 2023",
+                "value": "true"
+              }
+            ],
+            "totalCustodialPeriod": "7 Months"
+          }
+        ],
         "startDate": "2022-12-12",
         "title": "Conspire to assault a person thereby occasioning them actual bodily harm",
         "verdict": "Found guilty",
@@ -178,27 +139,22 @@
         "allocationDecision": "Summary-only offence",
         "code": "PS90015",
         "convictionDate": "2026-07-29",
-        "judicialResults": [
-          {
-            "category": "FINAL",
-            "convicted": true,
-            "financial": false,
-            "prompts": [
-              {
-                "label": "Period\u00a0of conditional discharge",
-                "reference": "periodofConditionalDischarge",
-                "type": "INT",
-                "value": "7 Months"
-              }
-            ],
-            "resultCode": "1018",
-            "resultText": "Conditional discharge"
-          }
-        ],
         "listingNumber": 1,
         "offenceLegislation": "Contrary to regulation 7(2)(b)(i) of the Public Service Vehicles (Conduct of Drivers, Inspectors, Conductors and Passengers) Regulations 1990 and section 25 of the Public Passengers Vehicles Act 1981.",
         "pleaDate": "2026-07-29",
         "pleaValue": "NOT_GUILTY",
+        "resultTexts": [
+          {
+            "resultCode": "1018",
+            "resultText": "Conditional discharge",
+            "texts": [
+              {
+                "label": "Period\u00a0of conditional discharge",
+                "value": "7 Months"
+              }
+            ]
+          }
+        ],
         "startDate": "2022-11-28",
         "title": "Public service vehicles - passenger failing to pay fare",
         "verdict": "Found guilty",

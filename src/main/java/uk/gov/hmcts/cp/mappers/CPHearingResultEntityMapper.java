@@ -113,6 +113,7 @@ public class CPHearingResultEntityMapper {
                 .id(UUID.randomUUID())
                 .caseHearingId(caseHearingId)
                 .code(marker.getMarkerTypeCode())
+                .description(marker.getMarkerTypeDescription())
                 .build();
     }
 

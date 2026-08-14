@@ -66,11 +66,9 @@ class PcrResultsControllerIntegrationTest extends ControllerRepositoryIntegratio
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].caseURN").value(CASE_URN))
                 .andExpect(jsonPath("$[0].defendant.masterDefendantId").value(MASTER_DEFENDANT_ID))
-                .andExpect(jsonPath("$[0].caseMarkers[0].code").value("DomesticViolence"))
+                .andExpect(jsonPath("$[0].caseMarkers[0].description").value("Domestic Violence"))
                 .andExpect(jsonPath("$[0].offences[0].code").value("TH68001"))
-                .andExpect(jsonPath("$[0].offences[0].judicialResults[0].resultCode").value("1200"))
-                .andExpect(jsonPath("$[0].offences[0].judicialResults[0].convicted").value(true))
-                .andExpect(jsonPath("$[0].offences[0].judicialResults[0].financial").value(false));
+                .andExpect(jsonPath("$[0].offences[0].resultTexts[0].resultCode").value("1200"));
     }
 
     @Transactional
@@ -105,7 +103,7 @@ class PcrResultsControllerIntegrationTest extends ControllerRepositoryIntegratio
     private void seedOneVersion() {
         final ProsecutionCase prosecutionCase = ProsecutionCase.builder()
                 .prosecutionCaseIdentifier(ProsecutionCaseIdentifier.builder().caseURN(CASE_URN).build())
-                .caseMarkers(List.of(CaseMarker.builder().markerTypeCode("DomesticViolence").build()))
+                .caseMarkers(List.of(CaseMarker.builder().markerTypeCode("DomesticViolence").markerTypeDescription("Domestic Violence").build()))
                 .defendants(List.of())
                 .build();
         final HearingDetail hearing = HearingDetail.builder()

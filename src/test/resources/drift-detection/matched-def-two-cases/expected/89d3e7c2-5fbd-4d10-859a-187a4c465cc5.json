@@ -54,84 +54,62 @@
     "offences": [
       {
         "code": "TH68001",
-        "judicialResults": [
-          {
-            "category": "INTERMEDIARY",
-            "convicted": false,
-            "financial": false,
-            "prompts": [
-              {
-                "label": "Next hearing in magistrates' court",
-                "reference": "e8f3216e-5eb4-4688-a00f-61e3d6e18411",
-                "value": "Date of hearing:31/07/2026\nTime of hearing:10:00\nCourthouse organisation name:Lavender Hill Magistrates' Court\nCourthouse address line 1:176A Lavender Hill\nCourthouse address line 2:London\nCourthouse post code:SW11 1JU\nCourtroom:Courtroom 01\nHearing type:Appeal\nEstimated duration:30 MINUTES\nBooking reference:41a6176a-4304-4986-91b6-588969195c56"
-              },
-              {
-                "label": "Prison organisation name",
-                "reference": "prisonOrganisationName",
-                "type": "NAMEADDRESS",
-                "value": "HMP Ashfield"
-              },
-              {
-                "label": "Prison email address 1",
-                "reference": "prisonEmailAddress1",
-                "type": "NAMEADDRESS",
-                "value": "yoiashfield.premiercustody@premier-serco.cjsm.net"
-              },
-              {
-                "label": "Prison email address 2",
-                "reference": "prisonEmailAddress2",
-                "type": "NAMEADDRESS",
-                "value": "yoiashfield.premiercustody@premier-serco.cjsm.net"
-              },
-              {
-                "label": "Conveyor / custodian name organisation name",
-                "reference": "conveyorcustodiannameOrganisationName",
-                "type": "NAMEADDRESS",
-                "value": "Lavender Hill Magistrates' Court: PECS"
-              },
-              {
-                "label": "Conveyor / custodian name email address 1",
-                "reference": "conveyorcustodiannameEmailAddress1",
-                "type": "NAMEADDRESS",
-                "value": "periodicwarrants@geoamey.co.uk"
-              },
-              {
-                "label": "Remand basis",
-                "reference": "remandBasis",
-                "type": "FIXL",
-                "value": "Charged with a violent or sexual offence"
-              },
-              {
-                "label": "Bail exception",
-                "reference": "bailException",
-                "type": "FIXLM",
-                "value": "Breach of bail"
-              },
-              {
-                "label": "Bail exception reason",
-                "reference": "bailExceptionReason",
-                "type": "FIXLOM",
-                "value": "Broken bail conditions"
-              },
-              {
-                "label": "To attend or a warrant to issue",
-                "reference": "ac96f601-be6f-4140-ba9a-8adb17f547b4",
-                "value": ""
-              },
-              {
-                "label": "Adjournment reasons",
-                "reference": "a1f8864a-32b7-40cd-9308-1819a7380955",
-                "value": ""
-              }
-            ],
-            "resultCode": "4028",
-            "resultText": "Remanded in custody"
-          }
-        ],
         "listingNumber": 1,
         "offenceLegislation": "Contrary to section 1(1) and 7 of the Theft Act 1968.",
         "pleaDate": "2026-07-31",
         "pleaValue": "NOT_GUILTY",
+        "resultTexts": [
+          {
+            "resultCode": "4028",
+            "resultText": "Remanded in custody",
+            "texts": [
+              {
+                "label": "Next hearing in magistrates' court",
+                "value": "Date of hearing:31/07/2026\nTime of hearing:10:00\nCourthouse organisation name:Lavender Hill Magistrates' Court\nCourthouse address line 1:176A Lavender Hill\nCourthouse address line 2:London\nCourthouse post code:SW11 1JU\nCourtroom:Courtroom 01\nHearing type:Appeal\nEstimated duration:30 MINUTES\nBooking reference:41a6176a-4304-4986-91b6-588969195c56"
+              },
+              {
+                "label": "Prison organisation name",
+                "value": "HMP Ashfield"
+              },
+              {
+                "label": "Prison email address 1",
+                "value": "yoiashfield.premiercustody@premier-serco.cjsm.net"
+              },
+              {
+                "label": "Prison email address 2",
+                "value": "yoiashfield.premiercustody@premier-serco.cjsm.net"
+              },
+              {
+                "label": "Conveyor / custodian name organisation name",
+                "value": "Lavender Hill Magistrates' Court: PECS"
+              },
+              {
+                "label": "Conveyor / custodian name email address 1",
+                "value": "periodicwarrants@geoamey.co.uk"
+              },
+              {
+                "label": "Remand basis",
+                "value": "Charged with a violent or sexual offence"
+              },
+              {
+                "label": "Bail exception",
+                "value": "Breach of bail"
+              },
+              {
+                "label": "Bail exception reason",
+                "value": "Broken bail conditions"
+              },
+              {
+                "label": "To attend or a warrant to issue",
+                "value": ""
+              },
+              {
+                "label": "Adjournment reasons",
+                "value": ""
+              }
+            ]
+          }
+        ],
         "startDate": "2026-05-31",
         "title": "Theft from the person of another",
         "wording": "Theft from the person of another"

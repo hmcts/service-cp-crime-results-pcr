@@ -156,6 +156,7 @@ public class HearingDetailsResponse {
     @Getter
     public static class CaseMarker {
         private String markerTypeCode;
+        private String markerTypeDescription;
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)

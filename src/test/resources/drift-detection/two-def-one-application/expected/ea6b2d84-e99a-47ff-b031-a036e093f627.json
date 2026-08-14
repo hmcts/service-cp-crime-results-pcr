@@ -5,17 +5,14 @@
     "caseURN": "TEST1234567",
     "courtApplications": [
       {
-        "judicialResults": [
-          {
-            "category": "FINAL",
-            "convicted": false,
-            "financial": false,
-            "prompts": [],
-            "resultText": "Granted"
-          }
-        ],
         "offences": [],
         "reference": "TEST1234567",
+        "resultTexts": [
+          {
+            "resultText": "Granted",
+            "texts": []
+          }
+        ],
         "type": "Application within criminal proceedings"
       }
     ],
@@ -67,101 +64,71 @@
         "code": "TH68013A",
         "convictionDate": "2026-07-23",
         "indicatedPleaValue": "INDICATED_NOT_GUILTY",
-        "judicialResults": [
-          {
-            "category": "FINAL",
-            "convicted": true,
-            "financial": false,
-            "imprisonmentPeriod": "6 Months",
-            "prompts": [
-              {
-                "label": "Total custodial period",
-                "reference": "totalCustodialPeriod",
-                "type": "INTM",
-                "value": "5 Months"
-              },
-              {
-                "label": "Prison organisation name",
-                "reference": "prisonOrganisationName",
-                "type": "NAMEADDRESS",
-                "value": "HMP/YOI Bristol"
-              },
-              {
-                "label": "Prison email address 1",
-                "reference": "prisonEmailAddress1",
-                "type": "NAMEADDRESS",
-                "value": "OMU.Bristol@justice.gov.uk"
-              },
-              {
-                "label": "Prison email address 2",
-                "reference": "prisonEmailAddress2",
-                "type": "NAMEADDRESS",
-                "value": "Reception.Bristol@justice.gov.uk"
-              },
-              {
-                "label": "Conveyor / custodian name organisation name",
-                "reference": "conveyorcustodiannameOrganisationName",
-                "type": "NAMEADDRESS",
-                "value": "Bristol Magistrates' Court: PECS"
-              },
-              {
-                "label": "Conveyor / custodian name email address 1",
-                "reference": "conveyorcustodiannameEmailAddress1",
-                "type": "NAMEADDRESS",
-                "value": "PECSBristolMags@serco.com"
-              },
-              {
-                "label": "Probation team to be notified organisation name",
-                "reference": "probationteamtobenotifiedOrganisationName",
-                "type": "NAMEADDRESS",
-                "value": "London Division NPS"
-              },
-              {
-                "label": "Probation team to be notified email address 1",
-                "reference": "probationteamtobenotifiedEmailAddress1",
-                "type": "NAMEADDRESS",
-                "value": "londonnps.court@justice.gov.uk"
-              },
-              {
-                "label": "Imprisonment Period",
-                "reference": "imprisonmentPeriod",
-                "type": "INTM",
-                "value": "6 Months"
-              },
-              {
-                "label": "Imprisonment reasons",
-                "reference": "imprisonmentReasons",
-                "type": "FIXL",
-                "value": "failure to comply with requirements of post custodial sentence supervision"
-              },
-              {
-                "label": "Reason for custody",
-                "reference": "theReasonsForThis",
-                "type": "FIXLOM",
-                "value": "because of an unprovoked attack of a serious nature"
-              },
-              {
-                "label": "Bail remand days to count (tagged days)",
-                "reference": "bailRemandDaysToCountTaggedDays",
-                "type": "INT",
-                "value": "4"
-              },
-              {
-                "label": "This offence is aggravated by the foreign power condition being met in relation to it as defined by section 31 of the National Security Act 2023",
-                "reference": "offenceAggByForeignPowerCondition",
-                "type": "BOOLEAN",
-                "value": "true"
-              }
-            ],
-            "resultCode": "1002",
-            "resultText": "Imprisonment",
-            "totalCustodialPeriod": "5 Months"
-          }
-        ],
         "listingNumber": 2,
         "offenceLegislation": "Contrary to section 1(1)    of the Criminal Attempts Act 1981.",
         "pleaDate": "2026-07-23",
         "pleaValue": "NOT_GUILTY",
+        "resultTexts": [
+          {
+            "resultCode": "1002",
+            "resultText": "Imprisonment",
+            "texts": [
+              {
+                "label": "Total custodial period",
+                "value": "5 Months"
+              },
+              {
+                "label": "Prison organisation name",
+                "value": "HMP/YOI Bristol"
+              },
+              {
+                "label": "Prison email address 1",
+                "value": "OMU.Bristol@justice.gov.uk"
+              },
+              {
+                "label": "Prison email address 2",
+                "value": "Reception.Bristol@justice.gov.uk"
+              },
+              {
+                "label": "Conveyor / custodian name organisation name",
+                "value": "Bristol Magistrates' Court: PECS"
+              },
+              {
+                "label": "Conveyor / custodian name email address 1",
+                "value": "PECSBristolMags@serco.com"
+              },
+              {
+                "label": "Probation team to be notified organisation name",
+                "value": "London Division NPS"
+              },
+              {
+                "label": "Probation team to be notified email address 1",
+                "value": "londonnps.court@justice.gov.uk"
+              },
+              {
+                "label": "Imprisonment Period",
+                "value": "6 Months"
+              },
+              {
+                "label": "Imprisonment reasons",
+                "value": "failure to comply with requirements of post custodial sentence supervision"
+              },
+              {
+                "label": "Reason for custody",
+                "value": "because of an unprovoked attack of a serious nature"
+              },
+              {
+                "label": "Bail remand days to count (tagged days)",
+                "value": "4"
+              },
+              {
+                "label": "This offence is aggravated by the foreign power condition being met in relation to it as defined by section 31 of the National Security Act 2023",
+                "value": "true"
+              }
+            ],
+            "totalCustodialPeriod": "5 Months"
+          }
+        ],
         "startDate": "2026-04-24",
         "title": "Attempt theft of motor vehicle",
         "verdict": "Found guilty",

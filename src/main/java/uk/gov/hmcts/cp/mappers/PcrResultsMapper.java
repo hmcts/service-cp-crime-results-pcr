@@ -67,7 +67,7 @@ public class PcrResultsMapper {
     }
 
     private CaseMarker toCaseMarker(final CPCaseMarkerEntity marker) {
-        return CaseMarker.builder().code(marker.getCode()).description(marker.getDescription()).build();
+        return CaseMarker.builder().description(marker.getDescription()).build();
     }
 
     private Defendant toDefendant(final CPVersionEntity version) {
@@ -183,7 +183,7 @@ public class PcrResultsMapper {
                 .offenceLegislation(offence.getOffenceLegislation())
                 .allocationDecision(offence.getAllocationDecision())
                 .indicatedPleaValue(offence.getIndicatedPleaValue())
-                .judicialResults(allResults.stream()
+                .resultTexts(allResults.stream()
                         .filter(r -> offence.getId().equals(r.getOffenceId()))
                         .map(r -> toJudicialResult(r, allPrompts))
                         .toList())
@@ -194,18 +194,11 @@ public class PcrResultsMapper {
         return JudicialResult.builder()
                 .resultCode(result.getResultCode())
                 .resultText(result.getResultText())
-                .financial(result.getFinancial())
-                .category(result.getCategory())
-                .convicted(result.getConvicted())
-                .prompts(allPrompts.stream()
+                .texts(allPrompts.stream()
                         .filter(p -> result.getId().equals(p.getJudicialResultId()))
                         .map(this::toJudicialResultPrompt)
                         .toList())
-                .concurrent(result.getConcurrent())
-                .consecutiveToDate(result.getConsecutiveToDate())
-                .consecutiveToCourtName(result.getConsecutiveToCourtName())
                 .fineAmount(result.getFineAmount() == null ? null : result.getFineAmount().doubleValue())
-                .imprisonmentPeriod(result.getImprisonmentPeriod())
                 .totalCustodialPeriod(result.getTotalCustodialPeriod())
                 .build();
     }
@@ -214,8 +207,6 @@ public class PcrResultsMapper {
         return JudicialResultPrompt.builder()
                 .label(prompt.getLabel())
                 .value(prompt.getValue())
-                .reference(prompt.getPromptReference())
-                .type(prompt.getType())
                 .build();
     }
 
@@ -228,7 +219,7 @@ public class PcrResultsMapper {
                 .decisionDate(application.getDecisionDate())
                 .response(application.getResponse())
                 .responseDate(application.getResponseDate())
-                .judicialResults(allResults.stream()
+                .resultTexts(allResults.stream()
                         .filter(r -> application.getId().equals(r.getCourtApplicationId()))
                         .map(r -> toJudicialResult(r, allPrompts))
                         .toList())

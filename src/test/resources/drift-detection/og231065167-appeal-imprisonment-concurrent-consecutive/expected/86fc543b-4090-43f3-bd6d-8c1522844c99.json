@@ -2,54 +2,39 @@
   {
     "caseMarkers": [
       {
-        "code": "DV"
+        "description": "Domestic Violence"
       }
     ],
     "caseResults": [
       {
-        "category": "FINAL",
-        "convicted": true,
-        "financial": true,
-        "prompts": [
+        "resultCode": "3011",
+        "resultText": "Costs",
+        "texts": [
           {
             "label": "Amount of costs",
-            "reference": "AOC",
-            "type": "CURR",
             "value": "\u00a3567.00"
           },
           {
             "label": "Major creditor organisation name",
-            "reference": "cREDNAMEOrganisationName",
-            "type": "NAMEADDRESS",
             "value": "City of London Police"
           },
           {
             "label": "Major creditor address line 1",
-            "reference": "cREDNAMEAddress1",
-            "type": "NAMEADDRESS",
             "value": "Bishopsgate police station"
           },
           {
             "label": "Major creditor address line 2",
-            "reference": "cREDNAMEAddress2",
-            "type": "NAMEADDRESS",
             "value": "182, Bishopsgate"
           },
           {
             "label": "Major creditor address line 5",
-            "reference": "cREDNAMEAddress5",
-            "type": "NAMEADDRESS",
             "value": "London"
           },
           {
             "label": "Major creditor post code",
-            "reference": "cREDNAMEPostCode",
-            "type": "NAMEADDRESS",
             "value": "EC2M 4NP"
           }
-        ],
-        "resultCode": "3011",
-        "resultText": "Costs"
+        ]
       }
     ],
     "caseURN": "OG231065167",
@@ -77,32 +62,22 @@
     },
     "defendantResults": [
       {
-        "category": "ANCILLARY",
-        "convicted": false,
-        "financial": false,
-        "prompts": [
+        "resultText": "Collection order",
+        "texts": [
           {
             "label": "Collection order type",
-            "reference": "collectionOrderType",
-            "type": "FIXL",
             "value": "Make payments as ordered"
           }
-        ],
-        "resultText": "Collection order"
+        ]
       },
       {
-        "category": "FINAL",
-        "convicted": false,
-        "financial": false,
-        "prompts": [
+        "resultText": "Pay by date",
+        "texts": [
           {
             "label": "Date to pay in full by",
-            "reference": "PBD",
-            "type": "DATE",
             "value": "19/08/2026"
           }
-        ],
-        "resultText": "Pay by date"
+        ]
       }
     ],
     "hearing": {
@@ -130,126 +105,87 @@
     "offences": [
       {
         "code": "TH68001",
-        "judicialResults": [
-          {
-            "category": "FINAL",
-            "concurrent": true,
-            "convicted": true,
-            "financial": false,
-            "imprisonmentPeriod": "7 Months",
-            "prompts": [
-              {
-                "label": "Total custodial period",
-                "reference": "totalCustodialPeriod",
-                "type": "INTM",
-                "value": "7 Months"
-              },
-              {
-                "label": "Prison organisation name",
-                "reference": "prisonOrganisationName",
-                "type": "NAMEADDRESS",
-                "value": "HMP/YOI High Down"
-              },
-              {
-                "label": "Prison email address 1",
-                "reference": "prisonEmailAddress1",
-                "type": "NAMEADDRESS",
-                "value": "OMU.Highdown@justice.gov.uk"
-              },
-              {
-                "label": "Prison email address 2",
-                "reference": "prisonEmailAddress2",
-                "type": "NAMEADDRESS",
-                "value": "Reception.Highdown@justice.gov.uk"
-              },
-              {
-                "label": "Conveyor / custodian name organisation name",
-                "reference": "conveyorcustodiannameOrganisationName",
-                "type": "NAMEADDRESS",
-                "value": "London Division NPS"
-              },
-              {
-                "label": "Conveyor / custodian name email address 1",
-                "reference": "conveyorcustodiannameEmailAddress1",
-                "type": "NAMEADDRESS",
-                "value": "londonnps.court@justice.gov.uk"
-              },
-              {
-                "label": "Probation team to be notified organisation name",
-                "reference": "probationteamtobenotifiedOrganisationName",
-                "type": "NAMEADDRESS",
-                "value": "London Division NPS"
-              },
-              {
-                "label": "Probation team to be notified email address 1",
-                "reference": "probationteamtobenotifiedEmailAddress1",
-                "type": "NAMEADDRESS",
-                "value": "londonnps.court@justice.gov.uk"
-              },
-              {
-                "label": "Imprisonment Period",
-                "reference": "imprisonmentPeriod",
-                "type": "INTM",
-                "value": "7 Months"
-              },
-              {
-                "label": "Concurrent",
-                "reference": "concurrent",
-                "type": "YESBOX",
-                "value": "true"
-              },
-              {
-                "label": "Consecutive to offence",
-                "reference": "consecutiveToOffenceNumber",
-                "type": "TXT",
-                "value": "test Consecutive to offence"
-              },
-              {
-                "label": "which is on case number",
-                "reference": "whereConsecutiveToAnOffenceOnAnotherCaseSpecifyThatCaseNumber",
-                "type": "TXT",
-                "value": "OG231065167"
-              },
-              {
-                "label": "Imprisonment reasons",
-                "reference": "imprisonmentReasons",
-                "type": "FIXL",
-                "value": "failure to comply with a pre-sentence drug testing order"
-              },
-              {
-                "label": "Reason for custody",
-                "reference": "theReasonsForThis",
-                "type": "FIXLOM",
-                "value": "because of an unprovoked attack of a serious nature, test"
-              },
-              {
-                "label": "Number of days in custody in foreign jurisdiction to count",
-                "reference": "numberOfDaysInCustodyInForeignJurisdictionToCount",
-                "type": "INT",
-                "value": "10"
-              },
-              {
-                "label": "Bail remand days to count (tagged days)",
-                "reference": "bailRemandDaysToCountTaggedDays",
-                "type": "INT",
-                "value": "0"
-              },
-              {
-                "label": "This offence is aggravated by the foreign power condition being met in relation to it as defined by section 31 of the National Security Act 2023",
-                "reference": "offenceAggByForeignPowerCondition",
-                "type": "BOOLEAN",
-                "value": "true"
-              }
-            ],
-            "resultCode": "1002",
-            "resultText": "Imprisonment",
-            "totalCustodialPeriod": "7 Months"
-          }
-        ],
         "listingNumber": 2,
         "offenceLegislation": "Contrary to section 1(1) and 7 of the Theft Act 1968.",
         "pleaDate": "2026-08-11",
         "pleaValue": "NOT_GUILTY",
+        "resultTexts": [
+          {
+            "resultCode": "1002",
+            "resultText": "Imprisonment",
+            "texts": [
+              {
+                "label": "Total custodial period",
+                "value": "7 Months"
+              },
+              {
+                "label": "Prison organisation name",
+                "value": "HMP/YOI High Down"
+              },
+              {
+                "label": "Prison email address 1",
+                "value": "OMU.Highdown@justice.gov.uk"
+              },
+              {
+                "label": "Prison email address 2",
+                "value": "Reception.Highdown@justice.gov.uk"
+              },
+              {
+                "label": "Conveyor / custodian name organisation name",
+                "value": "London Division NPS"
+              },
+              {
+                "label": "Conveyor / custodian name email address 1",
+                "value": "londonnps.court@justice.gov.uk"
+              },
+              {
+                "label": "Probation team to be notified organisation name",
+                "value": "London Division NPS"
+              },
+              {
+                "label": "Probation team to be notified email address 1",
+                "value": "londonnps.court@justice.gov.uk"
+              },
+              {
+                "label": "Imprisonment Period",
+                "value": "7 Months"
+              },
+              {
+                "label": "Concurrent",
+                "value": "true"
+              },
+              {
+                "label": "Consecutive to offence",
+                "value": "test Consecutive to offence"
+              },
+              {
+                "label": "which is on case number",
+                "value": "OG231065167"
+              },
+              {
+                "label": "Imprisonment reasons",
+                "value": "failure to comply with a pre-sentence drug testing order"
+              },
+              {
+                "label": "Reason for custody",
+                "value": "because of an unprovoked attack of a serious nature, test"
+              },
+              {
+                "label": "Number of days in custody in foreign jurisdiction to count",
+                "value": "10"
+              },
+              {
+                "label": "Bail remand days to count (tagged days)",
+                "value": "0"
+              },
+              {
+                "label": "This offence is aggravated by the foreign power condition being met in relation to it as defined by section 31 of the National Security Act 2023",
+                "value": "true"
+              }
+            ],
+            "totalCustodialPeriod": "7 Months"
+          }
+        ],
         "startDate": "2026-06-12",
         "title": "Theft from the person of another",
         "verdict": "Autrefois convict",

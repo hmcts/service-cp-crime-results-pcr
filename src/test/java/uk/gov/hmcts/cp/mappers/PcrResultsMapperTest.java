@@ -42,12 +42,12 @@ class PcrResultsMapperTest {
         final CPCaseHearingEntity caseHearing = CPCaseHearingEntity.builder().caseUrn("ABCD1234567").hearingId(HEARING_ID).build();
         final CPVersionEntity version = minimalVersion();
         final List<CPCaseMarkerEntity> markers = List.of(
-                CPCaseMarkerEntity.builder().code("DomesticViolence").description("Domestic violence case marker").build());
+                CPCaseMarkerEntity.builder().code("DomesticViolence").description("Domestic Violence").build());
 
         final PcrHearingResult result = mapper.toPcrHearingResult(caseHearing, version, markers, List.of(), List.of(), List.of(), List.of());
 
         assertThat(result.getCaseURN()).isEqualTo("ABCD1234567");
-        assertThat(result.getCaseMarkers()).extracting("code").containsExactly("DomesticViolence");
+        assertThat(result.getCaseMarkers()).extracting("description").containsExactly("Domestic Violence");
     }
 
     @Test
@@ -214,9 +214,10 @@ class PcrResultsMapperTest {
                 .allocationDecision("Summarily").indicatedPleaValue("GUILTY").build();
         final CPJudicialResultEntity judicialResult = CPJudicialResultEntity.builder()
                 .id(UUID.fromString("00000000-0000-0000-0000-000000000055"))
-                .offenceId(offence.getId()).resultCode("1200").resultText("Sentenced").financial(false).convicted(true).build();
+                .offenceId(offence.getId()).resultCode("1200").resultText("Sentenced").build();
         final CPJudicialResultPromptEntity prompt = CPJudicialResultPromptEntity.builder()
-                .judicialResultId(judicialResult.getId()).promptReference("prisonOrganisationName").value("HMP Dovegate").build();
+                .judicialResultId(judicialResult.getId()).promptReference("prisonOrganisationName")
+                .label("Prison organisation name").value("HMP Dovegate").build();
 
         final PcrHearingResult result = mapper.toPcrHearingResult(caseHearing, version, List.of(),
                 List.of(), List.of(offence), List.of(judicialResult), List.of(prompt));
@@ -228,13 +229,12 @@ class PcrResultsMapperTest {
                 .isEqualTo("Contrary to section 1(1) and 7 of the Theft Act 1968.");
         assertThat(result.getOffences().get(0).getAllocationDecision()).isEqualTo("Summarily");
         assertThat(result.getOffences().get(0).getIndicatedPleaValue()).isEqualTo("GUILTY");
-        assertThat(result.getOffences().get(0).getJudicialResults()).hasSize(1);
-        final var mappedResult = result.getOffences().get(0).getJudicialResults().get(0);
+        assertThat(result.getOffences().get(0).getResultTexts()).hasSize(1);
+        final var mappedResult = result.getOffences().get(0).getResultTexts().get(0);
         assertThat(mappedResult.getResultCode()).isEqualTo("1200");
-        assertThat(mappedResult.getFinancial()).isFalse();
-        assertThat(mappedResult.getConvicted()).isTrue();
-        assertThat(mappedResult.getPrompts()).hasSize(1);
-        assertThat(mappedResult.getPrompts().get(0).getReference()).isEqualTo("prisonOrganisationName");
+        assertThat(mappedResult.getTexts()).hasSize(1);
+        assertThat(mappedResult.getTexts().get(0).getLabel()).isEqualTo("Prison organisation name");
+        assertThat(mappedResult.getTexts().get(0).getValue()).isEqualTo("HMP Dovegate");
     }
 
     @Test
@@ -257,7 +257,7 @@ class PcrResultsMapperTest {
         assertThat(result.getCourtApplications()).hasSize(1);
         final var mappedApplication = result.getCourtApplications().get(0);
         assertThat(mappedApplication.getReference()).isEqualTo("REF1");
-        assertThat(mappedApplication.getJudicialResults()).extracting("resultCode").containsExactly("APP1");
+        assertThat(mappedApplication.getResultTexts()).extracting("resultCode").containsExactly("APP1");
         assertThat(mappedApplication.getOffences()).extracting("code").containsExactly("LINKOFF");
     }
 }

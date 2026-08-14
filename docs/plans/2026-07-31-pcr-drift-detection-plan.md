@@ -336,7 +336,7 @@ For `0f8306f4-b997-4d4c-81d6-999a646a7031` (`reference/multiple-defendants-multi
 | Date of hearing | 31/07/2026 | `hearing.hearingDate` |
 | Offence TH68013A | Attempt theft of motor vehicle, GUILTY 31/07/2026, conviction date 31/07/2026 | `offences[0].code/title/pleaValue/pleaDate/convictionDate` |
 | Offence CA03012 | Possess/control TV set..., GUILTY 31/07/2026, Summary-only offence, conviction date 31/07/2026 | `offences[1].*` |
-| Both offences' result text | `RI - Remanded in custody` + full remand text | `offences[*].judicialResults[0].resultText` |
+| Both offences' result text | `RI - Remanded in custody` + full remand text | `offences[*].resultTexts[0].resultText` |
 
 For `dd34ddd7-4f06-4ba7-be69-ee242c0f97bc` (`reference/multiple-defendants-multiple-offences-def2.pdf`
 — DroidAlan DotMacejkovic), same cross-check against:

@@ -210,13 +210,10 @@ class HearingResultedIngestionE2EIntegrationTest extends IngestionE2ETestBase {
                 .andExpect(jsonPath("$[0].courtApplications[0].reference").value(CASE_URN))
                 .andExpect(jsonPath("$[0].courtApplications[0].type").value("Application within criminal proceedings"))
                 .andExpect(jsonPath("$[0].offences[0].code").value("TH68013A"))
-                .andExpect(jsonPath("$[0].offences[0].judicialResults[0].resultCode").value("1002"))
-                .andExpect(jsonPath("$[0].offences[0].judicialResults[0].convicted").value(true))
-                .andExpect(jsonPath("$[0].offences[0].judicialResults[0].financial").value(false))
-                .andExpect(jsonPath("$[0].offences[0].judicialResults[0].imprisonmentPeriod").value("6 Months"))
-                .andExpect(jsonPath("$[0].offences[0].judicialResults[0].totalCustodialPeriod").value("5 Months"))
-                .andExpect(jsonPath("$[0].offences[0].judicialResults[0].prompts[*].reference")
-                        .value(hasItems("imprisonmentPeriod", "totalCustodialPeriod", "prisonOrganisationName")));
+                .andExpect(jsonPath("$[0].offences[0].resultTexts[0].resultCode").value("1002"))
+                .andExpect(jsonPath("$[0].offences[0].resultTexts[0].totalCustodialPeriod").value("5 Months"))
+                .andExpect(jsonPath("$[0].offences[0].resultTexts[0].texts[*].label")
+                        .value(hasItems("Imprisonment Period", "Total custodial period", "Prison organisation name")));
     }
 
     private String hearingResultedWebhookEvent() {
