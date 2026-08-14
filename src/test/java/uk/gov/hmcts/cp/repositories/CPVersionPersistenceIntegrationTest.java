@@ -61,7 +61,7 @@ class CPVersionPersistenceIntegrationTest extends RepositoryIntegrationTestBase 
         caseHearingRepository.save(caseHearing);
         caseMarkerRepository.saveAll(mapper.toCaseMarkerEntities(prosecutionCase, caseHearing.getId()));
         final CPEntitySet bundle = mapper.toWriteBundle(
-                prosecutionCase.getDefendants().get(0), hearing, caseHearing.getId(), createdAt, createdAt.plusDays(30));
+                prosecutionCase.getDefendants().get(0), hearing, caseHearing.getId(), null, createdAt, createdAt.plusDays(30));
         versionRepository.save(bundle.version());
         offenceRepository.saveAll(bundle.offences());
         judicialResultRepository.saveAll(bundle.judicialResults());

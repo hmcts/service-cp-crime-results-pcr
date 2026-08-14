@@ -1,8 +1,5 @@
 [
   {
-    "caseMarkers": [],
-    "caseResults": [],
-    "caseURN": "28DI2927792",
     "courtApplications": [],
     "defendant": {
       "address": {
@@ -18,9 +15,9 @@
       "lastName": "Fay",
       "masterDefendantId": "86155787-50d0-47f6-808e-70378da66bf5",
       "postHearingCustodyStatus": "Not Applicable",
+      "results": [],
       "title": "Mr"
     },
-    "defendantResults": [],
     "hearing": {
       "courtDetails": {
         "court": {
@@ -41,16 +38,17 @@
       "hearingDate": "2026-07-29",
       "hearingType": "First hearing",
       "id": "9c7e33d3-e6c0-4138-b7fb-b176554ae98c",
-      "jurisdiction": "MAGISTRATES"
-    },
-    "nextHearing": {
-      "court": {
-        "courtHouseCode": "B01BH00",
-        "courtHouseId": "7e967376-eacf-4fca-9b30-21b0c5aad427",
-        "courtHouseName": "Bexley Magistrates' Court"
+      "jurisdiction": "MAGISTRATES",
+      "nextHearing": {
+        "court": {
+          "courtHouseCode": "B01BH00",
+          "courtHouseId": "7e967376-eacf-4fca-9b30-21b0c5aad427",
+          "courtHouseName": "Bexley Magistrates' Court"
+        },
+        "dateTime": "2026-07-29T13:00:00Z",
+        "hearingId": "14085700-414d-4345-9dff-688a128f4177"
       },
-      "dateTime": "2026-07-29T13:00:00Z",
-      "hearingId": "14085700-414d-4345-9dff-688a128f4177"
+      "sharedTime": "2026-07-29T14:17:52.179Z"
     },
     "offences": [
       {
@@ -61,11 +59,9 @@
         "offenceLegislation": "Contrary to sections 1,1A and 3 of the Criminal Law Act 1977.",
         "pleaDate": "2026-07-29",
         "pleaValue": "GUILTY",
-        "resultTexts": [
+        "results": [
           {
-            "resultCode": "1002",
-            "resultText": "Imprisonment",
-            "texts": [
+            "resultTexts": [
               {
                 "label": "Total custodial period",
                 "value": "6 Months"
@@ -166,13 +162,10 @@
                 "label": "This offence is aggravated by the foreign power condition being met in relation to it as defined by section 31 of the National Security Act 2023",
                 "value": "true"
               }
-            ],
-            "totalCustodialPeriod": "6 Months"
+            ]
           },
           {
-            "resultCode": "3308",
-            "resultText": "Aggravated by a terrorist connection",
-            "texts": [
+            "resultTexts": [
               {
                 "label": "The court determined a terrorist connection under Section 69 of the Sentencing Act 2020 applies to this count",
                 "value": "true"
@@ -192,11 +185,9 @@
         "offenceLegislation": "Contrary to regulation 7(2)(b)(i) of the Public Service Vehicles (Conduct of Drivers, Inspectors, Conductors and Passengers) Regulations 1990 and section 25 of the Public Passengers Vehicles Act 1981.",
         "pleaDate": "2026-07-29",
         "pleaValue": "GUILTY",
-        "resultTexts": [
+        "results": [
           {
-            "resultCode": "4506",
-            "resultText": "Adjournment",
-            "texts": [
+            "resultTexts": [
               {
                 "label": "Next hearing in magistrates' court",
                 "value": "Date of hearing:29/07/2026\nTime of hearing:14:00\nCourthouse organisation name:Bexley Magistrates' Court\nCourthouse address line 1:Norwich Place\nCourthouse address line 2:Bexleyheath\nCourthouse address line 3:Kent\nCourthouse post code:DA6 7ND\nCourtroom:Courtroom 01\nHearing type:Trial - no witnesses\nEstimated duration:20 MINUTES\nBooking reference:14085700-414d-4345-9dff-688a128f4177"
@@ -220,6 +211,11 @@
         "title": "Public service vehicles - passenger failing to pay fare",
         "wording": "Public service vehicles - passenger failing to pay fare"
       }
-    ]
+    ],
+    "prosecutionCase": {
+      "caseMarkers": [],
+      "caseURN": "28DI2927792",
+      "results": []
+    }
   }
 ]

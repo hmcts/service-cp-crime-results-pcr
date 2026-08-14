@@ -1,8 +1,5 @@
 [
   {
-    "caseMarkers": [],
-    "caseResults": [],
-    "caseURN": "AS231157673",
     "courtApplications": [],
     "defendant": {
       "address": {
@@ -18,9 +15,9 @@
       "lastName": "MachLarkin",
       "masterDefendantId": "0f8306f4-b997-4d4c-81d6-999a646a7031",
       "postHearingCustodyStatus": "Not Applicable",
+      "results": [],
       "title": "Mr"
     },
-    "defendantResults": [],
     "hearing": {
       "courtDetails": {
         "court": {
@@ -41,16 +38,17 @@
       "hearingDate": "2026-07-31",
       "hearingType": "First hearing",
       "id": "f15a49db-812e-43d2-bfc5-7f3c7ee9ede1",
-      "jurisdiction": "MAGISTRATES"
-    },
-    "nextHearing": {
-      "court": {
-        "courtHouseCode": "B01LY00",
-        "courtHouseId": "f8254db1-1683-483e-afb3-b87fde5a0a26",
-        "courtHouseName": "Lavender Hill Magistrates' Court"
+      "jurisdiction": "MAGISTRATES",
+      "nextHearing": {
+        "court": {
+          "courtHouseCode": "B01LY00",
+          "courtHouseId": "f8254db1-1683-483e-afb3-b87fde5a0a26",
+          "courtHouseName": "Lavender Hill Magistrates' Court"
+        },
+        "dateTime": "2026-07-31T09:00:00Z",
+        "hearingId": "cf1f6d0c-6f9c-461f-b91a-5458a16c6342"
       },
-      "dateTime": "2026-07-31T09:00:00Z",
-      "hearingId": "cf1f6d0c-6f9c-461f-b91a-5458a16c6342"
+      "sharedTime": "2026-07-30T13:45:43.563Z"
     },
     "offences": [
       {
@@ -60,11 +58,9 @@
         "offenceLegislation": "Contrary to section 1(1)    of the Criminal Attempts Act 1981.",
         "pleaDate": "2026-07-31",
         "pleaValue": "GUILTY",
-        "resultTexts": [
+        "results": [
           {
-            "resultCode": "4028",
-            "resultText": "Remanded in custody",
-            "texts": [
+            "resultTexts": [
               {
                 "label": "Next hearing in magistrates' court",
                 "value": "Date of hearing:31/07/2026\nTime of hearing:10:00\nCourthouse organisation name:Lavender Hill Magistrates' Court\nCourthouse address line 1:176A Lavender Hill\nCourthouse address line 2:London\nCourthouse post code:SW11 1JU\nCourtroom:Courtroom 01\nHearing type:Appeal\nEstimated duration:30 MINUTES\nBooking reference:277bb4af-0109-420b-a640-3249b0fbe0ff"
@@ -124,11 +120,9 @@
         "offenceLegislation": "Contrary to section 363(3)(b) and (4) of the Communications Act 2003.",
         "pleaDate": "2026-07-31",
         "pleaValue": "GUILTY",
-        "resultTexts": [
+        "results": [
           {
-            "resultCode": "4028",
-            "resultText": "Remanded in custody",
-            "texts": [
+            "resultTexts": [
               {
                 "label": "Next hearing in magistrates' court",
                 "value": "Date of hearing:31/07/2026\nTime of hearing:10:00\nCourthouse organisation name:Lavender Hill Magistrates' Court\nCourthouse address line 1:176A Lavender Hill\nCourthouse address line 2:London\nCourthouse post code:SW11 1JU\nCourtroom:Courtroom 01\nHearing type:Appeal\nEstimated duration:30 MINUTES\nBooking reference:6e0ae098-72a9-4866-97e6-992d3126a4ad"
@@ -180,6 +174,11 @@
         "title": "Possess / control TV set with intent another use install without a licence",
         "wording": "Theft of pedal cycle"
       }
-    ]
+    ],
+    "prosecutionCase": {
+      "caseMarkers": [],
+      "caseURN": "AS231157673",
+      "results": []
+    }
   }
 ]

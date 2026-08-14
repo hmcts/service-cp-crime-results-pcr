@@ -17,6 +17,7 @@ import uk.gov.hmcts.cp.repositories.CPOffenceRepository;
 import uk.gov.hmcts.cp.repositories.CPVersionRepository;
 import uk.gov.hmcts.cp.services.ClockService;
 
+import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
@@ -49,8 +50,8 @@ public class CPEntityPersistenceService {
     }
 
     public void persist(final Defendant defendant, final HearingDetail hearing, final UUID caseHearingId,
-                         final OffsetDateTime createdAt, final OffsetDateTime expiresAt) {
-        final CPEntitySet entitySet = entityMapper.toWriteBundle(defendant, hearing, caseHearingId, createdAt, expiresAt);
+                         final Instant sharedTime, final OffsetDateTime createdAt, final OffsetDateTime expiresAt) {
+        final CPEntitySet entitySet = entityMapper.toWriteBundle(defendant, hearing, caseHearingId, sharedTime, createdAt, expiresAt);
         versionRepository.save(entitySet.version());
         courtApplicationRepository.saveAll(entitySet.courtApplications());
         offenceRepository.saveAll(entitySet.offences());

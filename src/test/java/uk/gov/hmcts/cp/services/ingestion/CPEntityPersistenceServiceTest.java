@@ -52,6 +52,7 @@ class CPEntityPersistenceServiceTest {
     private static final UUID CASE_HEARING_ID = UUID.fromString("00000000-0000-0000-0000-000000000044");
     private static final OffsetDateTime CREATED_AT = OffsetDateTime.of(2026, 7, 28, 10, 0, 0, 0, ZoneOffset.UTC);
     private static final OffsetDateTime EXPIRES_AT = CREATED_AT.plusDays(30);
+    private static final Instant SHARED_TIME = Instant.parse("2026-07-28T09:33:21Z");
 
     @Mock
     private CPHearingResultEntityMapper entityMapper;
@@ -85,9 +86,9 @@ class CPEntityPersistenceServiceTest {
         final List<CPJudicialResultEntity> judicialResults = List.of(CPJudicialResultEntity.builder().build());
         final List<CPJudicialResultPromptEntity> prompts = List.of(CPJudicialResultPromptEntity.builder().build());
         final CPEntitySet entitySet = new CPEntitySet(version, courtApplications, offences, judicialResults, prompts);
-        when(entityMapper.toWriteBundle(defendant, hearing, CASE_HEARING_ID, CREATED_AT, EXPIRES_AT)).thenReturn(entitySet);
+        when(entityMapper.toWriteBundle(defendant, hearing, CASE_HEARING_ID, SHARED_TIME, CREATED_AT, EXPIRES_AT)).thenReturn(entitySet);
 
-        persistenceService.persist(defendant, hearing, CASE_HEARING_ID, CREATED_AT, EXPIRES_AT);
+        persistenceService.persist(defendant, hearing, CASE_HEARING_ID, SHARED_TIME, CREATED_AT, EXPIRES_AT);
 
         verify(versionRepository).save(version);
         verify(courtApplicationRepository).saveAll(courtApplications);

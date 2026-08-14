@@ -1,8 +1,5 @@
 [
   {
-    "caseMarkers": [],
-    "caseResults": [],
-    "caseURN": "IQ231276955",
     "courtApplications": [],
     "defendant": {
       "address": {
@@ -18,9 +15,9 @@
       "lastName": "Sipes",
       "masterDefendantId": "a81dd0b5-ebca-47bb-a3e1-205c40f2c4dc",
       "postHearingCustodyStatus": "Not Applicable",
+      "results": [],
       "title": "Mr"
     },
-    "defendantResults": [],
     "hearing": {
       "courtDetails": {
         "court": {
@@ -41,16 +38,17 @@
       "hearingDate": "2026-07-31",
       "hearingType": "First hearing",
       "id": "5151e511-7989-4ae0-8e38-2e697834edc6",
-      "jurisdiction": "MAGISTRATES"
-    },
-    "nextHearing": {
-      "court": {
-        "courtHouseCode": "B01LY00",
-        "courtHouseId": "f8254db1-1683-483e-afb3-b87fde5a0a26",
-        "courtHouseName": "Lavender Hill Magistrates' Court"
+      "jurisdiction": "MAGISTRATES",
+      "nextHearing": {
+        "court": {
+          "courtHouseCode": "B01LY00",
+          "courtHouseId": "f8254db1-1683-483e-afb3-b87fde5a0a26",
+          "courtHouseName": "Lavender Hill Magistrates' Court"
+        },
+        "dateTime": "2026-07-31T09:00:00Z",
+        "hearingId": "41a6176a-4304-4986-91b6-588969195c56"
       },
-      "dateTime": "2026-07-31T09:00:00Z",
-      "hearingId": "41a6176a-4304-4986-91b6-588969195c56"
+      "sharedTime": "2026-07-30T13:50:14.245Z"
     },
     "offences": [
       {
@@ -60,11 +58,9 @@
         "offenceLegislation": "Contrary to section 8(1) of the Theft Act 1968.",
         "pleaDate": "2026-07-31",
         "pleaValue": "NOT_GUILTY",
-        "resultTexts": [
+        "results": [
           {
-            "resultCode": "4028",
-            "resultText": "Remanded in custody",
-            "texts": [
+            "resultTexts": [
               {
                 "label": "Next hearing in magistrates' court",
                 "value": "Date of hearing:31/07/2026\nTime of hearing:10:00\nCourthouse organisation name:Lavender Hill Magistrates' Court\nCourthouse address line 1:176A Lavender Hill\nCourthouse address line 2:London\nCourthouse post code:SW11 1JU\nCourtroom:Courtroom 01\nHearing type:Appeal\nEstimated duration:30 MINUTES\nBooking reference:dcb4cfc1-98a7-4be6-8dbe-22143e04a4ed"
@@ -116,6 +112,11 @@
         "title": "Robbery",
         "wording": "Robbery"
       }
-    ]
+    ],
+    "prosecutionCase": {
+      "caseMarkers": [],
+      "caseURN": "IQ231276955",
+      "results": []
+    }
   }
 ]

@@ -34,11 +34,18 @@ versioning model, on top of which `dd3a8e3` and several more commits landed. The
   `Boolean` on `CPJudicialResultEntity` — no `Y`/`N` conversion needed anymore, unlike the old
   `PcrVersionMapper`).
 
-  **2026-08-14 superseded:** `Offence.judicialResults`/`CourtApplication.judicialResults` are now
-  `resultTexts`, `JudicialResult.prompts` is now `texts`, and `financial`/`category`/`convicted`/
-  `concurrent`/`consecutiveToDate`/`consecutiveToCourtName`/`imprisonmentPeriod` and
-  `JudicialResultPrompt.reference`/`.type` are removed from the contract — see
-  `docs/pipeline/adrs/` in `api-cp-crime-results-pcr` for the decision.
+  **2026-08-14 superseded, twice over.** First pass: `Offence.judicialResults`/
+  `CourtApplication.judicialResults` renamed to `resultTexts`, `JudicialResult.prompts` renamed to
+  `texts`, and `financial`/`category`/`convicted`/`concurrent`/`consecutiveToDate`/
+  `consecutiveToCourtName`/`imprisonmentPeriod`/`JudicialResultPrompt.reference`/`.type` removed.
+  Second pass: `PcrHearingResult`'s top level was restructured — `caseURN`/`caseMarkers`/
+  `caseResults` moved under a new `prosecutionCase` object (`caseResults` renamed `results`);
+  `defendantResults` moved under `defendant.results`; `nextHearing` moved under
+  `hearing.nextHearing`, alongside a new `hearing.sharedTime`; `Offence.resultTexts`/
+  `CourtApplication.resultTexts` renamed `results`; `JudicialResult`/`JudicialResultPrompt`
+  schemas renamed `ResultText`/`Text`, and `ResultText.resultCode`/`.resultText`/
+  `.totalCustodialPeriod`/`fineAmount` removed. See `docs/pipeline/adrs/` in
+  `api-cp-crime-results-pcr` (001–003) for the decision trail.
 - **`CourtApplication.offences`** stayed embedded `Offence[]` (an earlier PR#16 draft proposed
   `relatedOffenceIds: uuid[]` instead, but a later commit, `10c6afb`, reverted to embedded objects)
   — matches what `CPHearingResultEntityMapper` already persists (full offence rows, not just ids).

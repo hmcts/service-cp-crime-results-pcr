@@ -1,8 +1,5 @@
 [
   {
-    "caseMarkers": [],
-    "caseResults": [],
-    "caseURN": "28DI6046708",
     "courtApplications": [],
     "defendant": {
       "address": {
@@ -19,9 +16,9 @@
       "masterDefendantId": "e11ef48a-adab-4a78-9528-040af137f93d",
       "nationality": "Unknown",
       "postHearingCustodyStatus": "Not Applicable",
+      "results": [],
       "title": "Mr"
     },
-    "defendantResults": [],
     "hearing": {
       "courtDetails": {
         "court": {
@@ -42,7 +39,8 @@
       "hearingDate": "2026-07-29",
       "hearingType": "First hearing",
       "id": "76dc9641-e001-4b4b-b2c9-6ab3d98ef50b",
-      "jurisdiction": "MAGISTRATES"
+      "jurisdiction": "MAGISTRATES",
+      "sharedTime": "2026-07-29T12:09:12.646Z"
     },
     "offences": [
       {
@@ -53,11 +51,9 @@
         "offenceLegislation": "Contrary to sections 1,1A and 3 of the Criminal Law Act 1977.",
         "pleaDate": "2026-07-29",
         "pleaValue": "NOT_GUILTY",
-        "resultTexts": [
+        "results": [
           {
-            "resultCode": "1002",
-            "resultText": "Imprisonment",
-            "texts": [
+            "resultTexts": [
               {
                 "label": "Total custodial period",
                 "value": "7 Months"
@@ -126,8 +122,7 @@
                 "label": "This offence is aggravated by the foreign power condition being met in relation to it as defined by section 31 of the National Security Act 2023",
                 "value": "true"
               }
-            ],
-            "totalCustodialPeriod": "7 Months"
+            ]
           }
         ],
         "startDate": "2022-12-12",
@@ -143,11 +138,9 @@
         "offenceLegislation": "Contrary to regulation 7(2)(b)(i) of the Public Service Vehicles (Conduct of Drivers, Inspectors, Conductors and Passengers) Regulations 1990 and section 25 of the Public Passengers Vehicles Act 1981.",
         "pleaDate": "2026-07-29",
         "pleaValue": "NOT_GUILTY",
-        "resultTexts": [
+        "results": [
           {
-            "resultCode": "1018",
-            "resultText": "Conditional discharge",
-            "texts": [
+            "resultTexts": [
               {
                 "label": "Period\u00a0of conditional discharge",
                 "value": "7 Months"
@@ -160,6 +153,11 @@
         "verdict": "Found guilty",
         "wording": "Public service vehicles - passenger failing to pay fare"
       }
-    ]
+    ],
+    "prosecutionCase": {
+      "caseMarkers": [],
+      "caseURN": "28DI6046708",
+      "results": []
+    }
   }
 ]

@@ -1,8 +1,5 @@
 [
   {
-    "caseMarkers": [],
-    "caseResults": [],
-    "caseURN": "KL238291232",
     "courtApplications": [
       {
         "offences": [
@@ -13,14 +10,12 @@
             "offenceLegislation": "Contrary to section 1(1) and 7 of the Theft Act 1968.",
             "pleaDate": "2026-07-30",
             "pleaValue": "GUILTY",
-            "resultTexts": [
+            "results": [
               {
-                "resultText": "Granted",
-                "texts": []
+                "resultTexts": []
               },
               {
-                "resultText": "Text",
-                "texts": [
+                "resultTexts": [
                   {
                     "label": "Text",
                     "value": "Test TEXT"
@@ -34,16 +29,12 @@
           }
         ],
         "reference": "KL238291232",
-        "resultTexts": [
+        "results": [
           {
-            "resultCode": "3501",
-            "resultText": "No adjudication - dealt with for original offence",
-            "texts": []
+            "resultTexts": []
           },
           {
-            "resultCode": "1029",
-            "resultText": "Order revoked",
-            "texts": [
+            "resultTexts": [
               {
                 "label": "Date original order made",
                 "value": "29/07/2026"
@@ -76,9 +67,9 @@
       "lastName": "Roberts",
       "masterDefendantId": "1bcb7e51-edfe-4e6d-b67a-8033f38fc5af",
       "postHearingCustodyStatus": "Not Applicable",
+      "results": [],
       "title": "Mr"
     },
-    "defendantResults": [],
     "hearing": {
       "courtDetails": {
         "court": {
@@ -99,7 +90,8 @@
       "hearingDate": "2026-07-30",
       "hearingType": "First hearing",
       "id": "81c4cdf1-5323-49e8-9a94-598c4f85e6bf",
-      "jurisdiction": "MAGISTRATES"
+      "jurisdiction": "MAGISTRATES",
+      "sharedTime": "2026-07-30T13:59:28.329Z"
     },
     "offences": [
       {
@@ -110,11 +102,9 @@
         "offenceLegislation": "Contrary to section 8(1) of the Theft Act 1968.",
         "pleaDate": "2026-07-30",
         "pleaValue": "GUILTY",
-        "resultTexts": [
+        "results": [
           {
-            "resultCode": "1002",
-            "resultText": "Imprisonment",
-            "texts": [
+            "resultTexts": [
               {
                 "label": "Total custodial period is life",
                 "value": "true"
@@ -171,14 +161,18 @@
                 "label": "Risk or vulnerability factors",
                 "value": "Risk or vulnerability factors:RiskFactor"
               }
-            ],
-            "totalCustodialPeriod": "Life"
+            ]
           }
         ],
         "startDate": "2026-05-31",
         "title": "Robbery",
         "wording": "Robbery"
       }
-    ]
+    ],
+    "prosecutionCase": {
+      "caseMarkers": [],
+      "caseURN": "KL238291232",
+      "results": []
+    }
   }
 ]

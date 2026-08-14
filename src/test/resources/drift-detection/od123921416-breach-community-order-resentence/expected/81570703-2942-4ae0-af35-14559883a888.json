@@ -1,8 +1,5 @@
 [
   {
-    "caseMarkers": [],
-    "caseResults": [],
-    "caseURN": "OD123921416",
     "courtApplications": [
       {
         "offences": [
@@ -14,11 +11,9 @@
             "offenceLegislation": "Contrary to section 8(1) of the Theft Act 1968.",
             "pleaDate": "2026-08-11",
             "pleaValue": "GUILTY",
-            "resultTexts": [
+            "results": [
               {
-                "resultCode": "1002",
-                "resultText": "Imprisonment",
-                "texts": [
+                "resultTexts": [
                   {
                     "label": "Imprisonment Period",
                     "value": "15 Days"
@@ -39,8 +34,7 @@
                     "label": "This offence is aggravated by the foreign power condition being met in relation to it as defined by section 31 of the National Security Act 2023",
                     "value": "false"
                   }
-                ],
-                "totalCustodialPeriod": "15 Days"
+                ]
               }
             ],
             "startDate": "2026-06-12",
@@ -49,11 +43,9 @@
           }
         ],
         "reference": "OD123921416",
-        "resultTexts": [
+        "results": [
           {
-            "resultCode": "1029",
-            "resultText": "Order revoked",
-            "texts": [
+            "resultTexts": [
               {
                 "label": "Date original order made",
                 "value": "10/08/2026"
@@ -86,9 +78,9 @@
       "lastName": "Klocko",
       "masterDefendantId": "f4b5e73e-e7f7-421a-9b9f-88003d5355c3",
       "postHearingCustodyStatus": "Not Applicable",
+      "results": [],
       "title": "Mr"
     },
-    "defendantResults": [],
     "hearing": {
       "courtDetails": {
         "court": {
@@ -109,7 +101,8 @@
       "hearingDate": "2026-08-11",
       "hearingType": "First hearing",
       "id": "cd274eae-19f3-4a4a-b615-ad85dace6331",
-      "jurisdiction": "MAGISTRATES"
+      "jurisdiction": "MAGISTRATES",
+      "sharedTime": "2026-08-11T10:57:08.180Z"
     },
     "offences": [
       {
@@ -120,11 +113,9 @@
         "offenceLegislation": "Contrary to section 8(1) of the Theft Act 1968.",
         "pleaDate": "2026-08-11",
         "pleaValue": "GUILTY",
-        "resultTexts": [
+        "results": [
           {
-            "resultCode": "1002",
-            "resultText": "Imprisonment",
-            "texts": [
+            "resultTexts": [
               {
                 "label": "Total custodial period is life",
                 "value": "true"
@@ -181,14 +172,18 @@
                 "label": "Risk or vulnerability factors",
                 "value": "Risk or vulnerability factors:RiskFactor"
               }
-            ],
-            "totalCustodialPeriod": "Life"
+            ]
           }
         ],
         "startDate": "2026-06-12",
         "title": "Robbery",
         "wording": "Robbery"
       }
-    ]
+    ],
+    "prosecutionCase": {
+      "caseMarkers": [],
+      "caseURN": "OD123921416",
+      "results": []
+    }
   }
 ]

@@ -86,7 +86,7 @@ class PcrResultsServiceTest {
     void getPcrHearingResults_should_gatherChildrenAndMapEachVersion() {
         final CPCaseHearingEntity caseHearing = CPCaseHearingEntity.builder().id(CASE_HEARING_ID).build();
         final CPVersionEntity version = CPVersionEntity.builder().cpVersionPk(VERSION_PK).build();
-        final PcrHearingResult mapped = PcrHearingResult.builder().caseURN(CASE_URN).build();
+        final PcrHearingResult mapped = PcrHearingResult.builder().build();
         when(caseHearingRepository.findByCaseUrnAndHearingId(CASE_URN, HEARING_ID)).thenReturn(Optional.of(caseHearing));
         when(versionRepository.findByCaseHearingIdAndDefendantIdOrderByCreatedAtAsc(CASE_HEARING_ID, DEFENDANT_ID))
                 .thenReturn(List.of(version));
