@@ -198,7 +198,6 @@ public class PcrResultsMapper {
                         .filter(p -> result.getId().equals(p.getJudicialResultId()))
                         .map(this::toJudicialResultPrompt)
                         .toList())
-                .fineAmount(result.getFineAmount() == null ? null : result.getFineAmount().doubleValue())
                 .totalCustodialPeriod(result.getTotalCustodialPeriod())
                 .build();
     }
