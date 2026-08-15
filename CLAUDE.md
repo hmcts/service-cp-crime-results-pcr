@@ -10,29 +10,34 @@ as a new pull-based read channel for API Marketplace subscribers. The contract i
 to any single consumer's stated needs — decisions here apply platform-wide, not to one
 subscriber.
 
-**Pattern**: Hybrid — synchronous stateless proxy (`GET /pcr`) implemented; Azure Event Grid
-webhook ingestion (`POST /internal/hearing-results`) wired end-to-end into the DB-backed version
-store (Postgres/Flyway, `cp_version` rows), gated by the generation-gate check.
+**Pattern**: Hybrid — synchronous stateless proxy (`GET /pcr`) implemented; Event Grid-sourced
+ingestion (`POST /internal/hearing-results`) wired end-to-end into the DB-backed version store
+(Postgres/Flyway, `cp_version` rows), gated by the generation-gate check.
 **Spring Boot version**: 4.1.0
-**Implements**: `api-cp-crime-results-pcr` v1.1.9-3886ee3 (`PcrApi`/`InternalApi` — see `build.gradle`;
-draft CI-published build, pending a proper `v2.0.0` release for the breaking change)
+**Implements**: `api-cp-crime-results-pcr` v1.1.14 (`PcrApi`/`InternalApi` — see `build.gradle`)
 
-Replaces the earlier self-provisioned Service Bus queue ingestion path (ADR-002/AMP-889) with a
-direct Event Grid webhook per ADR-007/AMP-892 — see
-`docs/plans/2026-07-29-pcr-eventgrid-webhook-ingestion.md`.
+Replaces the earlier self-provisioned Service Bus queue ingestion path (ADR-002/AMP-889). ADR-007
+/AMP-892 (`docs/plans/2026-07-29-pcr-eventgrid-webhook-ingestion.md`) originally had Event Grid
+delivering straight to a webhook on this service; that design has since been superseded by
+`pcr-eventgrid-relay-function` — a standalone Function App that owns the Event Grid subscription,
+answers its subscription-validation handshake itself (via its own `@EventGridTrigger` binding), and
+relays each `Hearing_Resulted` event verbatim to this same `/internal/hearing-results` endpoint as
+a plain internal HTTP call. This service's own contract and code have **no Event Grid-specific
+surface left** — no handshake handling, no `aeg-event-type` awareness — it just receives an
+ordinary internal POST.
 
-**Status**: `GET /pcr` now reads from the data store; the webhook ingestion path drives the
-generation gate and the data store as one connected pipeline:
+**Status**: `GET /pcr` now reads from the data store; the ingestion path drives the generation
+gate and the data store as one connected pipeline:
 - `GET /cases/{caseURN}/hearings/{hearingId}/defendants/{defendantId}`
   (`PcrResultsController` → `PcrResultsService`) reads `cp_version` (plus its offences, court
   applications, judicial results, and prompts) via the repository layer and returns the full
   recorded history as an array, ordered oldest-to-newest by `created_at` — no `version` query
   param, no live call to `ResultsClient` or the Results Query API at all. See
   `docs/designs/2026-07-28-pcr-read-path-data-store-design.md`.
-- `POST /internal/hearing-results` (`HearingResultedWebhookController` → `HearingResultedWebhookService`
-  → `ResultsIngestionService`) receives Azure Event Grid's `Hearing_Resulted` pointer event (and its
-  subscription-validation handshake) directly, checks Redis-then-REST for complete hearing data with
-  an in-process 2s/4s/8s retry, and — via `ResultsIngestionService.ingestAndPersist` — **does persist**:
+- `POST /internal/hearing-results` (`HearingResultedEventController` → `HearingResultedEventService`
+  → `ResultsIngestionService`) receives the relayed `Hearing_Resulted` pointer event, checks
+  Redis-then-REST for complete hearing data with an in-process 2s/4s/8s retry, and — via
+  `ResultsIngestionService.ingestAndPersist` — **does persist**:
   for each defendant it invokes the generation gate, then delegates to `CPEntityPersistenceService`
   to find-or-create a `cp_case_hearing` row and write a `cp_version` row (plus its offences, court
   applications, judicial results, and prompts) through the repository layer.
@@ -54,7 +59,7 @@ that looks arbitrary; it likely isn't.
 
 | Component | Technology | Purpose |
 |---|---|---|
-| Ingestion trigger | Azure Event Grid `Hearing_Resulted` → `POST /internal/hearing-results` (`HearingResultedWebhookController` → `HearingResultedWebhookService`, ADR-007/AMP-892) | Delivered as a JSON array of the generated `HearingResultedWebhookEvent` model; also receives Event Grid's subscription-validation handshake (`Microsoft.EventGrid.SubscriptionValidationEvent`), echoed back via `WebhookAck.validationResponse`. Malformed/unrecognized payloads return `400`, not silently dropped |
+| Ingestion trigger | `pcr-eventgrid-relay-function` (owns the Event Grid subscription and its handshake) → `POST /internal/hearing-results` (`HearingResultedEventController` → `HearingResultedEventService`) | Delivered as a JSON array of the generated `HearingResultedEvent` model, relayed verbatim by the Function App — this service never sees Event Grid's subscription-validation handshake. Malformed/unrecognized payloads return `400`, not silently dropped |
 | Results Query Client | `HearingResultedCacheClient` (Redis, read-only `StringRedisTemplate`) first, `ResultsClient` (`RestClient`) REST fallback against `results-query-api/.../hearingDetails/internal/{hearingId}` | Two-step retrieval per design §4a/4b — **ingestion path only**; `GET /pcr` calls neither of these, it reads the data store |
 | Completeness retry | `ResultsIngestionService.ingestHearingResults` in-process retry (`sleepUninterruptibly`) | On an incomplete hearing, retries up to 3 attempts with 2s/4s exponential backoff before throwing `IncompleteHearingDetailsException`, mapped to `503` by `GlobalExceptionHandler` — Event Grid redelivers per its own retry policy on `503` |
 | Reference Data — `ResultDefinition` | Lookups, offence metadata (e.g. `startDate`) | Not yet built — "to be analysed" per design §8 |
@@ -71,13 +76,14 @@ that looks arbitrary; it likely isn't.
   repository layer for a given `(caseURN, hearingId, defendantId)` and maps each recorded version
   to a `PcrHearingResult`; always returns `200` with an empty array when nothing is found — no
   `404` distinction, per the settled design decision
-- `controllers/HearingResultedWebhookController` — implements generated `InternalApi`; delegates
-  `POST /internal/hearing-results` straight to `HearingResultedWebhookService`, no logic of its own
-- `services/HearingResultedWebhookService` — branches on the generated `HearingResultedWebhookEvent`'s
-  `eventType`: echoes Event Grid's subscription-validation handshake, or unpacks the strongly-typed
-  `HearingResultedWebhookEventData` (`hearingId`/`hearingDay`/`userId`) and calls
-  `ResultsIngestionService.ingestAndPersist`; throws `IllegalArgumentException` (→ `400`) on an
-  unrecognized `eventType` or empty delivery
+- `controllers/HearingResultedEventController` — implements generated `InternalApi`; delegates
+  `POST /internal/hearing-results` straight to `HearingResultedEventService`, no logic of its own
+- `services/HearingResultedEventService` — checks the generated `HearingResultedEvent`'s
+  `eventType` is `Hearing_Resulted`, unpacks the strongly-typed `HearingResultedEventData`
+  (`hearingId`/`hearingDay`/`userId`) and calls `ResultsIngestionService.ingestAndPersist`; throws
+  `IllegalArgumentException` (→ `400`) on an unrecognized `eventType` or empty delivery. Never sees
+  Event Grid's subscription-validation handshake — `pcr-eventgrid-relay-function` answers that
+  upstream
 - `services/ingestion/ResultsIngestionService` — Redis-then-REST hearing lookup with an in-process
   2s/4s/8s completeness retry (`sleepUninterruptibly`, up to 3 attempts) before throwing
   `IncompleteHearingDetailsException`; `ingestAndPersist` additionally runs the generation gate per
@@ -109,7 +115,7 @@ that looks arbitrary; it likely isn't.
 ### The `pcrcompute` sub-package (`services/pcrcompute/`, `domain/pcrcompute/`)
 
 Every class here is built and unit-tested and is now called from `ResultsIngestionService`
-(invoked by the webhook path via `ingestAndPersist`) — but still **not called from
+(invoked by the ingestion path via `ingestAndPersist`) — but still **not called from
 `PcrResultsController` or `PcrResultsService`**; `GET /pcr` is unaffected by this wiring. It's
 sub-packaged (not a new top-level layer — every sibling `service-cp-*` repo's
 `controllers/services/clients/domain` shape stays intact) specifically so this boundary stays
@@ -147,10 +153,10 @@ client, no different in kind from the others:
   generated, not to describe its content (design doc §2)
 
 `HearingDetailsResponse` stays in top-level `domain/` — it's genuinely shared across all three
-code paths, unlike the `pcrcompute`-only types above. The generated `HearingResultedWebhookEvent`/
-`HearingResultedWebhookEventData` models (from `api-cp-crime-results-pcr`) are consumed directly
-by `HearingResultedWebhookService` — no hand-written envelope/pointer domain type exists for the
-webhook path.
+code paths, unlike the `pcrcompute`-only types above. The generated `HearingResultedEvent`/
+`HearingResultedEventData` models (from `api-cp-crime-results-pcr`) are consumed directly
+by `HearingResultedEventService` — no hand-written envelope/pointer domain type exists for the
+ingestion path.
 
 ### Data store (`entities/`, `repositories/`)
 
@@ -207,10 +213,10 @@ run, in production or in tests; discovered the hard way when repository tests fa
   race condition (design §4a/§4b), not a theoretical one. The in-process 2s/4s/8s retry in
   `ResultsIngestionService.ingestHearingResults` is now actually implemented (previously only
   designed) — three attempts before throwing `IncompleteHearingDetailsException` (→ `503`,
-  Event Grid redelivers). **This rule currently applies to the webhook ingestion path
+  Event Grid redelivers). **This rule currently applies to the ingestion path
   only** — `GET /pcr` (`PcrResultsService`) does not check Redis and has no completeness gate;
   don't assume the synchronous endpoint is race-safe just because the ingestion path is.
-- **The webhook ingestion path now persists, via `ResultsIngestionService.ingestAndPersist`** — see
+- **The ingestion path now persists, via `ResultsIngestionService.ingestAndPersist`** — see
   `docs/designs/2026-07-28-pcr-persistence-wiring-design.md`. A successful
   `ingestHearingResults` call only proves the hearing data is complete and retryable-safe;
   `ingestAndPersist` is the method that additionally runs the generation gate per defendant and
@@ -267,7 +273,7 @@ run, in production or in tests; discovered the hard way when repository tests fa
 
 | Symptom | Cause / Fix |
 |---|---|
-| `GET /pcr` returns an empty array for a hearing/defendant known to exist upstream | Expected if the webhook ingestion path hasn't persisted a `cp_version` row for it yet (async, gated by the generation-gate check) — `GET /pcr` only ever reads what's already in the data store, it does not call the Results Query API or wait on ingestion |
+| `GET /pcr` returns an empty array for a hearing/defendant known to exist upstream | Expected if the ingestion path hasn't persisted a `cp_version` row for it yet (async, gated by the generation-gate check) — `GET /pcr` only ever reads what's already in the data store, it does not call the Results Query API or wait on ingestion |
 | Retry logic assumes REST fallback fails cleanly on a race | Unconfirmed assumption per design §4b/§13 item 2 — verify against the Results team's actual code before relying on it |
 | Redis not available locally | `docker-compose.yml` defines a `redis` service — start it via `docker compose up -d redis`; still not wired into an `apitest.gradle` project |
 | `repositories/*RepositoryTest` fails with `PSQLException`/`does not exist` | Needs a real Postgres reachable at `localhost:5432` with a `pcrdb` database already created — start it via `docker compose up -d postgres` (service defined in this repo's `docker-compose.yml`) before running `./gradlew test`; `PostgresInitialise` fails fast with instructions if it's unreachable |
@@ -283,7 +289,7 @@ run, in production or in tests; discovered the hard way when repository tests fa
   version of the same check — someone needs to actually watch that list, not just log it.
 - MVP scope is Story 3's non-amendment phase-1 slice (mirror the Function App, no amendment
   handling) to get early subscriber feedback before the full service is built (design §12).
-- No `apiTest`/docker-compose integration coverage for the webhook + Redis path yet — the
-  existing `src/test` suite (`HearingResultedWebhookServiceTest`, `ResultsIngestionServiceTest`,
+- No `apiTest`/docker-compose integration coverage for the ingestion + Redis path yet — the
+  existing `src/test` suite (`HearingResultedEventServiceTest`, `ResultsIngestionServiceTest`,
   etc.) is unit-level with mocked Redis clients only; the E2E test under `integration/e2e`
   drives the real path via `mockMvc` POST to `/internal/hearing-results` against a real Postgres/Redis.

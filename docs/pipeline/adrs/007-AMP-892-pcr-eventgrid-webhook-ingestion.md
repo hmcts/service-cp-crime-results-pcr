@@ -1,6 +1,12 @@
 # 007. Replace Service Bus queue ingestion with a direct Event Grid webhook
 
-**Status:** Accepted, 29 Jul 2026
+**Status:** Superseded, 14 Aug 2026 — see
+[ADR-009](009-decommission-eventgrid-webhook-handshake.md). `pcr-eventgrid-relay-function` now
+owns the Event Grid subscription and its validation handshake; this service never receives either
+directly. The `pcr-hearing-results` subscription this ADR describes as "already configured" was
+never actually provisioned — kept below as the historical record of the original decision, not a
+description of the current architecture.
+
 **Jira:** AMP-892 — replace Service Bus queue with webhook ingestion
 
 ## Context

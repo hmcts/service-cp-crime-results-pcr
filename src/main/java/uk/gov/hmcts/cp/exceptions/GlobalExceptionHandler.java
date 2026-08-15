@@ -51,8 +51,8 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<ErrorResponse> handleMalformedWebhookPayload(final IllegalArgumentException e) {
-        log.warn("GlobalExceptionHandler handleMalformedWebhookPayload: {}", e.getMessage());
+    public ResponseEntity<ErrorResponse> handleMalformedEventPayload(final IllegalArgumentException e) {
+        log.warn("GlobalExceptionHandler handleMalformedEventPayload: {}", e.getMessage());
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
                 .body(buildErrorResponse(e.getMessage()));
