@@ -6,7 +6,7 @@ plugins {
   id 'jacoco'
   id 'maven-publish'
   id 'com.github.ben-manes.versions' version '0.61.0'
-  id 'org.cyclonedx.bom' version '3.4.0'
+  id 'org.cyclonedx.bom' version '3.4.1'
   id 'com.gorylenko.gradle-git-properties' version '4.0.1'
   // Starts the docker-compose Postgres service before `test` in CI — repository tests need a
   // real, externally-started Postgres (PostgresInitialise), matching HRDS's established pattern.
