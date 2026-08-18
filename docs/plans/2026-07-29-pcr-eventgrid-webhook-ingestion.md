@@ -5,7 +5,7 @@
 **Goal:** Replace the Service Bus queue ingestion path with a direct Azure Event Grid webhook
 (`POST /internal/pcr/hearingResults`), per
 `docs/designs/2026-07-29-pcr-eventgrid-webhook-ingestion-design.md` and
-`docs/pipeline/adrs/007-AMP-892-pcr-eventgrid-webhook-ingestion.md`.
+`docs/pipeline/adrs/007-AMP-892-pcr-eventgrid-direct-ingestion.md`.
 
 **Architecture:** Add a new operation to the `api-cp-crime-results-pcr` OpenAPI spec (separate
 repo, separate PR), generating an `InternalApi` interface. Implement a thin
