@@ -18,19 +18,24 @@ public class HearingResultedEventService {
     private final ResultsIngestionService ingestionService;
 
     public ResponseEntity<Void> handle(final List<HearingResultedEvent> events) {
-        final HearingResultedEvent event = firstEvent(events);
+        validateNotEmpty(events);
+        for (final HearingResultedEvent event : events) {
+            ingestEvent(event);
+        }
+        return ResponseEntity.ok().build();
+    }
+
+    private void ingestEvent(final HearingResultedEvent event) {
         if (!HEARING_RESULTED_EVENT_TYPE.equals(event.getEventType())) {
             throw new IllegalArgumentException("Unrecognized eventType: " + event.getEventType());
         }
         final HearingResultedEventData data = event.getData();
         ingestionService.ingestAndPersist(data.getHearingId(), data.getHearingDay().toString());
-        return ResponseEntity.ok().build();
     }
 
-    private HearingResultedEvent firstEvent(final List<HearingResultedEvent> events) {
+    private void validateNotEmpty(final List<HearingResultedEvent> events) {
         if (events == null || events.isEmpty()) {
             throw new IllegalArgumentException("Empty Event Grid delivery — expected at least one event");
         }
-        return events.get(0);
     }
 }

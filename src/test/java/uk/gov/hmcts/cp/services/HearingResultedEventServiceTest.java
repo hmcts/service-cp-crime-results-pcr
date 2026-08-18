@@ -47,6 +47,26 @@ class HearingResultedEventServiceTest {
     }
 
     @Test
+    void handle_should_ingestEveryEventAndReturn200_whenMultipleEventsInDelivery() {
+        final UUID secondHearingId = UUID.fromString("00000000-0000-0000-0000-000000000022");
+        final String secondHearingDay = "2026-07-24";
+        final HearingResultedEvent first = hearingResultedEvent();
+        final HearingResultedEvent second = new HearingResultedEvent()
+                .id("evt-3")
+                .eventType("Hearing_Resulted")
+                .data(new HearingResultedEventData()
+                        .hearingId(secondHearingId)
+                        .hearingDay(LocalDate.parse(secondHearingDay))
+                        .userId(USER_ID));
+
+        final ResponseEntity<Void> response = eventService.handle(List.of(first, second));
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        verify(ingestionService).ingestAndPersist(HEARING_ID, HEARING_DAY);
+        verify(ingestionService).ingestAndPersist(secondHearingId, secondHearingDay);
+    }
+
+    @Test
     void handle_should_propagateIncompleteHearingDetailsException_whenIngestionThrows() {
         final HearingResultedEvent event = hearingResultedEvent();
         doThrow(new IncompleteHearingDetailsException(HEARING_ID))
