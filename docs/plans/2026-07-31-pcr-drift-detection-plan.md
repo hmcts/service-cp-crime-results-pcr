@@ -13,8 +13,9 @@ as a parameterized integration test, per
 (`event.json`, `now-subscriptions.json`, `expected/<defendantId>.json`, `reference/*.pdf`). New
 `FixtureProvider` (JUnit `ArgumentsProvider`) scans that root. New
 `PcrDriftDetectionIntegrationTest` (`@ParameterizedTest`, extends the existing
-`IngestionE2ETestBase`) replays each fixture's event through the real webhook → generation-gate →
-persistence path, then diffs each defendant's `GET /pcr` response against its expected file with
+`IngestionE2ETestBase`) replays each fixture's event through the real ingestion endpoint →
+generation-gate → persistence path, then diffs each defendant's `GET /pcr` response against its
+expected file with
 `JSONAssert.assertEquals(..., JSONCompareMode.STRICT)`.
 
 **Tech Stack:** Spring Boot 4.1.0, Java 25, JUnit 5 (`@ParameterizedTest`/`@ArgumentsSource`),
@@ -285,7 +286,7 @@ class BootstrapExpectedFixturesTest extends IngestionE2ETestBase {
 
     // Steps 2-4 of the design doc §4 flow, hardcoded for this one fixture, printing the
     // response bodies to stdout so they can be captured into expected/*.json by hand.
-    // Reuses the same Redis-seed/WireMock-stub/webhook-POST helpers Task 4's real test will have
+    // Reuses the same Redis-seed/WireMock-stub/event-POST helpers Task 4's real test will have
     // — write this test's body first, then Task 4 lifts the reusable parts out.
 
     @Test
@@ -461,7 +462,7 @@ class PcrDriftDetectionIntegrationTest extends IngestionE2ETestBase {
 
         stubNowSubscriptions(fixture.root());
         seedRedis(fixture.root(), identity);
-        postWebhook(identity);
+        postHearingResultedEvent(identity);
 
         try (Stream<Path> expectedFiles = Files.list(fixture.root().resolve("expected"))) {
             for (final Path expectedFile : expectedFiles.toList()) {
@@ -484,7 +485,7 @@ class PcrDriftDetectionIntegrationTest extends IngestionE2ETestBase {
         redisTemplate.opsForValue().set(cacheKey, Files.readString(fixtureRoot.resolve("event.json")));
     }
 
-    private void postWebhook(final HearingIdentity identity) throws Exception {
+    private void postHearingResultedEvent(final HearingIdentity identity) throws Exception {
         final String body = """
                 [{
                   "id": "evt-1",
@@ -550,7 +551,7 @@ git commit -m "$(cat <<'EOF'
 test(pcr): add PcrDriftDetectionIntegrationTest
 
 Parameterized over every drift-detection/* fixture folder — replays
-the real hearing event through the webhook/generation-gate/persistence
+the real hearing event through the ingestion/generation-gate/persistence
 path and diffs each defendant's GET /pcr response against its verified
 expected/*.json with a strict JSONAssert comparison (AMP-898).
 

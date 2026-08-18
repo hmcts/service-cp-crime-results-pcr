@@ -29,7 +29,7 @@ get a document.
   scoped to happy-path HTTP-surface coverage (`hmcts-standards.md`'s test-pyramid rule). Drift
   detection needs deep field-by-field payload equivalence per hearing, which belongs in this
   repo's own `src/test` integration suite alongside `HearingResultedIngestionE2EIntegrationTest`
-  — the existing e2e test already drives the exact same real path (Redis seed → webhook POST →
+  — the existing e2e test already drives the exact same real path (Redis seed → event POST →
   `GET /pcr`) this needs, just without a stored-answer diff.
 - **New test class `PcrDriftDetectionIntegrationTest`**, extending the existing
   `IngestionE2ETestBase`. One `@ParameterizedTest` scans every subdirectory under
