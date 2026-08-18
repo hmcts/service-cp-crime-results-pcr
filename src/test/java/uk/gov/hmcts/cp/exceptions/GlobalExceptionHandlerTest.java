@@ -51,11 +51,11 @@ class GlobalExceptionHandlerTest {
     }
 
     @Test
-    void handleMalformedWebhookPayload_should_return400() {
+    void handleMalformedEventPayload_should_return400() {
         stubTracer();
         final IllegalArgumentException exception = new IllegalArgumentException("Unrecognized eventType: bogus");
 
-        final ResponseEntity<ErrorResponse> response = handler.handleMalformedWebhookPayload(exception);
+        final ResponseEntity<ErrorResponse> response = handler.handleMalformedEventPayload(exception);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
         assertThat(response.getBody().getMessage()).isEqualTo(exception.getMessage());

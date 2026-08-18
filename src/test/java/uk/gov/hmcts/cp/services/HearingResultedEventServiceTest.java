@@ -8,9 +8,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import uk.gov.hmcts.cp.exceptions.IncompleteHearingDetailsException;
-import uk.gov.hmcts.cp.openapi.model.HearingResultedWebhookEvent;
-import uk.gov.hmcts.cp.openapi.model.HearingResultedWebhookEventData;
-import uk.gov.hmcts.cp.openapi.model.WebhookAck;
+import uk.gov.hmcts.cp.openapi.model.HearingResultedEvent;
+import uk.gov.hmcts.cp.openapi.model.HearingResultedEventData;
 import uk.gov.hmcts.cp.services.ingestion.ResultsIngestionService;
 
 import java.time.LocalDate;
@@ -25,7 +24,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
-class HearingResultedWebhookServiceTest {
+class HearingResultedEventServiceTest {
 
     private static final UUID HEARING_ID = UUID.fromString("00000000-0000-0000-0000-000000000011");
     private static final String HEARING_DAY = "2026-07-23";
@@ -35,61 +34,64 @@ class HearingResultedWebhookServiceTest {
     private ResultsIngestionService ingestionService;
 
     @InjectMocks
-    private HearingResultedWebhookService webhookService;
-
-    @Test
-    void handle_should_echoValidationCode_whenSubscriptionValidationEvent() {
-        final HearingResultedWebhookEvent event = validationEvent("abc123");
-
-        final ResponseEntity<WebhookAck> response = webhookService.handle(List.of(event));
-
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(response.getBody().getValidationResponse()).isEqualTo("abc123");
-    }
+    private HearingResultedEventService eventService;
 
     @Test
     void handle_should_ingestAndReturn200_whenHearingResultedEvent() {
-        final HearingResultedWebhookEvent event = hearingResultedEvent();
+        final HearingResultedEvent event = hearingResultedEvent();
 
-        final ResponseEntity<WebhookAck> response = webhookService.handle(List.of(event));
+        final ResponseEntity<Void> response = eventService.handle(List.of(event));
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         verify(ingestionService).ingestAndPersist(HEARING_ID, HEARING_DAY);
     }
 
     @Test
+    void handle_should_ingestEveryEventAndReturn200_whenMultipleEventsInDelivery() {
+        final UUID secondHearingId = UUID.fromString("00000000-0000-0000-0000-000000000022");
+        final String secondHearingDay = "2026-07-24";
+        final HearingResultedEvent first = hearingResultedEvent();
+        final HearingResultedEvent second = new HearingResultedEvent()
+                .id("evt-3")
+                .eventType("Hearing_Resulted")
+                .data(new HearingResultedEventData()
+                        .hearingId(secondHearingId)
+                        .hearingDay(LocalDate.parse(secondHearingDay))
+                        .userId(USER_ID));
+
+        final ResponseEntity<Void> response = eventService.handle(List.of(first, second));
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        verify(ingestionService).ingestAndPersist(HEARING_ID, HEARING_DAY);
+        verify(ingestionService).ingestAndPersist(secondHearingId, secondHearingDay);
+    }
+
+    @Test
     void handle_should_propagateIncompleteHearingDetailsException_whenIngestionThrows() {
-        final HearingResultedWebhookEvent event = hearingResultedEvent();
+        final HearingResultedEvent event = hearingResultedEvent();
         doThrow(new IncompleteHearingDetailsException(HEARING_ID))
                 .when(ingestionService).ingestAndPersist(HEARING_ID, HEARING_DAY);
 
-        assertThatThrownBy(() -> webhookService.handle(List.of(event)))
+        assertThatThrownBy(() -> eventService.handle(List.of(event)))
                 .isInstanceOf(IncompleteHearingDetailsException.class);
     }
 
     @Test
     void handle_should_throwIllegalArgumentException_whenEventTypeUnrecognized() {
-        final HearingResultedWebhookEvent event = new HearingResultedWebhookEvent()
+        final HearingResultedEvent event = new HearingResultedEvent()
                 .id("evt-1").eventType("Some_Other_Event");
 
-        assertThatThrownBy(() -> webhookService.handle(List.of(event)))
+        assertThatThrownBy(() -> eventService.handle(List.of(event)))
                 .isInstanceOf(IllegalArgumentException.class);
 
         verify(ingestionService, never()).ingestAndPersist(any(), any());
     }
 
-    private HearingResultedWebhookEvent validationEvent(final String validationCode) {
-        return new HearingResultedWebhookEvent()
-                .id("evt-1")
-                .eventType("Microsoft.EventGrid.SubscriptionValidationEvent")
-                .data(new HearingResultedWebhookEventData().validationCode(validationCode));
-    }
-
-    private HearingResultedWebhookEvent hearingResultedEvent() {
-        return new HearingResultedWebhookEvent()
+    private HearingResultedEvent hearingResultedEvent() {
+        return new HearingResultedEvent()
                 .id("evt-2")
                 .eventType("Hearing_Resulted")
-                .data(new HearingResultedWebhookEventData()
+                .data(new HearingResultedEventData()
                         .hearingId(HEARING_ID)
                         .hearingDay(LocalDate.parse(HEARING_DAY))
                         .userId(USER_ID));

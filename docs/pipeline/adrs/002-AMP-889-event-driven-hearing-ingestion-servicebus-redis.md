@@ -1,6 +1,6 @@
 # 002. Event-driven hearing ingestion via Azure Service Bus and Redis
 
-**Status:** Superseded by [ADR-007](007-AMP-892-pcr-eventgrid-webhook-ingestion.md), 30 Jul 2026
+**Status:** Superseded by [ADR-007](007-AMP-892-pcr-eventgrid-direct-ingestion.md), 30 Jul 2026
 **Jira:** AMP-889 — inbound contract via Event Grid
 
 **Superseded:** AMP-892/PR #20 replaced the Service Bus queue ingestion path described below with

@@ -7,7 +7,7 @@ Event Grid → Service Bus → consumer sections (§2, §3.1, §3.1a, §3.4) but
 REST-fallback/completeness sections (§1, §3.2, §3.3a) verbatim, since the data-source problem
 they solve is unchanged by the transport swap.
 **Jira:** AMP-892 — replace Service Bus queue ingestion with a direct Event Grid webhook. See
-[`docs/pipeline/adrs/007-AMP-892-pcr-eventgrid-webhook-ingestion.md`](../pipeline/adrs/007-AMP-892-pcr-eventgrid-webhook-ingestion.md)
+[`docs/pipeline/adrs/007-AMP-892-pcr-eventgrid-direct-ingestion.md`](../pipeline/adrs/007-AMP-892-pcr-eventgrid-direct-ingestion.md)
 for the decision this design doc drives.
 
 **Scope:** the ingestion pipeline only — Azure Event Grid POSTing directly to a new internal

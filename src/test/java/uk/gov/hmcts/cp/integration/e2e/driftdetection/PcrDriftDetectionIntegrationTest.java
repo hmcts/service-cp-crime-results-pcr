@@ -61,7 +61,7 @@ class PcrDriftDetectionIntegrationTest extends IngestionE2ETestBase {
 
         stubNowSubscriptions(fixture.root());
         seedRedis(fixture.root(), identity);
-        postWebhook(identity);
+        postHearingResultedEvent(identity);
 
         try (Stream<Path> expectedFiles = Files.list(fixture.root().resolve("expected"))) {
             for (final Path expectedFile : expectedFiles.toList()) {
@@ -85,7 +85,7 @@ class PcrDriftDetectionIntegrationTest extends IngestionE2ETestBase {
         redisTemplate.opsForValue().set(cacheKey, Files.readString(fixtureRoot.resolve("event.json")));
     }
 
-    private void postWebhook(final HearingIdentity identity) throws Exception {
+    private void postHearingResultedEvent(final HearingIdentity identity) throws Exception {
         final String body = """
                 [{
                   "id": "evt-1",
