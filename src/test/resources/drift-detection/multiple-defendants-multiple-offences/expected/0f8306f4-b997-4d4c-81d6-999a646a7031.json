@@ -47,8 +47,7 @@
         },
         "dateTime": "2026-07-31T09:00:00Z",
         "hearingId": "cf1f6d0c-6f9c-461f-b91a-5458a16c6342"
-      },
-      "sharedTime": "2026-07-30T13:45:43.563Z"
+      }
     },
     "offences": [
       {
@@ -179,6 +178,7 @@
       "caseMarkers": [],
       "caseURN": "AS231157673",
       "results": []
-    }
+    },
+    "sharedTime": "2026-07-30T13:45:43.563Z"
   }
 ]
