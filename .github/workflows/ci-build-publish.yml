@@ -15,10 +15,19 @@ on:
       DEPLOYMENT_APP_PRIVATE_KEY:
         required: true
         description: "GitHub App private key for deployment"
-      # SIT smoke-test creds: plain repo-level secrets (not a "sit" GitHub Environment - confirmed
-      # decision, design doc §6/§8). Dev smoke-test creds live on the existing "dev" Environment
-      # instead and don't need declaring here - environment-scoped secrets resolve automatically
-      # for any job with `environment: name: dev`.
+      # Smoke-test URLs: plain repo-level secrets for both tiers, DEV_/SIT_ prefixed (design doc
+      # §6/§8/§10) - not a "dev"/"sit" GitHub Environment. Repo-level secrets must be declared here
+      # and passed through explicitly by the caller (ci-draft.yml/ci-released.yml); unlike
+      # environment-scoped secrets, they do NOT resolve automatically just because a job declares
+      # `environment: name: dev`. The remaining dev smoke-test creds (CJSCPPUID, SMOKE_ENTRA_*,
+      # SMOKE_APIM_SUBSCRIPTION_KEY below) still live on the "dev" Environment and don't need
+      # declaring here for that reason.
+      DEV_SMOKE_SERVICE_BASE_URL:
+        required: false
+      DEV_SMOKE_HEALTH_CHECK_URL:
+        required: false
+      DEV_CP_BACKEND_URL:
+        required: false
       SIT_SMOKE_SERVICE_BASE_URL:
         required: false
       SIT_SMOKE_HEALTH_CHECK_URL:
@@ -373,7 +382,7 @@ jobs:
     steps:
       - name: Poll dev health endpoint until ready
         env:
-          HEALTH_CHECK_URL: ${{ secrets.SMOKE_HEALTH_CHECK_URL }}
+          HEALTH_CHECK_URL: ${{ secrets.DEV_SMOKE_HEALTH_CHECK_URL }}
         run: |
           for i in $(seq 1 30); do
             if curl -sf "$HEALTH_CHECK_URL" > /dev/null; then
@@ -404,9 +413,9 @@ jobs:
 
       - name: Run smoke test against dev
         env:
-          SMOKE_SERVICE_BASE_URL: ${{ secrets.SMOKE_SERVICE_BASE_URL }}
+          SMOKE_SERVICE_BASE_URL: ${{ secrets.DEV_SMOKE_SERVICE_BASE_URL }}
           SMOKE_ENVIRONMENT: dev
-          CP_BACKEND_URL: ${{ secrets.CP_BACKEND_URL }}
+          CP_BACKEND_URL: ${{ secrets.DEV_CP_BACKEND_URL }}
           CJSCPPUID: ${{ secrets.CJSCPPUID }}
           SMOKE_ENTRA_TENANT_ID: ${{ secrets.SMOKE_ENTRA_TENANT_ID }}
           SMOKE_ENTRA_CLIENT_ID: ${{ secrets.SMOKE_ENTRA_CLIENT_ID }}

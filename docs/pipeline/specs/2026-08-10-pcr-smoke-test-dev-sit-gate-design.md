@@ -237,11 +237,12 @@ Still open (needs a live dev/sit environment to resolve, not guessable upfront):
 
 - Poll interval/timeout for Run (§5) and Wait-Dev-Ready/Wait-Sit-Ready (§6) — currently 10s/30
   attempts and 20s/30 attempts respectively, unvalidated against real ingestion/rollout timing.
-- The actual value of `SMOKE_HEALTH_CHECK_URL`/`SIT_SMOKE_HEALTH_CHECK_URL` — the APIM-fronted
-  `SMOKE_SERVICE_BASE_URL` likely doesn't expose `/actuator/health` through the gateway, so the
-  readiness wait needs its own ops-provided internal URL; not something this repo can determine.
-- Every `SMOKE_*`/`SIT_SMOKE_*` secret still needs populating in GitHub before the gate can run
-  for real — nothing in this repo's code can create them.
+- ~~The actual value of `SMOKE_HEALTH_CHECK_URL`/`SIT_SMOKE_HEALTH_CHECK_URL`~~ — resolved, §10.
+- `CJSCPPUID`, `SMOKE_ENTRA_*`, `SMOKE_APIM_SUBSCRIPTION_KEY` (and their `SIT_` equivalents) still
+  need populating in GitHub before the gate can run for real — nothing in this repo's code can
+  create real credential material. The URL secrets (§10) are resolved values, not just names, and
+  still need setting via `gh secret set`/the GitHub UI — tracked as a PR follow-up, not blocked on
+  anything further.
 
 ## 9. QA approval gate before SIT promotion (2026-08-19 addendum)
 
@@ -275,3 +276,59 @@ it was never itself a promotion gate (Phase 2's "if it passes, that's as far as 
 automation goes," §6), and that's unchanged. This addendum only inserts a human checkpoint between
 dev and SIT; it does not add a second approval between SIT and anything further, since nothing
 further exists yet in this pipeline.
+
+## 10. Smoke-test URL secrets resolved (2026-08-19 addendum)
+
+Resolves three of §8's "still open" items — the actual `SMOKE_SERVICE_BASE_URL`/
+`SMOKE_HEALTH_CHECK_URL`/`CP_BACKEND_URL` values — for both tiers:
+
+| Secret | Dev value | SIT value |
+|---|---|---|
+| `{DEV,SIT}_SMOKE_SERVICE_BASE_URL` | `https://amp.dev.cjscp.org.uk/amp/pcr` | `https://amp.sit.cjscp.org.uk/amp/pcr` |
+| `{DEV,SIT}_CP_BACKEND_URL` | `https://steccm64.ingress01.dev.nl.cjscp.org.uk` | `https://sitccm01.ingress01.sit.nl.cjscp.org.uk` |
+| `{DEV,SIT}_SMOKE_HEALTH_CHECK_URL` | `https://devamp01.ingress01.dev.nl.cjscp.org.uk/actuator/health/readiness` | `https://sitamp01.ingress01.sit.nl.cjscp.org.uk/actuator/health/readiness` |
+
+**Two different host shapes, not one — confirmed with the user, not guessed.** `SMOKE_SERVICE_BASE_URL`
+is the APIM-fronted gateway host (`amp.<env>.cjscp.org.uk`, PCR's route `/amp/pcr`) because §5's Run
+step already calls it with an Entra bearer token and `Ocp-Apim-Subscription-Key` — headers that only
+make sense against APIM, not a raw ingress. `CP_BACKEND_URL` and `SMOKE_HEALTH_CHECK_URL` instead hit
+the per-stack ingress directly (`<stack>.ingress01.<env>.nl.cjscp.org.uk`) — Setup's SPI-IN/hearing
+calls (§4) carry no Entra/APIM headers at all, and a health probe has no reason to go through APIM
+either. A sibling repo building the same kind of gate
+(`service-cp-crime-prosecution-case-details`) had independently reached the dev half of this same
+split and explicitly left the SIT domain suffix unconfirmed rather than assume `sitccm01` mirrors
+`steccm64`'s pattern — confirmed here, for this repo, that it does.
+
+**Health path**: `/actuator/health/readiness`, from this service's own `application.yaml` —
+`management.endpoints.web.base-path: /actuator` plus `management.endpoint.health.probes.enabled:
+true` (which is what stands up the `/actuator/health/readiness` and `/actuator/health/liveness`
+groups).
+
+**Superseded (§8): dev's smoke-test URL secrets are no longer environment-scoped.** §8 originally
+put `SMOKE_SERVICE_BASE_URL`/`CP_BACKEND_URL`/`SMOKE_HEALTH_CHECK_URL` on the `dev` GitHub
+Environment, relying on environment-scoped secrets resolving automatically for any job with
+`environment: name: dev` — true, but only because the `dev` environment currently has zero
+protection rules; it was buying no actual gating, only naming. These three are now plain
+repo-level secrets, prefixed `DEV_` to mirror the existing `SIT_` convention exactly, giving one
+flat, symmetric secret list across both tiers instead of two different mechanisms.
+
+**This has a real mechanical consequence, not just a rename.** `ci-build-publish.yml` is a
+`workflow_call` reusable workflow. Environment-scoped secrets resolve automatically inside it for
+any job that declares that environment — no schema entry needed (this is why the original `SIT_*`
+comment could say dev secrets "don't need declaring here"). Repo-level secrets do **not** get that
+treatment: they must be declared in `on.workflow_call.secrets` *and* explicitly forwarded by the
+caller's own `secrets:` block, exactly like `ci-released.yml` already does for every `SIT_*` value.
+So this change touches three places, not one: `DEV_SMOKE_SERVICE_BASE_URL`/
+`DEV_SMOKE_HEALTH_CHECK_URL`/`DEV_CP_BACKEND_URL` added to `ci-build-publish.yml`'s
+`workflow_call.secrets` schema, the `Wait-Dev-Ready`/`Smoke-Test-Dev` jobs read from the `DEV_`-
+prefixed names, and `ci-draft.yml` (the dev-path caller) forwards all three through its own
+`secrets:` block. The `environment: { name: dev }` binding stays on both jobs unchanged — it has no
+effect on these three secrets any more (no environment-scoped secret of these names exists to
+resolve), but removing it was out of scope here since other jobs in this same pipeline
+(`Artefact-Version`, `Build`) still rely on it for unrelated reasons.
+
+**Left as-is, deliberately:** `CJSCPPUID`, `SMOKE_ENTRA_TENANT_ID`/`SMOKE_ENTRA_CLIENT_ID`/
+`SMOKE_ENTRA_CLIENT_SECRET`/`SMOKE_ENTRA_SCOPE`, and `SMOKE_APIM_SUBSCRIPTION_KEY` still resolve as
+`dev`-Environment-scoped secrets, unprefixed — only the three URL values moved. Whether to migrate
+the remaining credential secrets to the same `DEV_`-prefixed repo-level shape, for full symmetry
+with `SIT_*`, is an open follow-up, not decided here.
