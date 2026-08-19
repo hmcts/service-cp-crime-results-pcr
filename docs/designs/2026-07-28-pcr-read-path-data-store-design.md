@@ -12,6 +12,11 @@ persistence-wiring branch just started populating.
 `PcrApi` interface already has a `default` implementation returning `501` for it, so leaving it
 un-overridden is sufficient; no stub code is needed. Tracked as a separate follow-on.
 
+**2026-08-19 superseded:** the `.../versions` endpoint and its `PcrVersionMetadata`/
+`PcrVersionMetadataList` schemas have been removed from the spec entirely (never implemented by
+this service — see api-cp-crime-results-pcr#58). Every reference to it below describes a contract
+shape that no longer exists; kept as the historical record of the investigation, not current fact.
+
 ---
 
 ## 1. The contract change is bigger than one commit
