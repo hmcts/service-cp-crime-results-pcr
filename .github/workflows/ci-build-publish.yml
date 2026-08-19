@@ -425,10 +425,15 @@ jobs:
   # gh release create here triggers ci-released.yml (existing trigger, unchanged), which deploys
   # to SIT. needs: [Smoke-Test-Dev] means a failing dev smoke test makes this - and therefore SIT -
   # unreachable (design doc §6), not just a red pipeline a human has to notice.
+  # environment: sit-release-approval holds this job at "Waiting" in the Actions UI until a required
+  # reviewer approves - a green dev smoke test is necessary but no longer sufficient to reach SIT
+  # (design doc §9, supersedes §6's fully-automatic Auto-Release).
   Auto-Release:
     needs: [Smoke-Test-Dev]
     if: ${{ inputs.trigger_deploy && inputs.deploy_dev }}
     runs-on: ubuntu-latest
+    environment:
+      name: sit-release-approval
     permissions:
       contents: write
     steps:

@@ -170,6 +170,9 @@ If `Smoke-Test-Dev` fails, `Auto-Release` never runs (`needs:` dependency) — n
 deploy reachable. `Smoke-Test-Sit` is not itself a gate on anything further this round (Phase 2: "if
 it passes, that's as far as this round of automation goes").
 
+**Superseded (§9): `Auto-Release` is no longer fully automatic.** A green `Smoke-Test-Dev` is
+necessary but not sufficient to reach SIT — a human QA approval is required in between. See §9.
+
 **Readiness gap, found while reading the current pipeline, not in the source proposal:**
 `Deploy-Dev`/`Deploy-Sit` call `hmcts/action-ado-deploy@v1` with `wait: false` — the job returns once
 the GitOps deploy is *triggered*, not once the pod is actually rolled out. Nothing depended on
@@ -239,3 +242,36 @@ Still open (needs a live dev/sit environment to resolve, not guessable upfront):
   readiness wait needs its own ops-provided internal URL; not something this repo can determine.
 - Every `SMOKE_*`/`SIT_SMOKE_*` secret still needs populating in GitHub before the gate can run
   for real — nothing in this repo's code can create them.
+
+## 9. QA approval gate before SIT promotion (2026-08-19 addendum)
+
+**Decision: a green `Smoke-Test-Dev` is necessary but no longer sufficient to reach SIT.** §6's
+`Auto-Release` fired automatically the moment `Smoke-Test-Dev` passed, with no human in the loop
+before a release — and therefore a SIT deploy — was created. That's now an explicit manual QA gate
+instead of a fully automatic promotion.
+
+**Mechanism: a GitHub Environment with required reviewers**, not a custom approval step. The
+`Auto-Release` job now declares `environment: { name: sit-release-approval }`. When a job targets an
+environment with a `required_reviewers` protection rule, GitHub Actions holds that job at "Waiting"
+in the Actions UI — it does not run `gh release create` (or anything else in the job) until one of
+the configured reviewers approves it there. No new code, no polling, no bespoke sign-off tooling —
+this is the same `environment:` mechanism the `dev` tier already uses for `Wait-Dev-Ready`/
+`Smoke-Test-Dev`, just with a protection rule attached instead of none.
+
+**Why gate the release itself, not the SIT deploy inside `ci-released.yml`:** holding `Auto-Release`
+means that until QA approves, no GitHub Release exists at all — nothing SIT-related is even
+reachable, and a rejected/still-pending approval leaves zero trace in Releases. The alternative
+(create the release immediately, hold `Deploy-Sit` inside `ci-released.yml` instead) would mean a
+release can sit in GitHub with SIT not yet deployed, which is a more confusing state to reason
+about. Confirmed decision.
+
+**Reviewers are configured on the environment, not in this doc.** The `sit-release-approval`
+environment's required-reviewers list is set via the GitHub API/UI (Settings → Environments), not
+hardcoded here — this doc describes the mechanism, and reviewer membership is expected to change
+over time without needing a doc update. Any repo admin can add/remove reviewers.
+
+**Trade-off accepted:** `Smoke-Test-Sit` (§6) still runs unconditionally once `Deploy-Sit` fires —
+it was never itself a promotion gate (Phase 2's "if it passes, that's as far as this round of
+automation goes," §6), and that's unchanged. This addendum only inserts a human checkpoint between
+dev and SIT; it does not add a second approval between SIT and anything further, since nothing
+further exists yet in this pipeline.
