@@ -293,3 +293,22 @@ run, in production or in tests; discovered the hard way when repository tests fa
   existing `src/test` suite (`HearingResultedEventServiceTest`, `ResultsIngestionServiceTest`,
   etc.) is unit-level with mocked Redis clients only; the E2E test under `integration/e2e`
   drives the real path via `mockMvc` POST to `/internal/hearing-results` against a real Postgres/Redis.
+- **Karate smoke-test scaffold** (`src/smokeTest/`, `docs/pipeline/specs/2026-08-10-pcr-smoke-test-dev-sit-gate-design.md`)
+  drives dev→SIT release automation: `./gradlew smokeTestSetup smokeTestRun` creates a case via
+  SPI-IN, enters a guilty plea, drafts and shares a custodial result, then polls the PCR query
+  endpoint — Setup never calls `/internal/hearing-results` directly, it lets the real Event
+  Grid → `pcr-eventgrid-relay-function` path deliver ingestion, so the gate proves the whole
+  pipeline, not just this service. Wired into `ci-build-publish.yml`: a failing dev smoke test
+  blocks `Auto-Release` (`needs:` dependency), so no SIT deploy is reachable without it passing.
+  Does not seed a `now-subscriptions` entry — assumes dev/SIT already carry a standing PCR
+  subscription for the smoke test's court/offence combination.
+  **Secrets: dev tier uses the existing "dev" GitHub Environment (`SMOKE_ENTRA_CLIENT_ID` etc.,
+  `SMOKE_HEALTH_CHECK_URL` for the readiness wait); SIT tier uses plain repo-level secrets with a
+  `SIT_` prefix instead of a dedicated "sit" Environment (confirmed decision)** — both sets still
+  need populating in GitHub before this gate can run for real; nothing in this repo can create
+  them. `Auto-Release`'s changelog (`.github/scripts/generate-release-notes.sh`) is a
+  deterministic re-implementation of the `/release` skill's dependabot/chore/docs filter, not the
+  skill itself (that skill can't run inside a CI job) — the skill remains available for manual
+  minor/major bumps or off-cycle releases. Poll intervals (10s/30 attempts for Run, 20s/30
+  attempts for the readiness waits) are a starting point, not tuned against real environment
+  timing yet.
