@@ -113,7 +113,7 @@ class PcrResultsMapperTest {
 
         final PcrHearingResult result = mapper.toPcrHearingResult(caseHearing, version, List.of(), List.of(), List.of(), List.of(), List.of());
 
-        assertThat(result.getHearing().getSharedTime()).isEqualTo(Instant.parse("2026-07-31T08:33:21.608Z"));
+        assertThat(result.getSharedTime()).isEqualTo(Instant.parse("2026-07-31T08:33:21.608Z"));
     }
 
     @Test
@@ -122,7 +122,7 @@ class PcrResultsMapperTest {
 
         final PcrHearingResult result = mapper.toPcrHearingResult(caseHearing, minimalVersion(), List.of(), List.of(), List.of(), List.of(), List.of());
 
-        assertThat(result.getHearing().getSharedTime()).isNull();
+        assertThat(result.getSharedTime()).isNull();
     }
 
     @Test
