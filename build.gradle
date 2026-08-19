@@ -24,6 +24,7 @@ apply {
   from("$rootDir/gradle/test.gradle")
   from("$rootDir/gradle/jar.gradle")
   from("$rootDir/gradle/docker-test.gradle")
+  from("$rootDir/gradle/smoketest.gradle")
 }
 
 // We MUST keep all dependencies in the build.gradle to allow dependabot to provide version updates
@@ -65,4 +66,7 @@ dependencies {
 
   // read-only from this service's side, no new cache write path introduced
   implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
+  // Smoke test — Karate DSL, same pattern as service-cp-crime-hearing's dev/sit gate
+  smokeTestImplementation 'io.karatelabs:karate-junit5:1.5.1'
 }

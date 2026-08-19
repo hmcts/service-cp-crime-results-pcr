@@ -1,6 +1,7 @@
 # PCR smoke-test automation: dev → SIT release gate
 
-Status: approved, ready for implementation planning
+Status: implemented (branch `docs/pcr-smoke-test-dev-sit-gate-design`) — pending real dev/sit
+secrets and poll-timing tuning against a live environment (§8)
 Date: 2026-08-10
 Author: Srivani Muddineni (with Claude)
 
@@ -95,11 +96,10 @@ A REST-only chain (no browser, no manual webhook call):
    publishing `public.hearing.resulted`. This is the real trigger for the downstream chain: results
    viewstore population → (existing, out-of-repo mechanism) Event Grid `Hearing_Resulted` →
    `pcr-eventgrid-relay-function` → PCR's `/internal/hearing-results`.
-7. Idempotently confirm/seed a PCR subscription:
-   `POST referencedata-command-api/command/api/rest/referencedata/now-subscriptions`,
-   `Content-Type: application/vnd.referencedata.now-subscriptions+json`,
-   `isPrisonCourtRegisterSubscription: true`, for the smoke test's chosen court/offence combination.
-   Check-then-create so re-running Setup doesn't fail on a duplicate.
+7. **Superseded (§8): dropped, not implemented.** Setup does not seed a `now-subscriptions` entry —
+   dev/SIT are assumed to already carry a standing PCR subscription for the smoke test's chosen
+   court/offence combination (confirmed decision; no `now-subscriptions` creation payload exists
+   anywhere in the workspace to adapt from, and this avoids inventing one from scratch).
 8. Write `build/smoke-test-config/<env>.json`:
    ```json
    {
@@ -179,10 +179,14 @@ that polls the service's health endpoint with a bounded timeout, rather than cha
 `action-ado-deploy`'s `wait` semantics (shared across other repos — riskier to touch).
 
 **Env vars / secrets** (per tier, mirroring the hearing-service `karate-config.js` pattern):
-`SMOKE_SERVICE_BASE_URL`, `SMOKE_ENVIRONMENT`, `CP_BACKEND_URL`, `CJSCPPUID`,
-`SMOKE_ENTRA_TENANT_ID`/`SMOKE_ENTRA_CLIENT_ID`/`SMOKE_ENTRA_CLIENT_SECRET`/`SMOKE_ENTRA_SCOPE`,
-`SMOKE_APIM_SUBSCRIPTION_KEY`. Scoped via GitHub Environments (`dev`/`sit`), same mechanism already
-used by the `Artefact-Version`/`Build` jobs (`environment: name: ${{ inputs.environment }}`).
+`SMOKE_SERVICE_BASE_URL`, `SMOKE_HEALTH_CHECK_URL`, `SMOKE_ENVIRONMENT`, `CP_BACKEND_URL`,
+`CJSCPPUID`, `SMOKE_ENTRA_TENANT_ID`/`SMOKE_ENTRA_CLIENT_ID`/`SMOKE_ENTRA_CLIENT_SECRET`/
+`SMOKE_ENTRA_SCOPE`, `SMOKE_APIM_SUBSCRIPTION_KEY`.
+
+**Superseded (§8): dev tier only uses the existing "dev" GitHub Environment** (same mechanism
+already used by `Artefact-Version`/`Build`, `environment: name: dev`) — **SIT tier uses plain
+repo-level secrets with a `SIT_` prefix instead of a dedicated "sit" Environment** (confirmed
+decision, deviates from this section's original per-tier-Environment proposal).
 
 **Auto-Release changelog — a real conflict with the existing `/release` skill, not a detail:** the
 `/release` skill is LLM-mediated (reads PR bodies, synthesises plain-English changelog prose) with an
@@ -204,16 +208,34 @@ smoke-test-specific failure modes to distinguish in logs/CI output:
   or an Event Grid/relay-function wiring problem in that tier (§3's accepted trade-off).
 - Wait-Dev-Ready/Wait-Sit-Ready timeout — dev/sit never came up; fails before Setup runs at all.
 
-## 8. Open items (implementation-time, not blocking this design)
+## 8. Open items
 
-- Exact fixture payloads for steps 4/5 of Setup (plea/draft-result/shared-results bodies) — adapt
-  from `cpp-apitests`' `HearingHelper`/`draftresultsV2` fixtures.
-- The exact query call to resolve `hearingId`/`defendantId` from `caseUrn` post SPI-IN (step 3) —
-  confirm the right hearing-query-api resource during implementation.
-- Whether a single standing PCR `now-subscriptions` entry can cover the smoke test's chosen
-  court/offence combination across runs (avoiding a create-call every run), or whether idempotent
-  check-then-create is needed every time.
-- Exact poll interval/timeout for Run (§5) and for Wait-Dev-Ready/Wait-Sit-Ready (§6) — needs
-  real-environment tuning, not a value to guess upfront.
-- Auto-Release changelog script implementation (a shell script re-implementing the `/release`
-  skill's filter rules, without the LLM synthesis step).
+Resolved during implementation:
+
+- Fixture payloads for plea/draft-result/shared-results — ported from `cpp-apitests`'
+  `HearingHelper`/`draftresultsV2`/`newSharedResults` fixtures into
+  `src/smokeTest/resources/fixtures/`, with named result-line placeholders (`IMP_LINE_ID` etc.
+  instead of positional `RESULT_LINE01_ID`) so the same generated UUID threads through both the
+  draft and shared payloads for the same underlying result, and fabricated `example-prison.gov.uk`/
+  `example-probation.gov.uk` domains in place of the source fixtures' real `justice.gov.uk`
+  addresses (HMCTS data-classification rule).
+- ID resolution — `cpp-apitests`' `CaseHelper.createSpiCaseWithHearing` chain, not
+  `getHearingIDOfSpecificDefendantHearing` (that method doesn't exist in this workspace): poll
+  `prosecutioncasefile-query-api/.../cases?prosecutionCaseReference={urn}` for `caseId`, then
+  `progression-query-api/.../prosecutioncases/{caseId}` for `hearingId`/`defendantId`/`offenceId`,
+  then `hearing-query-api/.../hearings/{hearingId}` for `hearingDay`.
+- now-subscriptions seed — decided against seeding at all; Setup assumes dev/SIT already carry a
+  standing PCR subscription for the smoke test's court/offence combination.
+- SIT smoke-test secrets — plain repo-level secrets with a `SIT_` prefix, not a dedicated "sit"
+  GitHub Environment (confirmed decision, deviates from this doc's original §6 proposal).
+- Auto-Release changelog script — `.github/scripts/generate-release-notes.sh`.
+
+Still open (needs a live dev/sit environment to resolve, not guessable upfront):
+
+- Poll interval/timeout for Run (§5) and Wait-Dev-Ready/Wait-Sit-Ready (§6) — currently 10s/30
+  attempts and 20s/30 attempts respectively, unvalidated against real ingestion/rollout timing.
+- The actual value of `SMOKE_HEALTH_CHECK_URL`/`SIT_SMOKE_HEALTH_CHECK_URL` — the APIM-fronted
+  `SMOKE_SERVICE_BASE_URL` likely doesn't expose `/actuator/health` through the gateway, so the
+  readiness wait needs its own ops-provided internal URL; not something this repo can determine.
+- Every `SMOKE_*`/`SIT_SMOKE_*` secret still needs populating in GitHub before the gate can run
+  for real — nothing in this repo's code can create them.

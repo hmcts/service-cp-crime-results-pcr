@@ -1,0 +1,78 @@
+<NS1:Envelope xmlns:NS1="http://schemas.xmlsoap.org/soap/envelope/">
+    <NS1:Body>
+        <NS2:SubmitRequestMes xmlns:NS2="http://schemas.cjse.gov.uk/endpoint/types/">
+            <NS2:RequestID>REQUEST_ID</NS2:RequestID>
+            <NS2:SourceID>Z00CJSE</NS2:SourceID>
+            <NS2:DestinationID>B00LIBRA</NS2:DestinationID>
+            <NS2:ExecMode>ASYNCH</NS2:ExecMode>
+            <NS2:Timestamp>2019-02-06T14:27:48Z</NS2:Timestamp>
+            <NS2:Message>&lt;RouteData xmlns="http://schemas.cjse.gov.uk/common/operations" xmlns:cjseEntity="http://schemas.cjse.gov.uk/common/businessentities" xmlns:cjseType="http://schemas.cjse.gov.uk/common/businesstypes" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" VersionNumber="1.0" RequestResponse="Request"&gt;&lt;RequestFromSystem VersionNumber="1.0"&gt;&lt;CorrelationID&gt;REQUEST_ID&lt;/CorrelationID&gt;&lt;SystemID literalvalue="CJSE"&gt;Z00CJSE&lt;/SystemID&gt;&lt;OrganizationalUnitID literalvalue="CJICJSE"&gt;Z000019&lt;/OrganizationalUnitID&gt;&lt;DataController literalvalue="String"&gt;VishnuDataController&lt;/DataController&gt;&lt;User literalvalue="String"&gt;lee.flaxington&lt;/User&gt;&lt;SourceID literalvalue="String"&gt;00301PoliceCaseSystem&lt;/SourceID&gt;&lt;DestinationID literalvalue="String"&gt;Z00CJSE&lt;/DestinationID&gt;&lt;TestOperation&gt;1&lt;/TestOperation&gt;&lt;/RequestFromSystem&gt;&lt;DataStream VersionNumber="1.0"&gt;&lt;cjseEntity:System literalvalue="String"&gt;00301PoliceCaseSystem&lt;/cjseEntity:System&gt;&lt;cjseEntity:DataStreamType literalvalue="String"&gt;SPINewCase&lt;/cjseEntity:DataStreamType&gt;&lt;cjseEntity:SystemDataStreamID&gt;06_02_2019_142719_000000309381&lt;/cjseEntity:SystemDataStreamID&gt;&lt;cjseEntity:Name&gt;SPI New Case&lt;/cjseEntity:Name&gt;&lt;cjseEntity:Reference&gt;06_02_2019_142719_000000309381&lt;/cjseEntity:Reference&gt;&lt;cjseEntity:ReferenceType&gt;SPINewCase&lt;/cjseEntity:ReferenceType&gt;&lt;cjseEntity:Dated&gt;2013-12-01&lt;/cjseEntity:Dated&gt;&lt;cjseEntity:Timed&gt;14:27:21.657Z&lt;/cjseEntity:Timed&gt;&lt;cjseEntity:ContentType&gt;text/plain&lt;/cjseEntity:ContentType&gt;&lt;cjseEntity:DataStreamContent&gt;&amp;lt;?xml version=&amp;quot;1.0&amp;quot; encoding=&amp;quot;utf-8&amp;quot;?&amp;gt;
+                &amp;lt;NewCaseMessage xmlns:xsd=&amp;quot;http://www.w3.org/2001/XMLSchema&amp;quot; xmlns:xsi=&amp;quot;http://www.w3.org/2001/XMLSchema-instance&amp;quot; Flow=&amp;quot;NewCasesFromThePolice&amp;quot; Interface=&amp;quot;LibraStandardProsecutorPolice&amp;quot; SchemaVersion=&amp;quot;0.6g&amp;quot; xmlns=&amp;quot;http://www.dca.gov.uk/xmlschemas/libra&amp;quot;&amp;gt;
+                &amp;lt;Case&amp;gt;
+                &amp;lt;PTIURN&amp;gt;NEW_URN&amp;lt;/PTIURN&amp;gt;
+                &amp;lt;OriginatingOrganisation&amp;gt;0450000&amp;lt;/OriginatingOrganisation&amp;gt;
+                &amp;lt;CaseInitiation&amp;gt;C&amp;lt;/CaseInitiation&amp;gt;
+                &amp;lt;CPSorganisation&amp;gt;A30AB00&amp;lt;/CPSorganisation&amp;gt;
+                &amp;lt;InitialHearing&amp;gt;
+
+                &amp;lt;CourtHearingLocation&amp;gt;B01LY00&amp;lt;/CourtHearingLocation&amp;gt;
+                &amp;lt;DateOfHearing&amp;gt;TODAY+4&amp;lt;/DateOfHearing&amp;gt;
+                &amp;lt;TimeOfHearing&amp;gt;09:01:01.001&amp;lt;/TimeOfHearing&amp;gt;
+                &amp;lt;/InitialHearing&amp;gt;
+                &amp;lt;OtherPartyOfficerInCase&amp;gt;
+                &amp;lt;OfficerName&amp;gt;
+                &amp;lt;PersonFamilyName&amp;gt;Gellart&amp;lt;/PersonFamilyName&amp;gt;
+                &amp;lt;/OfficerName&amp;gt;
+                &amp;lt;PoliceOfficerRank&amp;gt;Constable&amp;lt;/PoliceOfficerRank&amp;gt;
+                &amp;lt;PoliceWorkerReferenceNumber&amp;gt;PoliceWorkerRef&amp;lt;/PoliceWorkerReferenceNumber&amp;gt;
+                &amp;lt;PoliceWorkerLocationCode&amp;gt;PoliceWork&amp;lt;/PoliceWorkerLocationCode&amp;gt;
+                &amp;lt;/OtherPartyOfficerInCase&amp;gt;
+                &amp;lt;Defendant&amp;gt;
+                &amp;lt;ProsecutorReference&amp;gt;TFL&amp;lt;/ProsecutorReference&amp;gt;
+                &amp;lt;PoliceIndividualDefendant&amp;gt;
+                &amp;lt;PersonDefendant&amp;gt;
+                &amp;lt;BasePersonDetails&amp;gt;
+                &amp;lt;PersonName&amp;gt;
+                &amp;lt;PersonFamilyName&amp;gt;Ormsby&amp;lt;/PersonFamilyName&amp;gt;
+                &amp;lt;/PersonName&amp;gt;
+                &amp;lt;Gender&amp;gt;1&amp;lt;/Gender&amp;gt;
+                &amp;lt;/BasePersonDetails&amp;gt;
+                &amp;lt;/PersonDefendant&amp;gt;
+                &amp;lt;Address&amp;gt;
+                &amp;lt;PAON xmlns=&amp;quot;http://www.govtalk.gov.uk/people/bs7666&amp;quot;&amp;gt;          ADDRESS_LINE1&amp;lt;/PAON&amp;gt;
+                &amp;lt;StreetDescription xmlns=&amp;quot;http://www.govtalk.gov.uk/people/bs7666&amp;quot;&amp;gt;StreetDescription&amp;lt;/StreetDescription&amp;gt;
+                &amp;lt;UniqueStreetReferenceNumber xmlns=&amp;quot;http://www.govtalk.gov.uk/people/bs7666&amp;quot;&amp;gt;    50000008&amp;lt;/UniqueStreetReferenceNumber&amp;gt;
+                &amp;lt;Locality xmlns=&amp;quot;http://www.govtalk.gov.uk/people/bs7666&amp;quot;&amp;gt;Locality2O&amp;lt;/Locality&amp;gt;
+                &amp;lt;/Address&amp;gt;
+                &amp;lt;CustodyStatus&amp;gt;C&amp;lt;/CustodyStatus&amp;gt;
+                &amp;lt;LanguageOptions&amp;gt;
+                &amp;lt;DocumentationLanguage&amp;gt;E&amp;lt;/DocumentationLanguage&amp;gt;
+                &amp;lt;HearingLanguage&amp;gt;E&amp;lt;/HearingLanguage&amp;gt;
+                &amp;lt;/LanguageOptions&amp;gt;
+                &amp;lt;DriverInformation&amp;gt;
+                &amp;lt;/DriverInformation&amp;gt;
+
+                &amp;lt;/PoliceIndividualDefendant&amp;gt;
+                &amp;lt;Offence&amp;gt;
+                &amp;lt;BaseOffenceDetails&amp;gt;
+                &amp;lt;OffenceSequenceNumber&amp;gt;500&amp;lt;/OffenceSequenceNumber&amp;gt;
+                &amp;lt;OffenceCode&amp;gt;TW01046&amp;lt;/OffenceCode&amp;gt;
+                &amp;lt;OffenceWording&amp;gt;Has a violent past and fear that he will commit further offences and
+                interfere with witnesse&amp;lt;/OffenceWording&amp;gt;
+                &amp;lt;OffenceTiming&amp;gt;
+
+                &amp;lt;OffenceDateCode&amp;gt;3&amp;lt;/OffenceDateCode&amp;gt;
+                &amp;lt;OffenceStart&amp;gt;
+                &amp;lt;OffenceDateStartDate&amp;gt;2004-12-09&amp;lt;/OffenceDateStartDate&amp;gt;
+                &amp;lt;/OffenceStart&amp;gt;
+                &amp;lt;/OffenceTiming&amp;gt;
+                &amp;lt;ChargeDate&amp;gt;2004-12-09&amp;lt;/ChargeDate&amp;gt;
+                &amp;lt;ArrestDate&amp;gt;2005-11-19&amp;lt;/ArrestDate&amp;gt;
+                &amp;lt;/BaseOffenceDetails&amp;gt;
+                &amp;lt;/Offence&amp;gt;
+                &amp;lt;/Defendant&amp;gt;
+                &amp;lt;/Case&amp;gt;
+                &amp;lt;/NewCaseMessage&amp;gt;&lt;/cjseEntity:DataStreamContent&gt;&lt;/DataStream&gt;&lt;Routes VersionNumber="1.0"&gt;&lt;Route VersionNumber="1.0"&gt;&lt;RouteID&gt;001&lt;/RouteID&gt;&lt;RouteSourceSystem literalvalue="String"&gt;00301PoliceCaseSystem&lt;/RouteSourceSystem&gt;&lt;RouteDestinationSystem literalvalue="String"&gt;B00LIBRA&lt;/RouteDestinationSystem&gt;&lt;Descriptor&gt;String&lt;/Descriptor&gt;&lt;/Route&gt;&lt;/Routes&gt;&lt;/RouteData&gt;</NS2:Message>
+        </NS2:SubmitRequestMes>
+    </NS1:Body>
+</NS1:Envelope>
