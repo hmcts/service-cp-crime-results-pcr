@@ -1,0 +1,139 @@
+[
+  {
+    "courtApplications": [],
+    "defendant": {
+      "address": {
+        "address1": "21",
+        "address2": "Furnburry Park Road",
+        "address3": "London",
+        "postCode": "SW11 3TQ"
+      },
+      "dateOfBirth": "2007-02-18",
+      "firstName": "Jessy",
+      "gender": "MALE",
+      "id": "c5f776b1-f2ae-4560-b25d-0d186b70ee90",
+      "lastName": "Berge",
+      "masterDefendantId": "c5f776b1-f2ae-4560-b25d-0d186b70ee90",
+      "postHearingCustodyStatus": "Not Applicable",
+      "results": [],
+      "title": "MR"
+    },
+    "hearing": {
+      "courtDetails": {
+        "court": {
+          "courtHouseCode": "B01BH00",
+          "courtHouseName": "Bexley Magistrates' Court"
+        },
+        "courtAddress": {
+          "address1": "Norwich Place",
+          "address2": "Bexleyheath",
+          "address3": "Kent",
+          "address4": "",
+          "address5": "",
+          "postCode": "DA6 7ND"
+        },
+        "ljaName": "South East London Magistrates' Court"
+      },
+      "defendantAppearanceDetails": "In person",
+      "hearingDate": "2026-08-14",
+      "hearingType": "First hearing",
+      "id": "1503f8f6-eee2-4e06-bfc7-7564f5e68763",
+      "jurisdiction": "MAGISTRATES",
+      "sharedTime": "2026-08-14T10:47:53.666Z"
+    },
+    "offences": [
+      {
+        "allocationDecision": "Summary-only offence",
+        "code": "CA03012",
+        "convictionDate": "2026-08-14",
+        "listingNumber": 1,
+        "offenceLegislation": "Contrary to section 363(3)(b) and (4) of the Communications Act 2003.",
+        "pleaDate": "2026-08-14",
+        "pleaValue": "CHANGE_TO_NOT_GUILTY",
+        "results": [
+          {
+            "resultTexts": [
+              {
+                "label": "Total custodial period",
+                "value": "8 Months"
+              },
+              {
+                "label": "Prison organisation name",
+                "value": "HMP/YOI High Down"
+              },
+              {
+                "label": "Prison email address 1",
+                "value": "OMU.Highdown@justice.gov.uk"
+              },
+              {
+                "label": "Prison email address 2",
+                "value": "Reception.Highdown@justice.gov.uk"
+              },
+              {
+                "label": "Conveyor / custodian name organisation name",
+                "value": "London Division NPS"
+              },
+              {
+                "label": "Conveyor / custodian name email address 1",
+                "value": "londonnps.court@justice.gov.uk"
+              },
+              {
+                "label": "Probation team to be notified organisation name",
+                "value": "London Division NPS"
+              },
+              {
+                "label": "Probation team to be notified email address 1",
+                "value": "londonnps.court@justice.gov.uk"
+              },
+              {
+                "label": "Imprisonment Period",
+                "value": "7 Months"
+              },
+              {
+                "label": "Concurrent",
+                "value": "true"
+              },
+              {
+                "label": "Consecutive to offence",
+                "value": "test offence"
+              },
+              {
+                "label": "which is on case number",
+                "value": "28DI5511546"
+              },
+              {
+                "label": "Imprisonment reasons",
+                "value": "failure to comply with requirements of post custodial sentence supervision"
+              },
+              {
+                "label": "Reason for custody",
+                "value": "because of an unprovoked attack of a serious nature, because the defendant has a flagrant disregard for court orders"
+              },
+              {
+                "label": "Number of days in custody in foreign jurisdiction to count",
+                "value": "0"
+              },
+              {
+                "label": "Bail remand days to count (tagged days)",
+                "value": "0"
+              },
+              {
+                "label": "This offence is aggravated by the foreign power condition being met in relation to it as defined by section 31 of the National Security Act 2023",
+                "value": "false"
+              }
+            ]
+          }
+        ],
+        "startDate": "2022-12-12",
+        "title": "Possess / control TV set with intent another use install without a licence",
+        "verdict": "Found guilty",
+        "wording": "Jessy Berge have set up a TV cable without a valid license."
+      }
+    ],
+    "prosecutionCase": {
+      "caseMarkers": [],
+      "caseURN": "28DI5511547",
+      "results": []
+    }
+  }
+]

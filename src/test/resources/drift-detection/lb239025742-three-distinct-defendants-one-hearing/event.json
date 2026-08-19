@@ -1,0 +1,568 @@
+{
+  "hearing": {
+    "courtCentre": {
+      "address": {
+        "address1": "Marlborough St",
+        "address2": "Bristol",
+        "address3": "",
+        "address4": "",
+        "address5": "",
+        "postcode": "BS1 3NU"
+      },
+      "code": "B52CM00",
+      "courtHearingLocation": "B52CM04",
+      "id": "1a359d44-6b52-3919-b052-065413e4a801",
+      "lja": {
+        "ljaCode": "1450",
+        "ljaName": "Avon & Somerset Magistrates' Court"
+      },
+      "name": "Bristol Magistrates' Court",
+      "roomId": "d7df1737-c35c-319a-b93a-6cd402a95db1",
+      "roomName": "Courtroom 04"
+    },
+    "defendantAttendance": [
+      {
+        "attendanceDays": [
+          {
+            "attendanceType": "IN_PERSON",
+            "day": "2026-08-15"
+          }
+        ],
+        "defendantId": "32646b0a-c52f-4bf3-a32e-390c08ccec1e"
+      },
+      {
+        "attendanceDays": [
+          {
+            "attendanceType": "IN_PERSON",
+            "day": "2026-08-15"
+          }
+        ],
+        "defendantId": "dd989488-dee1-4c59-ad57-c12d4feb12ca"
+      },
+      {
+        "attendanceDays": [
+          {
+            "attendanceType": "IN_PERSON",
+            "day": "2026-08-15"
+          }
+        ],
+        "defendantId": "6eb7c57c-ae77-4461-9811-ea2fbd1bb6e5"
+      }
+    ],
+    "defendantJudicialResults": [
+      {
+        "defendantId": "32646b0a-c52f-4bf3-a32e-390c08ccec1e",
+        "judicialResult": {
+          "alwaysPublished": true,
+          "canBeSubjectOfBreach": false,
+          "canBeSubjectOfVariation": false,
+          "canExtendActiveOrder": false,
+          "category": "FINAL",
+          "committedToCC": false,
+          "courtClerk": {
+            "firstName": "Erica",
+            "lastName": "Wilson",
+            "userId": "a085e359-6069-4694-8820-7810e7dfe762"
+          },
+          "d20": false,
+          "excludedFromResults": false,
+          "isAdjournmentResult": false,
+          "isAvailableForCourtExtract": true,
+          "isConvictedResult": false,
+          "isDeleted": false,
+          "isFinancialResult": false,
+          "isNewAmendment": true,
+          "isUnscheduled": false,
+          "judicialResultId": "fb468f74-5f5c-4eeb-9488-45830f3c6f5e",
+          "judicialResultPrompts": [
+            {
+              "courtExtract": "Y",
+              "isFinancialImposition": false,
+              "judicialResultPromptTypeId": "ee7d253a-c629-11e8-a355-529269fb1459",
+              "label": "Date to pay in full by",
+              "promptReference": "PBD",
+              "promptSequence": 100,
+              "type": "DATE",
+              "usergroups": [],
+              "value": "28/09/2026",
+              "welshLabel": "Dyddiad terfyn ar gyfer talu'r swm llawn",
+              "welshValue": "28/09/2026"
+            }
+          ],
+          "judicialResultTypeId": "bcb5a496-f7cf-11e8-8eb2-f2801f1b9fd1",
+          "label": "Pay by date",
+          "lastSharedDateTime": "2026-08-14",
+          "level": "D",
+          "lifeDuration": false,
+          "offenceId": "b22f373c-27d4-44c3-ae83-ec0409cc4379",
+          "orderedDate": "2026-08-15",
+          "orderedHearingId": "4255fe1f-d30c-4cbb-927e-3a8158e67e79",
+          "parentJudicialResultId": "6972ad8f-b075-4e66-9dfe-0906759be882",
+          "parentJudicialResultTypeId": "4fdd9548-c521-48c9-baa3-1bd2f13a4fcc",
+          "postHearingCustodyStatus": "A",
+          "preserveActiveOrder": false,
+          "publishedAsAPrompt": false,
+          "publishedForNows": false,
+          "rank": 120500,
+          "resultDefinitionGroup": "Payment terms",
+          "resultText": "PDATE - Pay by date\nPay by date. Date to pay in full by: 28/09/2026.",
+          "rollUpPrompts": false,
+          "rootJudicialResultId": "694de8aa-8c73-445f-b4bb-f04179757209",
+          "rootJudicialResultTypeId": "969f150c-cd05-46b0-9dd9-30891efcc766",
+          "sentToCC": false,
+          "terminatesOffenceProceedings": false,
+          "urgent": false,
+          "usergroups": [],
+          "welshLabel": "Dyddiad terfyn ar gyfer talu"
+        },
+        "masterDefendantId": "32646b0a-c52f-4bf3-a32e-390c08ccec1e"
+      }
+    ],
+    "hasSharedResults": true,
+    "hearingDays": [
+      {
+        "courtCentreId": "1a359d44-6b52-3919-b052-065413e4a801",
+        "courtRoomId": "d7df1737-c35c-319a-b93a-6cd402a95db1",
+        "hasSharedResults": true,
+        "isCancelled": false,
+        "listedDurationMinutes": 20,
+        "listingSequence": 0,
+        "sittingDay": "2026-08-15T10:30:00.000Z"
+      }
+    ],
+    "hearingLanguage": "ENGLISH",
+    "id": "4255fe1f-d30c-4cbb-927e-3a8158e67e79",
+    "isGroupProceedings": false,
+    "jurisdictionType": "MAGISTRATES",
+    "prosecutionCases": [
+      {
+        "caseStatus": "ACTIVE",
+        "cpsOrganisation": "A30AB00",
+        "defendants": [
+          {
+            "courtProceedingsInitiated": "2026-08-14T14:16:39.074Z",
+            "id": "32646b0a-c52f-4bf3-a32e-390c08ccec1e",
+            "masterDefendantId": "32646b0a-c52f-4bf3-a32e-390c08ccec1e",
+            "offences": [
+              {
+                "arrestDate": "2026-07-30",
+                "chargeDate": "2026-07-30",
+                "count": 0,
+                "dvlaOffenceCode": "CU10",
+                "endorsableFlag": true,
+                "id": "b22f373c-27d4-44c3-ae83-ec0409cc4379",
+                "isDisposed": true,
+                "judicialResults": [
+                  {
+                    "alwaysPublished": false,
+                    "canBeSubjectOfBreach": false,
+                    "canBeSubjectOfVariation": false,
+                    "canExtendActiveOrder": false,
+                    "category": "FINAL",
+                    "cjsCode": "1015",
+                    "committedToCC": false,
+                    "courtClerk": {
+                      "firstName": "Erica",
+                      "lastName": "Wilson",
+                      "userId": "a085e359-6069-4694-8820-7810e7dfe762"
+                    },
+                    "d20": false,
+                    "excludedFromResults": false,
+                    "isAdjournmentResult": false,
+                    "isAvailableForCourtExtract": true,
+                    "isConvictedResult": true,
+                    "isDeemedServed": false,
+                    "isDeleted": false,
+                    "isFinancialResult": true,
+                    "isNewAmendment": true,
+                    "isUnscheduled": false,
+                    "judicialResultId": "694de8aa-8c73-445f-b4bb-f04179757209",
+                    "judicialResultPrompts": [
+                      {
+                        "courtExtract": "Y",
+                        "isFinancialImposition": true,
+                        "judicialResultPromptTypeId": "7cd1472f-2379-4f5b-9e67-98a43d86e122",
+                        "label": "Amount of fine",
+                        "promptReference": "AOF",
+                        "promptSequence": 100,
+                        "type": "CURR",
+                        "usergroups": [],
+                        "value": "\u00a3555.00",
+                        "welshLabel": "Swm y ddirwy",
+                        "welshValue": "\u00a3555.00"
+                      }
+                    ],
+                    "judicialResultTypeId": "969f150c-cd05-46b0-9dd9-30891efcc766",
+                    "label": "Fine",
+                    "lastSharedDateTime": "2026-08-14",
+                    "level": "O",
+                    "lifeDuration": false,
+                    "orderedDate": "2026-08-15",
+                    "orderedHearingId": "4255fe1f-d30c-4cbb-927e-3a8158e67e79",
+                    "policeSubjectLineTitle": "Final Sentence",
+                    "postHearingCustodyStatus": "A",
+                    "preserveActiveOrder": false,
+                    "publishedAsAPrompt": false,
+                    "publishedForNows": false,
+                    "rank": 65600,
+                    "resultDefinitionGroup": "Imposition",
+                    "resultText": "FO - Fine\nFined \u00a3555.00",
+                    "rollUpPrompts": true,
+                    "rootJudicialResultId": "694de8aa-8c73-445f-b4bb-f04179757209",
+                    "rootJudicialResultTypeId": "969f150c-cd05-46b0-9dd9-30891efcc766",
+                    "sentToCC": false,
+                    "terminatesOffenceProceedings": false,
+                    "urgent": false,
+                    "usergroups": [],
+                    "welshLabel": "Dirwy"
+                  }
+                ],
+                "listingNumber": 1,
+                "maxPenalty": "S:3pp",
+                "modeOfTrial": "Summary",
+                "offenceCode": "RC86851",
+                "offenceDateCode": 1,
+                "offenceDefinitionId": "a9223eee-f3de-3b8a-b6bb-f0feb6f7f737",
+                "offenceLegislation": "Contrary to regulation 18(1) of the Road Vehicles    (Construction and Use) Regulations 1986, section 41A of the Road    Traffic Act 1988 and Schedule 2 to the Road Traffic Offenders Act 1988.",
+                "offenceTitle": "Vehicle defect - permit use of a motor vehicle / trailer with defective brakes",
+                "orderIndex": 1,
+                "startDate": "2026-05-16",
+                "wording": "Vehicle defect - permit use of a motor vehicle / trailer with defective brakes"
+              }
+            ],
+            "personDefendant": {
+              "arrestSummonsNumber": "2391NX0000984347563D",
+              "bailConditions": "",
+              "bailStatus": {
+                "code": "A",
+                "description": "Not applicable",
+                "id": "86009c70-759d-3308-8de4-194886ff9a77"
+              },
+              "custodialEstablishment": {
+                "custody": "Prison",
+                "id": "e0c7afe1-4e09-3aaa-bd9c-61f854c39e69",
+                "name": "HMP Leeds"
+              },
+              "driverNumber": "VANFL002222OW9PH",
+              "personDetails": {
+                "address": {
+                  "address1": "40 Market Place",
+                  "address2": "Market Place",
+                  "address3": "Bristol",
+                  "postcode": "BS1 1AA"
+                },
+                "contact": {
+                  "home": "0881198373",
+                  "mobile": "01846775729",
+                  "primaryEmail": "douglas.bogisich@example.com"
+                },
+                "dateOfBirth": "1992-08-14",
+                "documentationLanguageNeeds": "ENGLISH",
+                "ethnicity": {
+                  "selfDefinedEthnicityCode": "W1",
+                  "selfDefinedEthnicityDescription": "British",
+                  "selfDefinedEthnicityId": "c4ca4238-a0b9-3382-8dcc-509a6f75849b"
+                },
+                "firstName": "Douglas",
+                "gender": "MALE",
+                "hearingLanguageNeeds": "ENGLISH",
+                "lastName": "Bogisich",
+                "nationalityDescription": "Unknown",
+                "nationalityId": "22ef7a73-df50-4349-8c72-ca3b9ace6363",
+                "title": "Mr"
+              }
+            },
+            "prosecutionCaseId": "afa07148-3c53-4996-8f90-004c4d009c2b"
+          },
+          {
+            "courtProceedingsInitiated": "2026-08-14T14:16:39.074Z",
+            "id": "6eb7c57c-ae77-4461-9811-ea2fbd1bb6e5",
+            "masterDefendantId": "6eb7c57c-ae77-4461-9811-ea2fbd1bb6e5",
+            "offences": [
+              {
+                "arrestDate": "2026-07-25",
+                "chargeDate": "2026-07-20",
+                "count": 0,
+                "endorsableFlag": false,
+                "id": "a1c020eb-fdd0-4571-a5b2-c1889928d152",
+                "isDisposed": true,
+                "judicialResults": [
+                  {
+                    "alwaysPublished": false,
+                    "canBeSubjectOfBreach": true,
+                    "canBeSubjectOfVariation": false,
+                    "canExtendActiveOrder": false,
+                    "category": "FINAL",
+                    "cjsCode": "1018",
+                    "committedToCC": false,
+                    "courtClerk": {
+                      "firstName": "Erica",
+                      "lastName": "Wilson",
+                      "userId": "a085e359-6069-4694-8820-7810e7dfe762"
+                    },
+                    "d20": false,
+                    "durationElement": {
+                      "primaryDurationUnit": "M",
+                      "primaryDurationValue": 34
+                    },
+                    "dvlaCode": "E",
+                    "excludedFromResults": false,
+                    "isAdjournmentResult": false,
+                    "isAvailableForCourtExtract": true,
+                    "isConvictedResult": true,
+                    "isDeleted": false,
+                    "isFinancialResult": false,
+                    "isNewAmendment": true,
+                    "isUnscheduled": false,
+                    "judicialResultId": "d00584dd-f73e-4cdf-a52d-b3b8d5c7435f",
+                    "judicialResultPrompts": [
+                      {
+                        "courtExtract": "Y",
+                        "durationSequence": 1,
+                        "isFinancialImposition": false,
+                        "judicialResultPromptTypeId": "d3205319-84cf-4c5b-9d7a-7e4bb1865054",
+                        "label": "Period\u00a0of conditional discharge",
+                        "promptReference": "periodofConditionalDischarge",
+                        "promptSequence": 100,
+                        "type": "INT",
+                        "usergroups": [],
+                        "value": "34 Months",
+                        "welshLabel": "Cyfnod o ryddhad amodol",
+                        "welshValue": "34 Months"
+                      }
+                    ],
+                    "judicialResultTypeId": "554c2622-c1cc-459e-a98d-b7f317ab065c",
+                    "label": "Conditional discharge",
+                    "lastSharedDateTime": "2026-08-14",
+                    "level": "O",
+                    "lifeDuration": false,
+                    "orderedDate": "2026-08-15",
+                    "orderedHearingId": "4255fe1f-d30c-4cbb-927e-3a8158e67e79",
+                    "policeSubjectLineTitle": "Final Sentence",
+                    "postHearingCustodyStatus": "A",
+                    "preserveActiveOrder": false,
+                    "publishedAsAPrompt": false,
+                    "publishedForNows": false,
+                    "rank": 73800,
+                    "resultText": "CD - Conditional discharge\nDischarged conditionally for 34 Months.",
+                    "rollUpPrompts": true,
+                    "rootJudicialResultId": "d00584dd-f73e-4cdf-a52d-b3b8d5c7435f",
+                    "rootJudicialResultTypeId": "554c2622-c1cc-459e-a98d-b7f317ab065c",
+                    "sentToCC": false,
+                    "terminatesOffenceProceedings": false,
+                    "urgent": false,
+                    "usergroups": [],
+                    "welshLabel": "Rhyddhad Amodol"
+                  }
+                ],
+                "listingNumber": 1,
+                "maxPenalty": "EW:Ultd Fine",
+                "modeOfTrial": "Either Way",
+                "offenceCode": "FS13012",
+                "offenceDateCode": 1,
+                "offenceDefinitionId": "c8b95c21-fdca-3f0c-ab6f-6412e4b4955a",
+                "offenceLegislation": "Contrary to paragraph 6 of Schedule 4 to, and regulation 19(2) of, the Food Safety and Hygiene (England) Regulations 2013.",
+                "offenceTitle": "Keep cooked or reheated food at temperature below 63 Celsius",
+                "orderIndex": 1,
+                "startDate": "2026-05-16",
+                "wording": "Keep cooked or reheated food at temperature below 63 Celsius"
+              }
+            ],
+            "personDefendant": {
+              "arrestSummonsNumber": "2391NX0000198391821D",
+              "bailConditions": "",
+              "bailStatus": {
+                "code": "A",
+                "description": "Not applicable",
+                "id": "86009c70-759d-3308-8de4-194886ff9a77"
+              },
+              "custodialEstablishment": {
+                "custody": "Prison",
+                "id": "d5c35bad-5e03-3df5-8944-07fe4a983da7",
+                "name": "HMP Ashfield"
+              },
+              "driverNumber": "VANFL002222OW9PH",
+              "personDetails": {
+                "address": {
+                  "address1": "68 College Road",
+                  "address2": "College Road",
+                  "address3": "Bangor",
+                  "address4": "Gwynedd",
+                  "postcode": "LL57 2DG"
+                },
+                "contact": {
+                  "home": "0256352996",
+                  "mobile": "01237246279",
+                  "primaryEmail": "moses.wintheiser@example.com"
+                },
+                "dateOfBirth": "2004-08-14",
+                "documentationLanguageNeeds": "ENGLISH",
+                "ethnicity": {
+                  "selfDefinedEthnicityCode": "W1",
+                  "selfDefinedEthnicityDescription": "British",
+                  "selfDefinedEthnicityId": "c4ca4238-a0b9-3382-8dcc-509a6f75849b"
+                },
+                "firstName": "Moses",
+                "gender": "MALE",
+                "hearingLanguageNeeds": "ENGLISH",
+                "lastName": "Wintheiser",
+                "nationalityDescription": "Unknown",
+                "nationalityId": "22ef7a73-df50-4349-8c72-ca3b9ace6363",
+                "title": "Mr"
+              }
+            },
+            "prosecutionCaseId": "afa07148-3c53-4996-8f90-004c4d009c2b"
+          },
+          {
+            "courtProceedingsInitiated": "2026-08-14T14:16:39.074Z",
+            "id": "dd989488-dee1-4c59-ad57-c12d4feb12ca",
+            "masterDefendantId": "dd989488-dee1-4c59-ad57-c12d4feb12ca",
+            "offences": [
+              {
+                "arrestDate": "2026-07-05",
+                "chargeDate": "2026-06-30",
+                "count": 0,
+                "dvlaOffenceCode": "NE99",
+                "endorsableFlag": false,
+                "id": "e09dde9d-6678-422f-b19b-947208423316",
+                "isDisposed": true,
+                "judicialResults": [
+                  {
+                    "alwaysPublished": false,
+                    "canBeSubjectOfBreach": false,
+                    "canBeSubjectOfVariation": false,
+                    "canExtendActiveOrder": false,
+                    "category": "FINAL",
+                    "cjsCode": "1017",
+                    "committedToCC": false,
+                    "courtClerk": {
+                      "firstName": "Erica",
+                      "lastName": "Wilson",
+                      "userId": "a085e359-6069-4694-8820-7810e7dfe762"
+                    },
+                    "d20": false,
+                    "dvlaCode": "J",
+                    "excludedFromResults": false,
+                    "isAdjournmentResult": false,
+                    "isAvailableForCourtExtract": true,
+                    "isConvictedResult": true,
+                    "isDeleted": false,
+                    "isFinancialResult": false,
+                    "isNewAmendment": true,
+                    "isUnscheduled": false,
+                    "judicialResultId": "4aa516ca-1f4a-4a63-befc-09ea0d7b2db2",
+                    "judicialResultTypeId": "b9c6047b-fb84-4b12-97a1-2175e4b8bbac",
+                    "label": "Absolute discharge",
+                    "lastSharedDateTime": "2026-08-14",
+                    "level": "O",
+                    "lifeDuration": false,
+                    "orderedDate": "2026-08-15",
+                    "orderedHearingId": "4255fe1f-d30c-4cbb-927e-3a8158e67e79",
+                    "policeSubjectLineTitle": "Final Sentence",
+                    "postHearingCustodyStatus": "A",
+                    "preserveActiveOrder": false,
+                    "publishedAsAPrompt": false,
+                    "publishedForNows": false,
+                    "rank": 53800,
+                    "resultText": "AD - Absolute discharge",
+                    "resultWording": "",
+                    "rollUpPrompts": true,
+                    "rootJudicialResultId": "4aa516ca-1f4a-4a63-befc-09ea0d7b2db2",
+                    "rootJudicialResultTypeId": "b9c6047b-fb84-4b12-97a1-2175e4b8bbac",
+                    "sentToCC": false,
+                    "terminatesOffenceProceedings": false,
+                    "urgent": false,
+                    "usergroups": [],
+                    "welshLabel": "Rhyddhad diamod"
+                  }
+                ],
+                "listingNumber": 1,
+                "maxPenalty": "EW:6M &/or Ultd Fine",
+                "modeOfTrial": "Either Way",
+                "offenceCode": "TH68013A",
+                "offenceDateCode": 1,
+                "offenceDefinitionId": "ce94a77f-182e-3dcd-91e2-fdde31b74844",
+                "offenceLegislation": "Contrary to section 1(1)    of the Criminal Attempts Act 1981.",
+                "offenceLegislationWelsh": "Yn groes i adran 1(1) Deddf Ymgeisiau i Droseddu 1981.",
+                "offenceTitle": "Attempt theft of motor vehicle",
+                "offenceTitleWelsh": "Ymgais i ddwyn cerbyd modur",
+                "orderIndex": 1,
+                "startDate": "2026-05-16",
+                "wording": "Attempt theft to vehicle"
+              }
+            ],
+            "personDefendant": {
+              "arrestSummonsNumber": "2391NX0000746184612D",
+              "bailConditions": "",
+              "bailStatus": {
+                "code": "A",
+                "description": "Not applicable",
+                "id": "86009c70-759d-3308-8de4-194886ff9a77"
+              },
+              "custodialEstablishment": {
+                "custody": "Prison",
+                "id": "4ededaad-96e3-3bd1-b549-07d1888f9ad2",
+                "name": "HMP Wakefield"
+              },
+              "driverNumber": "VANFL002222OW9PH",
+              "personDetails": {
+                "address": {
+                  "address1": "15 Station Road",
+                  "address2": "Station Road",
+                  "address3": "Manchester",
+                  "address4": "Greater Manchester",
+                  "postcode": "M1 3FH"
+                },
+                "contact": {
+                  "home": "0913166757",
+                  "mobile": "05114246399",
+                  "primaryEmail": "willard.vandervort@example.com"
+                },
+                "dateOfBirth": "1978-08-14",
+                "documentationLanguageNeeds": "ENGLISH",
+                "ethnicity": {
+                  "selfDefinedEthnicityCode": "W1",
+                  "selfDefinedEthnicityDescription": "British",
+                  "selfDefinedEthnicityId": "c4ca4238-a0b9-3382-8dcc-509a6f75849b"
+                },
+                "firstName": "Willard",
+                "gender": "MALE",
+                "hearingLanguageNeeds": "ENGLISH",
+                "lastName": "Vandervort",
+                "nationalityDescription": "Unknown",
+                "nationalityId": "22ef7a73-df50-4349-8c72-ca3b9ace6363",
+                "title": "Mr"
+              }
+            },
+            "prosecutionCaseId": "afa07148-3c53-4996-8f90-004c4d009c2b"
+          }
+        ],
+        "id": "afa07148-3c53-4996-8f90-004c4d009c2b",
+        "initiationCode": "C",
+        "originatingOrganisation": "0480000",
+        "prosecutionCaseIdentifier": {
+          "address": {
+            "address1": "Bishopsgate police station",
+            "address2": "182, Bishopsgate",
+            "address5": "London",
+            "postcode": "EC2M 4NP"
+          },
+          "caseURN": "LB239025742",
+          "contact": {
+            "primaryEmail": "casebuilderscpsmemos@cityoflondon.police.uk"
+          },
+          "majorCreditorCode": "COLP",
+          "prosecutionAuthorityCode": "CITYPF",
+          "prosecutionAuthorityId": "baa2ec52-296b-3f38-922a-9e641c1f94d3",
+          "prosecutionAuthorityName": "City of London Police",
+          "prosecutionAuthorityOUCode": "0480000"
+        }
+      }
+    ],
+    "type": {
+      "description": "First hearing",
+      "id": "4a0e892d-c0c5-3c51-95b8-704d8c781776"
+    }
+  },
+  "sharedTime": "2026-08-14T14:18:43.074Z"
+}

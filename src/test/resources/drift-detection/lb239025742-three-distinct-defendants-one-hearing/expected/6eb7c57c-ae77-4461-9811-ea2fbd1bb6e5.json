@@ -1,0 +1,75 @@
+[
+  {
+    "courtApplications": [],
+    "custodyLocation": {
+      "custodyType": "Prison",
+      "name": "HMP Ashfield"
+    },
+    "defendant": {
+      "address": {
+        "address1": "68 College Road",
+        "address2": "College Road",
+        "address3": "Bangor",
+        "postCode": "LL57 2DG"
+      },
+      "dateOfBirth": "2004-08-14",
+      "firstName": "Moses",
+      "gender": "MALE",
+      "id": "6eb7c57c-ae77-4461-9811-ea2fbd1bb6e5",
+      "lastName": "Wintheiser",
+      "masterDefendantId": "6eb7c57c-ae77-4461-9811-ea2fbd1bb6e5",
+      "nationality": "Unknown",
+      "postHearingCustodyStatus": "Not Applicable",
+      "results": [],
+      "title": "Mr"
+    },
+    "hearing": {
+      "courtDetails": {
+        "court": {
+          "courtHouseCode": "B52CM00",
+          "courtHouseName": "Bristol Magistrates' Court"
+        },
+        "courtAddress": {
+          "address1": "Marlborough St",
+          "address2": "Bristol",
+          "address3": "",
+          "address4": "",
+          "address5": "",
+          "postCode": "BS1 3NU"
+        },
+        "ljaName": "Avon & Somerset Magistrates' Court"
+      },
+      "defendantAppearanceDetails": "In person",
+      "hearingDate": "2026-08-15",
+      "hearingType": "First hearing",
+      "id": "4255fe1f-d30c-4cbb-927e-3a8158e67e79",
+      "jurisdiction": "MAGISTRATES",
+      "sharedTime": "2026-08-14T14:18:43.074Z"
+    },
+    "offences": [
+      {
+        "code": "FS13012",
+        "listingNumber": 1,
+        "offenceLegislation": "Contrary to paragraph 6 of Schedule 4 to, and regulation 19(2) of, the Food Safety and Hygiene (England) Regulations 2013.",
+        "results": [
+          {
+            "resultTexts": [
+              {
+                "label": "Period\u00a0of conditional discharge",
+                "value": "34 Months"
+              }
+            ]
+          }
+        ],
+        "startDate": "2026-05-16",
+        "title": "Keep cooked or reheated food at temperature below 63 Celsius",
+        "wording": "Keep cooked or reheated food at temperature below 63 Celsius"
+      }
+    ],
+    "prosecutionCase": {
+      "caseMarkers": [],
+      "caseURN": "LB239025742",
+      "results": []
+    }
+  }
+]

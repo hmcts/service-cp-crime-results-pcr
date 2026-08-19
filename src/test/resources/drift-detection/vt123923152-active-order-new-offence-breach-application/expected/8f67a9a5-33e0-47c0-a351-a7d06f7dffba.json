@@ -1,0 +1,189 @@
+[
+  {
+    "courtApplications": [
+      {
+        "offences": [
+          {
+            "allocationDecision": "Indictable-only offence",
+            "code": "CJ03522",
+            "convictionDate": "2026-08-13",
+            "listingNumber": 1,
+            "offenceLegislation": "Contrary to section 8(1) of the Theft Act 1968.",
+            "pleaDate": "2026-08-13",
+            "pleaValue": "GUILTY",
+            "results": [
+              {
+                "resultTexts": [
+                  {
+                    "label": "Imprisonment Period",
+                    "value": "15 Days"
+                  },
+                  {
+                    "label": "Imprisonment reasons",
+                    "value": "the offence(s) are so serious that only a custodial sentence can be justified"
+                  },
+                  {
+                    "label": "Reason for custody",
+                    "value": "because of an unprovoked attack of a serious nature"
+                  },
+                  {
+                    "label": "Bail remand days to count (tagged days)",
+                    "value": "0"
+                  },
+                  {
+                    "label": "This offence is aggravated by the foreign power condition being met in relation to it as defined by section 31 of the National Security Act 2023",
+                    "value": "false"
+                  }
+                ]
+              }
+            ],
+            "startDate": "2026-06-14",
+            "title": "Robbery",
+            "wording": "Original CaseURN: SN123927923, Re-sentenced Original code : TH68023, Original details: Robbery"
+          }
+        ],
+        "reference": "VT123923152",
+        "results": [
+          {
+            "resultTexts": [
+              {
+                "label": "Date original order made",
+                "value": "12/08/2026"
+              },
+              {
+                "label": "Order revoked",
+                "value": "community order"
+              },
+              {
+                "label": "Court that made the original order",
+                "value": "Bexley Magistrates' Court"
+              }
+            ]
+          }
+        ],
+        "type": "Conviction of an offence while a community order is in force"
+      }
+    ],
+    "defendant": {
+      "address": {
+        "address1": "5 Prince Street",
+        "address2": "Prince Street",
+        "address3": "City Centre",
+        "postCode": "NW1 5BR"
+      },
+      "dateOfBirth": "1989-08-13",
+      "firstName": "Rodrick",
+      "gender": "MALE",
+      "id": "8f67a9a5-33e0-47c0-a351-a7d06f7dffba",
+      "lastName": "Rowe",
+      "masterDefendantId": "a0344bc4-4231-4c3f-b10f-45275d32846a",
+      "postHearingCustodyStatus": "Not Applicable",
+      "results": [],
+      "title": "Mr"
+    },
+    "hearing": {
+      "courtDetails": {
+        "court": {
+          "courtHouseCode": "B01BH00",
+          "courtHouseName": "Bexley Magistrates' Court"
+        },
+        "courtAddress": {
+          "address1": "Norwich Place",
+          "address2": "Bexleyheath",
+          "address3": "Kent",
+          "address4": "",
+          "address5": "",
+          "postCode": "DA6 7ND"
+        },
+        "ljaName": "South East London Magistrates' Court"
+      },
+      "defendantAppearanceDetails": "In person",
+      "hearingDate": "2026-08-13",
+      "hearingType": "First hearing",
+      "id": "2d75248a-e1d5-4504-99a0-04e21d5f8d8b",
+      "jurisdiction": "MAGISTRATES",
+      "sharedTime": "2026-08-13T16:14:09.661Z"
+    },
+    "offences": [
+      {
+        "allocationDecision": "Indictable-only offence",
+        "code": "TH68023",
+        "convictionDate": "2026-08-13",
+        "listingNumber": 1,
+        "offenceLegislation": "Contrary to section 8(1) of the Theft Act 1968.",
+        "pleaDate": "2026-08-13",
+        "pleaValue": "GUILTY",
+        "results": [
+          {
+            "resultTexts": [
+              {
+                "label": "Total custodial period is life",
+                "value": "true"
+              },
+              {
+                "label": "Prison organisation name",
+                "value": "HMP/YOI Low Newton"
+              },
+              {
+                "label": "Prison email address 1",
+                "value": "OMU.LowNewton@justice.gov.uk"
+              },
+              {
+                "label": "Prison email address 2",
+                "value": "Reception.LowNewton@justice.gov.uk"
+              },
+              {
+                "label": "Conveyor / custodian name organisation name",
+                "value": "North East Division NPS"
+              },
+              {
+                "label": "Conveyor / custodian name email address 1",
+                "value": "nenps.court@justice.gov.uk"
+              },
+              {
+                "label": "Probation team to be notified organisation name",
+                "value": "South West and Central Division NPS"
+              },
+              {
+                "label": "Probation team to be notified email address 1",
+                "value": "SWSCNPS.Court@justice.gov.uk"
+              },
+              {
+                "label": "Imprisonment Period",
+                "value": "15 Days"
+              },
+              {
+                "label": "Imprisonment reasons",
+                "value": "the offence(s) are so serious that only a custodial sentence can be justified"
+              },
+              {
+                "label": "Reason for custody",
+                "value": "because of an unprovoked attack of a serious nature"
+              },
+              {
+                "label": "Bail remand days to count (tagged days)",
+                "value": "0"
+              },
+              {
+                "label": "This offence is aggravated by the foreign power condition being met in relation to it as defined by section 31 of the National Security Act 2023",
+                "value": "false"
+              },
+              {
+                "label": "Risk or vulnerability factors",
+                "value": "Risk or vulnerability factors:RiskFactor"
+              }
+            ]
+          }
+        ],
+        "startDate": "2026-06-14",
+        "title": "Robbery",
+        "wording": "Robbery"
+      }
+    ],
+    "prosecutionCase": {
+      "caseMarkers": [],
+      "caseURN": "VT123923152",
+      "results": []
+    }
+  }
+]
