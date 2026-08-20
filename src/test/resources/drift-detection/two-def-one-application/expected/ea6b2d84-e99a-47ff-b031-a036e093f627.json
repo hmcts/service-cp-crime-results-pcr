@@ -53,8 +53,7 @@
       "hearingDate": "2026-07-23",
       "hearingType": "Application",
       "id": "5f75863f-270a-482a-9e67-eaccb2fd3130",
-      "jurisdiction": "MAGISTRATES",
-      "sharedTime": "2026-07-24T09:40:34.745Z"
+      "jurisdiction": "MAGISTRATES"
     },
     "offences": [
       {
@@ -133,6 +132,7 @@
       "caseMarkers": [],
       "caseURN": "TEST1234567",
       "results": []
-    }
+    },
+    "sharedTime": "2026-07-24T09:40:34.745Z"
   }
 ]

@@ -48,6 +48,7 @@ public class PcrResultsMapper {
                 .defendant(toDefendant(version, judicialResults, prompts))
                 .custodyLocation(toCustodyLocation(version))
                 .hearing(toHearingDetails(caseHearing, version))
+                .sharedTime(version.getSharedTime() == null ? null : version.getSharedTime().toInstant())
                 .offences(directOffences(offences, version.getCpVersionPk()).stream()
                         .map(o -> toOffence(o, judicialResults, prompts))
                         .toList())
@@ -121,7 +122,6 @@ public class PcrResultsMapper {
                 .hearingType(caseHearing.getHearingType())
                 .jurisdiction(caseHearing.getJurisdiction())
                 .defendantAppearanceDetails(version.getDefendantAppearanceDetails())
-                .sharedTime(version.getSharedTime() == null ? null : version.getSharedTime().toInstant())
                 .nextHearing(toNextHearing(version.getNextHearing()))
                 .build();
     }
