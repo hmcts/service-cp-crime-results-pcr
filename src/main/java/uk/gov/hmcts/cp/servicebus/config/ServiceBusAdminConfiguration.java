@@ -15,11 +15,6 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 
-/**
- * Emulator vs Azure is the only real branch here — {@code ServiceBusAdministrationClient} is a
- * plain, directly-mockable Azure SDK type, so no bespoke admin interface/impl wrapper is needed
- * on top of it (unlike HRDS's ServiceBusAdminInterface, kept there for historical reasons).
- */
 @Slf4j
 @Configuration
 public class ServiceBusAdminConfiguration {
