@@ -18,13 +18,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-// DataSourceAutoConfiguration excluded: see IntegrationTestBase for why — this class predates
-// it and doesn't extend it, so needs the same override directly.
 @SpringBootTest
 @EnableAutoConfiguration(exclude = DataSourceAutoConfiguration.class)
 @AutoConfigureMockMvc
-// The Service Bus consumer's @PostConstruct would otherwise block the context boot polling a
-// nonexistent emulator.
 @TestPropertySource(properties = "service-bus.auto-start-processors=false")
 @SuppressWarnings("PMD.UnitTestShouldIncludeAssert") // MockMvc andExpect() calls are assertions
 class ActuatorIntegrationTest {
@@ -35,13 +31,9 @@ class ActuatorIntegrationTest {
     @MockitoBean
     private ResultsIngestionService resultsIngestionService;
 
-    // Same reason as resultsIngestionService above — PcrResultsService is now repository-backed
-    // and DataSourceAutoConfiguration is excluded here (see IntegrationTestBase).
     @MockitoBean
     private PcrResultsService pcrResultsService;
 
-    // CPEntityPersistenceService holds the 5 repository dependencies ResultsIngestionService
-    // used to hold directly — same reason as above, mocked so its real constructor never runs.
     @MockitoBean
     private CPEntityPersistenceService persistenceService;
 

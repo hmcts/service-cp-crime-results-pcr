@@ -8,8 +8,6 @@ plugins {
   id 'com.github.ben-manes.versions' version '0.61.0'
   id 'org.cyclonedx.bom' version '3.4.1'
   id 'com.gorylenko.gradle-git-properties' version '4.0.1'
-  // Starts the docker-compose Postgres service before `test` in CI — repository tests need a
-  // real, externally-started Postgres (PostgresInitialise), matching HRDS's established pattern.
   id 'com.avast.gradle.docker-compose' version '0.17.21'
 }
 
@@ -66,8 +64,6 @@ dependencies {
   // read-only from this service's side, no new cache write path introduced
   implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 
-  // Event Grid -> Service Bus Topic ingestion (AMP-1030/ADR-009) — replaces the Event Grid
-  // webhook relay function; azure-identity backs Managed Identity auth against the shared namespace
   implementation 'com.azure:azure-messaging-servicebus:7.17.18'
   implementation 'com.azure:azure-identity:1.18.3'
 }

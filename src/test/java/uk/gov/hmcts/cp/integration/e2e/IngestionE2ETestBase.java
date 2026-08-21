@@ -12,8 +12,6 @@ import uk.gov.hmcts.cp.integration.config.RedisInitialise;
 @SpringBootTest
 @AutoConfigureMockMvc
 @ContextConfiguration(initializers = {PostgresInitialise.class, RedisInitialise.class})
-// These tests exercise the webhook ingestion path only — the Service Bus consumer's
-// @PostConstruct would otherwise block the context boot polling a nonexistent emulator.
 @TestPropertySource(properties = "service-bus.auto-start-processors=false")
 public abstract class IngestionE2ETestBase {
 

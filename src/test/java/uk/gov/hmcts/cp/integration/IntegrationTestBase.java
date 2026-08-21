@@ -20,18 +20,9 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-// DataSourceAutoConfiguration excluded: these full-context tests exercise the web/tracing/
-// logging layers only, never persistence. Without this, adding spring-boot-starter-data-jpa
-// makes Hibernate eagerly connect (both via flywayInitializer and its own dialect
-// auto-detection) to application.yaml's real Postgres URL at context startup — which fails
-// everywhere that database doesn't exist yet (every dev machine and CI, until phase 2
-// provisions it). Excluding the DataSource bean itself cascades to back off both
-// FlywayAutoConfiguration and HibernateJpaAutoConfiguration, since both require one.
 @SpringBootTest
 @EnableAutoConfiguration(exclude = DataSourceAutoConfiguration.class)
 @AutoConfigureMockMvc
-// These tests never exercise the Service Bus consumer — without this, its @PostConstruct
-// blocks the context boot for up to 2 minutes polling a Service Bus emulator that isn't running.
 @TestPropertySource(properties = "service-bus.auto-start-processors=false")
 @Slf4j
 public abstract class IntegrationTestBase {
@@ -45,14 +36,9 @@ public abstract class IntegrationTestBase {
     @MockitoBean
     ResultsIngestionService resultsIngestionService;
 
-    // PcrResultsService is now repository-backed (7 JpaRepository constructor deps) — with
-    // DataSourceAutoConfiguration excluded above, those beans don't exist, so PcrResultsController
-    // can't be constructed for real. Mocked for the same reason resultsIngestionService is.
     @MockitoBean
     PcrResultsService pcrResultsService;
 
-    // CPEntityPersistenceService holds the 5 repository dependencies ResultsIngestionService
-    // used to hold directly — same reason as above, mocked so its real constructor never runs.
     @MockitoBean
     CPEntityPersistenceService persistenceService;
 
