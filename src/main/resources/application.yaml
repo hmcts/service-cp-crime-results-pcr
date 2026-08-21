@@ -77,9 +77,12 @@ service-bus:
   topic-name: ${SERVICE_BUS_TOPIC_NAME:hearing-resulted}
   subscription-name: ${SERVICE_BUS_SUBSCRIPTION_NAME:pcr}
   # Whether the consumer provisions/connects at all — separate from ingestion-enabled (which
-  # channel persists). Off in test contexts (IntegrationTestBase/IngestionE2ETestBase) so a
-  # Spring context boot never blocks waiting on a Service Bus emulator that isn't running.
-  auto-start-processors: ${SERVICE_BUS_AUTO_START_PROCESSORS:true}
+  # channel persists). Off by default everywhere (ADR-009 — "off by default in every
+  # environment"), same posture as ingestion-enabled: nothing should attempt to connect until an
+  # environment explicitly opts in. Also keeps CI/DAST/local `docker compose up` app-container
+  # boots fast, since @PostConstruct would otherwise block Spring context refresh polling a
+  # Service Bus endpoint nothing has configured yet.
+  auto-start-processors: ${SERVICE_BUS_AUTO_START_PROCESSORS:false}
   # Off by default everywhere (ADR-009) — enabled per-environment only once the Service Bus
   # path is validated end-to-end; never true alongside the relay function in the same environment.
   ingestion-enabled: ${SERVICE_BUS_INGESTION_ENABLED:false}
