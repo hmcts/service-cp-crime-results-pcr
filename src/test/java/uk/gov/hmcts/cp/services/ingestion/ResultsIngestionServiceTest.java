@@ -159,6 +159,34 @@ class ResultsIngestionServiceTest {
         assertThat(durationCaptor.getAllValues()).containsExactly(Duration.ofSeconds(2), Duration.ofSeconds(4));
     }
 
+    @Test
+    void ingestHearingResultsOnce_should_returnResponse_whenComplete() {
+        when(cacheClient.get(HEARING_ID, HEARING_DAY)).thenReturn(Optional.empty());
+        when(resultsClient.getHearingDetails(HEARING_ID)).thenReturn(completeResponse());
+
+        final HearingDetailsResponse result = ingestionService.ingestHearingResultsOnce(HEARING_ID, HEARING_DAY);
+
+        assertThat(result.getHearing().getProsecutionCases()).hasSize(1);
+    }
+
+    @Test
+    void ingestHearingResultsOnce_should_throwImmediately_whenIncomplete_withoutRetrying() {
+        when(cacheClient.get(HEARING_ID, HEARING_DAY)).thenReturn(Optional.empty());
+        when(resultsClient.getHearingDetails(HEARING_ID)).thenReturn(incompleteResponse());
+
+        assertThatThrownBy(() -> ingestionService.ingestHearingResultsOnce(HEARING_ID, HEARING_DAY))
+                .isInstanceOf(IncompleteHearingDetailsException.class);
+
+        verify(resultsClient, times(1)).getHearingDetails(HEARING_ID);
+        verify(ingestionService, never()).sleepUninterruptibly(any());
+    }
+
+    @Test
+    void backoffFor_should_returnExponentialBackoff() {
+        assertThat(ingestionService.backoffFor(1)).isEqualTo(Duration.ofSeconds(2));
+        assertThat(ingestionService.backoffFor(2)).isEqualTo(Duration.ofSeconds(4));
+    }
+
     private static final String CASE_URN = "ABCD1234567";
     private static final UUID CASE_HEARING_ID = UUID.fromString("00000000-0000-0000-0000-000000000044");
     private static final CPVocabulary VOCABULARY = CPVocabulary.builder()
@@ -179,6 +207,33 @@ class ResultsIngestionServiceTest {
 
         verify(persistenceService).findOrCreateCaseHearing(any(), any(), eq(HEARING_ID));
         verify(persistenceService).persist(any(), any(), eq(CASE_HEARING_ID), any(), any(), any());
+    }
+
+    @Test
+    void ingestAndPersistOnce_should_createCaseHearingAndPersistVersion_whenComplete() {
+        when(cacheClient.get(HEARING_ID, HEARING_DAY)).thenReturn(Optional.empty());
+        when(resultsClient.getHearingDetails(HEARING_ID)).thenReturn(hearingWithOneDefendant());
+        when(vocabularyService.compute(any(), any())).thenReturn(VOCABULARY);
+        when(entityMapper.eligibleResults(any(), any())).thenReturn(List.of());
+        when(pcrFilter.excludePublishedForNows(any())).thenReturn(List.of());
+        when(pcrFilter.fetchPrisonCourtRegisterSubscriptions(any())).thenReturn(List.of());
+        when(pcrFilter.isPrisonCourtRegisterRequired(any(), any(), any())).thenReturn(true);
+        when(persistenceService.findOrCreateCaseHearing(any(), any(), eq(HEARING_ID))).thenReturn(CASE_HEARING_ID);
+
+        ingestionService.ingestAndPersistOnce(HEARING_ID, HEARING_DAY);
+
+        verify(persistenceService).persist(any(), any(), eq(CASE_HEARING_ID), any(), any(), any());
+    }
+
+    @Test
+    void ingestAndPersistOnce_should_throwIncompleteHearingDetailsException_withoutRetrying_whenIncomplete() {
+        when(cacheClient.get(HEARING_ID, HEARING_DAY)).thenReturn(Optional.empty());
+        when(resultsClient.getHearingDetails(HEARING_ID)).thenReturn(incompleteResponse());
+
+        assertThatThrownBy(() -> ingestionService.ingestAndPersistOnce(HEARING_ID, HEARING_DAY))
+                .isInstanceOf(IncompleteHearingDetailsException.class);
+
+        verify(resultsClient, times(1)).getHearingDetails(HEARING_ID);
     }
 
     @Test
