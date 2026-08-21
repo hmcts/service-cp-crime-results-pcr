@@ -24,12 +24,6 @@ import java.time.Duration;
 
 import static uk.gov.hmcts.cp.services.ingestion.ResultsIngestionService.MAX_COMPLETENESS_RETRIES;
 
-/**
- * Consumes the shared {@code hearing-resulted} Service Bus topic via this service's own {@code pcr}
- * subscription (ADR-009/AMP-1030) — the replacement ingestion trigger for the Event Grid webhook
- * relay function. Always receives and logs, so both channels' receipt can be verified from logs
- * during the coexistence window; only persists when {@code service-bus.ingestion-enabled} is on.
- */
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -39,8 +33,6 @@ public class HearingResultedServiceBusConsumer {
     private static final String ATTEMPT_PROPERTY = "attempt";
     private static final String DEAD_LETTER_REASON = "IncompleteHearingDetailsException after "
             + MAX_COMPLETENESS_RETRIES + " attempts";
-    // Matches HRDS's own emulator-startup allowance (its docker-compose healthcheck notes the
-    // emulator can take up to 60s behind sqledge) — poll rather than fail fast on a cold stack.
     private static final int MAX_READINESS_WAIT_ATTEMPTS = 60;
     private static final Duration READINESS_POLL_INTERVAL = Duration.ofSeconds(2);
 
@@ -55,8 +47,6 @@ public class HearingResultedServiceBusConsumer {
 
     @PostConstruct
     @SuppressWarnings("PMD.AvoidCatchingGenericException")
-    // Startup guard, matching HRDS's ServiceBusProcessorService.initialiseServiceBus precedent —
-    // any provisioning/wiring failure is logged, not fatal; the app still starts without ingestion.
     public void initialise() {
         if (!properties.isAutoStartProcessors()) {
             log.info("service-bus.auto-start-processors=false — skipping Service Bus initialisation");
@@ -95,8 +85,6 @@ public class HearingResultedServiceBusConsumer {
     }
 
     @SuppressWarnings("PMD.AvoidCatchingGenericException")
-    // The outright-failure tier (design doc §"Retry mechanism") is deliberately unbounded — any
-    // unexpected exception abandons the message for native Service Bus redelivery/dead-lettering.
     /* default */ void processMessage(final ServiceBusReceivedMessageContext context) {
         final ServiceBusReceivedMessage message = context.getMessage();
         final int attempt = attemptOf(message);
