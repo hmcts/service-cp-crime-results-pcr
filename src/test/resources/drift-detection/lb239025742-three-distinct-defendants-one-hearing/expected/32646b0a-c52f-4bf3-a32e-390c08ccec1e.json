@@ -1,0 +1,84 @@
+[
+  {
+    "courtApplications": [],
+    "custodyLocation": {
+      "custodyType": "Prison",
+      "name": "HMP Leeds"
+    },
+    "defendant": {
+      "address": {
+        "address1": "40 Market Place",
+        "address2": "Market Place",
+        "address3": "Bristol",
+        "postCode": "BS1 1AA"
+      },
+      "dateOfBirth": "1992-08-14",
+      "firstName": "Douglas",
+      "gender": "MALE",
+      "id": "32646b0a-c52f-4bf3-a32e-390c08ccec1e",
+      "lastName": "Bogisich",
+      "masterDefendantId": "32646b0a-c52f-4bf3-a32e-390c08ccec1e",
+      "nationality": "Unknown",
+      "postHearingCustodyStatus": "Not Applicable",
+      "results": [
+        {
+          "resultTexts": [
+            {
+              "label": "Date to pay in full by",
+              "value": "28/09/2026"
+            }
+          ]
+        }
+      ],
+      "title": "Mr"
+    },
+    "hearing": {
+      "courtDetails": {
+        "court": {
+          "courtHouseCode": "B52CM00",
+          "courtHouseName": "Bristol Magistrates' Court"
+        },
+        "courtAddress": {
+          "address1": "Marlborough St",
+          "address2": "Bristol",
+          "address3": "",
+          "address4": "",
+          "address5": "",
+          "postCode": "BS1 3NU"
+        },
+        "ljaName": "Avon & Somerset Magistrates' Court"
+      },
+      "defendantAppearanceDetails": "In person",
+      "hearingDate": "2026-08-15",
+      "hearingType": "First hearing",
+      "id": "4255fe1f-d30c-4cbb-927e-3a8158e67e79",
+      "jurisdiction": "MAGISTRATES"
+    },
+    "sharedTime": "2026-08-14T14:18:43.074Z",
+    "offences": [
+      {
+        "code": "RC86851",
+        "listingNumber": 1,
+        "offenceLegislation": "Contrary to regulation 18(1) of the Road Vehicles    (Construction and Use) Regulations 1986, section 41A of the Road    Traffic Act 1988 and Schedule 2 to the Road Traffic Offenders Act 1988.",
+        "results": [
+          {
+            "resultTexts": [
+              {
+                "label": "Amount of fine",
+                "value": "\u00a3555.00"
+              }
+            ]
+          }
+        ],
+        "startDate": "2026-05-16",
+        "title": "Vehicle defect - permit use of a motor vehicle / trailer with defective brakes",
+        "wording": "Vehicle defect - permit use of a motor vehicle / trailer with defective brakes"
+      }
+    ],
+    "prosecutionCase": {
+      "caseMarkers": [],
+      "caseURN": "LB239025742",
+      "results": []
+    }
+  }
+]
