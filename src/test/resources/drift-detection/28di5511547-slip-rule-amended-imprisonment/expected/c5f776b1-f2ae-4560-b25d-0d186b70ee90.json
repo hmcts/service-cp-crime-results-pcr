@@ -38,9 +38,9 @@
       "hearingDate": "2026-08-14",
       "hearingType": "First hearing",
       "id": "1503f8f6-eee2-4e06-bfc7-7564f5e68763",
-      "jurisdiction": "MAGISTRATES",
-      "sharedTime": "2026-08-14T10:47:53.666Z"
+      "jurisdiction": "MAGISTRATES"
     },
+    "sharedTime": "2026-08-14T10:47:53.666Z",
     "offences": [
       {
         "allocationDecision": "Summary-only offence",
@@ -63,11 +63,11 @@
               },
               {
                 "label": "Prison email address 1",
-                "value": "OMU.Highdown@justice.gov.uk"
+                "value": "OMU.Highdown@example-prison.gov.uk"
               },
               {
                 "label": "Prison email address 2",
-                "value": "Reception.Highdown@justice.gov.uk"
+                "value": "Reception.Highdown@example-prison.gov.uk"
               },
               {
                 "label": "Conveyor / custodian name organisation name",
@@ -75,7 +75,7 @@
               },
               {
                 "label": "Conveyor / custodian name email address 1",
-                "value": "londonnps.court@justice.gov.uk"
+                "value": "londonnps.court@example-prison.gov.uk"
               },
               {
                 "label": "Probation team to be notified organisation name",
@@ -83,7 +83,7 @@
               },
               {
                 "label": "Probation team to be notified email address 1",
-                "value": "londonnps.court@justice.gov.uk"
+                "value": "londonnps.court@example-prison.gov.uk"
               },
               {
                 "label": "Imprisonment Period",

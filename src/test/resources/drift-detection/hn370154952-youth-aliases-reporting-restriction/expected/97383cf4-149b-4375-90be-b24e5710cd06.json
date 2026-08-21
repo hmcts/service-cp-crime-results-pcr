@@ -49,9 +49,9 @@
         },
         "dateTime": "2026-08-14T09:00:00Z",
         "hearingId": "77cf9822-255c-4065-ba0e-bc7dcd973ab1"
-      },
-      "sharedTime": "2026-08-14T10:17:11.777Z"
+      }
     },
+    "sharedTime": "2026-08-14T10:17:11.777Z",
     "offences": [
       {
         "code": "TH68013A",
@@ -114,11 +114,11 @@
               },
               {
                 "label": "Prison email address 1",
-                "value": "OMU.Highdown@justice.gov.uk"
+                "value": "OMU.Highdown@example-prison.gov.uk"
               },
               {
                 "label": "Prison email address 2",
-                "value": "Reception.Highdown@justice.gov.uk"
+                "value": "Reception.Highdown@example-prison.gov.uk"
               },
               {
                 "label": "Bail date",
@@ -138,7 +138,7 @@
               },
               {
                 "label": "Conveyor / custodian name email address 1",
-                "value": "londonnps.court@justice.gov.uk"
+                "value": "londonnps.court@example-prison.gov.uk"
               },
               {
                 "label": "Bail condition reason",
@@ -150,7 +150,7 @@
               },
               {
                 "label": "Notification of electronic monitoring order (bail)",
-                "value": "Electronic monitoring contractor organisation name:Electronic Monitoring Contractor\nElectronic monitoring contractor email address 1:LPadmin@ems.co.uk\nFirst notification of electronic monitoring:Yes\nDefendant's mobile number:06832595399\nWas an interpreter used?:No\nDoes the offender have any special needs?:No"
+                "value": "Electronic monitoring contractor organisation name:Electronic Monitoring Contractor\nElectronic monitoring contractor email address 1:LPadmin@example-monitoring.co.uk\nFirst notification of electronic monitoring:Yes\nDefendant's mobile number:06832595399\nWas an interpreter used?:No\nDoes the offender have any special needs?:No"
               },
               {
                 "label": "Pre-release bail condition: Passport - give to the court any passport held",

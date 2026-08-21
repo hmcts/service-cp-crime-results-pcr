@@ -186,8 +186,8 @@
               "promptSequence": 900,
               "type": "NAMEADDRESS",
               "usergroups": [],
-              "value": "OMU.Brixton@justice.gov.uk",
-              "welshValue": "OMU.Brixton@justice.gov.uk"
+              "value": "OMU.Brixton@example-prison.gov.uk",
+              "welshValue": "OMU.Brixton@example-prison.gov.uk"
             },
             {
               "courtExtract": "N",
@@ -210,8 +210,8 @@
               "promptSequence": 1000,
               "type": "NAMEADDRESS",
               "usergroups": [],
-              "value": "PECSBexleyheathMags@serco.com",
-              "welshValue": "PECSBexleyheathMags@serco.com"
+              "value": "PECSBexleyheathMags@example-custody.co.uk",
+              "welshValue": "PECSBexleyheathMags@example-custody.co.uk"
             },
             {
               "courtExtract": "Y",
@@ -247,8 +247,8 @@
               "promptSequence": 1200,
               "type": "NAMEADDRESS",
               "usergroups": [],
-              "value": "londonnps.court@justice.gov.uk",
-              "welshValue": "londonnps.court@justice.gov.uk"
+              "value": "londonnps.court@example-prison.gov.uk",
+              "welshValue": "londonnps.court@example-prison.gov.uk"
             },
             {
               "courtExtract": "Y",
@@ -591,8 +591,8 @@
                         "promptSequence": 900,
                         "type": "NAMEADDRESS",
                         "usergroups": [],
-                        "value": "OMU.Brixton@justice.gov.uk",
-                        "welshValue": "OMU.Brixton@justice.gov.uk"
+                        "value": "OMU.Brixton@example-prison.gov.uk",
+                        "welshValue": "OMU.Brixton@example-prison.gov.uk"
                       },
                       {
                         "courtExtract": "N",
@@ -615,8 +615,8 @@
                         "promptSequence": 1000,
                         "type": "NAMEADDRESS",
                         "usergroups": [],
-                        "value": "PECSBexleyheathMags@serco.com",
-                        "welshValue": "PECSBexleyheathMags@serco.com"
+                        "value": "PECSBexleyheathMags@example-custody.co.uk",
+                        "welshValue": "PECSBexleyheathMags@example-custody.co.uk"
                       },
                       {
                         "courtExtract": "Y",
@@ -652,8 +652,8 @@
                         "promptSequence": 1200,
                         "type": "NAMEADDRESS",
                         "usergroups": [],
-                        "value": "londonnps.court@justice.gov.uk",
-                        "welshValue": "londonnps.court@justice.gov.uk"
+                        "value": "londonnps.court@example-prison.gov.uk",
+                        "welshValue": "londonnps.court@example-prison.gov.uk"
                       },
                       {
                         "courtExtract": "Y",
@@ -1340,7 +1340,7 @@
                 "contact": {
                   "home": "0209158668",
                   "mobile": "07779158668",
-                  "primaryEmail": "ABCD.TEST019158668@gmail.com"
+                  "primaryEmail": "ABCD.TEST019158668@example.com"
                 },
                 "dateOfBirth": "2005-11-11",
                 "documentationLanguageNeeds": "ENGLISH",
@@ -1378,7 +1378,7 @@
           },
           "caseURN": "28DI9158668",
           "contact": {
-            "primaryEmail": "criminaldataderbyshire@derbyshire.police.uk"
+            "primaryEmail": "criminaldataderbyshire@example-police.gov.uk"
           },
           "majorCreditorCode": "PO30",
           "prosecutionAuthorityCode": "DERPF",

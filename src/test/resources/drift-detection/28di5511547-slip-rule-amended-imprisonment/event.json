@@ -93,8 +93,8 @@
               "promptSequence": 900,
               "type": "NAMEADDRESS",
               "usergroups": [],
-              "value": "OMU.Highdown@justice.gov.uk",
-              "welshValue": "OMU.Highdown@justice.gov.uk"
+              "value": "OMU.Highdown@example-prison.gov.uk",
+              "welshValue": "OMU.Highdown@example-prison.gov.uk"
             },
             {
               "courtExtract": "N",
@@ -105,8 +105,8 @@
               "promptSequence": 900,
               "type": "NAMEADDRESS",
               "usergroups": [],
-              "value": "Reception.Highdown@justice.gov.uk",
-              "welshValue": "Reception.Highdown@justice.gov.uk"
+              "value": "Reception.Highdown@example-prison.gov.uk",
+              "welshValue": "Reception.Highdown@example-prison.gov.uk"
             },
             {
               "courtExtract": "N",
@@ -129,8 +129,8 @@
               "promptSequence": 1000,
               "type": "NAMEADDRESS",
               "usergroups": [],
-              "value": "londonnps.court@justice.gov.uk",
-              "welshValue": "londonnps.court@justice.gov.uk"
+              "value": "londonnps.court@example-prison.gov.uk",
+              "welshValue": "londonnps.court@example-prison.gov.uk"
             },
             {
               "courtExtract": "N",
@@ -153,8 +153,8 @@
               "promptSequence": 1200,
               "type": "NAMEADDRESS",
               "usergroups": [],
-              "value": "londonnps.court@justice.gov.uk",
-              "welshValue": "londonnps.court@justice.gov.uk"
+              "value": "londonnps.court@example-prison.gov.uk",
+              "welshValue": "londonnps.court@example-prison.gov.uk"
             }
           ],
           "judicialResultTypeId": "6cb15971-c945-4398-b7c9-3f8b743a4de3",
@@ -305,8 +305,8 @@
                         "promptSequence": 900,
                         "type": "NAMEADDRESS",
                         "usergroups": [],
-                        "value": "OMU.Highdown@justice.gov.uk",
-                        "welshValue": "OMU.Highdown@justice.gov.uk"
+                        "value": "OMU.Highdown@example-prison.gov.uk",
+                        "welshValue": "OMU.Highdown@example-prison.gov.uk"
                       },
                       {
                         "courtExtract": "N",
@@ -317,8 +317,8 @@
                         "promptSequence": 900,
                         "type": "NAMEADDRESS",
                         "usergroups": [],
-                        "value": "Reception.Highdown@justice.gov.uk",
-                        "welshValue": "Reception.Highdown@justice.gov.uk"
+                        "value": "Reception.Highdown@example-prison.gov.uk",
+                        "welshValue": "Reception.Highdown@example-prison.gov.uk"
                       },
                       {
                         "courtExtract": "N",
@@ -341,8 +341,8 @@
                         "promptSequence": 1000,
                         "type": "NAMEADDRESS",
                         "usergroups": [],
-                        "value": "londonnps.court@justice.gov.uk",
-                        "welshValue": "londonnps.court@justice.gov.uk"
+                        "value": "londonnps.court@example-prison.gov.uk",
+                        "welshValue": "londonnps.court@example-prison.gov.uk"
                       },
                       {
                         "courtExtract": "N",
@@ -365,8 +365,8 @@
                         "promptSequence": 1200,
                         "type": "NAMEADDRESS",
                         "usergroups": [],
-                        "value": "londonnps.court@justice.gov.uk",
-                        "welshValue": "londonnps.court@justice.gov.uk"
+                        "value": "londonnps.court@example-prison.gov.uk",
+                        "welshValue": "londonnps.court@example-prison.gov.uk"
                       },
                       {
                         "courtExtract": "Y",
@@ -618,7 +618,7 @@
           },
           "caseURN": "28DI5511547",
           "contact": {
-            "primaryEmail": "criminaldataderbyshire@derbyshire.police.uk"
+            "primaryEmail": "criminaldataderbyshire@example-police.gov.uk"
           },
           "majorCreditorCode": "PO30",
           "prosecutionAuthorityCode": "DERPF",

@@ -485,8 +485,8 @@
                         "promptSequence": 200,
                         "type": "NAMEADDRESS",
                         "usergroups": [],
-                        "value": "OMU.Highdown@justice.gov.uk",
-                        "welshValue": "OMU.Highdown@justice.gov.uk"
+                        "value": "OMU.Highdown@example-prison.gov.uk",
+                        "welshValue": "OMU.Highdown@example-prison.gov.uk"
                       },
                       {
                         "courtExtract": "N",
@@ -497,8 +497,8 @@
                         "promptSequence": 200,
                         "type": "NAMEADDRESS",
                         "usergroups": [],
-                        "value": "Reception.Highdown@justice.gov.uk",
-                        "welshValue": "Reception.Highdown@justice.gov.uk"
+                        "value": "Reception.Highdown@example-prison.gov.uk",
+                        "welshValue": "Reception.Highdown@example-prison.gov.uk"
                       },
                       {
                         "courtExtract": "Y",
@@ -557,8 +557,8 @@
                         "promptSequence": 600,
                         "type": "NAMEADDRESS",
                         "usergroups": [],
-                        "value": "londonnps.court@justice.gov.uk",
-                        "welshValue": "londonnps.court@justice.gov.uk"
+                        "value": "londonnps.court@example-prison.gov.uk",
+                        "welshValue": "londonnps.court@example-prison.gov.uk"
                       },
                       {
                         "courtExtract": "Y",
@@ -590,7 +590,7 @@
                         "promptReference": "fa35c38f-1361-4c9f-9452-dea3b10fd6f4",
                         "promptSequence": 900,
                         "usergroups": [],
-                        "value": "Electronic monitoring contractor organisation name:Electronic Monitoring Contractor\nElectronic monitoring contractor email address 1:LPadmin@ems.co.uk\nFirst notification of electronic monitoring:Yes\nDefendant's mobile number:06832595399\nWas an interpreter used?:No\nDoes the offender have any special needs?:No",
+                        "value": "Electronic monitoring contractor organisation name:Electronic Monitoring Contractor\nElectronic monitoring contractor email address 1:LPadmin@example-monitoring.co.uk\nFirst notification of electronic monitoring:Yes\nDefendant's mobile number:06832595399\nWas an interpreter used?:No\nDoes the offender have any special needs?:No",
                         "welshLabel": "Hysbysiad o orchymyn monitro electronig (mechn\u00efaeth)"
                       },
                       {
@@ -946,8 +946,8 @@
                         "promptSequence": 100,
                         "type": "NAMEADDRESS",
                         "usergroups": [],
-                        "value": "LPadmin@ems.co.uk",
-                        "welshValue": "LPadmin@ems.co.uk"
+                        "value": "LPadmin@example-monitoring.co.uk",
+                        "welshValue": "LPadmin@example-monitoring.co.uk"
                       },
                       {
                         "courtExtract": "N",
@@ -1414,7 +1414,7 @@
           },
           "caseURN": "HN370154952",
           "contact": {
-            "primaryEmail": "casebuilderscpsmemos@cityoflondon.police.uk"
+            "primaryEmail": "casebuilderscpsmemos@example-police.gov.uk"
           },
           "majorCreditorCode": "COLP",
           "prosecutionAuthorityCode": "CITYPF",

@@ -46,9 +46,9 @@
         },
         "dateTime": "2026-08-15T09:00:00Z",
         "hearingId": "e2a6187c-26a0-4862-8041-beeb37e4b83a"
-      },
-      "sharedTime": "2026-08-14T07:52:19.997Z"
+      }
     },
+    "sharedTime": "2026-08-14T07:52:19.997Z",
     "offences": [
       {
         "code": "TH68001",
@@ -73,11 +73,11 @@
               },
               {
                 "label": "Prison email address 1",
-                "value": "yoiashfield.premiercustody@premier-serco.cjsm.net"
+                "value": "yoiashfield.premiercustody@example-custody.co.uk"
               },
               {
                 "label": "Prison email address 2",
-                "value": "yoiashfield.premiercustody@premier-serco.cjsm.net"
+                "value": "yoiashfield.premiercustody@example-custody.co.uk"
               },
               {
                 "label": "Conveyor / custodian name organisation name",
@@ -85,7 +85,7 @@
               },
               {
                 "label": "Conveyor / custodian name email address 1",
-                "value": "periodicwarrants@geoamey.co.uk"
+                "value": "periodicwarrants@example-conveyor.co.uk"
               },
               {
                 "label": "Remand basis",

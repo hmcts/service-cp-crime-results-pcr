@@ -122,8 +122,8 @@
                         "promptSequence": 300,
                         "type": "NAMEADDRESS",
                         "usergroups": [],
-                        "value": "yoiashfield.premiercustody@premier-serco.cjsm.net",
-                        "welshValue": "yoiashfield.premiercustody@premier-serco.cjsm.net"
+                        "value": "yoiashfield.premiercustody@example-custody.co.uk",
+                        "welshValue": "yoiashfield.premiercustody@example-custody.co.uk"
                       },
                       {
                         "courtExtract": "N",
@@ -134,8 +134,8 @@
                         "promptSequence": 300,
                         "type": "NAMEADDRESS",
                         "usergroups": [],
-                        "value": "yoiashfield.premiercustody@premier-serco.cjsm.net",
-                        "welshValue": "yoiashfield.premiercustody@premier-serco.cjsm.net"
+                        "value": "yoiashfield.premiercustody@example-custody.co.uk",
+                        "welshValue": "yoiashfield.premiercustody@example-custody.co.uk"
                       },
                       {
                         "courtExtract": "N",
@@ -158,8 +158,8 @@
                         "promptSequence": 400,
                         "type": "NAMEADDRESS",
                         "usergroups": [],
-                        "value": "periodicwarrants@geoamey.co.uk",
-                        "welshValue": "periodicwarrants@geoamey.co.uk"
+                        "value": "periodicwarrants@example-conveyor.co.uk",
+                        "welshValue": "periodicwarrants@example-conveyor.co.uk"
                       },
                       {
                         "courtExtract": "Y",
@@ -588,7 +588,7 @@
           },
           "caseURN": "ZZ231257861",
           "contact": {
-            "primaryEmail": "casebuilderscpsmemos@cityoflondon.police.uk"
+            "primaryEmail": "casebuilderscpsmemos@example-police.gov.uk"
           },
           "majorCreditorCode": "COLP",
           "prosecutionAuthorityCode": "CITYPF",
@@ -680,8 +680,8 @@
                         "promptSequence": 300,
                         "type": "NAMEADDRESS",
                         "usergroups": [],
-                        "value": "Custody.Birmingham@justice.gov.uk",
-                        "welshValue": "Custody.Birmingham@justice.gov.uk"
+                        "value": "Custody.Birmingham@example-prison.gov.uk",
+                        "welshValue": "Custody.Birmingham@example-prison.gov.uk"
                       },
                       {
                         "courtExtract": "N",
@@ -692,8 +692,8 @@
                         "promptSequence": 300,
                         "type": "NAMEADDRESS",
                         "usergroups": [],
-                        "value": "Reception.Birmingham@justice.gov.uk",
-                        "welshValue": "Reception.Birmingham@justice.gov.uk"
+                        "value": "Reception.Birmingham@example-prison.gov.uk",
+                        "welshValue": "Reception.Birmingham@example-prison.gov.uk"
                       },
                       {
                         "courtExtract": "N",
@@ -716,8 +716,8 @@
                         "promptSequence": 400,
                         "type": "NAMEADDRESS",
                         "usergroups": [],
-                        "value": "periodicwarrants@geoamey.co.uk",
-                        "welshValue": "periodicwarrants@geoamey.co.uk"
+                        "value": "periodicwarrants@example-conveyor.co.uk",
+                        "welshValue": "periodicwarrants@example-conveyor.co.uk"
                       },
                       {
                         "courtExtract": "Y",
@@ -1146,7 +1146,7 @@
           },
           "caseURN": "MF231295264",
           "contact": {
-            "primaryEmail": "casebuilderscpsmemos@cityoflondon.police.uk"
+            "primaryEmail": "casebuilderscpsmemos@example-police.gov.uk"
           },
           "majorCreditorCode": "COLP",
           "prosecutionAuthorityCode": "CITYPF",

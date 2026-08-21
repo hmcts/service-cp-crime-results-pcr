@@ -43,9 +43,9 @@
       "hearingDate": "2026-08-15",
       "hearingType": "First hearing",
       "id": "4255fe1f-d30c-4cbb-927e-3a8158e67e79",
-      "jurisdiction": "MAGISTRATES",
-      "sharedTime": "2026-08-14T14:18:43.074Z"
+      "jurisdiction": "MAGISTRATES"
     },
+    "sharedTime": "2026-08-14T14:18:43.074Z",
     "offences": [
       {
         "code": "FS13012",

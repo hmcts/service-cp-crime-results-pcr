@@ -49,9 +49,9 @@
         },
         "dateTime": "2026-08-17T09:00:00Z",
         "hearingId": "2ce4e292-53e8-45e8-b47c-54365de889a6"
-      },
-      "sharedTime": "2026-08-14T08:51:17.140Z"
+      }
     },
+    "sharedTime": "2026-08-14T08:51:17.140Z",
     "offences": [
       {
         "allocationDecision": "Indictable-only offence",
@@ -98,7 +98,7 @@
               },
               {
                 "label": "Prison email address 1",
-                "value": "OMU.Brixton@justice.gov.uk"
+                "value": "OMU.Brixton@example-prison.gov.uk"
               },
               {
                 "label": "Conveyor / custodian name organisation name",
@@ -106,7 +106,7 @@
               },
               {
                 "label": "Conveyor / custodian name email address 1",
-                "value": "PECSBexleyheathMags@serco.com"
+                "value": "PECSBexleyheathMags@example-custody.co.uk"
               },
               {
                 "label": "Reason for sentence without PSR",
@@ -118,7 +118,7 @@
               },
               {
                 "label": "Probation team to be notified email address 1",
-                "value": "londonnps.court@justice.gov.uk"
+                "value": "londonnps.court@example-prison.gov.uk"
               },
               {
                 "label": "Sentenced in absence",
