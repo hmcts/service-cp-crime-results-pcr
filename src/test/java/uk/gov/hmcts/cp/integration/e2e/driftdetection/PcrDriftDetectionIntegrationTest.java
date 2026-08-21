@@ -9,8 +9,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ArgumentsSource;
 import org.skyscreamer.jsonassert.JSONAssert;
 import org.skyscreamer.jsonassert.JSONCompareMode;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.MediaType;
@@ -35,8 +33,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class PcrDriftDetectionIntegrationTest extends IngestionE2ETestBase {
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(PcrDriftDetectionIntegrationTest.class);
 
     @Autowired
     private StringRedisTemplate redisTemplate;
@@ -115,13 +111,7 @@ class PcrDriftDetectionIntegrationTest extends IngestionE2ETestBase {
                 .andExpect(status().isOk())
                 .andReturn().getResponse().getContentAsString();
 
-        try {
-            JSONAssert.assertEquals(expectedJson, actualJson, JSONCompareMode.NON_EXTENSIBLE);
-        } catch (final AssertionError e) {
-            LOGGER.error("Drift detected for caseURN:{} hearingId:{} defendantId:{}\nexpectedJson:\n{}\nactualJson:\n{}",
-                    caseUrn, hearingId, defendantId, expectedJson, actualJson);
-            throw e;
-        }
+        JSONAssert.assertEquals(expectedJson, actualJson, JSONCompareMode.NON_EXTENSIBLE);
     }
 
     private HearingIdentity parseIdentity(final Path fixtureRoot) throws Exception {
