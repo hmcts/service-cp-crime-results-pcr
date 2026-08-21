@@ -68,3 +68,18 @@ results-query-client:
 reference-data-client:
   url: ${CP_BACKEND_URL:http://localhost:8081}
   cjscppuid: ${CJSCPPUID:00000000-0000-0000-0000-000000000000}
+
+service-bus:
+  # Emulator vs Azure is detected automatically from the connection string (https = Azure, sb:// = emulator).
+  # Same shared per-environment namespace as service-cp-crime-hearing-results-document-subscription (ADR-009).
+  admin-connection: ${AZURE_SERVICE_BUS_ADMIN_URI:Endpoint=sb://localhost:5300;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;}
+  connection: ${AZURE_SERVICE_BUS_URI:Endpoint=sb://localhost;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;}
+  topic-name: ${SERVICE_BUS_TOPIC_NAME:hearing-resulted}
+  subscription-name: ${SERVICE_BUS_SUBSCRIPTION_NAME:pcr}
+  # Whether the consumer provisions/connects at all — separate from ingestion-enabled (which
+  # channel persists). Off in test contexts (IntegrationTestBase/IngestionE2ETestBase) so a
+  # Spring context boot never blocks waiting on a Service Bus emulator that isn't running.
+  auto-start-processors: ${SERVICE_BUS_AUTO_START_PROCESSORS:true}
+  # Off by default everywhere (ADR-009) — enabled per-environment only once the Service Bus
+  # path is validated end-to-end; never true alongside the relay function in the same environment.
+  ingestion-enabled: ${SERVICE_BUS_INGESTION_ENABLED:false}

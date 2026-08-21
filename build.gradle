@@ -65,4 +65,9 @@ dependencies {
 
   // read-only from this service's side, no new cache write path introduced
   implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
+  // Event Grid -> Service Bus Topic ingestion (AMP-1030/ADR-009) — replaces the Event Grid
+  // webhook relay function; azure-identity backs Managed Identity auth against the shared namespace
+  implementation 'com.azure:azure-messaging-servicebus:7.17.18'
+  implementation 'com.azure:azure-identity:1.18.3'
 }

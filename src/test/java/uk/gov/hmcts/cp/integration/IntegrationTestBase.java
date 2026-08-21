@@ -8,6 +8,7 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.jdbc.autoconfigure.DataSourceAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import uk.gov.hmcts.cp.config.AppPropertiesBackend;
@@ -29,6 +30,9 @@ import java.nio.file.Path;
 @SpringBootTest
 @EnableAutoConfiguration(exclude = DataSourceAutoConfiguration.class)
 @AutoConfigureMockMvc
+// These tests never exercise the Service Bus consumer — without this, its @PostConstruct
+// blocks the context boot for up to 2 minutes polling a Service Bus emulator that isn't running.
+@TestPropertySource(properties = "service-bus.auto-start-processors=false")
 @Slf4j
 public abstract class IntegrationTestBase {
 
