@@ -1,0 +1,1413 @@
+{
+  "hearing": {
+    "courtCentre": {
+      "address": {
+        "address1": "Norwich Place",
+        "address2": "Bexleyheath",
+        "address3": "Kent",
+        "address4": "",
+        "address5": "",
+        "postcode": "DA6 7ND"
+      },
+      "code": "B01BH00",
+      "courtHearingLocation": "B01BH01",
+      "id": "7e967376-eacf-4fca-9b30-21b0c5aad427",
+      "lja": {
+        "ljaCode": "2575",
+        "ljaName": "South East London Magistrates' Court"
+      },
+      "name": "Bexley Magistrates' Court",
+      "roomId": "8e912353-3b5d-36c3-953e-ad3b94b19de3",
+      "roomName": "Courtroom 01"
+    },
+    "defenceCounsels": [
+      {
+        "attendanceDays": [
+          "2026-08-14"
+        ],
+        "defendants": [
+          "b16cf89c-ff8a-4c5e-ad64-b74708190870"
+        ],
+        "firstName": "James",
+        "id": "625464b6-a83a-4215-a2ce-55ef8ffb1662",
+        "lastName": "Smith",
+        "middleName": "",
+        "status": "solicitor",
+        "title": ""
+      }
+    ],
+    "defendantAttendance": [
+      {
+        "attendanceDays": [
+          {
+            "attendanceType": "IN_PERSON",
+            "day": "2026-08-14"
+          }
+        ],
+        "defendantId": "b16cf89c-ff8a-4c5e-ad64-b74708190870"
+      }
+    ],
+    "defendantJudicialResults": [
+      {
+        "defendantId": "b16cf89c-ff8a-4c5e-ad64-b74708190870",
+        "judicialResult": {
+          "alwaysPublished": false,
+          "canBeSubjectOfBreach": false,
+          "canBeSubjectOfVariation": false,
+          "canExtendActiveOrder": false,
+          "category": "ANCILLARY",
+          "committedToCC": false,
+          "courtClerk": {
+            "firstName": "Erica",
+            "lastName": "Wilson",
+            "userId": "a085e359-6069-4694-8820-7810e7dfe762"
+          },
+          "d20": false,
+          "delegatedPowers": {
+            "firstName": "Erica",
+            "lastName": "Wilson",
+            "userId": "a085e359-6069-4694-8820-7810e7dfe762"
+          },
+          "excludedFromResults": false,
+          "isAdjournmentResult": false,
+          "isAvailableForCourtExtract": true,
+          "isConvictedResult": false,
+          "isDeleted": false,
+          "isFinancialResult": false,
+          "isNewAmendment": true,
+          "isUnscheduled": false,
+          "judicialResultId": "965cb574-de29-4287-a49b-657699f57748",
+          "judicialResultPrompts": [
+            {
+              "courtExtract": "Y",
+              "isFinancialImposition": false,
+              "judicialResultPromptTypeId": "b2cf5a1e-8539-45a1-a287-4be5094a0e73",
+              "label": "Total custodial period",
+              "promptReference": "totalCustodialPeriod",
+              "promptSequence": 100,
+              "type": "INTM",
+              "usergroups": [],
+              "value": "5 Months",
+              "welshValue": "5 Months"
+            },
+            {
+              "courtExtract": "Y",
+              "isFinancialImposition": false,
+              "judicialResultPromptTypeId": "83b92cfe-9160-4e46-baa1-b9a1e99b41cc",
+              "label": "Consecutive to sentence imposed on",
+              "promptReference": "consecutiveToSentenceImposedOn",
+              "promptSequence": 300,
+              "qualifier": "F",
+              "type": "DATE",
+              "usergroups": [],
+              "value": "11/08/2026",
+              "welshLabel": "Yn dilyn y ddedfryd a osodwyd ar",
+              "welshValue": "11/08/2026"
+            },
+            {
+              "courtExtract": "Y",
+              "isFinancialImposition": false,
+              "judicialResultPromptTypeId": "3e7dab34-bb9d-46df-9a45-139113ee0b09",
+              "label": "which was imposed by",
+              "promptReference": "whichWasImpBy",
+              "promptSequence": 400,
+              "type": "FIXL",
+              "usergroups": [],
+              "value": "Bexley Magistrates' Court",
+              "welshLabel": "a orfodwyd gan",
+              "welshValue": "Bexley Magistrates' Court"
+            },
+            {
+              "courtExtract": "Y",
+              "isFinancialImposition": false,
+              "judicialResultPromptTypeId": "5fd9e841-0079-48c6-a77a-bc113181be48",
+              "label": "Consecutive to all other terms being served",
+              "promptReference": "consecutiveToAllOtherTermsBeingServed",
+              "promptSequence": 500,
+              "type": "BOOLEAN",
+              "usergroups": [],
+              "value": "true",
+              "welshValue": "true"
+            },
+            {
+              "courtExtract": "Y",
+              "isFinancialImposition": false,
+              "judicialResultPromptTypeId": "8f2984fe-9270-4175-9f2e-79d1ec7d3a38",
+              "label": "Minimum term",
+              "promptReference": "minimumTerm",
+              "promptSequence": 600,
+              "type": "INTM",
+              "usergroups": [],
+              "value": "5 Months",
+              "welshValue": "5 Months"
+            },
+            {
+              "courtExtract": "Y",
+              "isFinancialImposition": false,
+              "judicialResultPromptTypeId": "10ec0c03-a0a9-41fc-9314-1cec010e12cf",
+              "label": "Early release provisions apply",
+              "promptReference": "earlyReleaseProvisionsApply",
+              "promptSequence": 700,
+              "type": "BOOLEAN",
+              "usergroups": [],
+              "value": "false",
+              "welshValue": "false"
+            },
+            {
+              "courtExtract": "Y",
+              "isFinancialImposition": false,
+              "judicialResultPromptTypeId": "ddaa31d2-352a-47ca-95c4-6588faabf099",
+              "label": "Early release provisions do not apply - sentence is a whole life order",
+              "promptReference": "earlyReleaseProvisionsDoNotApply",
+              "promptSequence": 800,
+              "type": "BOOLEAN",
+              "usergroups": [],
+              "value": "true",
+              "welshValue": "true"
+            },
+            {
+              "courtExtract": "N",
+              "isFinancialImposition": false,
+              "judicialResultPromptTypeId": "2d6330a2-1f12-45fb-bb72-65f4c1215e9c",
+              "label": "Prison organisation name",
+              "promptReference": "prisonOrganisationName",
+              "promptSequence": 900,
+              "type": "NAMEADDRESS",
+              "usergroups": [],
+              "value": "HMP Brixton",
+              "welshValue": "HMP Brixton"
+            },
+            {
+              "courtExtract": "N",
+              "isFinancialImposition": false,
+              "judicialResultPromptTypeId": "2d6330a2-1f12-45fb-bb72-65f4c1215e9c",
+              "label": "Prison email address 1",
+              "promptReference": "prisonEmailAddress1",
+              "promptSequence": 900,
+              "type": "NAMEADDRESS",
+              "usergroups": [],
+              "value": "OMU.Brixton@example-prison.gov.uk",
+              "welshValue": "OMU.Brixton@example-prison.gov.uk"
+            },
+            {
+              "courtExtract": "N",
+              "isFinancialImposition": false,
+              "judicialResultPromptTypeId": "6927b6ac-4c85-4532-838d-88ac00ea83f9",
+              "label": "Conveyor / custodian name organisation name",
+              "promptReference": "conveyorcustodiannameOrganisationName",
+              "promptSequence": 1000,
+              "type": "NAMEADDRESS",
+              "usergroups": [],
+              "value": "Bexley Magistrates' Court: PECS",
+              "welshValue": "Bexley Magistrates' Court: PECS"
+            },
+            {
+              "courtExtract": "N",
+              "isFinancialImposition": false,
+              "judicialResultPromptTypeId": "6927b6ac-4c85-4532-838d-88ac00ea83f9",
+              "label": "Conveyor / custodian name email address 1",
+              "promptReference": "conveyorcustodiannameEmailAddress1",
+              "promptSequence": 1000,
+              "type": "NAMEADDRESS",
+              "usergroups": [],
+              "value": "PECSBexleyheathMags@example-custody.co.uk",
+              "welshValue": "PECSBexleyheathMags@example-custody.co.uk"
+            },
+            {
+              "courtExtract": "Y",
+              "isFinancialImposition": false,
+              "judicialResultPromptTypeId": "21549bc3-5be9-4a91-abc7-57d8ed1b1676",
+              "label": "Reason for sentence without PSR",
+              "promptReference": "reasonForSentenceWithoutPSR",
+              "promptSequence": 1100,
+              "type": "TXT",
+              "usergroups": [],
+              "value": "test Reason for sentence without PSR",
+              "welshLabel": "Rheswm dros ddedfryd heb PSR",
+              "welshValue": "test Reason for sentence without PSR"
+            },
+            {
+              "courtExtract": "N",
+              "isFinancialImposition": false,
+              "judicialResultPromptTypeId": "68c92035-27fd-4ee6-b03c-fe18ea6dbcb0",
+              "label": "Probation team to be notified organisation name",
+              "promptReference": "probationteamtobenotifiedOrganisationName",
+              "promptSequence": 1200,
+              "type": "NAMEADDRESS",
+              "usergroups": [],
+              "value": "London Division NPS",
+              "welshValue": "London Division NPS"
+            },
+            {
+              "courtExtract": "N",
+              "isFinancialImposition": false,
+              "judicialResultPromptTypeId": "68c92035-27fd-4ee6-b03c-fe18ea6dbcb0",
+              "label": "Probation team to be notified email address 1",
+              "promptReference": "probationteamtobenotifiedEmailAddress1",
+              "promptSequence": 1200,
+              "type": "NAMEADDRESS",
+              "usergroups": [],
+              "value": "londonnps.court@example-prison.gov.uk",
+              "welshValue": "londonnps.court@example-prison.gov.uk"
+            },
+            {
+              "courtExtract": "Y",
+              "isFinancialImposition": false,
+              "judicialResultPromptTypeId": "2395831b-5044-451f-acaf-259d00e01bea",
+              "label": "Sentenced in absence",
+              "promptReference": "sentencedInAbsence",
+              "promptSequence": 1300,
+              "qualifier": "FH",
+              "type": "BOOLEAN",
+              "usergroups": [],
+              "value": "true",
+              "welshValue": "true"
+            }
+          ],
+          "judicialResultTypeId": "6cb15971-c945-4398-b7c9-3f8b743a4de3",
+          "label": "Total custodial period",
+          "lastSharedDateTime": "2026-08-14",
+          "level": "D",
+          "lifeDuration": false,
+          "offenceId": "be0a3112-952f-4f9f-837c-dd29f1d81893",
+          "orderedDate": "2026-08-14",
+          "orderedHearingId": "9aa7c8fe-ceeb-48cd-bc3d-dbd3c63c8967",
+          "parentJudicialResultId": "47ecbb01-5e76-46f7-9183-3fa2f88b3ace",
+          "parentJudicialResultTypeId": "abb95a52-2a75-40c3-8d3f-a1d75a199c47",
+          "postHearingCustodyStatus": "A",
+          "preserveActiveOrder": false,
+          "publishedAsAPrompt": false,
+          "publishedForNows": true,
+          "qualifier": "F,FH",
+          "rank": 400,
+          "resultText": "Total custodial period: 5 Months. Consecutive to sentence imposed on 11/08/2026, which was imposed by Bexley Magistrates' Court. Consecutive to all other terms being served. Minimum term: 5 Months. Early release provisions do not apply - sentence is a whole life order. Defendant sentenced without a pre-sentence report because test Reason for sentence without PSR. Sentenced in absence.",
+          "rollUpPrompts": true,
+          "rootJudicialResultId": "47ecbb01-5e76-46f7-9183-3fa2f88b3ace",
+          "rootJudicialResultTypeId": "abb95a52-2a75-40c3-8d3f-a1d75a199c47",
+          "sentToCC": false,
+          "terminatesOffenceProceedings": false,
+          "urgent": false,
+          "usergroups": []
+        },
+        "masterDefendantId": "b16cf89c-ff8a-4c5e-ad64-b74708190870"
+      }
+    ],
+    "hasSharedResults": true,
+    "hearingDays": [
+      {
+        "courtCentreId": "7e967376-eacf-4fca-9b30-21b0c5aad427",
+        "courtRoomId": "8e912353-3b5d-36c3-953e-ad3b94b19de3",
+        "hasSharedResults": true,
+        "isCancelled": false,
+        "listedDurationMinutes": 20,
+        "listingSequence": 1,
+        "sittingDay": "2026-08-14T08:30:00.000Z"
+      }
+    ],
+    "hearingLanguage": "ENGLISH",
+    "id": "9aa7c8fe-ceeb-48cd-bc3d-dbd3c63c8967",
+    "isGroupProceedings": false,
+    "judiciary": [
+      {
+        "firstName": "Jayne Marie",
+        "judicialId": "0b954dd9-dc1a-3520-8f30-380e5641a8b4",
+        "judicialRoleType": {
+          "judicialRoleTypeId": "0b954dd9-dc1a-3520-8f30-380e5641a8b4",
+          "judiciaryType": "Deputy District Judge (MC)- Fee paid"
+        },
+        "lastName": "Bryan",
+        "title": "Miss"
+      },
+      {
+        "firstName": "Richard James",
+        "isBenchChairman": true,
+        "isDeputy": false,
+        "judicialId": "67b5452f-8ea7-4261-be70-f9f2d80ea409",
+        "judicialRoleType": {
+          "judicialRoleTypeId": "67b5452f-8ea7-4261-be70-f9f2d80ea409",
+          "judiciaryType": "Magistrate"
+        },
+        "lastName": "Adams",
+        "title": "Mr"
+      },
+      {
+        "firstName": "David John",
+        "isBenchChairman": false,
+        "isDeputy": true,
+        "judicialId": "29daf944-2f3c-3b60-a42b-14c081b4a556",
+        "judicialRoleType": {
+          "judicialRoleTypeId": "29daf944-2f3c-3b60-a42b-14c081b4a556",
+          "judiciaryType": "Magistrate"
+        },
+        "lastName": "Abbotts",
+        "title": "Mr"
+      },
+      {
+        "firstName": "Deborah Ophelia",
+        "isBenchChairman": false,
+        "isDeputy": true,
+        "judicialId": "483773e6-18ea-40c4-9ace-b264a2251771",
+        "judicialRoleType": {
+          "judicialRoleTypeId": "483773e6-18ea-40c4-9ace-b264a2251771",
+          "judiciaryType": "Magistrate"
+        },
+        "lastName": "Bidwell",
+        "title": "Miss"
+      }
+    ],
+    "jurisdictionType": "MAGISTRATES",
+    "prosecutionCases": [
+      {
+        "caseMarkers": [
+          {
+            "id": "3d627e11-0d62-4851-b397-225bce028aa0",
+            "markerTypeCode": "DV",
+            "markerTypeDescription": "Domestic Violence",
+            "markerTypeid": "877ea509-85de-440b-b513-b8e2c82fa7ad"
+          },
+          {
+            "id": "de941eb6-9933-46a9-9651-54ed7e8c96cf",
+            "markerTypeCode": "VI",
+            "markerTypeDescription": "Vulnerable or intimidated victim",
+            "markerTypeid": "c19ad2d3-74ec-4b6b-92b3-a39a6039b867"
+          }
+        ],
+        "caseStatus": "ACTIVE",
+        "cpsOrganisation": "A30AB00",
+        "defendants": [
+          {
+            "aliases": [
+              {
+                "firstName": "Filip"
+              },
+              {
+                "firstName": "Roberto"
+              }
+            ],
+            "courtProceedingsInitiated": "2026-08-14T08:40:17.341Z",
+            "defendantCaseJudicialResults": [
+              {
+                "alwaysPublished": false,
+                "category": "ANCILLARY",
+                "cjsCode": "4592",
+                "committedToCC": false,
+                "d20": false,
+                "excludedFromResults": false,
+                "isAdjournmentResult": false,
+                "isAvailableForCourtExtract": false,
+                "isConvictedResult": false,
+                "isFinancialResult": false,
+                "isUnscheduled": false,
+                "judicialResultId": "3134e47d-e35f-45f3-8d98-5511401c43a0",
+                "judicialResultTypeId": "8c67b30a-418c-11e8-842f-0ed5f89f718b",
+                "label": "Defendant's details changed",
+                "lastSharedDateTime": "2026-08-14",
+                "lifeDuration": false,
+                "orderedDate": "2026-08-14",
+                "orderedHearingId": "9aa7c8fe-ceeb-48cd-bc3d-dbd3c63c8967",
+                "publishedAsAPrompt": false,
+                "publishedForNows": false,
+                "rank": 89100,
+                "resultText": "Defendant's details changed",
+                "rollUpPrompts": true,
+                "sentToCC": false,
+                "terminatesOffenceProceedings": false,
+                "urgent": false,
+                "usergroups": []
+              }
+            ],
+            "id": "b16cf89c-ff8a-4c5e-ad64-b74708190870",
+            "masterDefendantId": "b16cf89c-ff8a-4c5e-ad64-b74708190870",
+            "offences": [
+              {
+                "allocationDecision": {
+                  "allocationDecisionDate": "2026-08-14",
+                  "motReasonCode": "02",
+                  "motReasonDescription": "Indictable-only offence",
+                  "motReasonId": "4ba29b9f-9e57-32ed-b376-1840f4ba6c53",
+                  "offenceId": "be0a3112-952f-4f9f-837c-dd29f1d81893",
+                  "originatingHearingId": "9aa7c8fe-ceeb-48cd-bc3d-dbd3c63c8967",
+                  "sequenceNumber": 100
+                },
+                "arrestDate": "2022-12-14",
+                "chargeDate": "2022-12-15",
+                "convictingCourt": {
+                  "code": "B01BH00",
+                  "id": "7e967376-eacf-4fca-9b30-21b0c5aad427",
+                  "lja": {
+                    "ljaCode": "2575",
+                    "ljaName": "South East London Magistrates' Court"
+                  },
+                  "name": "Bexley Magistrates' Court",
+                  "roomId": "8e912353-3b5d-36c3-953e-ad3b94b19de3"
+                },
+                "convictionDate": "2026-08-14",
+                "count": 0,
+                "dateHeldInCustodySince": "2026-08-14",
+                "endorsableFlag": false,
+                "id": "be0a3112-952f-4f9f-837c-dd29f1d81893",
+                "isDisposed": true,
+                "judicialResults": [
+                  {
+                    "alwaysPublished": false,
+                    "canBeSubjectOfBreach": false,
+                    "canBeSubjectOfVariation": false,
+                    "canExtendActiveOrder": false,
+                    "category": "FINAL",
+                    "cjsCode": "1002",
+                    "committedToCC": false,
+                    "courtClerk": {
+                      "firstName": "Erica",
+                      "lastName": "Wilson",
+                      "userId": "a085e359-6069-4694-8820-7810e7dfe762"
+                    },
+                    "d20": false,
+                    "delegatedPowers": {
+                      "firstName": "Erica",
+                      "lastName": "Wilson",
+                      "userId": "a085e359-6069-4694-8820-7810e7dfe762"
+                    },
+                    "durationElement": {
+                      "primaryDurationUnit": "M",
+                      "primaryDurationValue": 5
+                    },
+                    "dvlaCode": "A",
+                    "excludedFromResults": false,
+                    "isAdjournmentResult": false,
+                    "isAvailableForCourtExtract": true,
+                    "isConvictedResult": true,
+                    "isDeemedServed": false,
+                    "isDeleted": false,
+                    "isFinancialResult": false,
+                    "isNewAmendment": true,
+                    "isUnscheduled": false,
+                    "judicialResultId": "47ecbb01-5e76-46f7-9183-3fa2f88b3ace",
+                    "judicialResultPrompts": [
+                      {
+                        "courtExtract": "Y",
+                        "isFinancialImposition": false,
+                        "judicialResultPromptTypeId": "b2cf5a1e-8539-45a1-a287-4be5094a0e73",
+                        "label": "Total custodial period",
+                        "promptReference": "totalCustodialPeriod",
+                        "promptSequence": 100,
+                        "type": "INTM",
+                        "usergroups": [],
+                        "value": "5 Months",
+                        "welshValue": "5 Months"
+                      },
+                      {
+                        "courtExtract": "Y",
+                        "isFinancialImposition": false,
+                        "judicialResultPromptTypeId": "83b92cfe-9160-4e46-baa1-b9a1e99b41cc",
+                        "label": "Consecutive to sentence imposed on",
+                        "promptReference": "consecutiveToSentenceImposedOn",
+                        "promptSequence": 300,
+                        "qualifier": "F",
+                        "type": "DATE",
+                        "usergroups": [],
+                        "value": "11/08/2026",
+                        "welshLabel": "Yn dilyn y ddedfryd a osodwyd ar",
+                        "welshValue": "11/08/2026"
+                      },
+                      {
+                        "courtExtract": "Y",
+                        "isFinancialImposition": false,
+                        "judicialResultPromptTypeId": "3e7dab34-bb9d-46df-9a45-139113ee0b09",
+                        "label": "which was imposed by",
+                        "promptReference": "whichWasImpBy",
+                        "promptSequence": 400,
+                        "type": "FIXL",
+                        "usergroups": [],
+                        "value": "Bexley Magistrates' Court",
+                        "welshLabel": "a orfodwyd gan",
+                        "welshValue": "Bexley Magistrates' Court"
+                      },
+                      {
+                        "courtExtract": "Y",
+                        "isFinancialImposition": false,
+                        "judicialResultPromptTypeId": "5fd9e841-0079-48c6-a77a-bc113181be48",
+                        "label": "Consecutive to all other terms being served",
+                        "promptReference": "consecutiveToAllOtherTermsBeingServed",
+                        "promptSequence": 500,
+                        "type": "BOOLEAN",
+                        "usergroups": [],
+                        "value": "true",
+                        "welshValue": "true"
+                      },
+                      {
+                        "courtExtract": "Y",
+                        "isFinancialImposition": false,
+                        "judicialResultPromptTypeId": "8f2984fe-9270-4175-9f2e-79d1ec7d3a38",
+                        "label": "Minimum term",
+                        "promptReference": "minimumTerm",
+                        "promptSequence": 600,
+                        "type": "INTM",
+                        "usergroups": [],
+                        "value": "5 Months",
+                        "welshValue": "5 Months"
+                      },
+                      {
+                        "courtExtract": "Y",
+                        "isFinancialImposition": false,
+                        "judicialResultPromptTypeId": "10ec0c03-a0a9-41fc-9314-1cec010e12cf",
+                        "label": "Early release provisions apply",
+                        "promptReference": "earlyReleaseProvisionsApply",
+                        "promptSequence": 700,
+                        "type": "BOOLEAN",
+                        "usergroups": [],
+                        "value": "false",
+                        "welshValue": "false"
+                      },
+                      {
+                        "courtExtract": "Y",
+                        "isFinancialImposition": false,
+                        "judicialResultPromptTypeId": "ddaa31d2-352a-47ca-95c4-6588faabf099",
+                        "label": "Early release provisions do not apply - sentence is a whole life order",
+                        "promptReference": "earlyReleaseProvisionsDoNotApply",
+                        "promptSequence": 800,
+                        "type": "BOOLEAN",
+                        "usergroups": [],
+                        "value": "true",
+                        "welshValue": "true"
+                      },
+                      {
+                        "courtExtract": "N",
+                        "isFinancialImposition": false,
+                        "judicialResultPromptTypeId": "2d6330a2-1f12-45fb-bb72-65f4c1215e9c",
+                        "label": "Prison organisation name",
+                        "promptReference": "prisonOrganisationName",
+                        "promptSequence": 900,
+                        "type": "NAMEADDRESS",
+                        "usergroups": [],
+                        "value": "HMP Brixton",
+                        "welshValue": "HMP Brixton"
+                      },
+                      {
+                        "courtExtract": "N",
+                        "isFinancialImposition": false,
+                        "judicialResultPromptTypeId": "2d6330a2-1f12-45fb-bb72-65f4c1215e9c",
+                        "label": "Prison email address 1",
+                        "promptReference": "prisonEmailAddress1",
+                        "promptSequence": 900,
+                        "type": "NAMEADDRESS",
+                        "usergroups": [],
+                        "value": "OMU.Brixton@example-prison.gov.uk",
+                        "welshValue": "OMU.Brixton@example-prison.gov.uk"
+                      },
+                      {
+                        "courtExtract": "N",
+                        "isFinancialImposition": false,
+                        "judicialResultPromptTypeId": "6927b6ac-4c85-4532-838d-88ac00ea83f9",
+                        "label": "Conveyor / custodian name organisation name",
+                        "promptReference": "conveyorcustodiannameOrganisationName",
+                        "promptSequence": 1000,
+                        "type": "NAMEADDRESS",
+                        "usergroups": [],
+                        "value": "Bexley Magistrates' Court: PECS",
+                        "welshValue": "Bexley Magistrates' Court: PECS"
+                      },
+                      {
+                        "courtExtract": "N",
+                        "isFinancialImposition": false,
+                        "judicialResultPromptTypeId": "6927b6ac-4c85-4532-838d-88ac00ea83f9",
+                        "label": "Conveyor / custodian name email address 1",
+                        "promptReference": "conveyorcustodiannameEmailAddress1",
+                        "promptSequence": 1000,
+                        "type": "NAMEADDRESS",
+                        "usergroups": [],
+                        "value": "PECSBexleyheathMags@example-custody.co.uk",
+                        "welshValue": "PECSBexleyheathMags@example-custody.co.uk"
+                      },
+                      {
+                        "courtExtract": "Y",
+                        "isFinancialImposition": false,
+                        "judicialResultPromptTypeId": "21549bc3-5be9-4a91-abc7-57d8ed1b1676",
+                        "label": "Reason for sentence without PSR",
+                        "promptReference": "reasonForSentenceWithoutPSR",
+                        "promptSequence": 1100,
+                        "type": "TXT",
+                        "usergroups": [],
+                        "value": "test Reason for sentence without PSR",
+                        "welshLabel": "Rheswm dros ddedfryd heb PSR",
+                        "welshValue": "test Reason for sentence without PSR"
+                      },
+                      {
+                        "courtExtract": "N",
+                        "isFinancialImposition": false,
+                        "judicialResultPromptTypeId": "68c92035-27fd-4ee6-b03c-fe18ea6dbcb0",
+                        "label": "Probation team to be notified organisation name",
+                        "promptReference": "probationteamtobenotifiedOrganisationName",
+                        "promptSequence": 1200,
+                        "type": "NAMEADDRESS",
+                        "usergroups": [],
+                        "value": "London Division NPS",
+                        "welshValue": "London Division NPS"
+                      },
+                      {
+                        "courtExtract": "N",
+                        "isFinancialImposition": false,
+                        "judicialResultPromptTypeId": "68c92035-27fd-4ee6-b03c-fe18ea6dbcb0",
+                        "label": "Probation team to be notified email address 1",
+                        "promptReference": "probationteamtobenotifiedEmailAddress1",
+                        "promptSequence": 1200,
+                        "type": "NAMEADDRESS",
+                        "usergroups": [],
+                        "value": "londonnps.court@example-prison.gov.uk",
+                        "welshValue": "londonnps.court@example-prison.gov.uk"
+                      },
+                      {
+                        "courtExtract": "Y",
+                        "isFinancialImposition": false,
+                        "judicialResultPromptTypeId": "2395831b-5044-451f-acaf-259d00e01bea",
+                        "label": "Sentenced in absence",
+                        "promptReference": "sentencedInAbsence",
+                        "promptSequence": 1300,
+                        "qualifier": "FH",
+                        "type": "BOOLEAN",
+                        "usergroups": [],
+                        "value": "true",
+                        "welshValue": "true"
+                      },
+                      {
+                        "courtExtract": "Y",
+                        "durationSequence": 1,
+                        "isFinancialImposition": false,
+                        "judicialResultPromptTypeId": "76f15753-1706-42fb-b922-0d56d01e5706",
+                        "label": "Imprisonment Period",
+                        "promptReference": "imprisonmentPeriod",
+                        "promptSequence": 100,
+                        "type": "INTM",
+                        "usergroups": [],
+                        "value": "5 Months",
+                        "welshLabel": "Cyfnod Carcharu",
+                        "welshValue": "5 Months"
+                      },
+                      {
+                        "courtExtract": "Y",
+                        "isFinancialImposition": false,
+                        "judicialResultPromptTypeId": "746c833a-7d33-4800-a40c-425dbacf7492",
+                        "label": "Concurrent",
+                        "promptReference": "concurrent",
+                        "promptSequence": 120,
+                        "qualifier": "C",
+                        "type": "YESBOX",
+                        "usergroups": [],
+                        "value": "true",
+                        "welshLabel": "Cydamserol",
+                        "welshValue": "true"
+                      },
+                      {
+                        "courtExtract": "Y",
+                        "isFinancialImposition": false,
+                        "judicialResultPromptTypeId": "7784b81d-44d2-43c0-a903-a53b0e73683b",
+                        "label": "Consecutive to offence",
+                        "promptReference": "consecutiveToOffenceNumber",
+                        "promptSequence": 140,
+                        "qualifier": "F",
+                        "type": "TXT",
+                        "usergroups": [],
+                        "value": "test Consecutive to offence",
+                        "welshValue": "test Consecutive to offence"
+                      },
+                      {
+                        "courtExtract": "Y",
+                        "isFinancialImposition": false,
+                        "judicialResultPromptTypeId": "da9c91a6-7090-44f3-8644-b4b184533fc4",
+                        "label": "which is on case number",
+                        "promptReference": "whereConsecutiveToAnOffenceOnAnotherCaseSpecifyThatCaseNumber",
+                        "promptSequence": 160,
+                        "qualifier": "",
+                        "type": "TXT",
+                        "usergroups": [],
+                        "value": "28DI9158668",
+                        "welshLabel": "sydd dan y rhif achos",
+                        "welshValue": "28DI9158668"
+                      },
+                      {
+                        "courtExtract": "Y",
+                        "isFinancialImposition": false,
+                        "judicialResultPromptTypeId": "ea957761-0813-4a92-9e7c-b536654325f0",
+                        "label": "Imprisonment reasons",
+                        "promptReference": "imprisonmentReasons",
+                        "promptSequence": 200,
+                        "type": "FIXL",
+                        "usergroups": [],
+                        "value": "failure to comply with requirements of post custodial sentence supervision",
+                        "welshLabel": "Rhesymau dros garcharu",
+                        "welshValue": "methu \u00e2 chydymffurfio \u00e2 gofynion goruchwyliaeth ar \u00f4l dedfryd o garchar"
+                      },
+                      {
+                        "courtExtract": "Y",
+                        "isFinancialImposition": false,
+                        "judicialResultPromptTypeId": "622aa563-a3db-4102-ba7e-21c21cee0110",
+                        "label": "Reason for custody",
+                        "promptReference": "theReasonsForThis",
+                        "promptSequence": 300,
+                        "type": "FIXLOM",
+                        "usergroups": [],
+                        "value": "because of an unprovoked attack of a serious nature, because the defendant has a flagrant disregard for court orders, test details",
+                        "welshValue": "because of an unprovoked attack of a serious nature, because the defendant has a flagrant disregard for court orders, test details"
+                      },
+                      {
+                        "courtExtract": "N",
+                        "isFinancialImposition": false,
+                        "judicialResultPromptTypeId": "cc398d5e-6a52-416d-8081-af8a5adf24f9",
+                        "label": "Number of days in custody in foreign jurisdiction to count",
+                        "promptReference": "numberOfDaysInCustodyInForeignJurisdictionToCount",
+                        "promptSequence": 400,
+                        "type": "INT",
+                        "usergroups": [],
+                        "value": "10",
+                        "welshValue": "10"
+                      },
+                      {
+                        "courtExtract": "N",
+                        "isFinancialImposition": false,
+                        "judicialResultPromptTypeId": "4d10cd4b-fb39-40dd-88e1-2397832bc914",
+                        "label": "Bail remand days to count (tagged days)",
+                        "promptReference": "bailRemandDaysToCountTaggedDays",
+                        "promptSequence": 500,
+                        "type": "INT",
+                        "usergroups": [],
+                        "value": "0",
+                        "welshLabel": "Dyddiau mechn\u00efaeth ar remand i\u2019w cyfrif (dyddiad gyda tag)",
+                        "welshValue": "0"
+                      },
+                      {
+                        "courtExtract": "Y",
+                        "isFinancialImposition": false,
+                        "judicialResultPromptTypeId": "26f082eb-d599-43bb-9725-0e47ab86d535",
+                        "label": "This offence is aggravated by the foreign power condition being met in relation to it as defined by section 31 of the National Security Act 2023",
+                        "promptReference": "offenceAggByForeignPowerCondition",
+                        "promptSequence": 550,
+                        "type": "BOOLEAN",
+                        "usergroups": [],
+                        "value": "true",
+                        "welshValue": "true"
+                      }
+                    ],
+                    "judicialResultTypeId": "abb95a52-2a75-40c3-8d3f-a1d75a199c47",
+                    "label": "Imprisonment",
+                    "lastSharedDateTime": "2026-08-14",
+                    "level": "O",
+                    "lifeDuration": false,
+                    "orderedDate": "2026-08-14",
+                    "orderedHearingId": "9aa7c8fe-ceeb-48cd-bc3d-dbd3c63c8967",
+                    "policeSubjectLineTitle": "Final Sentence",
+                    "postHearingCustodyStatus": "A",
+                    "preserveActiveOrder": false,
+                    "publishedAsAPrompt": false,
+                    "publishedForNows": false,
+                    "qualifier": "C,F,",
+                    "rank": 61000,
+                    "resultText": "IMP - Imprisonment\nCommitted to prison for 5 Months Concurrent Consecutive to offence test Consecutive to offence which is on case number 28DI9158668. Reason: failure to comply with requirements of post custodial sentence supervision because of an unprovoked attack of a serious nature, because the defendant has a flagrant disregard for court orders, test details. Bail remand days to count (Tagged Days): 0. Number of days in custody in foreign jurisdiction to count: 10. This offence is aggravated by the foreign power condition being met in relation to it as defined by section 31 of the National Security Act 2023. Total custodial period: 5 Months. Consecutive to sentence imposed on 11/08/2026, which was imposed by Bexley Magistrates' Court. Consecutive to all other terms being served. Minimum term: 5 Months. Early release provisions do not apply - sentence is a whole life order. Defendant sentenced without a pre-sentence report because test Reason for sentence without PSR. Sentenced in absence.\n \n ",
+                    "rollUpPrompts": true,
+                    "rootJudicialResultId": "47ecbb01-5e76-46f7-9183-3fa2f88b3ace",
+                    "rootJudicialResultTypeId": "abb95a52-2a75-40c3-8d3f-a1d75a199c47",
+                    "sentToCC": false,
+                    "terminatesOffenceProceedings": false,
+                    "urgent": false,
+                    "usergroups": []
+                  }
+                ],
+                "listingNumber": 1,
+                "maxPenalty": "Indictable only",
+                "modeOfTrial": "Indictable",
+                "offenceCode": "OF61102C",
+                "offenceDateCode": 1,
+                "offenceDefinitionId": "3acf5ee8-6ba0-3b95-8c80-4a4b7dc84d7c",
+                "offenceLegislation": "Contrary to sections 1,1A and 3 of the Criminal Law Act 1977.",
+                "offenceLegislationWelsh": "Yn groes i adran 1, 1A a 3 Deddf Cyfraith Trosedd 1977.",
+                "offenceTitle": "Conspire to assault a person thereby occasioning them actual bodily harm",
+                "offenceTitleWelsh": "Cynllwynio i ymosod ar unigolyn a thrwy hynny beri gwir niwed corfforol iddynt",
+                "orderIndex": 1,
+                "plea": {
+                  "offenceId": "be0a3112-952f-4f9f-837c-dd29f1d81893",
+                  "originatingHearingId": "9aa7c8fe-ceeb-48cd-bc3d-dbd3c63c8967",
+                  "pleaDate": "2026-08-14",
+                  "pleaValue": "NOT_GUILTY"
+                },
+                "startDate": "2022-12-12",
+                "verdict": {
+                  "jurors": {
+                    "numberOfJurors": 12,
+                    "numberOfSplitJurors": 0,
+                    "unanimous": true
+                  },
+                  "lesserOrAlternativeOffence": {
+                    "offenceCode": "OF61102C",
+                    "offenceDefinitionId": "3acf5ee8-6ba0-3b95-8c80-4a4b7dc84d7c",
+                    "offenceLegislation": "Contrary to sections 1,1A and 3 of the Criminal Law Act 1977.",
+                    "offenceTitle": "Conspire to assault a person thereby occasioning them actual bodily harm"
+                  },
+                  "offenceId": "be0a3112-952f-4f9f-837c-dd29f1d81893",
+                  "originatingHearingId": "9aa7c8fe-ceeb-48cd-bc3d-dbd3c63c8967",
+                  "verdictDate": "2026-08-14",
+                  "verdictType": {
+                    "category": "Guilty",
+                    "categoryType": "GUILTY",
+                    "cjsVerdictCode": "G",
+                    "description": "Found guilty",
+                    "id": "c4ca4238-a0b9-3382-8dcc-509a6f75849b",
+                    "sequence": 10,
+                    "verdictCode": "G"
+                  }
+                },
+                "wording": "Filiberto Runolfsson at Beulah Spring, conspired together with Minnie Fay to assault Becky Buckridge, thereby occasioning actual bodily harm."
+              },
+              {
+                "allocationDecision": {
+                  "allocationDecisionDate": "2026-08-14",
+                  "motReasonCode": "01",
+                  "motReasonDescription": "Summary-only offence",
+                  "motReasonId": "b8c37e33-defd-351c-b91e-1e03e51657da",
+                  "offenceId": "ef4fa5ef-6ccc-4424-9cbc-d95663d7f9bf",
+                  "originatingHearingId": "9aa7c8fe-ceeb-48cd-bc3d-dbd3c63c8967",
+                  "sequenceNumber": 90
+                },
+                "arrestDate": "2022-01-01",
+                "chargeDate": "2022-12-28",
+                "convictingCourt": {
+                  "code": "B01BH00",
+                  "id": "7e967376-eacf-4fca-9b30-21b0c5aad427",
+                  "lja": {
+                    "ljaCode": "2575",
+                    "ljaName": "South East London Magistrates' Court"
+                  },
+                  "name": "Bexley Magistrates' Court",
+                  "roomId": "8e912353-3b5d-36c3-953e-ad3b94b19de3"
+                },
+                "convictionDate": "2026-08-14",
+                "count": 0,
+                "dateHeldInCustodySince": "2026-08-14",
+                "endorsableFlag": false,
+                "id": "ef4fa5ef-6ccc-4424-9cbc-d95663d7f9bf",
+                "isDisposed": false,
+                "judicialResults": [
+                  {
+                    "alwaysPublished": false,
+                    "canBeSubjectOfBreach": false,
+                    "canBeSubjectOfVariation": false,
+                    "canExtendActiveOrder": false,
+                    "category": "INTERMEDIARY",
+                    "cjsCode": "4506",
+                    "committedToCC": false,
+                    "courtClerk": {
+                      "firstName": "Erica",
+                      "lastName": "Wilson",
+                      "userId": "a085e359-6069-4694-8820-7810e7dfe762"
+                    },
+                    "d20": false,
+                    "delegatedPowers": {
+                      "firstName": "Erica",
+                      "lastName": "Wilson",
+                      "userId": "a085e359-6069-4694-8820-7810e7dfe762"
+                    },
+                    "excludedFromResults": false,
+                    "isAdjournmentResult": false,
+                    "isAvailableForCourtExtract": true,
+                    "isConvictedResult": false,
+                    "isDeleted": false,
+                    "isFinancialResult": false,
+                    "isNewAmendment": true,
+                    "isUnscheduled": false,
+                    "judicialResultId": "7506cfdc-2bf3-480e-bdff-7b476c106279",
+                    "judicialResultPrompts": [
+                      {
+                        "courtExtract": "Y",
+                        "judicialResultPromptTypeId": "70c98fa6-804d-11e8-adc0-fa7ae01bbebc",
+                        "label": "Next hearing in magistrates' court",
+                        "promptReference": "e7b7e879-4d3f-476c-aea4-b2326b060e23",
+                        "promptSequence": 0,
+                        "usergroups": [],
+                        "value": "Date of hearing:17/08/2026\nTime of hearing:10:00\nCourthouse organisation name:Bexley Magistrates' Court\nCourthouse address line 1:Norwich Place\nCourthouse address line 2:Bexleyheath\nCourthouse address line 3:Kent\nCourthouse post code:DA6 7ND\nCourtroom:Courtroom 01\nHearing type:Trial - no witnesses\nEstimated duration:20 MINUTES\nBooking reference:2ce4e292-53e8-45e8-b47c-54365de889a6",
+                        "welshLabel": "Ni wnaeth y Llys barhau \u00e2\u2019r treial yn absenoldeb y diffynnydd"
+                      },
+                      {
+                        "courtExtract": "Y",
+                        "isFinancialImposition": false,
+                        "judicialResultPromptTypeId": "61f951c3-f18d-4a44-ae4a-0cad4efb4133",
+                        "label": "Defendant to attend the next hearing",
+                        "promptReference": "defendantToAttendTheNextHearing",
+                        "promptSequence": 100,
+                        "type": "BOOLEAN",
+                        "usergroups": [],
+                        "value": "true",
+                        "welshLabel": "Diffynnydd i fynychu\u2019r gwrandawiad nesaf",
+                        "welshValue": "true"
+                      },
+                      {
+                        "courtExtract": "Y",
+                        "isFinancialImposition": false,
+                        "judicialResultPromptTypeId": "9d4df7b9-bd70-4142-86be-8023531a1d95",
+                        "label": "THIS NOTICE IS FOR PERSONAL SERVICE",
+                        "promptReference": "tHISNOTICEISFORPERSONALSERVICE",
+                        "promptSequence": 300,
+                        "type": "BOOLEAN",
+                        "usergroups": [],
+                        "value": "true",
+                        "welshLabel": "Mae'r hysbysiad hwn ar gyfer gwasanaeth personol",
+                        "welshValue": "true"
+                      },
+                      {
+                        "courtExtract": "Y",
+                        "judicialResultPromptTypeId": "69ff04d5-84e8-4a61-8478-82c2999c1969",
+                        "label": "To attend or a warrant to issue",
+                        "promptReference": "c2b3c7d6-e0c6-4d78-aec0-45f33755052d",
+                        "promptSequence": 400,
+                        "qualifier": "GE",
+                        "usergroups": [],
+                        "value": "",
+                        "welshLabel": "Codi neu gyhoeddi gwarant"
+                      },
+                      {
+                        "courtExtract": "Y",
+                        "judicialResultPromptTypeId": "7fc17a01-2f5a-4433-aae9-28e0c959f73b",
+                        "label": "Adjournment reasons",
+                        "promptReference": "bdc7cae7-a132-45b9-b361-ae6bf1079d03",
+                        "promptSequence": 500,
+                        "usergroups": [],
+                        "value": "",
+                        "welshLabel": "Rheswm dros ohirio:"
+                      }
+                    ],
+                    "judicialResultTypeId": "d278650c-e429-11e8-9f32-f2801f1b9fd1",
+                    "label": "Adjournment",
+                    "lastSharedDateTime": "2026-08-14",
+                    "level": "O",
+                    "lifeDuration": false,
+                    "nextHearing": {
+                      "adjournmentReason": "To attend or a warrant to issue",
+                      "bookingReference": "2ce4e292-53e8-45e8-b47c-54365de889a6",
+                      "courtCentre": {
+                        "address": {
+                          "address1": "Norwich Place",
+                          "address2": "Bexleyheath",
+                          "address3": "Kent",
+                          "postcode": "DA6 7ND"
+                        },
+                        "code": "B01BH00",
+                        "courtHearingLocation": "B01BH01",
+                        "id": "7e967376-eacf-4fca-9b30-21b0c5aad427",
+                        "name": "Bexley Magistrates' Court",
+                        "psaCode": 2575,
+                        "roomId": "8e912353-3b5d-36c3-953e-ad3b94b19de3",
+                        "roomName": "Courtroom 01",
+                        "welshName": "Llys Ynadon Bexley"
+                      },
+                      "estimatedDuration": "20 MINUTES",
+                      "estimatedMinutes": 20,
+                      "jurisdictionType": "MAGISTRATES",
+                      "listedStartDateTime": "2026-08-17T09:00:00.000Z",
+                      "type": {
+                        "description": "Trial - no witnesses",
+                        "id": "fb90d7d1-a591-4deb-92a0-4e3d0d469bce"
+                      }
+                    },
+                    "orderedDate": "2026-08-14",
+                    "orderedHearingId": "9aa7c8fe-ceeb-48cd-bc3d-dbd3c63c8967",
+                    "policeSubjectLineTitle": "Adjourned",
+                    "postHearingCustodyStatus": "A",
+                    "preserveActiveOrder": false,
+                    "publishedAsAPrompt": false,
+                    "publishedForNows": false,
+                    "qualifier": "GE",
+                    "rank": 194200,
+                    "resultText": "A - Adjournment\nAdjourned for hearing on 17/08/2026 at 10:00 in Courtroom 01, Bexley Magistrates' Court. Reason: To attend or a warrant to issue. Defendant to attend the next hearing.",
+                    "resultWording": "",
+                    "rollUpPrompts": true,
+                    "rootJudicialResultId": "7506cfdc-2bf3-480e-bdff-7b476c106279",
+                    "rootJudicialResultTypeId": "d278650c-e429-11e8-9f32-f2801f1b9fd1",
+                    "sentToCC": false,
+                    "terminatesOffenceProceedings": false,
+                    "urgent": false,
+                    "usergroups": [],
+                    "welshLabel": "Gohiriad"
+                  },
+                  {
+                    "alwaysPublished": false,
+                    "canBeSubjectOfBreach": false,
+                    "canBeSubjectOfVariation": false,
+                    "canExtendActiveOrder": false,
+                    "category": "ANCILLARY",
+                    "committedToCC": false,
+                    "courtClerk": {
+                      "firstName": "Erica",
+                      "lastName": "Wilson",
+                      "userId": "a085e359-6069-4694-8820-7810e7dfe762"
+                    },
+                    "d20": false,
+                    "delegatedPowers": {
+                      "firstName": "Erica",
+                      "lastName": "Wilson",
+                      "userId": "a085e359-6069-4694-8820-7810e7dfe762"
+                    },
+                    "excludedFromResults": false,
+                    "isAdjournmentResult": false,
+                    "isAvailableForCourtExtract": true,
+                    "isConvictedResult": false,
+                    "isDeleted": false,
+                    "isFinancialResult": false,
+                    "isNewAmendment": true,
+                    "isUnscheduled": false,
+                    "judicialResultId": "c2b3c7d6-e0c6-4d78-aec0-45f33755052d",
+                    "judicialResultTypeId": "69ff04d5-84e8-4a61-8478-82c2999c1969",
+                    "label": "To attend or a warrant to issue",
+                    "lastSharedDateTime": "2026-08-14",
+                    "level": "O",
+                    "lifeDuration": false,
+                    "orderedDate": "2026-08-14",
+                    "orderedHearingId": "9aa7c8fe-ceeb-48cd-bc3d-dbd3c63c8967",
+                    "parentJudicialResultId": "bdc7cae7-a132-45b9-b361-ae6bf1079d03",
+                    "parentJudicialResultTypeId": "7fc17a01-2f5a-4433-aae9-28e0c959f73b",
+                    "postHearingCustodyStatus": "A",
+                    "preserveActiveOrder": false,
+                    "publishedAsAPrompt": true,
+                    "publishedForNows": true,
+                    "rank": 22600,
+                    "resultDefinitionGroup": "Adjournment reasons",
+                    "resultText": "To attend or a warrant to issue",
+                    "resultWording": "",
+                    "rollUpPrompts": false,
+                    "rootJudicialResultId": "7506cfdc-2bf3-480e-bdff-7b476c106279",
+                    "rootJudicialResultTypeId": "d278650c-e429-11e8-9f32-f2801f1b9fd1",
+                    "sentToCC": false,
+                    "terminatesOffenceProceedings": false,
+                    "urgent": false,
+                    "usergroups": [],
+                    "welshLabel": "Codi neu gyhoeddi gwarant"
+                  },
+                  {
+                    "alwaysPublished": false,
+                    "canBeSubjectOfBreach": false,
+                    "canBeSubjectOfVariation": false,
+                    "canExtendActiveOrder": false,
+                    "category": "ANCILLARY",
+                    "committedToCC": false,
+                    "courtClerk": {
+                      "firstName": "Erica",
+                      "lastName": "Wilson",
+                      "userId": "a085e359-6069-4694-8820-7810e7dfe762"
+                    },
+                    "d20": false,
+                    "delegatedPowers": {
+                      "firstName": "Erica",
+                      "lastName": "Wilson",
+                      "userId": "a085e359-6069-4694-8820-7810e7dfe762"
+                    },
+                    "excludedFromResults": false,
+                    "isAdjournmentResult": false,
+                    "isAvailableForCourtExtract": true,
+                    "isConvictedResult": false,
+                    "isDeemedServed": false,
+                    "isDeleted": false,
+                    "isFinancialResult": false,
+                    "isNewAmendment": true,
+                    "isUnscheduled": false,
+                    "judicialResultId": "e7b7e879-4d3f-476c-aea4-b2326b060e23",
+                    "judicialResultPrompts": [
+                      {
+                        "courtExtract": "Y",
+                        "isFinancialImposition": false,
+                        "judicialResultPromptTypeId": "d27a5d86-d51f-4c6e-914b-cb4b0abc4283",
+                        "label": "Date of hearing",
+                        "promptReference": "HDATE",
+                        "promptSequence": 100,
+                        "type": "DATE",
+                        "usergroups": [],
+                        "value": "17/08/2026",
+                        "welshLabel": "Dyddiad y gwrandawiad",
+                        "welshValue": "17/08/2026"
+                      },
+                      {
+                        "courtExtract": "Y",
+                        "isFinancialImposition": false,
+                        "judicialResultPromptTypeId": "4d125a5a-acbc-461d-a657-ba5643af85a6",
+                        "label": "Time of hearing",
+                        "promptReference": "timeOfHearing",
+                        "promptSequence": 200,
+                        "type": "TIME",
+                        "usergroups": [],
+                        "value": "10:00",
+                        "welshLabel": "Amser y gwrandawiad",
+                        "welshValue": "10:00"
+                      },
+                      {
+                        "courtExtract": "Y",
+                        "isFinancialImposition": false,
+                        "judicialResultPromptTypeId": "66868c04-72c4-46d9-a4fc-860a82107475",
+                        "label": "Courthouse organisation name",
+                        "promptReference": "hCHOUSEOrganisationName",
+                        "promptSequence": 300,
+                        "type": "NAMEADDRESS",
+                        "usergroups": [],
+                        "value": "Bexley Magistrates' Court",
+                        "welshValue": "Bexley Magistrates' Court"
+                      },
+                      {
+                        "courtExtract": "Y",
+                        "isFinancialImposition": false,
+                        "judicialResultPromptTypeId": "66868c04-72c4-46d9-a4fc-860a82107475",
+                        "label": "Courthouse address line 1",
+                        "promptReference": "hCHOUSEAddress1",
+                        "promptSequence": 300,
+                        "type": "NAMEADDRESS",
+                        "usergroups": [],
+                        "value": "Norwich Place",
+                        "welshValue": "Norwich Place"
+                      },
+                      {
+                        "courtExtract": "Y",
+                        "isFinancialImposition": false,
+                        "judicialResultPromptTypeId": "66868c04-72c4-46d9-a4fc-860a82107475",
+                        "label": "Courthouse address line 2",
+                        "promptReference": "hCHOUSEAddress2",
+                        "promptSequence": 300,
+                        "type": "NAMEADDRESS",
+                        "usergroups": [],
+                        "value": "Bexleyheath",
+                        "welshValue": "Bexleyheath"
+                      },
+                      {
+                        "courtExtract": "Y",
+                        "isFinancialImposition": false,
+                        "judicialResultPromptTypeId": "66868c04-72c4-46d9-a4fc-860a82107475",
+                        "label": "Courthouse address line 3",
+                        "promptReference": "hCHOUSEAddress3",
+                        "promptSequence": 300,
+                        "type": "NAMEADDRESS",
+                        "usergroups": [],
+                        "value": "Kent",
+                        "welshValue": "Kent"
+                      },
+                      {
+                        "courtExtract": "Y",
+                        "isFinancialImposition": false,
+                        "judicialResultPromptTypeId": "66868c04-72c4-46d9-a4fc-860a82107475",
+                        "label": "Courthouse post code",
+                        "promptReference": "hCHOUSEPostCode",
+                        "promptSequence": 300,
+                        "type": "NAMEADDRESS",
+                        "usergroups": [],
+                        "value": "DA6 7ND",
+                        "welshValue": "DA6 7ND"
+                      },
+                      {
+                        "courtExtract": "Y",
+                        "isFinancialImposition": false,
+                        "judicialResultPromptTypeId": "49ec9b26-dd63-4637-b2e9-55ba9948a90f",
+                        "label": "Courtroom",
+                        "promptReference": "HCROOM",
+                        "promptSequence": 400,
+                        "type": "INT",
+                        "usergroups": [],
+                        "value": "Courtroom 01",
+                        "welshLabel": "Ystafell Llys",
+                        "welshValue": "Courtroom 01"
+                      },
+                      {
+                        "courtExtract": "Y",
+                        "isFinancialImposition": false,
+                        "judicialResultPromptTypeId": "c1116d12-dd35-4171-807a-2cb845357d22",
+                        "label": "Hearing type",
+                        "promptReference": "HTYPE",
+                        "promptSequence": 500,
+                        "type": "TXT",
+                        "usergroups": [],
+                        "value": "Trial - no witnesses",
+                        "welshLabel": "Math o wrandawiad",
+                        "welshValue": "Trial - no witnesses"
+                      },
+                      {
+                        "courtExtract": "Y",
+                        "isFinancialImposition": false,
+                        "judicialResultPromptTypeId": "d85cc2d7-66c8-471e-b6ff-c1bc60c6cdac",
+                        "label": "Estimated duration",
+                        "promptReference": "HEST",
+                        "promptSequence": 600,
+                        "type": "INT",
+                        "usergroups": [],
+                        "value": "20 MINUTES",
+                        "welshLabel": "Amcangyfrif amser",
+                        "welshValue": "20 MINUTES"
+                      },
+                      {
+                        "courtExtract": "N",
+                        "isFinancialImposition": false,
+                        "judicialResultPromptTypeId": "e73e6ab8-9bfe-4135-9fe6-f526544584d6",
+                        "label": "Booking reference",
+                        "promptReference": "bookingReference",
+                        "promptSequence": 700,
+                        "type": "TXT",
+                        "usergroups": [],
+                        "value": "2ce4e292-53e8-45e8-b47c-54365de889a6",
+                        "welshLabel": "Cyfeirnod archebu",
+                        "welshValue": "2ce4e292-53e8-45e8-b47c-54365de889a6"
+                      }
+                    ],
+                    "judicialResultTypeId": "70c98fa6-804d-11e8-adc0-fa7ae01bbebc",
+                    "label": "Next hearing in magistrates' court",
+                    "lastSharedDateTime": "2026-08-14",
+                    "level": "O",
+                    "lifeDuration": false,
+                    "orderedDate": "2026-08-14",
+                    "orderedHearingId": "9aa7c8fe-ceeb-48cd-bc3d-dbd3c63c8967",
+                    "parentJudicialResultId": "3b7ee946-7f31-4192-b6e2-6fd86c65b297",
+                    "parentJudicialResultTypeId": "f00359b5-7303-403b-b59e-0b1a1daa89bc",
+                    "postHearingCustodyStatus": "A",
+                    "preserveActiveOrder": true,
+                    "publishedAsAPrompt": true,
+                    "publishedForNows": true,
+                    "rank": 500,
+                    "resultDefinitionGroup": "Next hearing",
+                    "resultText": "hearing on 17/08/2026 at 10:00 in Courtroom 01, Bexley Magistrates' Court",
+                    "resultWording": "",
+                    "rollUpPrompts": false,
+                    "rootJudicialResultId": "7506cfdc-2bf3-480e-bdff-7b476c106279",
+                    "rootJudicialResultTypeId": "d278650c-e429-11e8-9f32-f2801f1b9fd1",
+                    "sentToCC": false,
+                    "terminatesOffenceProceedings": false,
+                    "urgent": false,
+                    "usergroups": [],
+                    "welshLabel": "Ni wnaeth y Llys barhau \u00e2\u2019r treial yn absenoldeb y diffynnydd"
+                  }
+                ],
+                "listingNumber": 1,
+                "maxPenalty": "S:L3",
+                "modeOfTrial": "Summary",
+                "offenceCode": "PS90015",
+                "offenceDateCode": 1,
+                "offenceDefinitionId": "e5c489f1-d2b4-3e59-9b3c-50ae9bbdaa9d",
+                "offenceLegislation": "Contrary to regulation 7(2)(b)(i) of the Public Service Vehicles (Conduct of Drivers, Inspectors, Conductors and Passengers) Regulations 1990 and section 25 of the Public Passengers Vehicles Act 1981.",
+                "offenceTitle": "Public service vehicles - passenger failing to pay fare",
+                "orderIndex": 2,
+                "plea": {
+                  "offenceId": "ef4fa5ef-6ccc-4424-9cbc-d95663d7f9bf",
+                  "originatingHearingId": "9aa7c8fe-ceeb-48cd-bc3d-dbd3c63c8967",
+                  "pleaDate": "2026-08-14",
+                  "pleaValue": "NOT_GUILTY"
+                },
+                "startDate": "2022-11-28",
+                "verdict": {
+                  "jurors": {
+                    "numberOfJurors": 12,
+                    "numberOfSplitJurors": 0,
+                    "unanimous": true
+                  },
+                  "lesserOrAlternativeOffence": {
+                    "offenceCode": "PS90015",
+                    "offenceDefinitionId": "e5c489f1-d2b4-3e59-9b3c-50ae9bbdaa9d",
+                    "offenceLegislation": "Contrary to regulation 7(2)(b)(i) of the Public Service Vehicles (Conduct of Drivers, Inspectors, Conductors and Passengers) Regulations 1990 and section 25 of the Public Passengers Vehicles Act 1981.",
+                    "offenceTitle": "Public service vehicles - passenger failing to pay fare"
+                  },
+                  "offenceId": "ef4fa5ef-6ccc-4424-9cbc-d95663d7f9bf",
+                  "originatingHearingId": "9aa7c8fe-ceeb-48cd-bc3d-dbd3c63c8967",
+                  "verdictDate": "2026-08-14",
+                  "verdictType": {
+                    "category": "Guilty",
+                    "categoryType": "GUILTY",
+                    "cjsVerdictCode": "G",
+                    "description": "Found guilty",
+                    "id": "c4ca4238-a0b9-3382-8dcc-509a6f75849b",
+                    "sequence": 10,
+                    "verdictCode": "G"
+                  }
+                },
+                "wording": "Public service vehicles - passenger failing to pay fare"
+              }
+            ],
+            "personDefendant": {
+              "arrestSummonsNumber": "0800PP0100000000001H",
+              "bailConditions": "",
+              "bailStatus": {
+                "code": "C",
+                "description": "Custody",
+                "id": "12e69486-4d01-3403-a50a-7419ca040635"
+              },
+              "driverNumber": "VANFL002222OW9PH",
+              "personDetails": {
+                "additionalNationalityCode": "FRA",
+                "additionalNationalityDescription": "French citizen;Frenchman;Frenchwoman",
+                "additionalNationalityId": "d852cd5a-8641-47af-b220-d463a2202b7b",
+                "address": {
+                  "address1": "9999A9999AAAA",
+                  "address2": "Woodlane",
+                  "address3": "addressline 3",
+                  "address4": "Bristol",
+                  "address5": "Avon",
+                  "postcode": "SW11 3TQ"
+                },
+                "contact": {
+                  "home": "0209158668",
+                  "mobile": "07779158668",
+                  "primaryEmail": "ABCD.TEST019158668@example.com"
+                },
+                "dateOfBirth": "2005-11-11",
+                "documentationLanguageNeeds": "ENGLISH",
+                "ethnicity": {
+                  "selfDefinedEthnicityCode": "W1",
+                  "selfDefinedEthnicityDescription": "British",
+                  "selfDefinedEthnicityId": "c4ca4238-a0b9-3382-8dcc-509a6f75849b"
+                },
+                "firstName": "Filiberto",
+                "gender": "MALE",
+                "hearingLanguageNeeds": "ENGLISH",
+                "lastName": "Runolfsson",
+                "middleName": "John",
+                "nationalInsuranceNumber": "SW123456C",
+                "nationalityCode": "GBR",
+                "nationalityDescription": "British",
+                "nationalityId": "49433158-3542-49c8-a9af-581a0e746152",
+                "title": "Mr"
+              }
+            },
+            "prosecutionCaseId": "239e516e-0333-4767-a99d-7dbc440c9778"
+          }
+        ],
+        "id": "239e516e-0333-4767-a99d-7dbc440c9778",
+        "initiationCode": "C",
+        "originatingOrganisation": "0300000",
+        "prosecutionCaseIdentifier": {
+          "address": {
+            "address1": "Criminal Justice Department",
+            "address2": "Derbyshire Constabulary",
+            "address3": "Butterley Hall",
+            "address4": "Ripley",
+            "address5": "Derby",
+            "postcode": "DE5 3RS"
+          },
+          "caseURN": "28DI9158668",
+          "contact": {
+            "primaryEmail": "criminaldataderbyshire@example-police.gov.uk"
+          },
+          "majorCreditorCode": "PO30",
+          "prosecutionAuthorityCode": "DERPF",
+          "prosecutionAuthorityId": "bdc190e7-c939-37ca-be4b-9f615d6ef40e",
+          "prosecutionAuthorityName": "Derbyshire Police",
+          "prosecutionAuthorityOUCode": "0300000"
+        }
+      }
+    ],
+    "prosecutionCounsels": [
+      {
+        "attendanceDays": [
+          "2026-08-14"
+        ],
+        "firstName": "TestProFn",
+        "id": "3cb07373-381f-4ca1-931f-ec5c0bebdd6f",
+        "lastName": "TestProLn",
+        "middleName": "",
+        "prosecutionCases": [
+          "239e516e-0333-4767-a99d-7dbc440c9778"
+        ],
+        "status": "Junior alone",
+        "title": ""
+      }
+    ],
+    "type": {
+      "description": "First hearing",
+      "id": "4a0e892d-c0c5-3c51-95b8-704d8c781776"
+    }
+  },
+  "sharedTime": "2026-08-14T08:51:17.140Z"
+}
