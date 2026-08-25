@@ -444,7 +444,7 @@ public class CPHearingResultEntityMapper {
                 .versionPk(versionPk)
                 .level(level)
                 .resultCode(result.getCjsCode())
-                .resultText(result.getLabel())
+                .resultText(result.getResultText())
                 .category(result.getCategory())
                 .financial(result.isFinancialResult())
                 .convicted(result.isConvictedResult())

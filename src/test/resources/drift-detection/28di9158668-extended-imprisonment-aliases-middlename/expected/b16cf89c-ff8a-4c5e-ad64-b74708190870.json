@@ -51,7 +51,6 @@
         "hearingId": "2ce4e292-53e8-45e8-b47c-54365de889a6"
       }
     },
-    "sharedTime": "2026-08-14T08:51:17.140Z",
     "offences": [
       {
         "allocationDecision": "Indictable-only offence",
@@ -63,6 +62,7 @@
         "pleaValue": "NOT_GUILTY",
         "results": [
           {
+            "resultDescription": "IMP - Imprisonment",
             "resultTexts": [
               {
                 "label": "Total custodial period",
@@ -178,6 +178,7 @@
         "pleaValue": "NOT_GUILTY",
         "results": [
           {
+            "resultDescription": "A - Adjournment",
             "resultTexts": [
               {
                 "label": "Next hearing in magistrates' court",
@@ -220,9 +221,11 @@
       "caseURN": "28DI9158668",
       "results": [
         {
+          "resultDescription": "Defendant's details changed",
           "resultTexts": []
         }
       ]
-    }
+    },
+    "sharedTime": "2026-08-14T08:51:17.140Z"
   }
 ]

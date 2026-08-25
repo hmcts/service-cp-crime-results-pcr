@@ -6,6 +6,7 @@
         "reference": "TEST1234567",
         "results": [
           {
+            "resultDescription": "G - Granted",
             "resultTexts": []
           }
         ],
@@ -66,6 +67,7 @@
         "pleaValue": "NOT_GUILTY",
         "results": [
           {
+            "resultDescription": "IMP - Imprisonment",
             "resultTexts": [
               {
                 "label": "Total custodial period",

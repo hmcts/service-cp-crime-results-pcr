@@ -325,6 +325,7 @@ public class HearingDetailsResponse {
     public static class JudicialResult {
         private String cjsCode;
         private String label;
+        private String resultText;
         private String category;
         private String postHearingCustodyStatus;
         private boolean isFinancialResult;

@@ -52,6 +52,7 @@
         "pleaValue": "NOT_GUILTY",
         "results": [
           {
+            "resultDescription": "IMP - Imprisonment",
             "resultTexts": [
               {
                 "label": "Total custodial period",
@@ -139,9 +140,10 @@
         "pleaValue": "NOT_GUILTY",
         "results": [
           {
+            "resultDescription": "CD - Conditional discharge",
             "resultTexts": [
               {
-                "label": "Period\u00a0of conditional discharge",
+                "label": "Period of conditional discharge",
                 "value": "7 Months"
               }
             ]

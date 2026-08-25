@@ -13,6 +13,7 @@
             "pleaValue": "GUILTY",
             "results": [
               {
+                "resultDescription": "IMP - Imprisonment",
                 "resultTexts": [
                   {
                     "label": "Imprisonment Period",
@@ -45,6 +46,7 @@
         "reference": "VT123923152",
         "results": [
           {
+            "resultDescription": "OREV - Order revoked",
             "resultTexts": [
               {
                 "label": "Date original order made",
@@ -103,7 +105,6 @@
       "id": "2d75248a-e1d5-4504-99a0-04e21d5f8d8b",
       "jurisdiction": "MAGISTRATES"
     },
-    "sharedTime": "2026-08-13T16:14:09.661Z",
     "offences": [
       {
         "allocationDecision": "Indictable-only offence",
@@ -115,6 +116,7 @@
         "pleaValue": "GUILTY",
         "results": [
           {
+            "resultDescription": "IMP - Imprisonment",
             "resultTexts": [
               {
                 "label": "Total custodial period is life",
@@ -184,6 +186,7 @@
       "caseMarkers": [],
       "caseURN": "VT123923152",
       "results": []
-    }
+    },
+    "sharedTime": "2026-08-13T16:14:09.661Z"
   }
 ]

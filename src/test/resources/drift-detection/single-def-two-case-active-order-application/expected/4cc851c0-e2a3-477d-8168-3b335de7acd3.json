@@ -12,9 +12,11 @@
             "pleaValue": "GUILTY",
             "results": [
               {
+                "resultDescription": "G - Granted",
                 "resultTexts": []
               },
               {
+                "resultDescription": "TEXT - Text",
                 "resultTexts": [
                   {
                     "label": "Text",
@@ -31,9 +33,11 @@
         "reference": "KL238291232",
         "results": [
           {
+            "resultDescription": "BRO - No adjudication - dealt with for original offence",
             "resultTexts": []
           },
           {
+            "resultDescription": "OREV - Order revoked",
             "resultTexts": [
               {
                 "label": "Date original order made",
@@ -103,6 +107,7 @@
         "pleaValue": "GUILTY",
         "results": [
           {
+            "resultDescription": "IMP - Imprisonment",
             "resultTexts": [
               {
                 "label": "Total custodial period is life",

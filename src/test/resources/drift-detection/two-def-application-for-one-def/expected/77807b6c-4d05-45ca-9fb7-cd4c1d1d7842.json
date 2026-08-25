@@ -6,6 +6,7 @@
         "reference": "JS238681716",
         "results": [
           {
+            "resultDescription": "G - Granted",
             "resultTexts": []
           }
         ],
@@ -72,6 +73,7 @@
         "offenceLegislation": "Contrary to section 1(1)    of the Criminal Attempts Act 1981.",
         "results": [
           {
+            "resultDescription": "RI - Remanded in custody",
             "resultTexts": [
               {
                 "label": "Next hearing in magistrates' court",

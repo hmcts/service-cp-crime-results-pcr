@@ -475,7 +475,7 @@ class CPHearingResultEntityMapperTest {
         final JudicialResultPrompt prompt = JudicialResultPrompt.builder().promptReference("prisonOrganisationName")
                 .value("HMP Dovegate").label("Prison organisation name").type("NAMEADDRESS").build();
         final JudicialResult result = JudicialResult.builder()
-                .cjsCode("1200").label("Imprisonment")
+                .cjsCode("1200").label("Imprisonment").resultText("RI - Remanded in custody")
                 .category("FINAL").postHearingCustodyStatus("A")
                 .isFinancialResult(false).isConvictedResult(true)
                 .judicialResultPrompts(List.of(prompt))
@@ -504,6 +504,7 @@ class CPHearingResultEntityMapperTest {
         assertThat(resultEntity.getOffenceId()).isEqualTo(offenceEntity.getId());
         assertThat(resultEntity.getCourtApplicationId()).isNull();
         assertThat(resultEntity.getResultCode()).isEqualTo("1200");
+        assertThat(resultEntity.getResultText()).isEqualTo("RI - Remanded in custody");
         assertThat(resultEntity.getCategory()).isEqualTo("FINAL");
         assertThat(resultEntity.getFinancial()).isFalse();
         assertThat(resultEntity.getConvicted()).isTrue();

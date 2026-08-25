@@ -45,7 +45,6 @@
       "id": "4255fe1f-d30c-4cbb-927e-3a8158e67e79",
       "jurisdiction": "MAGISTRATES"
     },
-    "sharedTime": "2026-08-14T14:18:43.074Z",
     "offences": [
       {
         "code": "FS13012",
@@ -53,9 +52,10 @@
         "offenceLegislation": "Contrary to paragraph 6 of Schedule 4 to, and regulation 19(2) of, the Food Safety and Hygiene (England) Regulations 2013.",
         "results": [
           {
+            "resultDescription": "CD - Conditional discharge",
             "resultTexts": [
               {
-                "label": "Period\u00a0of conditional discharge",
+                "label": "Period of conditional discharge",
                 "value": "34 Months"
               }
             ]
@@ -70,6 +70,7 @@
       "caseMarkers": [],
       "caseURN": "LB239025742",
       "results": []
-    }
+    },
+    "sharedTime": "2026-08-14T14:18:43.074Z"
   }
 ]
