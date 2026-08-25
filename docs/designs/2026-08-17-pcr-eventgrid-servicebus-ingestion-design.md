@@ -1,12 +1,13 @@
 # PCR Event Grid → Service Bus Ingestion Design
 
-**Status:** Agreed, 20 Aug 2026.
+**Status:** Agreed, 25 Aug 2026 — revised from the shared-Topic model (agreed 20 Aug 2026) to a
+dedicated Queue per consumer, per Common Platform TA review.
 **ADR:** [009-AMP-1030](../pipeline/adrs/009-AMP-1030-pcr-eventgrid-servicebus-topic-ingestion.md) — Accepted.
 
 **Context:** `pcr-eventgrid-relay-function` (the Function App relaying `Hearing_Resulted` to
 `/internal/hearing-results`) is being retired. This document replaces it: Event Grid delivers
-directly to a Service Bus **Topic**, `hearing-resulted`, consumed via this service's own
-`pcr` Subscription.
+directly to a Service Bus **Queue** owned solely by this service, `pcr.hearing-resulted`, via its
+own independent Event Grid event subscription.
 
 **Cutover is staged, not immediate** — `pcr-eventgrid-relay-function` stays live in production
 through the coming release; the Service Bus path is built and proven in parallel, behind a switch,
@@ -14,7 +15,12 @@ before either environment cuts over.
 
 **Headline decisions:**
 
-- **One Service Bus Topic**, `hearing-resulted`, with PCR's own `pcr` Subscription.
+- **One dedicated Service Bus Queue per consuming service.** PCR owns `pcr.hearing-resulted`
+  outright; NOW will own its own separate queue when built. No Service Bus resource is shared
+  between them.
+- **Each queue is fed by its own independent Event Grid event subscription** off the same
+  `Hearing_Resulted` source event — Event Grid's native support for multiple event subscriptions
+  provides the fan-out, not a Service Bus Topic.
 - **Payload unchanged:** `hearingId`, `hearingDay`, `userId` — the same
   `HearingResultedWebhookEventData` fields the relay already forwards. No new shared key.
 
@@ -22,15 +28,15 @@ before either environment cuts over.
 
 ## 1. Retry mechanism
 
-**Native `maxDeliveryCount` + dead-lettering.** Event Grid delivers straight to the
-`hearing-resulted` topic — no relay code in between. PCR's `pcr` subscription:
+**Native `maxDeliveryCount` + dead-lettering.** Event Grid delivers straight to PCR's own
+`pcr.hearing-resulted` queue — no relay code in between. PCR:
 
 - Receives via **peek-lock**.
 - `complete()` on success.
 - Throws / lets the lock expire on failure → Service Bus redelivers natively, no app code
   involved.
-- `maxDeliveryCount` exceeded → auto-moved to the subscription's own dead-letter sub-queue
-  (durable, queryable — not silently lost).
+- `maxDeliveryCount` exceeded → auto-moved to the queue's own dead-letter sub-queue (durable,
+  queryable — not silently lost).
 
 ---
 
@@ -39,23 +45,24 @@ before either environment cuts over.
 ```mermaid
 flowchart LR
     EG["Azure Event Grid<br/>Hearing_Resulted topic"]
-    T["Service Bus Topic<br/>hearing-resulted"]
-    SUBP["Subscription: pcr"]
+    Q["Service Bus Queue<br/>pcr.hearing-resulted"]
     DLQ["Dead-letter sub-queue"]
     Consumer["service-cp-crime-results-pcr"]
     Ingest["ResultsIngestionService<br/>ingestAndPersist — unchanged"]
 
-    EG -->|"native ServiceBusTopic destination"| T
-    T --> SUBP
-    SUBP -->|"peek-lock"| Consumer
-    Consumer -->|"complete on success"| SUBP
-    Consumer -->|"abandon or throw on outright failure"| SUBP
-    Consumer -->|"complete + schedule retry on incomplete data"| SUBP
-    SUBP -.->|"maxDeliveryCount exceeded, or explicit dead-letter"| DLQ
+    EG -->|"PCR's own Event Grid event subscription"| Q
+    Q -->|"peek-lock"| Consumer
+    Consumer -->|"complete on success"| Q
+    Consumer -->|"abandon or throw on outright failure"| Q
+    Consumer -->|"complete + schedule retry on incomplete data"| Q
+    Q -.->|"maxDeliveryCount exceeded, or explicit dead-letter"| DLQ
     Consumer --> Ingest
 ```
 
-One of three outcomes per message, all handled on the one `pcr` subscription:
+NOW's own queue and Event Grid event subscription, when built, are entirely separate resources
+provisioned on its own timeline — nothing here depends on or coordinates with PCR's.
+
+One of three outcomes per message, all handled on PCR's own queue:
 
 1. **Success** — hearing data complete, PCR persisted it. `complete()`.
 2. **Outright failure** — unexpected break. Consumer abandons; native redelivery retries,
@@ -68,22 +75,22 @@ public contract are unaffected.
 
 ### 2.1 Security
 
-- Event Grid → Service Bus: a system-assigned managed identity on the Event Grid subscription,
-  granted `Azure Service Bus Data Sender` on `hearing-resulted`.
+- Event Grid → Service Bus: a system-assigned managed identity on PCR's own Event Grid event
+  subscription, granted `Azure Service Bus Data Sender` on `pcr.hearing-resulted`.
 - Service Bus access via Managed Identity.
 
 ### 2.2 Provisioning
 
-**Event Grid's own event subscription** (routing `Hearing_Resulted` → this Service Bus topic) is a
-separate resource, provisioned via **Terraform** (IaC).
+**Event Grid's own event subscription** (routing `Hearing_Resulted` → PCR's queue) is a separate
+resource, provisioned via **Terraform** (IaC).
 
-**Service Bus topic & subscription:** created via idempotent create-if-not-exists at startup
-(`createTopicIfNotExists`/`createSubscriptionIfNotExists`), not Terraform/Bicep. Uses the existing
-shared per-environment Service Bus namespace.
+**Service Bus queue:** created via idempotent create-if-not-exists at startup
+(`createQueueIfNotExists`), not Terraform/Bicep. Uses the existing shared per-environment Service
+Bus namespace — only the queue itself belongs solely to PCR, not the namespace.
 
-| Property | Value for `pcr` | Why |
+| Property | Value for `pcr.hearing-resulted` | Why |
 | --- | --- | --- |
-| Receive mode | Peek-lock (client-side, not a subscription property) | Required for at-least-once delivery and for `maxDeliveryCount`/dead-lettering to apply |
+| Receive mode | Peek-lock (client-side, not a queue property) | Required for at-least-once delivery and for `maxDeliveryCount`/dead-lettering to apply |
 | `LockDuration` | `PT1M` (capped `PT5M`) | Only needs to cover one completeness check |
 | `MaxDeliveryCount` | Explicit, no deliberate delayed first retry (immediate-until-exhausted) | Bounds the outright-failure tier — further retry-timing tuning is separate follow-up work |
 | `DefaultMessageTimeToLive` | Explicit, generously longer than ~14s + processing time | Avoids a message silently expiring before completion |
@@ -102,7 +109,7 @@ off the consumer thread, unchanged in shape:
 
 Matches this repo's real-infrastructure testing convention (`PostgresInitialise`, `docker-compose`
 Redis) — same discipline for Service Bus: **the official Azure Service Bus emulator**, run via
-`docker-compose`, not a shared dev namespace/topic.
+`docker-compose`, provisioning the same `pcr.hearing-resulted` queue as production.
 
 ---
 
@@ -113,7 +120,7 @@ Redis) — same discipline for Service Bus: **the official Azure Service Bus emu
 ```mermaid
 sequenceDiagram
     participant EG as Event Grid
-    participant Q as hearing-resulted topic (pcr subscription)
+    participant Q as pcr.hearing-resulted queue
     participant C as service-cp-crime-results-pcr
     participant R as Redis
     participant P as Generation gate + Persistence
@@ -132,7 +139,7 @@ sequenceDiagram
 ```mermaid
 sequenceDiagram
     participant EG as Event Grid
-    participant Q as hearing-resulted topic (pcr subscription)
+    participant Q as pcr.hearing-resulted queue
     participant C as service-cp-crime-results-pcr
     participant R as Redis
     participant RQ as Results Query API
@@ -146,7 +153,7 @@ sequenceDiagram
     RQ-->>C: incomplete
     C->>Q: complete() original message
     C->>Q: schedule follow-up message (now + 2s, attempt = 2)
-    Note over Q: message parked on the same subscription until its scheduled time
+    Note over Q: message parked on the same queue until its scheduled time
     Q->>C: deliver follow-up message, attempt 2
     C->>R: check hearing cache
     R-->>C: complete hearing data
@@ -159,11 +166,11 @@ sequenceDiagram
 
 ```mermaid
 sequenceDiagram
-    participant Q as hearing-resulted topic (pcr subscription)
+    participant Q as pcr.hearing-resulted queue
     participant C as service-cp-crime-results-pcr
     participant R as Redis
     participant RQ as Results Query API
-    participant DLQ as Dead-letter sub-queue (pcr subscription)
+    participant DLQ as Dead-letter sub-queue (pcr.hearing-resulted)
 
     Q->>C: deliver, attempt 1
     C->>R: check hearing cache
@@ -187,15 +194,15 @@ sequenceDiagram
 
 ```mermaid
 sequenceDiagram
-    participant Q as hearing-resulted topic (pcr subscription)
+    participant Q as pcr.hearing-resulted queue
     participant C as service-cp-crime-results-pcr
-    participant DLQ as Dead-letter sub-queue (pcr subscription)
+    participant DLQ as Dead-letter sub-queue (pcr.hearing-resulted)
 
     loop up to maxDeliveryCount attempts
         Q->>C: deliver
         C->>C: processing throws unexpected exception
         C--xQ: lock expires / message abandoned
-        Note over Q: Service Bus increments delivery count natively, on this subscription only
+        Note over Q: Service Bus increments delivery count natively, on this queue only
     end
     Q->>DLQ: move message (maxDeliveryCount exceeded)
 ```
@@ -204,8 +211,9 @@ sequenceDiagram
 
 ## 4. Migration outline
 
-1. Provision the topic, subscription, and Event Grid event subscription (§2.2) — both channels now
-   receive events in parallel.
+1. Provision PCR's own queue and its own Event Grid event subscription (§2.2) — both channels now
+   receive events in parallel. NOW provisions its own queue and event subscription independently,
+   on its own timeline — no coordination with PCR needed.
 2. Deploy the Service Bus consumer behind a switch, off by default in every environment.
 3. Enable the switch in lower environments only to validate end-to-end — never both channels active
    in the same environment.
