@@ -48,8 +48,11 @@ public class HearingResultedServiceBusConsumer {
     @PostConstruct
     @SuppressWarnings("PMD.AvoidCatchingGenericException")
     public void initialise() {
-        if (!properties.isAutoStartProcessors()) {
-            log.info("service-bus.auto-start-processors=false — skipping Service Bus initialisation");
+        // ingestion-enabled=true must fully activate this channel on its own (AC2 — "a single
+        // switch"), so it implies start-up even if auto-start-processors (the separate, optional
+        // log-only-before-cutover mode, and the test/DAST off-switch) is left at its default.
+        if (!properties.isAutoStartProcessors() && !properties.isIngestionEnabled()) {
+            log.info("service-bus.auto-start-processors=false and ingestion-enabled=false — skipping Service Bus initialisation");
             return;
         }
         try {

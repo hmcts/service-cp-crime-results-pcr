@@ -82,14 +82,30 @@ class HearingResultedServiceBusConsumerTest {
     private HearingResultedServiceBusConsumer consumer;
 
     @Test
-    void initialise_should_skipEntirely_whenAutoStartProcessorsDisabled() {
+    void initialise_should_skipEntirely_whenAutoStartProcessorsAndIngestionBothDisabled() {
         when(properties.isAutoStartProcessors()).thenReturn(false);
+        when(properties.isIngestionEnabled()).thenReturn(false);
 
         consumer.initialise();
 
         verify(provisioningService, never()).isServiceBusReady();
         verify(provisioningService, never()).createTopicIfNotExists(any());
         verify(clientFactory, never()).processorClientBuilder();
+    }
+
+    @Test
+    void initialise_should_start_whenIngestionEnabled_evenIfAutoStartProcessorsDisabled() {
+        when(properties.isAutoStartProcessors()).thenReturn(false);
+        when(properties.isIngestionEnabled()).thenReturn(true);
+        when(provisioningService.isServiceBusReady()).thenReturn(true);
+        when(properties.getTopicName()).thenReturn("hearing-resulted");
+        when(properties.getSubscriptionName()).thenReturn("pcr");
+        givenProcessorBuilder();
+
+        consumer.initialise();
+
+        verify(provisioningService).createTopicIfNotExists("hearing-resulted");
+        verify(processorClient).start();
     }
 
     @Test

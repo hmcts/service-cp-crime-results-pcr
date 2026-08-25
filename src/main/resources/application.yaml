@@ -68,5 +68,7 @@ service-bus:
   connection: ${AZURE_SERVICE_BUS_URI:Endpoint=sb://localhost;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;}
   topic-name: ${SERVICE_BUS_TOPIC_NAME:hearing-resulted}
   subscription-name: ${SERVICE_BUS_SUBSCRIPTION_NAME:pcr}
+  # Optional: start receiving/logging before ingestion-enabled is flipped, without persisting.
+  # ingestion-enabled=true starts the consumer regardless of this — AC2 requires one switch.
   auto-start-processors: ${SERVICE_BUS_AUTO_START_PROCESSORS:false}
   ingestion-enabled: ${SERVICE_BUS_INGESTION_ENABLED:false}
