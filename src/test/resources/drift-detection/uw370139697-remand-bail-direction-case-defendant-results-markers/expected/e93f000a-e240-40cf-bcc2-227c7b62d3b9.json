@@ -18,6 +18,7 @@
       "postHearingCustodyStatus": "A",
       "results": [
         {
+          "resultDescription": "COLLO - Collection order",
           "resultTexts": [
             {
               "label": "Collection order type",
@@ -26,6 +27,7 @@
           ]
         },
         {
+          "resultDescription": "PDATE - Pay by date",
           "resultTexts": [
             {
               "label": "Date to pay in full by",
@@ -67,7 +69,6 @@
         "hearingId": "6efa4011-b3fa-45df-aca8-1a676218d218"
       }
     },
-    "sharedTime": "2026-08-13T14:46:44.416Z",
     "offences": [
       {
         "allocationDecision": "Defendant consents to summary trial",
@@ -80,6 +81,7 @@
         "pleaValue": "NOT_GUILTY",
         "results": [
           {
+            "resultDescription": "RIB - Remanded in custody with bail direction",
             "resultTexts": [
               {
                 "label": "Remanded for medical reports under Section",
@@ -194,6 +196,7 @@
       "caseURN": "UW370139697",
       "results": [
         {
+          "resultDescription": "FCOST - Costs",
           "resultTexts": [
             {
               "label": "Amount of costs",
@@ -222,9 +225,11 @@
           ]
         },
         {
+          "resultDescription": "Defendant's details changed",
           "resultTexts": []
         }
       ]
-    }
+    },
+    "sharedTime": "2026-08-13T14:46:44.416Z"
   }
 ]

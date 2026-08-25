@@ -22,6 +22,7 @@
       "postHearingCustodyStatus": "Not Applicable",
       "results": [
         {
+          "resultDescription": "PDATE - Pay by date",
           "resultTexts": [
             {
               "label": "Date to pay in full by",
@@ -54,7 +55,6 @@
       "id": "4255fe1f-d30c-4cbb-927e-3a8158e67e79",
       "jurisdiction": "MAGISTRATES"
     },
-    "sharedTime": "2026-08-14T14:18:43.074Z",
     "offences": [
       {
         "code": "RC86851",
@@ -62,10 +62,11 @@
         "offenceLegislation": "Contrary to regulation 18(1) of the Road Vehicles    (Construction and Use) Regulations 1986, section 41A of the Road    Traffic Act 1988 and Schedule 2 to the Road Traffic Offenders Act 1988.",
         "results": [
           {
+            "resultDescription": "FO - Fine",
             "resultTexts": [
               {
                 "label": "Amount of fine",
-                "value": "\u00a3555.00"
+                "value": "£555.00"
               }
             ]
           }
@@ -79,6 +80,7 @@
       "caseMarkers": [],
       "caseURN": "LB239025742",
       "results": []
-    }
+    },
+    "sharedTime": "2026-08-14T14:18:43.074Z"
   }
 ]

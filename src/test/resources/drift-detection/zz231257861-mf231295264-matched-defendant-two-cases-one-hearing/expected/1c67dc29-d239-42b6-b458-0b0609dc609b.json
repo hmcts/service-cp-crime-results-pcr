@@ -58,6 +58,7 @@
         "pleaValue": "NOT_GUILTY",
         "results": [
           {
+            "resultDescription": "RI - Remanded in custody",
             "resultTexts": [
               {
                 "label": "Bail exception",

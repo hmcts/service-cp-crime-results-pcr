@@ -13,6 +13,7 @@
             "pleaValue": "GUILTY",
             "results": [
               {
+                "resultDescription": "IMP - Imprisonment",
                 "resultTexts": [
                   {
                     "label": "Imprisonment Period",
@@ -45,6 +46,7 @@
         "reference": "OD123921416",
         "results": [
           {
+            "resultDescription": "OREV - Order revoked",
             "resultTexts": [
               {
                 "label": "Date original order made",
@@ -114,6 +116,7 @@
         "pleaValue": "GUILTY",
         "results": [
           {
+            "resultDescription": "IMP - Imprisonment",
             "resultTexts": [
               {
                 "label": "Total custodial period is life",

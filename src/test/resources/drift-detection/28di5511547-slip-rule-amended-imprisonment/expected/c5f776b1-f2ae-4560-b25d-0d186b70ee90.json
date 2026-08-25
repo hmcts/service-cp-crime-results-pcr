@@ -40,7 +40,6 @@
       "id": "1503f8f6-eee2-4e06-bfc7-7564f5e68763",
       "jurisdiction": "MAGISTRATES"
     },
-    "sharedTime": "2026-08-14T10:47:53.666Z",
     "offences": [
       {
         "allocationDecision": "Summary-only offence",
@@ -52,6 +51,7 @@
         "pleaValue": "CHANGE_TO_NOT_GUILTY",
         "results": [
           {
+            "resultDescription": "IMP - Imprisonment",
             "resultTexts": [
               {
                 "label": "Total custodial period",
@@ -134,6 +134,7 @@
       "caseMarkers": [],
       "caseURN": "28DI5511547",
       "results": []
-    }
+    },
+    "sharedTime": "2026-08-14T10:47:53.666Z"
   }
 ]

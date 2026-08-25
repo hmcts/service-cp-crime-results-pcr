@@ -61,6 +61,7 @@
         "pleaValue": "NOT_GUILTY",
         "results": [
           {
+            "resultDescription": "RIB - Remanded in custody with bail direction",
             "resultTexts": [
               {
                 "label": "Remanded for medical reports under Section",
@@ -172,6 +173,7 @@
       "caseURN": "TM370142723",
       "results": [
         {
+          "resultDescription": "Defendant's details changed",
           "resultTexts": []
         }
       ]

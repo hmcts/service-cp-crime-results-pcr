@@ -60,6 +60,7 @@
         "pleaValue": "GUILTY",
         "results": [
           {
+            "resultDescription": "IMP - Imprisonment",
             "resultTexts": [
               {
                 "label": "Total custodial period",
@@ -164,6 +165,7 @@
             ]
           },
           {
+            "resultDescription": "OATC - Aggravated by a terrorist connection",
             "resultTexts": [
               {
                 "label": "The court determined a terrorist connection under Section 69 of the Sentencing Act 2020 applies to this count",
@@ -186,6 +188,7 @@
         "pleaValue": "GUILTY",
         "results": [
           {
+            "resultDescription": "A - Adjournment",
             "resultTexts": [
               {
                 "label": "Next hearing in magistrates' court",

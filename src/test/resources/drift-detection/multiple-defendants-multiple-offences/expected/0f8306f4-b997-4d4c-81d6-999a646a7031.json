@@ -59,6 +59,7 @@
         "pleaValue": "GUILTY",
         "results": [
           {
+            "resultDescription": "RI - Remanded in custody",
             "resultTexts": [
               {
                 "label": "Next hearing in magistrates' court",
@@ -121,6 +122,7 @@
         "pleaValue": "GUILTY",
         "results": [
           {
+            "resultDescription": "RI - Remanded in custody",
             "resultTexts": [
               {
                 "label": "Next hearing in magistrates' court",
