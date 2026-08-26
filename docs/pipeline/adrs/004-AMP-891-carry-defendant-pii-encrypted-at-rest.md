@@ -1,10 +1,9 @@
 # 004. Carry defendant PII, encrypted at rest
 
-**Status:** Accepted, 24 Jul 2026. **Encryption mechanism deferred to a future phase** (2026-07-27)
-— PII is carried as plain, unencrypted values in phase 2; see the note at the top of the
-Decision section. **Upstream source confirmed as CP itself** (2026-07-28) — see the Consequences
-section; sourcing is no longer an open item, only the wiring (`HearingDetailsResponse`/
-`PcrVersionMapper`) remains to be built, as part of the phase-2 persistence-wiring work.
+**Status:** Accepted, 24 Jul 2026. **Encryption mechanism deferred to a future phase** — PII is
+carried as plain, unencrypted values; see the note at the top of the Decision section. Sourcing
+and wiring are both complete: `CPHearingResultEntityMapper.applyPersonDetails`/`applyAddress`
+populate `CPVersionEntity`'s PII columns from CP's own hearing payload (see Consequences).
 **Jira:** AMP-891 — PII redaction/encryption
 **Design docs:** this decision changes the contract/persistence shape described in
 [`2026-07-16-pcr-api-marketplace-design-v2.md`](../../designs/2026-07-16-pcr-api-marketplace-design-v2.md)
@@ -82,18 +81,17 @@ field-level encryption pattern already demonstrated in
   policy (30-day TTL purge, already designed) becomes a real data-minimisation control, not just
   a storage-cost one — confirm the purge job is built and tested before any PII-bearing row can be
   written in a real environment.
-- **Upstream source confirmed as CP itself (2026-07-28) — sourcing is no longer an open item.**
-  CP's own hearing payload carries this data at
+- **Upstream source is CP itself.** CP's own hearing payload carries this data at
   `personDefendant.personDetails.{title, firstName, middleName, lastName, dateOfBirth, address}`
   — the same object this service already reads via the Redis cache or the `hearingDetails/internal`
   REST fallback. Confirmed by cross-referencing `cpp-context-azure-legalaidagency`'s Redis-seeded
   integration-test fixtures (which populate this exact key format with this exact field shape)
   against its `DefendantMapper.js`, which reads these fields directly off the identical
-  cache-or-API object with no separate downstream enrichment call in between. What remains is
-  wiring: `HearingDetailsResponse.PersonDefendant` needs a new `PersonDetails`/`Address` shape,
-  and `PcrVersionMapper.toDefendant()` needs to populate `CPVersionEntity`'s PII columns from it —
-  tracked as part of the phase-2 persistence-wiring work. This does not change the encryption
-  decision above, which remains deferred to a future phase.
+  cache-or-API object with no separate downstream enrichment call in between.
+- **Wiring is built.** `HearingDetailsResponse.PersonDefendant` carries a `PersonDetails`/`Address`
+  shape, and `CPHearingResultEntityMapper.applyPersonDetails`/`applyAddress` populate
+  `CPVersionEntity`'s PII columns from it. This does not change the encryption decision above,
+  which remains deferred to a future phase.
 - **`StubEncryptionService` must never reach a real environment.** It exists only to prove the
   encrypt-on-write/decrypt-on-read lifecycle works; the demo's README is explicit that it performs
   no real cryptography. Swapping in the Key Vault-backed implementation is a hard gate before this

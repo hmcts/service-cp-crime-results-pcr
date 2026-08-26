@@ -46,10 +46,17 @@ independent Event Grid event subscription:
   until the new path is proven in lower environments, then production, at which point the relay's
   routing is disabled. Never both channels active in one environment (`ingestAndPersist` isn't
   idempotent). Both channels log receipt during the coexistence window.
-- **Provisioning is split by resource:** PCR's own Event Grid event subscription is provisioned via
-  **Terraform (IaC)**; PCR's own Service Bus queue via idempotent app-code create-if-not-exists at
-  startup — the same shared per-environment Service Bus namespace as before, just no shared Topic
-  resource within it.
+- **Both the Event Grid event subscription and the Service Bus queue are provisioned via
+  Terraform (IaC)** — the same shared per-environment Service Bus namespace as before, just no
+  shared Topic resource within it. The app never creates the queue itself: at startup it only
+  verifies the queue exists (`ServiceBusProvisioningService.queueExists`) and fails startup if it
+  doesn't, naming Terraform as the expected owner. This keeps the app off `Manage`-level Service
+  Bus permissions it would otherwise only need for a create call it should never actually have to
+  make, and avoids an ordering problem for the Event Grid event subscription's
+  `service_bus_queue_endpoint_id`, which must reference the queue as a real resource — a queue
+  the app only creates at runtime wouldn't exist yet when Terraform first applies. The queue's
+  durability settings (`LockDuration` `PT1M`, `MaxDeliveryCount` 10, `DefaultMessageTimeToLive`
+  `PT10M`, `DeadLetteringOnMessageExpiration` `true`) are set on the Terraform resource.
 - **Managed Identity throughout** — no connection strings, SAS tokens, or account keys.
 
 ## Consequences
@@ -64,6 +71,11 @@ independent Event Grid event subscription:
 - `/internal/hearing-results` stays live for as long as the relay function does.
 - Doesn't design NOW's own queue, consumer, generation-gate logic, or data model — NOW's queue and
   Event Grid event subscription are entirely its own to provision, on its own timeline.
+- The queue's existence at app startup depends on Terraform having already run in that
+  environment — first-time environment setup must apply Terraform before the app's first deploy,
+  not after. `ServiceBusProvisioningService.isServiceBusReady`/`queueExists` still call the
+  administration client for read-only checks, so the exact minimum Service Bus role for the app's
+  identity is a DevOps decision, not yet finalised.
 
 ## Alternatives considered
 

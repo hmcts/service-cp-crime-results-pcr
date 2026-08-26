@@ -1,8 +1,14 @@
 # PCR Event Grid Webhook Ingestion Design
 
-**Status:** Accepted, 29 Jul 2026. Replaces
+**Status:** Accepted, 29 Jul 2026. **Partially superseded, 18 Aug 2026** — Event Grid no longer
+calls this service's webhook directly; `pcr-eventgrid-relay-function` now owns the Event Grid
+subscription and its validation handshake, relaying each event to `/internal/hearing-results` as
+a plain internal HTTP call (see ADR-007). The endpoint and its ingestion logic (§4) stay live as
+the relay's target. A separate, parallel Service Bus queue path was also added 25 Aug 2026 (see
+`2026-08-17-pcr-eventgrid-servicebus-ingestion-design.md`, ADR-009) behind a switch, alongside
+this endpoint, not in place of it. Replaces
 [`2026-07-22-pcr-hearing-event-ingestion-design.md`](2026-07-22-pcr-hearing-event-ingestion-design.md)
-("the Service Bus doc") as the target ingestion architecture — this document supersedes its
+("the Service Bus doc") as the target ingestion architecture at the time — this document supersedes its
 Event Grid → Service Bus → consumer sections (§2, §3.1, §3.1a, §3.4) but reuses its Redis-first/
 REST-fallback/completeness sections (§1, §3.2, §3.3a) verbatim, since the data-source problem
 they solve is unchanged by the transport swap.
