@@ -21,14 +21,10 @@ import uk.gov.hmcts.cp.exceptions.IncompleteHearingDetailsException;
 import uk.gov.hmcts.cp.openapi.model.HearingResultedEvent;
 import uk.gov.hmcts.cp.openapi.model.HearingResultedEventData;
 import uk.gov.hmcts.cp.servicebus.config.ServiceBusProperties;
-import uk.gov.hmcts.cp.services.ClockService;
 import uk.gov.hmcts.cp.services.ingestion.ResultsIngestionService;
 
-import java.time.Clock;
-import java.time.Duration;
-import java.time.Instant;
 import java.time.LocalDate;
-import java.time.ZoneOffset;
+import java.time.OffsetDateTime;
 import java.util.Map;
 import java.util.UUID;
 
@@ -58,8 +54,8 @@ class HearingResultedServiceBusConsumerTest {
     private ResultsIngestionService ingestionService;
     @Spy
     private ObjectMapper objectMapper = new ObjectMapper();
-    @Spy
-    private ClockService clockService = new ClockService(Clock.fixed(Instant.parse("2026-07-28T10:00:00Z"), ZoneOffset.UTC));
+    @Mock
+    private ServiceBusRetryService retryService;
 
     @Mock
     private ServiceBusReceivedMessageContext context;
@@ -206,7 +202,8 @@ class HearingResultedServiceBusConsumerTest {
         givenMessage(hearingResultedEventJson(), 1);
         doThrow(new IncompleteHearingDetailsException(HEARING_ID))
                 .when(ingestionService).ingestAndPersistOnce(HEARING_ID, HEARING_DAY);
-        when(ingestionService.backoffFor(1)).thenReturn(Duration.ofSeconds(2));
+        final OffsetDateTime nextTryTime = OffsetDateTime.parse("2026-07-28T10:00:02Z");
+        when(retryService.getNextTryTime(1)).thenReturn(nextTryTime);
         when(clientFactory.senderClient()).thenReturn(senderClient);
 
         consumer.processMessage(context);
@@ -216,7 +213,7 @@ class HearingResultedServiceBusConsumerTest {
         verify(senderClient).sendMessage(messageCaptor.capture());
         final ServiceBusMessage followUp = messageCaptor.getValue();
         assertThat(followUp.getApplicationProperties().get("attempt")).isEqualTo(2);
-        assertThat(followUp.getScheduledEnqueueTime()).isEqualTo(clockService.nowOffsetUTC().plusSeconds(2));
+        assertThat(followUp.getScheduledEnqueueTime()).isEqualTo(nextTryTime);
     }
 
     @Test

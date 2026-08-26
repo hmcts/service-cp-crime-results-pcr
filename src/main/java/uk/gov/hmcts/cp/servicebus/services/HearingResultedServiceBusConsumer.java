@@ -18,10 +18,10 @@ import uk.gov.hmcts.cp.exceptions.IncompleteHearingDetailsException;
 import uk.gov.hmcts.cp.openapi.model.HearingResultedEvent;
 import uk.gov.hmcts.cp.openapi.model.HearingResultedEventData;
 import uk.gov.hmcts.cp.servicebus.config.ServiceBusProperties;
-import uk.gov.hmcts.cp.services.ClockService;
 import uk.gov.hmcts.cp.services.ingestion.ResultsIngestionService;
 
 import java.time.Duration;
+import java.time.OffsetDateTime;
 import java.util.Optional;
 
 import static org.awaitility.Awaitility.await;
@@ -45,7 +45,7 @@ public class HearingResultedServiceBusConsumer {
     private final ServiceBusProperties properties;
     private final ResultsIngestionService ingestionService;
     private final ObjectMapper objectMapper;
-    private final ClockService clockService;
+    private final ServiceBusRetryService retryService;
 
     private ServiceBusProcessorClient processorClient;
 
@@ -139,11 +139,12 @@ public class HearingResultedServiceBusConsumer {
     private void scheduleFollowUp(final ServiceBusReceivedMessage message, final int attempt) {
         final ServiceBusMessage followUp = new ServiceBusMessage(BinaryData.fromBytes(message.getBody().toBytes()));
         followUp.getApplicationProperties().put(ATTEMPT_PROPERTY, attempt + 1);
-        followUp.setScheduledEnqueueTime(clockService.nowOffsetUTC().plus(ingestionService.backoffFor(attempt)));
+        final OffsetDateTime nextTryTime = retryService.getNextTryTime(attempt);
+        followUp.setScheduledEnqueueTime(nextTryTime);
         try (ServiceBusSenderClient sender = clientFactory.senderClient()) {
             sender.sendMessage(followUp);
         }
-        log.info("scheduleFollowUp sent attempt:{} delay:{}", attempt + 1, ingestionService.backoffFor(attempt));
+        log.info("scheduleFollowUp sent attempt:{} nextTryTime:{}", attempt + 1, nextTryTime);
     }
 
     private int attemptOf(final ServiceBusReceivedMessage message) {

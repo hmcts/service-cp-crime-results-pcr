@@ -78,7 +78,7 @@ public class ResultsIngestionService {
         return isComplete(response) ? Optional.of(response) : Optional.empty();
     }
 
-    public Duration backoffFor(final int attempt) {
+    /* default */ Duration backoffFor(final int attempt) {
         return INITIAL_BACKOFF.multipliedBy((long) Math.pow(2, attempt - 1));
     }
 

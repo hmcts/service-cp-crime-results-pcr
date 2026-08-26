@@ -68,3 +68,4 @@ service-bus:
   connection: ${AZURE_SERVICE_BUS_URI:Endpoint=sb://localhost;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;}
   auto-start-processors: ${SERVICE_BUS_AUTO_START_PROCESSORS:false}
   ingestion-enabled: ${SERVICE_BUS_INGESTION_ENABLED:false}
+  retry-durations: ${SERVICE_BUS_RETRY_DURATIONS:2s,4s}
