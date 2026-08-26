@@ -241,6 +241,7 @@ class PcrResultsMapperTest {
         final CPVersionEntity version = minimalVersion();
         final CPOffenceEntity offence = CPOffenceEntity.builder()
                 .id(UUID.fromString("00000000-0000-0000-0000-000000000044"))
+                .sourceOffenceId(UUID.fromString("00000000-0000-0000-0000-000000000066"))
                 .versionPk(version.getCpVersionPk()).code("TH68001").listingNumber(1)
                 .verdict("Found guilty").offenceLegislation("Contrary to section 1(1) and 7 of the Theft Act 1968.")
                 .allocationDecision("Summarily").indicatedPleaValue("GUILTY").build();
@@ -256,6 +257,7 @@ class PcrResultsMapperTest {
                 List.of(), List.of(offence), List.of(judicialResult), List.of(prompt));
 
         assertThat(result.getOffences()).hasSize(1);
+        assertThat(result.getOffences().get(0).getId()).isEqualTo(UUID.fromString("00000000-0000-0000-0000-000000000066"));
         assertThat(result.getOffences().get(0).getCode()).isEqualTo("TH68001");
         assertThat(result.getOffences().get(0).getVerdict()).isEqualTo("Found guilty");
         assertThat(result.getOffences().get(0).getOffenceLegislation())

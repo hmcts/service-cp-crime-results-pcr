@@ -179,6 +179,7 @@ public class PcrResultsMapper {
     private Offence toOffence(final CPOffenceEntity offence,
                                final List<CPJudicialResultEntity> allResults, final List<CPJudicialResultPromptEntity> allPrompts) {
         return Offence.builder()
+                .id(offence.getSourceOffenceId())
                 .code(offence.getCode())
                 .title(offence.getTitle())
                 .wording(offence.getWording())
