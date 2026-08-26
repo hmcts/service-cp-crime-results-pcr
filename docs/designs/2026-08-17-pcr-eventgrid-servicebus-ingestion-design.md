@@ -1,9 +1,7 @@
 # PCR Event Grid → Service Bus Ingestion Design
 
 **Status:** Agreed, 25 Aug 2026 — revised from the shared-Topic model (agreed 20 Aug 2026) to a
-dedicated Queue per consumer, per Common Platform TA review. **§2.2 superseded, 26 Aug 2026** —
-queue provisioning moved from app-code create-if-not-exists to Terraform; see ADR-009's Decision
-section for the reversal note.
+dedicated Queue per consumer, per Common Platform TA review.
 **ADR:** [009-AMP-1030](../pipeline/adrs/009-AMP-1030-pcr-eventgrid-servicebus-topic-ingestion.md) — Accepted.
 
 **Context:** `pcr-eventgrid-relay-function` (the Function App relaying `Hearing_Resulted` to
@@ -83,18 +81,11 @@ public contract are unaffected.
 
 ### 2.2 Provisioning
 
-**Superseded, 26 Aug 2026** — both the event subscription and the queue are now Terraform-managed;
-see the reversal note in ADR-009. The description below is the original (now superseded) design,
-kept for history.
-
-**Event Grid's own event subscription** (routing `Hearing_Resulted` → PCR's queue) is a separate
-resource, provisioned via **Terraform** (IaC).
-
-**~~Service Bus queue: created via idempotent create-if-not-exists at startup
-(`createQueueIfNotExists`), not Terraform/Bicep.~~ Now also provisioned via Terraform** — the app
-only verifies the queue exists at startup (`ServiceBusProvisioningService.queueExists`) and fails
-startup if it doesn't, rather than creating it. Uses the existing shared per-environment Service
-Bus namespace — only the queue itself belongs solely to PCR, not the namespace.
+**Both the Event Grid event subscription and the Service Bus queue are provisioned via
+Terraform** (IaC). The app never creates the queue itself — at startup it only verifies the queue
+exists (`ServiceBusProvisioningService.queueExists`) and fails startup if it doesn't, naming
+Terraform as the expected owner. Uses the existing shared per-environment Service Bus namespace —
+only the queue itself belongs solely to PCR, not the namespace.
 
 | Property | Value for `pcr.hearing-resulted` | Why |
 | --- | --- | --- |

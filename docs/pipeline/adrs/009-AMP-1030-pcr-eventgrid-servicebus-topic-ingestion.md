@@ -1,8 +1,6 @@
 # 009. Replace Event Grid webhook ingestion with a dedicated Event Grid → Service Bus Queue
 
-**Status:** Accepted, 25 Aug 2026. **Queue provisioning reversed to Terraform-owned** (26 Aug 2026)
-— see the note at the end of the Decision section; the queue is no longer app-provisioned as
-originally decided here.
+**Status:** Accepted, 25 Aug 2026
 **Jira:** AMP-1030 — migrate PCR hearing-result ingestion to a dedicated Service Bus queue
 
 ## Context
@@ -48,24 +46,18 @@ independent Event Grid event subscription:
   until the new path is proven in lower environments, then production, at which point the relay's
   routing is disabled. Never both channels active in one environment (`ingestAndPersist` isn't
   idempotent). Both channels log receipt during the coexistence window.
-- **Provisioning is split by resource:** PCR's own Event Grid event subscription is provisioned via
-  **Terraform (IaC)**; PCR's own Service Bus queue via idempotent app-code create-if-not-exists at
-  startup — the same shared per-environment Service Bus namespace as before, just no shared Topic
-  resource within it.
+- **Both the Event Grid event subscription and the Service Bus queue are provisioned via
+  Terraform (IaC)** — the same shared per-environment Service Bus namespace as before, just no
+  shared Topic resource within it. The app never creates the queue itself: at startup it only
+  verifies the queue exists (`ServiceBusProvisioningService.queueExists`) and fails startup if it
+  doesn't, naming Terraform as the expected owner. This keeps the app off `Manage`-level Service
+  Bus permissions it would otherwise only need for a create call it should never actually have to
+  make, and avoids an ordering problem for the Event Grid event subscription's
+  `service_bus_queue_endpoint_id`, which must reference the queue as a real resource — a queue
+  the app only creates at runtime wouldn't exist yet when Terraform first applies. The queue's
+  durability settings (`LockDuration` `PT1M`, `MaxDeliveryCount` 10, `DefaultMessageTimeToLive`
+  `PT10M`, `DeadLetteringOnMessageExpiration` `true`) are set on the Terraform resource.
 - **Managed Identity throughout** — no connection strings, SAS tokens, or account keys.
-
-**Reversed, 26 Aug 2026 (PR #82 review):** the queue is now also **Terraform-provisioned**, not
-app-provisioned. The app no longer calls `createQueueIfNotExists` at startup — it only verifies
-the queue exists (`ServiceBusProvisioningService.queueExists`) and fails startup if it doesn't,
-naming Terraform as the expected owner. Reasoning: (1) self-provisioning meant the app needed
-`Manage`-level Service Bus permissions purely to create a resource it should never actually need
-to create in a correctly-deployed environment; (2) the Event Grid event subscription above is
-itself Terraform-managed and its `service_bus_queue_endpoint_id` must reference the queue as a
-real resource — if the queue is only created by the app at runtime, the very first environment
-setup has a genuine ordering problem (Terraform can't reference a queue that doesn't exist yet).
-Making the queue Terraform-managed too removes that. The queue's durability settings (`LockDuration`
-`PT1M`, `MaxDeliveryCount` 10, `DefaultMessageTimeToLive` `PT10M`, `DeadLetteringOnMessageExpiration`
-`true`) move from `ServiceBusProvisioningService`'s `CreateQueueOptions` to the Terraform module.
 
 ## Consequences
 
@@ -79,12 +71,11 @@ Making the queue Terraform-managed too removes that. The queue's durability sett
 - `/internal/hearing-results` stays live for as long as the relay function does.
 - Doesn't design NOW's own queue, consumer, generation-gate logic, or data model — NOW's queue and
   Event Grid event subscription are entirely its own to provision, on its own timeline.
-- **Post-reversal:** the app's Service Bus access can drop from `Manage`-level to `Send`/`Listen`
-  once queue creation is no longer app-side — `ServiceBusProvisioningService.isServiceBusReady`/
-  `queueExists` still call the administration client for read-only checks, so the exact minimum
-  role is a DevOps decision, not yet finalised. The queue's existence at app startup now depends
-  on Terraform having already run in that environment — first-time environment setup must apply
-  Terraform before the app's first deploy, not after.
+- The queue's existence at app startup depends on Terraform having already run in that
+  environment — first-time environment setup must apply Terraform before the app's first deploy,
+  not after. `ServiceBusProvisioningService.isServiceBusReady`/`queueExists` still call the
+  administration client for read-only checks, so the exact minimum Service Bus role for the app's
+  identity is a DevOps decision, not yet finalised.
 
 ## Alternatives considered
 
