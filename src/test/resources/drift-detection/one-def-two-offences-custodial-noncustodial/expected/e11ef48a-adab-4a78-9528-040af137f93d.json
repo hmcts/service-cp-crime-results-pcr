@@ -23,6 +23,7 @@
       "courtDetails": {
         "court": {
           "courtHouseCode": "B01BH00",
+          "courtHouseId": "7e967376-eacf-4fca-9b30-21b0c5aad427",
           "courtHouseName": "Bexley Magistrates' Court"
         },
         "courtAddress": {

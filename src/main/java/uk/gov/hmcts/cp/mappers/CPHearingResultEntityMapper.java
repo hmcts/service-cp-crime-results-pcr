@@ -56,6 +56,8 @@ public class CPHearingResultEntityMapper {
                 .id(UUID.randomUUID())
                 .caseUrn(prosecutionCase.getProsecutionCaseIdentifier().getCaseURN())
                 .hearingId(hearingId)
+                .courtHouseId(hearing.getCourtCentre() == null || hearing.getCourtCentre().getId() == null
+                        ? null : UUID.fromString(hearing.getCourtCentre().getId()))
                 .courtHouseCode(hearing.getCourtCentre() == null ? null : hearing.getCourtCentre().getCode())
                 .courtHouseName(hearing.getCourtCentre() == null ? null : hearing.getCourtCentre().getName())
                 .hearingDate(hearing.getHearingDays().isEmpty() ? null

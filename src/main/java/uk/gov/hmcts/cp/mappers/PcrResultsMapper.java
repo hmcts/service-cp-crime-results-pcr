@@ -113,7 +113,6 @@ public class PcrResultsMapper {
     }
 
     private HearingDetails toHearingDetails(final CPCaseHearingEntity caseHearing, final CPVersionEntity version) {
-        // courtHouseId: no confirmed source on CPCaseHearingEntity today — left unset
         return HearingDetails.builder()
                 .id(caseHearing.getHearingId())
                 .courtDetails(toCourtDetails(caseHearing))
@@ -133,7 +132,7 @@ public class PcrResultsMapper {
     }
 
     private CourtDetails toCourtDetails(final CPCaseHearingEntity caseHearing) {
-        final Court court = toCourt(null, caseHearing.getCourtHouseCode(), caseHearing.getCourtHouseName());
+        final Court court = toCourt(caseHearing.getCourtHouseId(), caseHearing.getCourtHouseCode(), caseHearing.getCourtHouseName());
         final Address courtAddress = toCourtAddress(caseHearing);
         return court == null && courtAddress == null && caseHearing.getLjaName() == null
                 ? null

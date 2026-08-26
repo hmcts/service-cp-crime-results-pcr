@@ -22,6 +22,7 @@
       "courtDetails": {
         "court": {
           "courtHouseCode": "B01DU00",
+          "courtHouseId": "c133d0de-c989-48b9-bd20-0431943e347e",
           "courtHouseName": "City of London Magistrates' Court"
         },
         "courtAddress": {

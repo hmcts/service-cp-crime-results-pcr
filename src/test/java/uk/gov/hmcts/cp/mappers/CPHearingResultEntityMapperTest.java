@@ -181,7 +181,24 @@ class CPHearingResultEntityMapperTest {
 
         assertThat(result.getCourtHouseCode()).isNull();
         assertThat(result.getCourtHouseName()).isNull();
+        assertThat(result.getCourtHouseId()).isNull();
         assertThat(result.getHearingDate()).isEqualTo(LocalDate.of(2026, 7, 23));
+    }
+
+    @Test
+    void toCaseHearingEntity_should_mapCourtHouseId_whenPresent() {
+        final UUID courtHouseId = UUID.fromString("f8254db1-1683-483e-afb3-b87fde5a0a26");
+        final ProsecutionCase prosecutionCase = minimalProsecutionCase();
+        final HearingDetail hearing = HearingDetail.builder()
+                .courtCentre(CourtCentre.builder().id(courtHouseId.toString()).code("B01LY").name("Leeds Crown Court").build())
+                .hearingDays(List.of())
+                .courtApplications(List.of())
+                .prosecutionCases(List.of())
+                .build();
+
+        final CPCaseHearingEntity result = mapper.toCaseHearingEntity(prosecutionCase, hearing, HEARING_ID, CREATED_AT);
+
+        assertThat(result.getCourtHouseId()).isEqualTo(courtHouseId);
     }
 
     @Test
