@@ -48,9 +48,6 @@ public class HearingResultedServiceBusConsumer {
     @PostConstruct
     @SuppressWarnings("PMD.AvoidCatchingGenericException")
     public void initialise() {
-        // ingestion-enabled=true must fully activate this channel on its own (AC2 — "a single
-        // switch"), so it implies start-up even if auto-start-processors (the separate, optional
-        // log-only-before-cutover mode, and the test/DAST off-switch) is left at its default.
         if (!properties.isAutoStartProcessors() && !properties.isIngestionEnabled()) {
             log.info("service-bus.auto-start-processors=false and ingestion-enabled=false — skipping Service Bus initialisation");
             return;
@@ -63,7 +60,7 @@ public class HearingResultedServiceBusConsumer {
                     .processError(this::processError)
                     .buildProcessorClient();
             processorClient.start();
-            log.info("HearingResultedServiceBusConsumer started on queue:{} ingestionEnabled:{}",
+            log.info("HearingResultedServiceBusConsumer started on pcr queue:{} ingestionEnabled:{}",
                     properties.getQueueName(), properties.isIngestionEnabled());
         } catch (Exception e) {
             log.error("Failed to initialise HearingResultedServiceBusConsumer. {}", e.getMessage());
@@ -146,6 +143,6 @@ public class HearingResultedServiceBusConsumer {
     }
 
     /* default */ void processError(final ServiceBusErrorContext errorContext) {
-        log.error("processError unexpected error on queue:{}", properties.getQueueName(), errorContext.getException());
+        log.error("processError unexpected error on pcr queue:{}", properties.getQueueName(), errorContext.getException());
     }
 }

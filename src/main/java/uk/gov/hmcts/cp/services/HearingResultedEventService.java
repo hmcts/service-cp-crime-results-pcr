@@ -20,9 +20,6 @@ public class HearingResultedEventService {
 
     private final ResultsIngestionService ingestionService;
 
-    // The single source of truth for which channel persists (AC2) — on means the ASB channel is
-    // authoritative and this one must not persist, off means this one is. Checked explicitly at
-    // the call site below, not via @ConditionalOnProperty (T2).
     @Value("${service-bus.ingestion-enabled}")
     private boolean serviceBusIngestionEnabled;
 

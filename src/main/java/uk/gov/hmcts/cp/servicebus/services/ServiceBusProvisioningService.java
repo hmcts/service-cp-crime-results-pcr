@@ -22,8 +22,6 @@ public class ServiceBusProvisioningService {
     private final ServiceBusAdministrationClient adminClient;
 
     @SuppressWarnings("PMD.AvoidCatchingGenericException")
-    // Best-effort readiness ping — any failure (auth, network, DNS) means "not ready yet", not a
-    // specific handled case, matching HRDS's ServiceBusAdminService.isServiceBusReady precedent.
     public boolean isServiceBusReady() {
         boolean ready;
         try {

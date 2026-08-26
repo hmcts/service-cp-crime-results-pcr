@@ -67,11 +67,6 @@ public class ResultsIngestionService {
         throw new IncompleteHearingDetailsException(hearingId);
     }
 
-    /**
-     * Single completeness check, no in-process wait — used by the Service Bus consumer, which
-     * relocates the wait off-thread onto a scheduled follow-up message (ADR-009 §"Completeness
-     * retry mechanism") instead of blocking here.
-     */
     public HearingDetailsResponse ingestHearingResultsOnce(final UUID hearingId, final String hearingDay) {
         return fetchIfComplete(hearingId, hearingDay).orElseThrow(() -> new IncompleteHearingDetailsException(hearingId));
     }
@@ -100,10 +95,6 @@ public class ResultsIngestionService {
         persist(hearingId, ingestHearingResults(hearingId, hearingDay));
     }
 
-    /**
-     * Single-attempt counterpart of {@link #ingestAndPersist} — used by the Service Bus
-     * consumer, which owns its own attempt/retry scheduling (ADR-009).
-     */
     @Transactional
     public void ingestAndPersistOnce(final UUID hearingId, final String hearingDay) {
         persist(hearingId, ingestHearingResultsOnce(hearingId, hearingDay));
