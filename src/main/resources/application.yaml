@@ -43,14 +43,8 @@ management:
         enabled: true   # enables liveness / readiness groups
   health:
     redis:
-      # Redis is a read-optimisation this service falls back off of (§3.3 completeness
-      # check) — a Redis outage degrades hearing ingestion but shouldn't take the
-      # synchronous PCR API's readiness probe down with it.
       enabled: false
     db:
-      # No JPA entities/repositories read or write this datasource yet (data-store design
-      # doc §7 config only, added ahead of that work) — don't fail the readiness probe on
-      # a database nothing in this service actually depends on today.
       enabled: false
   tracing:
     enabled: true
@@ -68,3 +62,9 @@ results-query-client:
 reference-data-client:
   url: ${CP_BACKEND_URL:http://localhost:8081}
   cjscppuid: ${CJSCPPUID:00000000-0000-0000-0000-000000000000}
+
+service-bus:
+  admin-connection: ${AZURE_SERVICE_BUS_ADMIN_URI:Endpoint=sb://localhost:5300;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;}
+  connection: ${AZURE_SERVICE_BUS_URI:Endpoint=sb://localhost;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;}
+  auto-start-processors: ${SERVICE_BUS_AUTO_START_PROCESSORS:false}
+  ingestion-enabled: ${SERVICE_BUS_INGESTION_ENABLED:false}
