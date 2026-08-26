@@ -7,6 +7,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.test.util.ReflectionTestUtils;
 import uk.gov.hmcts.cp.exceptions.IncompleteHearingDetailsException;
 import uk.gov.hmcts.cp.openapi.model.HearingResultedEvent;
 import uk.gov.hmcts.cp.openapi.model.HearingResultedEventData;
@@ -27,7 +28,7 @@ import static org.mockito.Mockito.verify;
 class HearingResultedEventServiceTest {
 
     private static final UUID HEARING_ID = UUID.fromString("00000000-0000-0000-0000-000000000011");
-    private static final String HEARING_DAY = "2026-07-23";
+    private static final LocalDate HEARING_DAY = LocalDate.parse("2026-07-23");
     private static final UUID USER_ID = UUID.fromString("00000000-0000-0000-0000-000000000099");
 
     @Mock
@@ -49,14 +50,14 @@ class HearingResultedEventServiceTest {
     @Test
     void handle_should_ingestEveryEventAndReturn200_whenMultipleEventsInDelivery() {
         final UUID secondHearingId = UUID.fromString("00000000-0000-0000-0000-000000000022");
-        final String secondHearingDay = "2026-07-24";
+        final LocalDate secondHearingDay = LocalDate.parse("2026-07-24");
         final HearingResultedEvent first = hearingResultedEvent();
         final HearingResultedEvent second = new HearingResultedEvent()
                 .id("evt-3")
                 .eventType("Hearing_Resulted")
                 .data(new HearingResultedEventData()
                         .hearingId(secondHearingId)
-                        .hearingDay(LocalDate.parse(secondHearingDay))
+                        .hearingDay(secondHearingDay)
                         .userId(USER_ID));
 
         final ResponseEntity<Void> response = eventService.handle(List.of(first, second));
@@ -77,6 +78,17 @@ class HearingResultedEventServiceTest {
     }
 
     @Test
+    void handle_should_skipPersistence_whenServiceBusIngestionEnabled() {
+        ReflectionTestUtils.setField(eventService, "serviceBusIngestionEnabled", true);
+        final HearingResultedEvent event = hearingResultedEvent();
+
+        final ResponseEntity<Void> response = eventService.handle(List.of(event));
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        verify(ingestionService, never()).ingestAndPersist(any(), any());
+    }
+
+    @Test
     void handle_should_throwIllegalArgumentException_whenEventTypeUnrecognized() {
         final HearingResultedEvent event = new HearingResultedEvent()
                 .id("evt-1").eventType("Some_Other_Event");
@@ -93,7 +105,7 @@ class HearingResultedEventServiceTest {
                 .eventType("Hearing_Resulted")
                 .data(new HearingResultedEventData()
                         .hearingId(HEARING_ID)
-                        .hearingDay(LocalDate.parse(HEARING_DAY))
+                        .hearingDay(HEARING_DAY)
                         .userId(USER_ID));
     }
 }

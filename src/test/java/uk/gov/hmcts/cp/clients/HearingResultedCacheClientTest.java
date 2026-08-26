@@ -8,6 +8,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 
+import java.time.LocalDate;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -18,7 +19,7 @@ import static org.mockito.Mockito.when;
 class HearingResultedCacheClientTest {
 
     private static final UUID HEARING_ID = UUID.fromString("00000000-0000-0000-0000-000000000011");
-    private static final String HEARING_DAY = "2026-07-23";
+    private static final LocalDate HEARING_DAY = LocalDate.parse("2026-07-23");
     private static final String EXPECTED_KEY = "INT_" + HEARING_ID + "_" + HEARING_DAY + "_result_";
 
     @Mock

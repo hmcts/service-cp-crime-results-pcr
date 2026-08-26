@@ -3,6 +3,7 @@ package uk.gov.hmcts.cp.integration;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
 
+import java.time.LocalDate;
 import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.eq;
@@ -29,7 +30,7 @@ class HearingResultedEventControllerIntegrationTest extends IntegrationTestBase 
                         .content(body))
                 .andExpect(status().isOk());
 
-        verify(resultsIngestionService).ingestAndPersist(eq(HEARING_ID), eq("2026-07-23"));
+        verify(resultsIngestionService).ingestAndPersist(eq(HEARING_ID), eq(LocalDate.parse("2026-07-23")));
     }
 
     @Test

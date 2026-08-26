@@ -28,6 +28,7 @@ import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -39,7 +40,7 @@ import java.util.UUID;
 @Slf4j
 public class ResultsIngestionService {
 
-    private static final int MAX_COMPLETENESS_RETRIES = 3;
+    public static final int MAX_COMPLETENESS_RETRIES = 3;
     private static final Duration INITIAL_BACKOFF = Duration.ofSeconds(2);
 
     private final HearingResultedCacheClient cacheClient;
@@ -51,13 +52,11 @@ public class ResultsIngestionService {
     private final ClockService clockService;
     private final CPEntityPersistenceService persistenceService;
 
-    public HearingDetailsResponse ingestHearingResults(final UUID hearingId, final String hearingDay) {
+    public HearingDetailsResponse ingestHearingResults(final UUID hearingId, final LocalDate hearingDay) {
         for (int attempt = 1; attempt <= MAX_COMPLETENESS_RETRIES; attempt++) {
-            final HearingDetailsResponse response = cacheClient.get(hearingId, hearingDay)
-                    .map(this::deserializeCachedHearingResults)
-                    .orElseGet(() -> resultsClient.getHearingDetails(hearingId));
-            if (isComplete(response)) {
-                return response;
+            final Optional<HearingDetailsResponse> response = fetchIfComplete(hearingId, hearingDay);
+            if (response.isPresent()) {
+                return response.get();
             }
             log.warn("Incomplete hearing details for hearingId:{} on attempt {}/{} — viewstore may not have caught up yet",
                     hearingId, attempt, MAX_COMPLETENESS_RETRIES);
@@ -68,7 +67,18 @@ public class ResultsIngestionService {
         throw new IncompleteHearingDetailsException(hearingId);
     }
 
-    private Duration backoffFor(final int attempt) {
+    public HearingDetailsResponse ingestHearingResultsOnce(final UUID hearingId, final LocalDate hearingDay) {
+        return fetchIfComplete(hearingId, hearingDay).orElseThrow(() -> new IncompleteHearingDetailsException(hearingId));
+    }
+
+    private Optional<HearingDetailsResponse> fetchIfComplete(final UUID hearingId, final LocalDate hearingDay) {
+        final HearingDetailsResponse response = cacheClient.get(hearingId, hearingDay)
+                .map(this::deserializeCachedHearingResults)
+                .orElseGet(() -> resultsClient.getHearingDetails(hearingId));
+        return isComplete(response) ? Optional.of(response) : Optional.empty();
+    }
+
+    /* default */ Duration backoffFor(final int attempt) {
         return INITIAL_BACKOFF.multipliedBy((long) Math.pow(2, attempt - 1));
     }
 
@@ -81,8 +91,16 @@ public class ResultsIngestionService {
     }
 
     @Transactional
-    public void ingestAndPersist(final UUID hearingId, final String hearingDay) {
-        final HearingDetailsResponse hearingDetails = ingestHearingResults(hearingId, hearingDay);
+    public void ingestAndPersist(final UUID hearingId, final LocalDate hearingDay) {
+        persist(hearingId, ingestHearingResults(hearingId, hearingDay));
+    }
+
+    @Transactional
+    public void ingestAndPersistOnce(final UUID hearingId, final LocalDate hearingDay) {
+        persist(hearingId, ingestHearingResultsOnce(hearingId, hearingDay));
+    }
+
+    private void persist(final UUID hearingId, final HearingDetailsResponse hearingDetails) {
         final HearingDetail hearing = hearingDetails.getHearing();
         final Instant sharedTime = hearingDetails.getSharedTime();
         final LocalDate activeAt = resolveActiveAt(hearing, hearingId);
