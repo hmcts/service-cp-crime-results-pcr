@@ -162,7 +162,8 @@
         "startDate": "2026-06-12",
         "title": "Attempt theft of motor vehicle",
         "verdict": "Found guilty",
-        "wording": "Attempt theft to vehicle"
+        "wording": "Attempt theft to vehicle",
+        "id": "01bb3e04-818f-494c-ac43-2c449d6756c2"
       }
     ],
     "prosecutionCase": {

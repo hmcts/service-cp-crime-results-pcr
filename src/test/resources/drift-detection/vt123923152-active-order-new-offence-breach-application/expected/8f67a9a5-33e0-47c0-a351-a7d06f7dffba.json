@@ -40,7 +40,8 @@
             ],
             "startDate": "2026-06-14",
             "title": "Robbery",
-            "wording": "Original CaseURN: SN123927923, Re-sentenced Original code : TH68023, Original details: Robbery"
+            "wording": "Original CaseURN: SN123927923, Re-sentenced Original code : TH68023, Original details: Robbery",
+            "id": "e4d59fd2-7860-45c3-958d-944bbf8eb2a2"
           }
         ],
         "reference": "VT123923152",
@@ -180,7 +181,8 @@
         ],
         "startDate": "2026-06-14",
         "title": "Robbery",
-        "wording": "Robbery"
+        "wording": "Robbery",
+        "id": "47367c6b-0ded-4591-9ff8-c7bd17e75745"
       }
     ],
     "prosecutionCase": {

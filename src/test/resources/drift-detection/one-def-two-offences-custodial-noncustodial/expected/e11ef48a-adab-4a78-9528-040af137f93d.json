@@ -129,7 +129,8 @@
         "startDate": "2022-12-12",
         "title": "Conspire to assault a person thereby occasioning them actual bodily harm",
         "verdict": "Found guilty",
-        "wording": "Avis Strosin at Runolfsdottir Burg, conspired together with Jessica Heller to assault Joanna Prosacco, thereby occasioning actual bodily harm."
+        "wording": "Avis Strosin at Runolfsdottir Burg, conspired together with Jessica Heller to assault Joanna Prosacco, thereby occasioning actual bodily harm.",
+        "id": "df612410-71b5-4a22-9954-cc0f83fbbd98"
       },
       {
         "allocationDecision": "Summary-only offence",
@@ -153,7 +154,8 @@
         "startDate": "2022-11-28",
         "title": "Public service vehicles - passenger failing to pay fare",
         "verdict": "Found guilty",
-        "wording": "Public service vehicles - passenger failing to pay fare"
+        "wording": "Public service vehicles - passenger failing to pay fare",
+        "id": "9d9d82c5-5282-472e-8b8a-780fdbdfcd62"
       }
     ],
     "prosecutionCase": {

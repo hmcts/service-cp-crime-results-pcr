@@ -111,7 +111,8 @@
         ],
         "startDate": "2026-05-01",
         "title": "Attempt theft of motor vehicle",
-        "wording": "Attempt theft to vehicle"
+        "wording": "Attempt theft to vehicle",
+        "id": "66577bd1-1c3b-444e-b741-af7dc442110a"
       },
       {
         "allocationDecision": "Summary-only offence",
@@ -174,7 +175,8 @@
         ],
         "startDate": "2026-05-01",
         "title": "Possess / control TV set with intent another use install without a licence",
-        "wording": "Theft of pedal cycle"
+        "wording": "Theft of pedal cycle",
+        "id": "5bfed757-7b64-407b-9aae-37efd5f0af16"
       }
     ],
     "prosecutionCase": {
