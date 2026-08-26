@@ -85,7 +85,7 @@ class HearingResultedServiceBusConsumerTest {
         consumer.initialise();
 
         verify(provisioningService, never()).isServiceBusReady();
-        verify(provisioningService, never()).createQueueIfNotExists(any());
+        verify(provisioningService, never()).queueExists(any());
         verify(clientFactory, never()).processorClientBuilder();
     }
 
@@ -94,11 +94,12 @@ class HearingResultedServiceBusConsumerTest {
         when(properties.isAutoStartProcessors()).thenReturn(false);
         when(properties.isIngestionEnabled()).thenReturn(true);
         when(provisioningService.isServiceBusReady()).thenReturn(true);
+        when(provisioningService.queueExists(ServiceBusProperties.QUEUE_NAME)).thenReturn(true);
         givenProcessorBuilder();
 
         consumer.initialise();
 
-        verify(provisioningService).createQueueIfNotExists(ServiceBusProperties.QUEUE_NAME);
+        verify(provisioningService).queueExists(ServiceBusProperties.QUEUE_NAME);
         verify(processorClient).start();
     }
 
@@ -106,37 +107,54 @@ class HearingResultedServiceBusConsumerTest {
     void initialise_should_provisionAndStartProcessor_whenServiceBusReadyImmediately() {
         when(properties.isAutoStartProcessors()).thenReturn(true);
         when(provisioningService.isServiceBusReady()).thenReturn(true);
+        when(provisioningService.queueExists(ServiceBusProperties.QUEUE_NAME)).thenReturn(true);
         givenProcessorBuilder();
 
         consumer.initialise();
 
-        verify(provisioningService).createQueueIfNotExists(ServiceBusProperties.QUEUE_NAME);
+        verify(provisioningService).queueExists(ServiceBusProperties.QUEUE_NAME);
         verify(processorClient).start();
     }
 
     @Test
-    void initialise_should_pollUntilReady_beforeProvisioning() {
+    void initialise_should_pollUntilReady_beforeCheckingQueue() {
         when(properties.isAutoStartProcessors()).thenReturn(true);
         when(provisioningService.isServiceBusReady()).thenReturn(false, false, true);
+        when(provisioningService.queueExists(any())).thenReturn(true);
         givenProcessorBuilder();
 
         consumer.initialise();
 
         verify(provisioningService, times(3)).isServiceBusReady();
-        verify(provisioningService).createQueueIfNotExists(any());
+        verify(provisioningService).queueExists(any());
         verify(processorClient).start();
     }
 
     @Test
-    void initialise_should_propagateException_whenProvisioningFails() {
+    void initialise_should_propagateException_whenQueueExistsCheckFails() {
         when(properties.isAutoStartProcessors()).thenReturn(true);
         when(provisioningService.isServiceBusReady()).thenReturn(true);
-        doThrow(new RuntimeException("boom")).when(provisioningService).createQueueIfNotExists(any());
+        doThrow(new RuntimeException("boom")).when(provisioningService).queueExists(any());
 
         assertThatThrownBy(() -> consumer.initialise())
                 .isInstanceOf(RuntimeException.class)
                 .hasMessage("boom");
 
+        verify(processorClient, never()).start();
+    }
+
+    @Test
+    void initialise_should_throwIllegalStateException_whenQueueDoesNotExist() {
+        when(properties.isAutoStartProcessors()).thenReturn(true);
+        when(provisioningService.isServiceBusReady()).thenReturn(true);
+        when(provisioningService.queueExists(ServiceBusProperties.QUEUE_NAME)).thenReturn(false);
+
+        assertThatThrownBy(() -> consumer.initialise())
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining(ServiceBusProperties.QUEUE_NAME)
+                .hasMessageContaining("Terraform");
+
+        verify(clientFactory, never()).processorClientBuilder();
         verify(processorClient, never()).start();
     }
 

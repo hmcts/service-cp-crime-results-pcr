@@ -56,7 +56,7 @@ public class HearingResultedServiceBusConsumer {
             return;
         }
         awaitServiceBusReady();
-        provisioningService.createQueueIfNotExists(ServiceBusProperties.QUEUE_NAME);
+        ensureQueueProvisioned();
         processorClient = clientFactory.processorClientBuilder()
                 .processMessage(this::processMessage)
                 .processError(this::processError)
@@ -70,6 +70,13 @@ public class HearingResultedServiceBusConsumer {
         await().atMost(MAX_READINESS_WAIT)
                 .pollInterval(READINESS_POLL_INTERVAL)
                 .until(provisioningService::isServiceBusReady);
+    }
+
+    private void ensureQueueProvisioned() {
+        if (!provisioningService.queueExists(ServiceBusProperties.QUEUE_NAME)) {
+            throw new IllegalStateException("Queue " + ServiceBusProperties.QUEUE_NAME
+                    + " does not exist — expected to be provisioned by Terraform");
+        }
     }
 
     /* default */ void processMessage(final ServiceBusReceivedMessageContext context) {
