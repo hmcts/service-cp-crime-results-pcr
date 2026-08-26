@@ -66,6 +66,5 @@ reference-data-client:
 service-bus:
   admin-connection: ${AZURE_SERVICE_BUS_ADMIN_URI:Endpoint=sb://localhost:5300;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;}
   connection: ${AZURE_SERVICE_BUS_URI:Endpoint=sb://localhost;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;}
-  queue-name: ${SERVICE_BUS_QUEUE_NAME:pcr.hearing-resulted}
   auto-start-processors: ${SERVICE_BUS_AUTO_START_PROCESSORS:false}
   ingestion-enabled: ${SERVICE_BUS_INGESTION_ENABLED:false}

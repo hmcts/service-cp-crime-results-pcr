@@ -16,12 +16,12 @@ public class ServiceBusClientFactory {
     private final ServiceBusProperties properties;
 
     public ServiceBusSenderClient senderClient() {
-        return clientBuilder().sender().queueName(properties.getQueueName()).buildClient();
+        return clientBuilder().sender().queueName(ServiceBusProperties.QUEUE_NAME).buildClient();
     }
 
     public ServiceBusClientBuilder.ServiceBusProcessorClientBuilder processorClientBuilder() {
         return clientBuilder().processor()
-                .queueName(properties.getQueueName())
+                .queueName(ServiceBusProperties.QUEUE_NAME)
                 .disableAutoComplete();
     }
 

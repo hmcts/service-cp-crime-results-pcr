@@ -97,12 +97,11 @@ class HearingResultedServiceBusConsumerTest {
         when(properties.isAutoStartProcessors()).thenReturn(false);
         when(properties.isIngestionEnabled()).thenReturn(true);
         when(provisioningService.isServiceBusReady()).thenReturn(true);
-        when(properties.getQueueName()).thenReturn("pcr.hearing-resulted");
         givenProcessorBuilder();
 
         consumer.initialise();
 
-        verify(provisioningService).createQueueIfNotExists("pcr.hearing-resulted");
+        verify(provisioningService).createQueueIfNotExists(ServiceBusProperties.QUEUE_NAME);
         verify(processorClient).start();
     }
 
@@ -110,12 +109,11 @@ class HearingResultedServiceBusConsumerTest {
     void initialise_should_provisionAndStartProcessor_whenServiceBusReadyImmediately() {
         when(properties.isAutoStartProcessors()).thenReturn(true);
         when(provisioningService.isServiceBusReady()).thenReturn(true);
-        when(properties.getQueueName()).thenReturn("pcr.hearing-resulted");
         givenProcessorBuilder();
 
         consumer.initialise();
 
-        verify(provisioningService).createQueueIfNotExists("pcr.hearing-resulted");
+        verify(provisioningService).createQueueIfNotExists(ServiceBusProperties.QUEUE_NAME);
         verify(processorClient).start();
     }
 

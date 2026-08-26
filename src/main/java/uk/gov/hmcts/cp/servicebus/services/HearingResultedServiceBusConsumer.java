@@ -47,7 +47,6 @@ public class HearingResultedServiceBusConsumer {
     private ServiceBusProcessorClient processorClient;
 
     @PostConstruct
-    @SuppressWarnings("PMD.AvoidCatchingGenericException")
     public void initialise() {
         if (!properties.isAutoStartProcessors() && !properties.isIngestionEnabled()) {
             log.info("service-bus.auto-start-processors=false and ingestion-enabled=false — skipping Service Bus initialisation");
@@ -55,14 +54,14 @@ public class HearingResultedServiceBusConsumer {
         }
         try {
             awaitServiceBusReady();
-            provisioningService.createQueueIfNotExists(properties.getQueueName());
+            provisioningService.createQueueIfNotExists(ServiceBusProperties.QUEUE_NAME);
             processorClient = clientFactory.processorClientBuilder()
                     .processMessage(this::processMessage)
                     .processError(this::processError)
                     .buildProcessorClient();
             processorClient.start();
             log.info("HearingResultedServiceBusConsumer started on pcr queue:{} ingestionEnabled:{}",
-                    properties.getQueueName(), properties.isIngestionEnabled());
+                    ServiceBusProperties.QUEUE_NAME, properties.isIngestionEnabled());
         } catch (Exception e) {
             log.error("Failed to initialise HearingResultedServiceBusConsumer. {}", e.getMessage());
         }
@@ -74,7 +73,6 @@ public class HearingResultedServiceBusConsumer {
                 .until(provisioningService::isServiceBusReady);
     }
 
-    @SuppressWarnings("PMD.AvoidCatchingGenericException")
     /* default */ void processMessage(final ServiceBusReceivedMessageContext context) {
         final ServiceBusReceivedMessage message = context.getMessage();
         final int attempt = attemptOf(message);
@@ -134,6 +132,6 @@ public class HearingResultedServiceBusConsumer {
     }
 
     /* default */ void processError(final ServiceBusErrorContext errorContext) {
-        log.error("processError unexpected error on pcr queue:{}", properties.getQueueName(), errorContext.getException());
+        log.error("processError unexpected error on pcr queue:{}", ServiceBusProperties.QUEUE_NAME, errorContext.getException());
     }
 }

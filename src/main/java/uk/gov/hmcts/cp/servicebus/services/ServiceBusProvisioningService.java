@@ -21,7 +21,6 @@ public class ServiceBusProvisioningService {
 
     private final ServiceBusAdministrationClient adminClient;
 
-    @SuppressWarnings("PMD.AvoidCatchingGenericException")
     public boolean isServiceBusReady() {
         boolean ready;
         try {
