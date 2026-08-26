@@ -34,7 +34,6 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -118,19 +117,17 @@ class HearingResultedServiceBusConsumerTest {
 
         verify(provisioningService).createQueueIfNotExists("pcr.hearing-resulted");
         verify(processorClient).start();
-        verify(consumer, never()).sleepUninterruptibly(any());
     }
 
     @Test
     void initialise_should_pollUntilReady_beforeProvisioning() {
         when(properties.isAutoStartProcessors()).thenReturn(true);
-        doNothing().when(consumer).sleepUninterruptibly(any());
         when(provisioningService.isServiceBusReady()).thenReturn(false, false, true);
         givenProcessorBuilder();
 
         consumer.initialise();
 
-        verify(consumer, times(2)).sleepUninterruptibly(Duration.ofSeconds(2));
+        verify(provisioningService, times(3)).isServiceBusReady();
         verify(provisioningService).createQueueIfNotExists(any());
         verify(processorClient).start();
     }

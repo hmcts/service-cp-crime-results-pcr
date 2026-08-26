@@ -67,4 +67,6 @@ dependencies {
   // AMP-1030: Service Bus queue ingestion, replacing the Event Grid webhook relay function
   implementation 'com.azure:azure-messaging-servicebus:7.17.18'
   implementation 'com.azure:azure-identity:1.18.3'
+  // Startup readiness wait for the queue, matching HRDS's ServiceBusProcessorService precedent
+  implementation 'org.awaitility:awaitility:4.3.0'
 }

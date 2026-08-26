@@ -22,6 +22,7 @@ import uk.gov.hmcts.cp.services.ingestion.ResultsIngestionService;
 
 import java.time.Duration;
 
+import static org.awaitility.Awaitility.await;
 import static uk.gov.hmcts.cp.services.ingestion.ResultsIngestionService.MAX_COMPLETENESS_RETRIES;
 
 @Slf4j
@@ -33,7 +34,7 @@ public class HearingResultedServiceBusConsumer {
     private static final String ATTEMPT_PROPERTY = "attempt";
     private static final String DEAD_LETTER_REASON = "IncompleteHearingDetailsException after "
             + MAX_COMPLETENESS_RETRIES + " attempts";
-    private static final int MAX_READINESS_WAIT_ATTEMPTS = 60;
+    private static final Duration MAX_READINESS_WAIT = Duration.ofMinutes(2);
     private static final Duration READINESS_POLL_INTERVAL = Duration.ofSeconds(2);
 
     private final ServiceBusProvisioningService provisioningService;
@@ -68,19 +69,9 @@ public class HearingResultedServiceBusConsumer {
     }
 
     private void awaitServiceBusReady() {
-        int attempt = 0;
-        while (!provisioningService.isServiceBusReady() && attempt < MAX_READINESS_WAIT_ATTEMPTS) {
-            sleepUninterruptibly(READINESS_POLL_INTERVAL);
-            attempt++;
-        }
-    }
-
-    /* default */ void sleepUninterruptibly(final Duration duration) {
-        try {
-            Thread.sleep(duration);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
+        await().atMost(MAX_READINESS_WAIT)
+                .pollInterval(READINESS_POLL_INTERVAL)
+                .until(provisioningService::isServiceBusReady);
     }
 
     @SuppressWarnings("PMD.AvoidCatchingGenericException")
