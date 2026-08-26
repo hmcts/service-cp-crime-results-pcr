@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -15,7 +16,7 @@ public class HearingResultedCacheClient {
 
     private final StringRedisTemplate redisTemplate;
 
-    public Optional<String> get(final UUID hearingId, final String hearingDay) {
+    public Optional<String> get(final UUID hearingId, final LocalDate hearingDay) {
         final String key = cacheKey(hearingId, hearingDay);
         final String value = redisTemplate.opsForValue().get(key);
         if (value == null) {
@@ -24,7 +25,7 @@ public class HearingResultedCacheClient {
         return Optional.ofNullable(value);
     }
 
-    private String cacheKey(final UUID hearingId, final String hearingDay) {
+    private String cacheKey(final UUID hearingId, final LocalDate hearingDay) {
         return "INT_" + hearingId + "_" + hearingDay + "_result_";
     }
 }

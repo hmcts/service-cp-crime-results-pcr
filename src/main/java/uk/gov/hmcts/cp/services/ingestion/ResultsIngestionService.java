@@ -52,7 +52,7 @@ public class ResultsIngestionService {
     private final ClockService clockService;
     private final CPEntityPersistenceService persistenceService;
 
-    public HearingDetailsResponse ingestHearingResults(final UUID hearingId, final String hearingDay) {
+    public HearingDetailsResponse ingestHearingResults(final UUID hearingId, final LocalDate hearingDay) {
         for (int attempt = 1; attempt <= MAX_COMPLETENESS_RETRIES; attempt++) {
             final Optional<HearingDetailsResponse> response = fetchIfComplete(hearingId, hearingDay);
             if (response.isPresent()) {
@@ -67,11 +67,11 @@ public class ResultsIngestionService {
         throw new IncompleteHearingDetailsException(hearingId);
     }
 
-    public HearingDetailsResponse ingestHearingResultsOnce(final UUID hearingId, final String hearingDay) {
+    public HearingDetailsResponse ingestHearingResultsOnce(final UUID hearingId, final LocalDate hearingDay) {
         return fetchIfComplete(hearingId, hearingDay).orElseThrow(() -> new IncompleteHearingDetailsException(hearingId));
     }
 
-    private Optional<HearingDetailsResponse> fetchIfComplete(final UUID hearingId, final String hearingDay) {
+    private Optional<HearingDetailsResponse> fetchIfComplete(final UUID hearingId, final LocalDate hearingDay) {
         final HearingDetailsResponse response = cacheClient.get(hearingId, hearingDay)
                 .map(this::deserializeCachedHearingResults)
                 .orElseGet(() -> resultsClient.getHearingDetails(hearingId));
@@ -91,12 +91,12 @@ public class ResultsIngestionService {
     }
 
     @Transactional
-    public void ingestAndPersist(final UUID hearingId, final String hearingDay) {
+    public void ingestAndPersist(final UUID hearingId, final LocalDate hearingDay) {
         persist(hearingId, ingestHearingResults(hearingId, hearingDay));
     }
 
     @Transactional
-    public void ingestAndPersistOnce(final UUID hearingId, final String hearingDay) {
+    public void ingestAndPersistOnce(final UUID hearingId, final LocalDate hearingDay) {
         persist(hearingId, ingestHearingResultsOnce(hearingId, hearingDay));
     }
 

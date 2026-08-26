@@ -51,7 +51,7 @@ import static org.mockito.Mockito.when;
 class ResultsIngestionServiceTest {
 
     private static final UUID HEARING_ID = UUID.fromString("00000000-0000-0000-0000-000000000011");
-    private static final String HEARING_DAY = "2026-07-23";
+    private static final LocalDate HEARING_DAY = LocalDate.parse("2026-07-23");
 
     @Mock
     private HearingResultedCacheClient cacheClient;

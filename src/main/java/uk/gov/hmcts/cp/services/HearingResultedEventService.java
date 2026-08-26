@@ -41,7 +41,7 @@ public class HearingResultedEventService {
         if (serviceBusIngestionEnabled) {
             return;
         }
-        ingestionService.ingestAndPersist(data.getHearingId(), data.getHearingDay().toString());
+        ingestionService.ingestAndPersist(data.getHearingId(), data.getHearingDay());
     }
 
     private void validateNotEmpty(final List<HearingResultedEvent> events) {

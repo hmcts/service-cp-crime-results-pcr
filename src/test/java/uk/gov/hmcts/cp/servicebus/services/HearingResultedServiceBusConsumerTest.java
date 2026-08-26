@@ -33,6 +33,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
@@ -44,7 +45,7 @@ import static org.mockito.Mockito.when;
 class HearingResultedServiceBusConsumerTest {
 
     private static final UUID HEARING_ID = UUID.fromString("00000000-0000-0000-0000-000000000011");
-    private static final String HEARING_DAY = "2026-07-23";
+    private static final LocalDate HEARING_DAY = LocalDate.parse("2026-07-23");
     private static final UUID USER_ID = UUID.fromString("00000000-0000-0000-0000-000000000099");
 
     @Mock
@@ -131,12 +132,14 @@ class HearingResultedServiceBusConsumerTest {
     }
 
     @Test
-    void initialise_should_notThrow_whenProvisioningFails() {
+    void initialise_should_propagateException_whenProvisioningFails() {
         when(properties.isAutoStartProcessors()).thenReturn(true);
         when(provisioningService.isServiceBusReady()).thenReturn(true);
         doThrow(new RuntimeException("boom")).when(provisioningService).createQueueIfNotExists(any());
 
-        consumer.initialise();
+        assertThatThrownBy(() -> consumer.initialise())
+                .isInstanceOf(RuntimeException.class)
+                .hasMessage("boom");
 
         verify(processorClient, never()).start();
     }
@@ -254,7 +257,7 @@ class HearingResultedServiceBusConsumerTest {
                 .eventType("Hearing_Resulted")
                 .data(new HearingResultedEventData()
                         .hearingId(HEARING_ID)
-                        .hearingDay(LocalDate.parse(HEARING_DAY))
+                        .hearingDay(HEARING_DAY)
                         .userId(USER_ID));
         return objectMapper.writeValueAsString(event);
     }
