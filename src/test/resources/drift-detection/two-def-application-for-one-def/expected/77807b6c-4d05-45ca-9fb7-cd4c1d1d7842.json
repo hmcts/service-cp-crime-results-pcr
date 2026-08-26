@@ -39,6 +39,7 @@
       "courtDetails": {
         "court": {
           "courtHouseCode": "B52CM00",
+          "courtHouseId": "1a359d44-6b52-3919-b052-065413e4a801",
           "courtHouseName": "Bristol Magistrates' Court"
         },
         "courtAddress": {

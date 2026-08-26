@@ -106,6 +106,17 @@ class PcrResultsMapperTest {
     }
 
     @Test
+    void toPcrHearingResult_should_mapCurrentHearingCourtIncludingCourtHouseId() {
+        final UUID courtHouseId = UUID.fromString("1a359d44-6b52-3919-b052-065413e4a801");
+        final CPCaseHearingEntity caseHearing = CPCaseHearingEntity.builder()
+                .hearingId(HEARING_ID).courtHouseId(courtHouseId).courtHouseCode("B01LY").courtHouseName("Leeds Crown Court").build();
+
+        final PcrHearingResult result = mapper.toPcrHearingResult(caseHearing, minimalVersion(), List.of(), List.of(), List.of(), List.of(), List.of());
+
+        assertThat(result.getHearing().getCourtDetails().getCourt().getCourtHouseId()).isEqualTo(courtHouseId);
+    }
+
+    @Test
     void toPcrHearingResult_should_mapSharedTime_whenPresent() {
         final CPVersionEntity version = minimalVersion().toBuilder()
                 .sharedTime(OffsetDateTime.parse("2026-07-31T08:33:21.608Z")).build();
