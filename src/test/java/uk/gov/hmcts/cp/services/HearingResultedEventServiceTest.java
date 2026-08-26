@@ -7,6 +7,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.test.util.ReflectionTestUtils;
 import uk.gov.hmcts.cp.exceptions.IncompleteHearingDetailsException;
 import uk.gov.hmcts.cp.openapi.model.HearingResultedEvent;
 import uk.gov.hmcts.cp.openapi.model.HearingResultedEventData;
@@ -74,6 +75,17 @@ class HearingResultedEventServiceTest {
 
         assertThatThrownBy(() -> eventService.handle(List.of(event)))
                 .isInstanceOf(IncompleteHearingDetailsException.class);
+    }
+
+    @Test
+    void handle_should_skipPersistence_whenServiceBusIngestionEnabled() {
+        ReflectionTestUtils.setField(eventService, "serviceBusIngestionEnabled", true);
+        final HearingResultedEvent event = hearingResultedEvent();
+
+        final ResponseEntity<Void> response = eventService.handle(List.of(event));
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        verify(ingestionService, never()).ingestAndPersist(any(), any());
     }
 
     @Test

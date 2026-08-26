@@ -1,0 +1,12 @@
+{
+    "UserConfig": {
+        "Namespaces": [
+            {
+                "Name": "amp"
+            }
+        ],
+        "Logging": {
+            "Type": "File"
+        }
+    }
+}
