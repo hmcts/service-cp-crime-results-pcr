@@ -177,7 +177,8 @@
         ],
         "startDate": "2022-12-12",
         "title": "Conspire to assault a person thereby occasioning them actual bodily harm",
-        "wording": "Tad Fay at Ruth Club, conspired together with Nadine Hoppe to assault Douglas Wolff, thereby occasioning actual bodily harm."
+        "wording": "Tad Fay at Ruth Club, conspired together with Nadine Hoppe to assault Douglas Wolff, thereby occasioning actual bodily harm.",
+        "id": "f47c0597-33d2-455c-8e9d-852ddf7ff1b4"
       },
       {
         "allocationDecision": "Summary-only offence",
@@ -212,7 +213,8 @@
         ],
         "startDate": "2022-11-28",
         "title": "Public service vehicles - passenger failing to pay fare",
-        "wording": "Public service vehicles - passenger failing to pay fare"
+        "wording": "Public service vehicles - passenger failing to pay fare",
+        "id": "04bd0cfb-de0a-40f6-bcd0-1547a3382e0f"
       }
     ],
     "prosecutionCase": {

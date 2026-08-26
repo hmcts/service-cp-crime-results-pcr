@@ -128,7 +128,8 @@
         "startDate": "2022-12-12",
         "title": "Possess / control TV set with intent another use install without a licence",
         "verdict": "Found guilty",
-        "wording": "Jessy Berge have set up a TV cable without a valid license."
+        "wording": "Jessy Berge have set up a TV cable without a valid license.",
+        "id": "c96de483-171d-4fe0-aa01-ec90bbfb9d3e"
       }
     ],
     "prosecutionCase": {
