@@ -15,7 +15,11 @@ on:
       - docs/pcr-smoke-test-health-check-url-fix
 
 jobs:
+  # Disabled after the first trigger (ADO run 812001) so re-pushing this file to fetch logs
+  # doesn't kick off a second real ADO build. Re-enable (flip 'if: false' to 'if: true') only
+  # for a fresh test run.
   Trigger-Egress-Test:
+    if: false
     runs-on: ubuntu-latest
     outputs:
       run_id: ${{ steps.trigger.outputs.run_id }}
@@ -41,23 +45,13 @@ jobs:
               "pushToLive": false
             }
 
-  Wait-Egress-Test:
-    needs: [Trigger-Egress-Test]
+  Fetch-Egress-Test-Log:
     runs-on: ubuntu-latest
     steps:
-      - name: Wait for ADO pipeline 460
-        uses: hmcts/monitor-ado-pipeline@v1
-        with:
-          pipeline_id: 460
-          run_id: ${{ needs.Trigger-Egress-Test.outputs.run_id }}
-          ado_pat: ${{ secrets.HMCTS_CP_ADO_PAT }}
-          poll_interval: 30
-          timeout: 1800
-
-      - name: Fetch full run log for manual inspection
+      - name: Fetch full run log for manual inspection (run 812001, already triggered)
         env:
           ADO_PAT: ${{ secrets.HMCTS_CP_ADO_PAT }}
-          RUN_ID: ${{ needs.Trigger-Egress-Test.outputs.run_id }}
+          RUN_ID: "812001"
         run: |
           AUTH=$(printf ':%s' "$ADO_PAT" | base64 -w0)
           ORG="hmcts-cpp"
