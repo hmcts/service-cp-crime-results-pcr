@@ -5,3 +5,8 @@
 a23f5dec5bd15a5e59eee10ce5296738f83d63c0:docs/designs/2026-07-29-pcr-eventgrid-webhook-ingestion-design.md:internal-urls:252
 a23f5dec5bd15a5e59eee10ce5296738f83d63c0:docs/designs/2026-07-29-pcr-eventgrid-webhook-ingestion-design.md:internal-urls:265
 a23f5dec5bd15a5e59eee10ce5296738f83d63c0:docs/pipeline/adrs/007-AMP-892-pcr-eventgrid-webhook-ingestion.md:internal-urls:29
+
+# Dev ingress hostname for the split-execution smoke-test design doc, since redacted (docs/designs
+# /2026-08-27-pcr-dev-smoke-test-release-gate-design.md line 118). Same history-rewrite constraint
+# as above — this repo's ruleset blocks force-push, so the original commit can't be scrubbed.
+528fcdfe4ff072334bc30ff74f53bbcab9822c10:docs/designs/2026-08-27-pcr-dev-smoke-test-release-gate-design.md:internal-urls:118
