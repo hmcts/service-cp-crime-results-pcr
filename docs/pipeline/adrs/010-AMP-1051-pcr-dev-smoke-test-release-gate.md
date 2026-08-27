@@ -23,13 +23,17 @@ it, wired into `ci-build-publish.yml` as a gate on release creation:
   not just PCR in isolation.
 - **Run** (`smokeTestRun`) polls PCR's own query endpoint (through APIM, with a real Entra bearer
   token) until the result Setup recorded appears, since ingestion is asynchronous.
-- CI wiring: `Deploy-Dev` → `Wait-Dev-Ready` (polls the readiness endpoint — `action-ado-deploy`
-  returns once the deploy is triggered, not once the pod is actually up) → `Smoke-Test-Dev` →
-  `Auto-Release`. A failing smoke test blocks `Auto-Release` outright (`needs:` dependency); no
-  release means no SIT deploy is reachable.
+- CI wiring: `Deploy-Dev` (blocks until the ADO deploy pipeline confirms the pod is genuinely
+  ready) → `Smoke-Test-Dev` → `Auto-Release`. A failing smoke test blocks `Auto-Release` outright
+  (`needs:` dependency); no release means no SIT deploy is reachable.
 - `Auto-Release` additionally holds on the `sit-release-approval` GitHub Environment, which
   requires a human QA reviewer to approve before `gh release create` runs — a green smoke test is
   necessary but not sufficient to reach SIT.
 - SIT-side automated smoke-test verification is out of scope for this decision — SIT's own
   deploy (existing trigger on release, unchanged) still fires once approved, with no automated
   check after it.
+
+Setup's `CP_BACKEND_URL` calls have no route from this repo's GitHub-hosted runners to HMCTS's
+internal network — an open constraint, not resolved by this ADR. See the companion design doc's
+§5 for the proposed split-execution architecture (Setup runs inside ADO pipeline 434, which
+already has internal-network access; Run stays in GitHub Actions against the public APIM path).
