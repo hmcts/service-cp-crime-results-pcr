@@ -32,3 +32,8 @@ it, wired into `ci-build-publish.yml` as a gate on release creation:
 - SIT-side automated smoke-test verification is out of scope for this decision — SIT's own
   deploy (existing trigger on release, unchanged) still fires once approved, with no automated
   check after it.
+
+Setup's `CP_BACKEND_URL` calls have no route from this repo's GitHub-hosted runners to HMCTS's
+internal network — an open constraint, not resolved by this ADR. See the companion design doc's
+§5 for the proposed split-execution architecture (Setup runs inside ADO pipeline 434, which
+already has internal-network access; Run stays in GitHub Actions against the public APIM path).
