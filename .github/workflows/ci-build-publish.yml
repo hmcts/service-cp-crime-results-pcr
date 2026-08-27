@@ -23,8 +23,6 @@ on:
       # live on the "dev" Environment and don't need declaring here for that reason.
       DEV_SMOKE_SERVICE_BASE_URL:
         required: false
-      DEV_SMOKE_HEALTH_CHECK_URL:
-        required: false
       DEV_CP_BACKEND_URL:
         required: false
     inputs:
@@ -314,7 +312,6 @@ jobs:
           pipeline_id: 434
           ado_pat: ${{ secrets.HMCTS_ADO_PAT }}
           ref_name: refs/heads/env/dev
-          wait: false
           template_parameters: >
             {
               "env": "dev",
@@ -350,34 +347,13 @@ jobs:
               "cluster": "K8-SIT-CS01-CL02"
             }
 
-  # action-ado-deploy runs with wait: false above - the job returns once the GitOps deploy is
-  # triggered, not once the pod is rolled out. Nothing depended on completion before; a smoke test
-  # placed right after would risk a false pass/fail. Polls locally rather than changing
-  # action-ado-deploy's wait semantics (shared across other repos - design doc §6).
-  Wait-Dev-Ready:
-    needs: [Deploy-Dev]
-    if: ${{ inputs.trigger_deploy && inputs.deploy_dev }}
-    runs-on: ubuntu-latest
-    environment:
-      name: dev
-    steps:
-      - name: Poll dev health endpoint until ready
-        env:
-          HEALTH_CHECK_URL: ${{ secrets.DEV_SMOKE_HEALTH_CHECK_URL }}
-        run: |
-          for i in $(seq 1 30); do
-            if curl -sf "$HEALTH_CHECK_URL" > /dev/null; then
-              echo "Service is ready"
-              exit 0
-            fi
-            echo "Waiting for dev to become ready... attempt ${i}/30"
-            sleep 20
-          done
-          echo "::error::Timed out waiting for dev to become ready"
-          exit 1
-
+  # action-ado-deploy now runs with its default wait: true - the job blocks until ADO pipeline
+  # 434 completes, and that pipeline's own `helm upgrade --wait` already blocks until Kubernetes
+  # confirms the pod is genuinely ready. A separate readiness poll from this GitHub-hosted runner
+  # is both redundant and unreachable anyway - devamp01's ingress is on HMCTS's internal network,
+  # which ubuntu-latest runners have no route to.
   Smoke-Test-Dev:
-    needs: [Wait-Dev-Ready]
+    needs: [Deploy-Dev]
     if: ${{ inputs.trigger_deploy && inputs.deploy_dev }}
     runs-on: ubuntu-latest
     environment:

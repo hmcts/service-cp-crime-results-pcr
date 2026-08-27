@@ -67,8 +67,7 @@ Extends `ci-build-publish.yml`'s existing job graph:
 ```
 push to main (ci-draft.yml)
   Artefact-Version → Build → Provider-Deploy → Build-Docker → Trigger-ACR-Copy → Wait-ACR-Copy
-    → Deploy-Dev (existing, action-ado-deploy wait:false)
-    → Wait-Dev-Ready   (poll health endpoint until it responds)
+    → Deploy-Dev       (action-ado-deploy, wait: true — blocks until ADO pipeline 434 completes)
     → Smoke-Test-Dev   (./gradlew smokeTestSetup smokeTestRun, dev env vars)
     → Auto-Release     (needs: Smoke-Test-Dev, holds on sit-release-approval — ADR-010)
          │
@@ -76,32 +75,39 @@ push to main (ci-draft.yml)
             deploy. No automated verification after that deploy.
 ```
 
-`Deploy-Dev` calls `hmcts/action-ado-deploy@v1` with `wait: false` — the job returns once the
-GitOps deploy is triggered, not once the pod is actually rolled out. `Wait-Dev-Ready` polls the
-service's health endpoint with a bounded timeout (20s interval, 30 attempts) before
-`Smoke-Test-Dev` runs, rather than changing `action-ado-deploy`'s `wait` semantics (shared across
-other repos).
+`Deploy-Dev` calls `hmcts/action-ado-deploy@v1` with its default `wait: true`, so the job blocks
+until ADO pipeline 434 (`vp-deploy.yml` in `cp-vp-aks-deploy`) actually completes — and that
+pipeline's own `helm upgrade --install --wait` already blocks until Kubernetes confirms the pod
+is genuinely ready, not just that the deploy was accepted. A separate readiness-polling job
+(`Wait-Dev-Ready`, removed) was both redundant given that and unreachable anyway — `devamp01`'s
+ingress sits on HMCTS's internal network, which this repo's `ubuntu-latest` GitHub-hosted runners
+have no route to. `action-ado-deploy@v1` polls Azure DevOps's own API over HTTPS instead, which
+these runners can reach.
 
-**Env vars / secrets:** `SMOKE_SERVICE_BASE_URL`, `SMOKE_HEALTH_CHECK_URL`, `SMOKE_ENVIRONMENT`,
-`CP_BACKEND_URL`, `CJSCPPUID`, `SMOKE_ENTRA_TENANT_ID`/`SMOKE_ENTRA_CLIENT_ID`/
-`SMOKE_ENTRA_CLIENT_SECRET`/`SMOKE_ENTRA_SCOPE`, `SMOKE_APIM_SUBSCRIPTION_KEY`. `CJSCPPUID`/
-`SMOKE_ENTRA_*`/`SMOKE_APIM_SUBSCRIPTION_KEY` resolve from the `dev` GitHub Environment (same
-mechanism `Artefact-Version`/`Build` already use); the three URL values
-(`DEV_SMOKE_SERVICE_BASE_URL`/`DEV_CP_BACKEND_URL`/`DEV_SMOKE_HEALTH_CHECK_URL`) are plain
-repo-level secrets instead — the `dev` GitHub Environment has no protection rules, so
-environment-scoping bought no actual gating for those three, only naming.
+**Env vars / secrets:** `SMOKE_SERVICE_BASE_URL`, `SMOKE_ENVIRONMENT`, `CP_BACKEND_URL`,
+`CJSCPPUID`, `SMOKE_ENTRA_TENANT_ID`/`SMOKE_ENTRA_CLIENT_ID`/`SMOKE_ENTRA_CLIENT_SECRET`/
+`SMOKE_ENTRA_SCOPE`, `SMOKE_APIM_SUBSCRIPTION_KEY`. `CJSCPPUID`/`SMOKE_ENTRA_*`/
+`SMOKE_APIM_SUBSCRIPTION_KEY` resolve from the `dev` GitHub Environment (same mechanism
+`Artefact-Version`/`Build` already use); the two URL values (`DEV_SMOKE_SERVICE_BASE_URL`/
+`DEV_CP_BACKEND_URL`) are plain repo-level secrets instead — the `dev` GitHub Environment has no
+protection rules, so environment-scoping bought no actual gating for those two, only naming.
 
 `SMOKE_SERVICE_BASE_URL` is the APIM-fronted gateway host (`amp.dev.<internal-domain>/amp/pcr`) —
 Run calls it with an Entra bearer token and `Ocp-Apim-Subscription-Key`, headers that only make
 sense against APIM. `CP_BACKEND_URL` hits CP's own backend stack ingress directly
-(`<stack>.ingress01.dev.<internal-domain>`, no path prefix). `SMOKE_HEALTH_CHECK_URL` hits this
-service's own dev pod directly via its dedicated ingress
-(`<dev-amp-stack>.ingress01.dev.<internal-domain>/pcr/actuator/health`) — the `/pcr` path prefix
-is this service's own context path, confirmed working against a real dev deployment.
+(`<stack>.ingress01.dev.<internal-domain>`, no path prefix) — Setup's SPI-IN/hearing calls carry
+no Entra/APIM headers, so there's no reason to route them through APIM either. This still needs
+the same internal-network access `Wait-Dev-Ready` lacked (§4).
 
 ## 4. Open items
 
-- Poll intervals/timeouts (Run: 10s/30 attempts; `Wait-Dev-Ready`: 20s/30 attempts) are a
-  starting point, not yet tuned against sustained real-environment timing.
+- Poll interval/timeout for Run (10s/30 attempts) is a starting point, not yet tuned against
+  sustained real-environment timing.
+- `Smoke-Test-Dev`'s `CP_BACKEND_URL` calls (Setup's SPI-IN/plea/draft/shared-result chain) have
+  no route from `ubuntu-latest` GitHub-hosted runners to HMCTS's internal network — the same gap
+  `Wait-Dev-Ready` hit. `Deploy-Dev`'s ADO pipeline (`vp-deploy.yml` in `cp-vp-aks-deploy`) already
+  runs on self-hosted agents inside that network; a proposed fix is a small, PCR-scoped piggyback
+  step in that pipeline's existing per-service deploy loop, sent to DevOps for review rather than
+  applied here. Not resolved by this design.
 - SIT-side smoke-test automation (`Wait-Sit-Ready`/`Smoke-Test-Sit`) — deferred to a later phase,
   cherry-picked from this branch when scheduled.
