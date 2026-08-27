@@ -1,0 +1,73 @@
+name: THROWAWAY - verify ADO 460 internet egress for smoke-test image
+
+# One-off manual check, not part of the real pipeline. Answers a single question: can ADO
+# pipeline 460's buildah build pod reach the public internet (Maven Central / Gradle Plugin
+# Portal) to build Dockerfile.smoketest directly, skipping the GHCR hop entirely? See
+# docs/designs/2026-08-27-pcr-dev-smoke-test-release-gate-design.md §5.
+#
+# No existing ADO pipeline is edited - this only triggers pipeline 460 with its already-existing
+# artifactType=docker parameter, pointed at a throwaway image name, with pushToLive=false so
+# nothing reaches the live ACR. Delete this file once the answer is known.
+
+on:
+  workflow_dispatch:
+
+jobs:
+  Trigger-Egress-Test:
+    runs-on: ubuntu-latest
+    outputs:
+      run_id: ${{ steps.trigger.outputs.run_id }}
+    steps:
+      - name: Trigger ADO pipeline 460 (docker artifactType, throwaway image)
+        id: trigger
+        uses: hmcts/trigger-ado-pipeline@v2
+        with:
+          pipeline_id: 460
+          ado_pat: ${{ secrets.HMCTS_CP_ADO_PAT }}
+          template_parameters: >
+            {
+              "GROUP_ID": "uk.gov.hmcts.cp",
+              "ARTIFACT_ID": "service-cp-crime-results-pcr",
+              "ARTIFACT_VERSION": "egress-test",
+              "TARGET_REPOSITORY": "hmcts/service-cp-crime-results-pcr",
+              "gitRef": "docs/pcr-smoke-test-health-check-url-fix",
+              "agentDemand": "ubuntu-j25",
+              "baseImage": "hmcts/apm-services:25-jre",
+              "artifactType": "docker",
+              "dockerfilePath": "Dockerfile.smoketest",
+              "imageRepository": "hmcts/service-cp-crime-results-pcr-egress-test",
+              "pushToLive": false
+            }
+
+  Wait-Egress-Test:
+    needs: [Trigger-Egress-Test]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Wait for ADO pipeline 460
+        uses: hmcts/monitor-ado-pipeline@v1
+        with:
+          pipeline_id: 460
+          run_id: ${{ needs.Trigger-Egress-Test.outputs.run_id }}
+          ado_pat: ${{ secrets.HMCTS_CP_ADO_PAT }}
+          poll_interval: 30
+          timeout: 1800
+
+      - name: Fetch full run log for manual inspection
+        env:
+          ADO_PAT: ${{ secrets.HMCTS_CP_ADO_PAT }}
+          RUN_ID: ${{ needs.Trigger-Egress-Test.outputs.run_id }}
+        run: |
+          AUTH=$(printf ':%s' "$ADO_PAT" | base64 -w0)
+          ORG="hmcts-cpp"
+          PROJECT="cpp-apps"
+
+          LOG_IDS=$(curl -sf -H "Authorization: Basic ${AUTH}" \
+            "https://dev.azure.com/${ORG}/${PROJECT}/_apis/build/builds/${RUN_ID}/logs?api-version=7.1" \
+            | jq -r '.value[].id')
+
+          for id in $LOG_IDS; do
+            echo "===== LOG ${id} ====="
+            curl -sf -H "Authorization: Basic ${AUTH}" \
+              "https://dev.azure.com/${ORG}/${PROJECT}/_apis/build/builds/${RUN_ID}/logs/${id}?api-version=7.1" \
+              | tr -d '\r'
+          done
