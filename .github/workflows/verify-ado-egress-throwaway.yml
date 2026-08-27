@@ -15,11 +15,11 @@ on:
       - docs/pcr-smoke-test-health-check-url-fix
 
 jobs:
-  # Disabled after the first trigger (ADO run 812001) so re-pushing this file to fetch logs
-  # doesn't kick off a second real ADO build. Re-enable (flip 'if: false' to 'if: true') only
-  # for a fresh test run.
+  # Run 1 (812001) failed on "short-name resolution enforced" before reaching any network
+  # call - Dockerfile.smoketest's unqualified `FROM eclipse-temurin:25-jdk` isn't resolvable
+  # non-interactively in this environment. Retrying with a fully-qualified base image
+  # (Dockerfile.smoketest.ado-egress-test) to actually reach the real question.
   Trigger-Egress-Test:
-    if: false
     runs-on: ubuntu-latest
     outputs:
       run_id: ${{ steps.trigger.outputs.run_id }}
@@ -40,18 +40,29 @@ jobs:
               "agentDemand": "ubuntu-j25",
               "baseImage": "hmcts/apm-services:25-jre",
               "artifactType": "docker",
-              "dockerfilePath": "Dockerfile.smoketest",
+              "dockerfilePath": "Dockerfile.smoketest.ado-egress-test",
               "imageRepository": "hmcts/service-cp-crime-results-pcr-egress-test",
               "pushToLive": false
             }
 
-  Fetch-Egress-Test-Log:
+  Wait-Egress-Test:
+    needs: [Trigger-Egress-Test]
     runs-on: ubuntu-latest
     steps:
-      - name: Fetch full run log for manual inspection (run 812001, already triggered)
+      - name: Wait for ADO pipeline 460
+        uses: hmcts/monitor-ado-pipeline@v1
+        with:
+          pipeline_id: 460
+          run_id: ${{ needs.Trigger-Egress-Test.outputs.run_id }}
+          ado_pat: ${{ secrets.HMCTS_CP_ADO_PAT }}
+          poll_interval: 30
+          timeout: 1800
+
+      - name: Fetch full run log for manual inspection
+        if: always()
         env:
           ADO_PAT: ${{ secrets.HMCTS_CP_ADO_PAT }}
-          RUN_ID: "812001"
+          RUN_ID: ${{ needs.Trigger-Egress-Test.outputs.run_id }}
         run: |
           AUTH=$(printf ':%s' "$ADO_PAT" | base64 -w0)
           ORG="hmcts-cpp"

@@ -1,0 +1,13 @@
+# THROWAWAY - only for the ADO 460 internet-egress test (verify-ado-egress-throwaway.yml).
+# Identical to Dockerfile.smoketest except the base image is fully registry-qualified
+# (docker.io/...), since the first attempt failed on "short-name resolution enforced" before
+# ever reaching a network call. Delete alongside the throwaway workflow once the answer is known.
+FROM docker.io/library/eclipse-temurin:25-jdk
+
+WORKDIR /app
+COPY . /app
+
+RUN ./gradlew smokeTestSetup smokeTestRun --dry-run --no-daemon
+
+ENTRYPOINT ["./gradlew", "--no-daemon"]
+CMD ["smokeTestSetup"]
