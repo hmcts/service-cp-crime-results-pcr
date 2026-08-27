@@ -11,10 +11,13 @@ import com.azure.messaging.servicebus.models.DeadLetterOptions;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.MDC;
 import org.springframework.stereotype.Service;
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.ObjectMapper;
 import uk.gov.hmcts.cp.exceptions.IncompleteHearingDetailsException;
+import uk.gov.hmcts.cp.filters.tracing.TracingFilter;
+import uk.gov.hmcts.cp.filters.tracing.UUIDService;
 import uk.gov.hmcts.cp.openapi.model.HearingResultedEvent;
 import uk.gov.hmcts.cp.openapi.model.HearingResultedEventData;
 import uk.gov.hmcts.cp.servicebus.config.ServiceBusProperties;
@@ -46,6 +49,7 @@ public class HearingResultedServiceBusConsumer {
     private final ResultsIngestionService ingestionService;
     private final ObjectMapper objectMapper;
     private final ServiceBusRetryService retryService;
+    private final UUIDService uuidService;
 
     private ServiceBusProcessorClient processorClient;
 
@@ -82,6 +86,7 @@ public class HearingResultedServiceBusConsumer {
     /* default */ void processMessage(final ServiceBusReceivedMessageContext context) {
         final ServiceBusReceivedMessage message = context.getMessage();
         final int attempt = attemptOf(message);
+        MDC.put(TracingFilter.CORRELATION_ID_KEY, correlationIdOf(message));
         try {
             handle(context, message, attempt);
         } catch (IncompleteHearingDetailsException e) {
@@ -90,7 +95,14 @@ public class HearingResultedServiceBusConsumer {
             log.error("processMessage unexpected error on attempt {} — abandoning for native redelivery. {}",
                     attempt, e.getMessage(), e);
             context.abandon();
+        } finally {
+            MDC.remove(TracingFilter.CORRELATION_ID_KEY);
         }
+    }
+
+    private String correlationIdOf(final ServiceBusReceivedMessage message) {
+        final String correlationId = message.getCorrelationId();
+        return correlationId != null ? correlationId : uuidService.randomString();
     }
 
     private void handle(final ServiceBusReceivedMessageContext context, final ServiceBusReceivedMessage message,
@@ -146,6 +158,7 @@ public class HearingResultedServiceBusConsumer {
     private void scheduleFollowUp(final ServiceBusReceivedMessage message, final int attempt) {
         final ServiceBusMessage followUp = new ServiceBusMessage(BinaryData.fromBytes(message.getBody().toBytes()));
         followUp.getApplicationProperties().put(ATTEMPT_PROPERTY, attempt + 1);
+        followUp.setCorrelationId(MDC.get(TracingFilter.CORRELATION_ID_KEY));
         final OffsetDateTime nextTryTime = retryService.getNextTryTime(attempt);
         followUp.setScheduledEnqueueTime(nextTryTime);
         try (ServiceBusSenderClient sender = clientFactory.senderClient()) {

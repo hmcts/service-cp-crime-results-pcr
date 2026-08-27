@@ -18,6 +18,7 @@ import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import tools.jackson.databind.ObjectMapper;
 import uk.gov.hmcts.cp.exceptions.IncompleteHearingDetailsException;
+import uk.gov.hmcts.cp.filters.tracing.UUIDService;
 import uk.gov.hmcts.cp.openapi.model.HearingResultedEvent;
 import uk.gov.hmcts.cp.openapi.model.HearingResultedEventData;
 import uk.gov.hmcts.cp.servicebus.config.ServiceBusProperties;
@@ -43,6 +44,8 @@ class HearingResultedServiceBusConsumerTest {
     private static final UUID HEARING_ID = UUID.fromString("00000000-0000-0000-0000-000000000011");
     private static final LocalDate HEARING_DAY = LocalDate.parse("2026-07-23");
     private static final UUID USER_ID = UUID.fromString("00000000-0000-0000-0000-000000000099");
+    private static final String GENERATED_CORRELATION_ID = "00000000-0000-0000-0000-000000000077";
+    private static final String EXISTING_CORRELATION_ID = "00000000-0000-0000-0000-000000000088";
 
     @Mock
     private ServiceBusProvisioningService provisioningService;
@@ -56,6 +59,8 @@ class HearingResultedServiceBusConsumerTest {
     private ObjectMapper objectMapper = new ObjectMapper();
     @Mock
     private ServiceBusRetryService retryService;
+    @Mock
+    private UUIDService uuidService;
 
     @Mock
     private ServiceBusReceivedMessageContext context;
@@ -169,6 +174,7 @@ class HearingResultedServiceBusConsumerTest {
     void processMessage_should_ingestAndComplete_whenIngestionEnabledAndComplete() {
         when(properties.isIngestionEnabled()).thenReturn(true);
         givenMessage(hearingResultedEventJson(), null);
+        givenGeneratedCorrelationId();
 
         consumer.processMessage(context);
 
@@ -182,6 +188,7 @@ class HearingResultedServiceBusConsumerTest {
     void processMessage_should_completeWithoutIngesting_whenSwitchOff() {
         when(properties.isIngestionEnabled()).thenReturn(false);
         givenMessage(hearingResultedEventJson(), null);
+        givenGeneratedCorrelationId();
 
         consumer.processMessage(context);
 
@@ -193,6 +200,7 @@ class HearingResultedServiceBusConsumerTest {
     void processMessage_should_abandon_whenEventTypeUnrecognized() {
         when(properties.isIngestionEnabled()).thenReturn(true);
         givenMessage(unrecognizedEventTypeJson(), null);
+        givenGeneratedCorrelationId();
 
         consumer.processMessage(context);
 
@@ -205,6 +213,7 @@ class HearingResultedServiceBusConsumerTest {
     void processMessage_should_abandon_whenIngestionThrowsUnexpectedException() {
         when(properties.isIngestionEnabled()).thenReturn(true);
         givenMessage(hearingResultedEventJson(), null);
+        givenGeneratedCorrelationId();
         doThrow(new IllegalStateException("malformed cache payload"))
                 .when(ingestionService).ingestAndPersistOnce(HEARING_ID, HEARING_DAY);
 
@@ -218,6 +227,7 @@ class HearingResultedServiceBusConsumerTest {
     void processMessage_should_completeAndScheduleFollowUp_whenIncompleteAndAttemptsRemain() {
         when(properties.isIngestionEnabled()).thenReturn(true);
         givenMessage(hearingResultedEventJson(), 1);
+        givenGeneratedCorrelationId();
         doThrow(new IncompleteHearingDetailsException(HEARING_ID))
                 .when(ingestionService).ingestAndPersistOnce(HEARING_ID, HEARING_DAY);
         final OffsetDateTime nextTryTime = OffsetDateTime.parse("2026-07-28T10:00:02Z");
@@ -232,12 +242,30 @@ class HearingResultedServiceBusConsumerTest {
         final ServiceBusMessage followUp = messageCaptor.getValue();
         assertThat(followUp.getApplicationProperties().get("attempt")).isEqualTo(2);
         assertThat(followUp.getScheduledEnqueueTime()).isEqualTo(nextTryTime);
+        assertThat(followUp.getCorrelationId()).isEqualTo(GENERATED_CORRELATION_ID);
+    }
+
+    @Test
+    void processMessage_should_reuseExistingCorrelationId_whenMessageAlreadyHasOne() {
+        when(properties.isIngestionEnabled()).thenReturn(true);
+        givenMessage(hearingResultedEventJson(), 1);
+        when(message.getCorrelationId()).thenReturn(EXISTING_CORRELATION_ID);
+        doThrow(new IncompleteHearingDetailsException(HEARING_ID))
+                .when(ingestionService).ingestAndPersistOnce(HEARING_ID, HEARING_DAY);
+        when(retryService.getNextTryTime(1)).thenReturn(OffsetDateTime.parse("2026-07-28T10:00:02Z"));
+        when(clientFactory.senderClient()).thenReturn(senderClient);
+
+        consumer.processMessage(context);
+
+        verify(senderClient).sendMessage(messageCaptor.capture());
+        assertThat(messageCaptor.getValue().getCorrelationId()).isEqualTo(EXISTING_CORRELATION_ID);
     }
 
     @Test
     void processMessage_should_deadLetter_whenIncompleteAndAttemptsExhausted() {
         when(properties.isIngestionEnabled()).thenReturn(true);
         givenMessage(hearingResultedEventJson(), ResultsIngestionService.MAX_COMPLETENESS_RETRIES);
+        givenGeneratedCorrelationId();
         doThrow(new IncompleteHearingDetailsException(HEARING_ID))
                 .when(ingestionService).ingestAndPersistOnce(HEARING_ID, HEARING_DAY);
 
@@ -264,6 +292,10 @@ class HearingResultedServiceBusConsumerTest {
         when(message.getBody()).thenReturn(BinaryData.fromString(body));
         when(message.getApplicationProperties())
                 .thenReturn(attempt == null ? Map.of() : Map.of("attempt", attempt));
+    }
+
+    private void givenGeneratedCorrelationId() {
+        when(uuidService.randomString()).thenReturn(GENERATED_CORRELATION_ID);
     }
 
     private String hearingResultedEventJson() {
