@@ -12,8 +12,8 @@ public class ServiceBusProperties {
 
     private static final String HTTPS = "https";
 
-    // Fixed, not environment config — PCR provisions this queue itself (create-if-not-exists),
-    // so the name must be identical across every environment or provisioning silently diverges.
+    // Fixed, not environment config — Terraform provisions this queue, so the name must be
+    // identical across every environment or the app looks for a queue that doesn't exist there.
     public static final String QUEUE_NAME = "pcr.hearing-resulted";
 
     private final String adminConnectionString;

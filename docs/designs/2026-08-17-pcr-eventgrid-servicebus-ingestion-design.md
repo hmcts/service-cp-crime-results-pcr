@@ -81,12 +81,11 @@ public contract are unaffected.
 
 ### 2.2 Provisioning
 
-**Event Grid's own event subscription** (routing `Hearing_Resulted` → PCR's queue) is a separate
-resource, provisioned via **Terraform** (IaC).
-
-**Service Bus queue:** created via idempotent create-if-not-exists at startup
-(`createQueueIfNotExists`), not Terraform/Bicep. Uses the existing shared per-environment Service
-Bus namespace — only the queue itself belongs solely to PCR, not the namespace.
+**Both the Event Grid event subscription and the Service Bus queue are provisioned via
+Terraform** (IaC). The app never creates the queue itself — at startup it only verifies the queue
+exists (`ServiceBusProvisioningService.queueExists`) and fails startup if it doesn't, naming
+Terraform as the expected owner. Uses the existing shared per-environment Service Bus namespace —
+only the queue itself belongs solely to PCR, not the namespace.
 
 | Property | Value for `pcr.hearing-resulted` | Why |
 | --- | --- | --- |

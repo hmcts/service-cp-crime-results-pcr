@@ -64,7 +64,7 @@ dependencies {
   // read-only from this service's side, no new cache write path introduced
   implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 
-  implementation 'com.azure:azure-messaging-servicebus:7.17.18'
-  implementation 'com.azure:azure-identity:1.18.3'
+  implementation 'com.azure:azure-messaging-servicebus:7.17.20'
+  implementation 'com.azure:azure-identity:1.18.4'
   implementation 'org.awaitility:awaitility:4.3.0'
 }

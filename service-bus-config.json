@@ -2,7 +2,18 @@
     "UserConfig": {
         "Namespaces": [
             {
-                "Name": "amp"
+                "Name": "sbemulatorns",
+                "Queues": [
+                    {
+                        "Name": "pcr.hearing-resulted",
+                        "Properties": {
+                            "DeadLetteringOnMessageExpiration": true,
+                            "DefaultMessageTimeToLive": "PT10M",
+                            "LockDuration": "PT1M",
+                            "MaxDeliveryCount": 10
+                        }
+                    }
+                ]
             }
         ],
         "Logging": {
