@@ -1,0 +1,15 @@
+# Pre-warmed smoke-test runner image - not the app image (see Dockerfile for that). Built and
+# pushed from GitHub Actions, where full internet access is available to resolve Gradle/Maven
+# dependencies; run later from an environment (ADO pipeline 434's self-hosted agents) that only
+# has internal-network access, not general internet egress. --dry-run resolves every dependency
+# these tasks need without executing them against a real backend, which isn't reachable at build
+# time anyway (see docs/designs/2026-08-27-pcr-dev-smoke-test-release-gate-design.md §5).
+FROM eclipse-temurin:25-jdk
+
+WORKDIR /app
+COPY . /app
+
+RUN ./gradlew smokeTestSetup smokeTestRun --dry-run --no-daemon
+
+ENTRYPOINT ["./gradlew", "--no-daemon"]
+CMD ["smokeTestSetup"]

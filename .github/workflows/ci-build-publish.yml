@@ -198,6 +198,45 @@ jobs:
             BASE_IMAGE=eclipse-temurin:25
             JAR_FILENAME=${{ needs.Build.outputs.artefact_name }}.jar
 
+  # Pre-warmed smoke-test runner image (Dockerfile.smoketest) - built here where full internet
+  # access resolves Gradle/Maven dependencies, so it can later run with none (ADO pipeline 434's
+  # self-hosted agents have internal-network access only - design doc §5). Verified locally:
+  # runs smokeTestSetup fully offline (--network none), reaching the real HTTP call stage with
+  # zero dependency-resolution network traffic.
+  #
+  # TODO: this only gets the image to GHCR, which is NOT confirmed reachable from the ADO agent
+  # (same unconfirmed-internet-egress class as GitHub/Maven Central - design doc §5 constraint 8).
+  # ACR is the only channel proven reachable from that agent (it already does `az acr login`),
+  # but GitHub Actions has no existing ACR-push credential - either a new one needs provisioning,
+  # or this needs routing through an existing shared pipeline (see design doc §5 - not resolved
+  # here, needs team confirmation before this image is actually usable from ADO).
+  Build-Smoke-Test-Image:
+    needs: [Artefact-Version]
+    if: ${{ inputs.trigger_docker }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v7
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Log in to GitHub Packages
+        uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and Push Smoke-Test Image to GitHub
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          file: Dockerfile.smoketest
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository }}-smoke:${{ needs.Artefact-Version.outputs.artefact_version }}
+
   Trigger-ACR-Copy:
     needs: [ Provider-Deploy, Build, Artefact-Version ]
     if: ${{ inputs.trigger_deploy }}
@@ -368,18 +407,28 @@ jobs:
           distribution: 'temurin'
           java-version: '25'
 
+      # TODO: smokeTestSetup no longer runs here - it runs inside ADO pipeline 434 (see
+      # docs/designs/2026-08-27-pcr-dev-smoke-test-release-gate-design.md §5), which publishes
+      # its result as a pipeline artifact ("pcr-smoke-config"). This step needs to download that
+      # artifact using ${{ needs.Deploy-Dev.outputs.run_id }} + ${{ secrets.HMCTS_ADO_PAT }}
+      # against Azure DevOps's REST API, and place it at build/smoke-test-config/dev.json (the
+      # exact path smoke-utils.js already reads from - no changes needed there). Not implemented
+      # here - blocked on confirming the exact ADO artifacts REST API shape (design doc §5).
+      - name: Download smoke-test-config artifact from ADO
+        run: |
+          echo "::error::Not yet implemented - see TODO above and design doc §5"
+          exit 1
+
       - name: Run smoke test against dev
         env:
           SMOKE_SERVICE_BASE_URL: ${{ secrets.DEV_SMOKE_SERVICE_BASE_URL }}
           SMOKE_ENVIRONMENT: dev
-          CP_BACKEND_URL: ${{ secrets.DEV_CP_BACKEND_URL }}
-          CJSCPPUID: ${{ secrets.CJSCPPUID }}
           SMOKE_ENTRA_TENANT_ID: ${{ secrets.SMOKE_ENTRA_TENANT_ID }}
           SMOKE_ENTRA_CLIENT_ID: ${{ secrets.SMOKE_ENTRA_CLIENT_ID }}
           SMOKE_ENTRA_CLIENT_SECRET: ${{ secrets.SMOKE_ENTRA_CLIENT_SECRET }}
           SMOKE_ENTRA_SCOPE: ${{ secrets.SMOKE_ENTRA_SCOPE }}
           SMOKE_APIM_SUBSCRIPTION_KEY: ${{ secrets.SMOKE_APIM_SUBSCRIPTION_KEY }}
-        run: ./gradlew smokeTestSetup smokeTestRun
+        run: ./gradlew smokeTestRun
 
       - name: Upload smoke test report
         if: always()
