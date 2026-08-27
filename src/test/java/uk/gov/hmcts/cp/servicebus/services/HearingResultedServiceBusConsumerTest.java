@@ -217,6 +217,7 @@ class HearingResultedServiceBusConsumerTest {
     @Test
     void processMessage_should_completeAndScheduleFollowUp_whenIncompleteAndAttemptsRemain() {
         when(properties.isIngestionEnabled()).thenReturn(true);
+        when(properties.getMaxTries()).thenReturn(3);
         givenMessage(hearingResultedEventJson(), 1);
         doThrow(new IncompleteHearingDetailsException(HEARING_ID))
                 .when(ingestionService).ingestAndPersistOnce(HEARING_ID, HEARING_DAY);
@@ -237,7 +238,8 @@ class HearingResultedServiceBusConsumerTest {
     @Test
     void processMessage_should_deadLetter_whenIncompleteAndAttemptsExhausted() {
         when(properties.isIngestionEnabled()).thenReturn(true);
-        givenMessage(hearingResultedEventJson(), ResultsIngestionService.MAX_COMPLETENESS_RETRIES);
+        when(properties.getMaxTries()).thenReturn(3);
+        givenMessage(hearingResultedEventJson(), 3);
         doThrow(new IncompleteHearingDetailsException(HEARING_ID))
                 .when(ingestionService).ingestAndPersistOnce(HEARING_ID, HEARING_DAY);
 
