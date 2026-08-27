@@ -226,7 +226,22 @@ run, in production or in tests; discovered the hard way when repository tests fa
   not from `ResultsClient` any more.
 - **Version correlation mechanism is still TBD** (design §7) — three options considered
   (`recorded_date` ruled out, `sharedTime` propagation, `resultEventId` propagation), none
-  decided. Don't build against any of them as if settled; check design doc status first.
+  decided. Don't build against any of them as if settled; check design doc status first. §7 is
+  about minting a new, source-propagated **per-version identifier** so a consumer can address one
+  specific version via the still-unbuilt `/versions?version={id}` endpoint — that id doesn't exist
+  anywhere in the pipeline today, and design doc v2 §7 scopes it as a four-repo effort (Results →
+  Function App → Progression → HRDS) needing product/tech-arch sign-off before it's picked.
+- **`sharedTime` is confirmed reliable for relative-recency comparison, but that is a different
+  question from §7 above and does not settle it.** Confirmed (Aug 2026) as a genuine `clock.now()`
+  stamp assigned server-side in `cpp-context-hearing`'s `ShareResultsCommandHandler` at the moment
+  each share/reshare command is handled — not a client-side or static value — and it updates on
+  every reshare. Already exposed on every `GET /pcr` entry today, no new work needed. This makes
+  it a solid answer to "which of two already-received records for the same hearing is actually
+  newer" (relevant when a long Service Bus completeness-retry schedule lets a delayed retry
+  complete after a genuinely newer event for the same hearing has already been processed) — but it
+  has no uniqueness guarantee across defendants on the same hearing (every defendant on one
+  hearing shares one `sharedTime`) and isn't itself an addressable resource id, so it does not
+  answer §7's separate per-version-identifier question.
 - **`PcrVersionCorrelationHandler` is the only component allowed to know Progression exists** —
   every other layer only ever reads `versionStatus`/`materialId` once the correlator has set them.
   (Not yet implemented — this rule takes effect whenever it is.)
