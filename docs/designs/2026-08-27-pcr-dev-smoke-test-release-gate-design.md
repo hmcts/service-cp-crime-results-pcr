@@ -115,7 +115,7 @@ the same internal-network access `Wait-Dev-Ready` lacked (§4).
 
 | # | Constraint | Evidence |
 |---|---|---|
-| 1 | GitHub-hosted `ubuntu-latest` runners have no route to HMCTS's internal ingress (`*.ingress01.*.nl.cjscp.org.uk`) | `Wait-Dev-Ready` failed identically 30/30 attempts, sub-second each (DNS-fail pattern, not a slow timeout); same class of gap documented in sibling repo `crime-case-readiness` |
+| 1 | GitHub-hosted `ubuntu-latest` runners have no route to HMCTS's internal ingress (`*.<internal-domain>`) | `Wait-Dev-Ready` failed identically 30/30 attempts, sub-second each (DNS-fail pattern, not a slow timeout); same class of gap documented in sibling repo `crime-case-readiness` |
 | 2 | ADO pipeline 434's self-hosted agents already have internal-network access | Directly perform `helm upgrade` against the AKS API server, `vault read` against HashiCorp Vault, `az acr login` — proven, not inferred |
 | 3 | The public WAF→APIM path (`SMOKE_SERVICE_BASE_URL`) is reachable from an ordinary internet client | `smokeTestRun` got a real `401` from APIM (invalid subscription key), not a connection/DNS failure — the request completed the full WAF→APIM round trip |
 | 4 | `helm upgrade --install --wait` already blocks on genuine K8s readiness | Pod's `readinessProbe`/`livenessProbe`/`startupProbe` all hit `/actuator/health` directly; `--wait --timeout 3600s` polls that |
