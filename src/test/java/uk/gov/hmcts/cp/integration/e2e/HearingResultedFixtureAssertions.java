@@ -183,6 +183,7 @@ abstract class HearingResultedFixtureAssertions extends IngestionE2ETestBase {
                 .andExpect(jsonPath("$[0].hearing.hearingDate").value("2026-07-23"))
                 .andExpect(jsonPath("$[0].courtApplications[0].reference").value(CASE_URN))
                 .andExpect(jsonPath("$[0].courtApplications[0].type").value("Application within criminal proceedings"))
+                .andExpect(jsonPath("$[0].offences[0].id").value("aac5259f-93ac-4abc-85df-6610b8d52cb7"))
                 .andExpect(jsonPath("$[0].offences[0].code").value("TH68013A"))
                 .andExpect(jsonPath("$[0].offences[0].results[0].resultTexts[*].label")
                         .value(hasItems("Imprisonment Period", "Total custodial period", "Prison organisation name")));

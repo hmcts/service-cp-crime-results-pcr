@@ -70,7 +70,8 @@
         ],
         "startDate": "2026-05-01",
         "title": "Keep cooked or reheated food at temperature below 63 Celsius",
-        "wording": "Keep cooked or reheated food at temperature below 63 Celsius"
+        "wording": "Keep cooked or reheated food at temperature below 63 Celsius",
+        "id": "8253b1e8-85ac-4ef2-a986-1772fce48ce4"
       },
       {
         "code": "BC90005",
@@ -131,7 +132,8 @@
         ],
         "startDate": "2026-05-01",
         "title": "Offer to supply a foreign satellite programme",
-        "wording": "Offer to supply a foreign satellite programme"
+        "wording": "Offer to supply a foreign satellite programme",
+        "id": "8d39105b-eceb-410b-8d92-4afc0fd6f553"
       }
     ],
     "prosecutionCase": {

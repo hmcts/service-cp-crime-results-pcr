@@ -27,7 +27,8 @@
             ],
             "startDate": "2026-05-31",
             "title": "Theft from the person of another",
-            "wording": "Original CaseURN: GD238239881, Re-sentenced Original code : TH68001, Original details: Theft from the person of another"
+            "wording": "Original CaseURN: GD238239881, Re-sentenced Original code : TH68001, Original details: Theft from the person of another",
+            "id": "c4016ff2-8118-40b4-be0f-dcd51876ce13"
           }
         ],
         "reference": "KL238291232",
@@ -171,7 +172,8 @@
         ],
         "startDate": "2026-05-31",
         "title": "Robbery",
-        "wording": "Robbery"
+        "wording": "Robbery",
+        "id": "e43317f2-6e54-4f14-b0f3-9efbaad5ba75"
       }
     ],
     "prosecutionCase": {
