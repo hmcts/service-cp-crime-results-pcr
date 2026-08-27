@@ -122,7 +122,8 @@ the same internal-network access `Wait-Dev-Ready` lacked (§4).
 | 5 | `action-ado-deploy@v1` already supports synchronous wait and exposes `run_id`/`result` | Read directly from `action.yml`; `wait: true` is the default (`Deploy-Dev` was overriding it — fixed in §3) |
 | 6 | ADO's `DeployService` job matrix redeploys every service in `apps_to_deploy` on each triggered run, not just the one that pushed | `Setup` job generates the full matrix from `apps_to_deploy` every run |
 | 7 | Running the smoke test twice (once in ADO, once in GitHub Actions) is not acceptable | Confirmed decision |
-| 8 | Two unknowns remain unverified: (a) general internet egress on the ADO agent pool, (b) exact ADO artifact-download REST shape (classic Build API vs modern Pipelines API) | Not yet checked against real infra — verify before building |
+| 8 | ADO agents already have ACR access; general public internet access (GitHub, Maven Central) is unconfirmed and shouldn't be assumed | Agent already does `az acr login` — proven. Self-hosted agents are commonly locked to an allowlist that excludes general internet egress even when internal/Azure access works fine — no evidence either way for GitHub/Maven reachability specifically |
+| 9 | The exact ADO artifact-download REST shape is unconfirmed (classic Build API vs modern Pipelines API) | Not yet checked against a real run — verify before building |
 
 ### Decision shape
 
@@ -131,15 +132,20 @@ Setup needs `CP_BACKEND_URL` (internal-only, constraint 1). Run needs `SMOKE_SER
 places — each where its own dependency is actually satisfied, not both forced into one runner
 that can only reach one of them.
 
-```
-ADO pipeline 434 (cp-vp-aks-deploy, self-hosted agent, internal network)
-  DeployService[service-cp-crime-results-pcr]:
-    helm upgrade --install --wait ...          (existing)
-    if PCR:
-      ./gradlew smokeTestSetup                  (needs CP_BACKEND_URL - constraint 2 has it)
-      PublishPipelineArtifact "pcr-smoke-config" (build/smoke-test-config/dev.json)
+Getting the smoke-test code onto the ADO agent doesn't need `git clone`/Gradle dependency
+resolution there at all (which would need unconfirmed public internet egress — constraint 8).
+GitHub Actions already has full internet access and already builds this repo; it can build a
+self-contained smoke-test artifact there and push it to ACR, which the ADO agent already
+authenticates against (`az acr login`, constraint 8) to pull the app image itself. The ADO
+piggyback step then only needs to *pull*, not build.
 
+```
 GitHub Actions (service-cp-crime-results-pcr, hosted runner, public network)
+  Build:
+    ./gradlew build                              (existing)
+    Build smoke-test artifact (fat jar or small image, self-contained)
+    Push to ACR: <acrUrl>/hmcts/service-cp-crime-results-pcr-smoke:$(tag)
+
   Deploy-Dev:
     action-ado-deploy@v1  wait: true             (existing, §3)
     → outputs: run_id, result
@@ -154,15 +160,31 @@ GitHub Actions (service-cp-crime-results-pcr, hosted runner, public network)
   Auto-Release:
     needs: [Smoke-Test-Dev]
     holds on sit-release-approval                 (unchanged - ADR-010)
+
+ADO pipeline 434 (cp-vp-aks-deploy, self-hosted agent, internal network)
+  DeployService[service-cp-crime-results-pcr]:
+    helm upgrade --install --wait ...             (existing)
+    if PCR:
+      docker pull <acrUrl>/hmcts/service-cp-crime-results-pcr-smoke:$(TAG)  (ACR already reachable)
+      run smokeTestSetup from that image           (needs CP_BACKEND_URL - constraint 2 has it)
+      PublishPipelineArtifact "pcr-smoke-config"    (build/smoke-test-config/dev.json)
 ```
 
 ### Component design
+
+**GitHub Actions-side artifact build** (extends the existing `Build` job):
+- Packages `src/smokeTest/` and its runtime dependencies into a self-contained artifact — a fat
+  jar is simplest (no image-runtime overhead on the ADO side), a small Docker image is the
+  alternative if the ADO step would rather `docker run` than manage a JRE itself.
+- Pushed to ACR under a distinct tag (e.g. `-smoke` suffix), alongside the existing app image
+  push — same registry, same credentials already configured for `Build-Docker`.
 
 **ADO-side piggyback** (append to `vp-deploy.yml`'s existing `Deploy $(APP)` script, after
 `echo "Deployed $APP"`, gated `[ "$APP" == "service-cp-crime-results-pcr" ]`):
 - Credentials sourced via `vault read -field value secret/${ENV}/pcr/...` — the same mechanism
   this pipeline already uses for every other service, not GitHub-passed, not a new secret store.
-- Runs `./gradlew smokeTestSetup` only.
+- `az acr login` (already done earlier in this same script for the app image) + pull the
+  smoke-test artifact, run it — no `git clone`, no Gradle dependency resolution on the agent.
 - Publishes `build/smoke-test-config/${ENV}.json` via `PublishPipelineArtifact@1` (already used
   elsewhere in this same file for the deploy artifact) as a distinctly-named artifact.
 - **Isolation (constraint 6, 7):** a failure here must not fail the shared matrix run for every
@@ -176,7 +198,7 @@ GitHub Actions (service-cp-crime-results-pcr, hosted runner, public network)
   (already available) to call Azure DevOps's REST API for the published artifact.
 - `vp-deploy.yml` uses modern YAML `stages:`/`jobs:` syntax, so this is almost certainly the
   Pipelines API (`_apis/pipelines/{pipelineId}/runs/{runId}/artifacts`), not the classic Build
-  API — confirm against a real run before relying on it (constraint 8b).
+  API — confirm against a real run before relying on it (constraint 9).
 - Extracted to `build/smoke-test-config/dev.json` — the exact path `smoke-utils.js`'s
   `readCaseConfig` already reads from. No changes needed to `karate-config.js` or
   `run-check-pcr-result.feature`.
@@ -196,18 +218,16 @@ ADO instead (an earlier, rejected alternative) would have conflated both into on
 
 ### Verification required before implementation
 
-1. **ADO agent internet egress** (constraint 8a) — `smokeTestSetup` still needs to `git clone` and
-   resolve Gradle/Maven dependencies. A hard blocker if these agents are locked to an
-   internal-only allowlist, independent of everything else being right.
-2. **ADO artifact REST API shape** (constraint 8b) — verify against a real pipeline run, don't
+1. **ADO artifact REST API shape** (constraint 9) — verify against a real pipeline run, don't
    assume.
-3. **Vault secret path convention** — the paths above are illustrative, matching this file's
+2. **Vault secret path convention** — the paths above are illustrative, matching this file's
    existing style; real paths need confirming with whoever owns this Vault instance.
-4. **Matrix isolation semantics** — whether `continueOnError`/per-step isolation actually prevents
+3. **Matrix isolation semantics** — whether `continueOnError`/per-step isolation actually prevents
    a PCR failure from red-flagging the whole shared `DeployService` run.
+4. **Artifact shape (fat jar vs image)** — whichever is simpler for the ADO step to run given
+   what's already available on the agent (a JRE it can reuse vs `docker run`).
 
-Recommended first step: a throwaway diagnostic (`which java`, `git ls-remote
-https://github.com/hmcts/service-cp-crime-results-pcr.git HEAD`, plus reachability checks against
-Maven Central/GitHub Packages/Azure Artifacts) run once against the real agent pool, before
-building the artifact hand-off machinery — constraint 8a is a hard blocker if it fails, so no
-point building the rest first.
+Building the smoke-test artifact in GitHub Actions and pulling it via ACR (rather than cloning
+and building on the agent) removes constraint 8 as a hard blocker — ACR access is already
+proven, unlike general internet egress. No throwaway network diagnostic is needed before starting
+this work as a result.
