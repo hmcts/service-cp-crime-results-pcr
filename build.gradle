@@ -22,6 +22,7 @@ apply {
   from("$rootDir/gradle/test.gradle")
   from("$rootDir/gradle/jar.gradle")
   from("$rootDir/gradle/docker-test.gradle")
+  from("$rootDir/gradle/smoketest.gradle")
 }
 
 // We MUST keep all dependencies in the build.gradle to allow dependabot to provide version updates
@@ -67,4 +68,7 @@ dependencies {
   implementation 'com.azure:azure-messaging-servicebus:7.17.20'
   implementation 'com.azure:azure-identity:1.18.5'
   implementation 'org.awaitility:awaitility:4.3.0'
+
+  // Smoke test — Karate DSL, same pattern as service-cp-crime-hearing's dev/sit gate
+  smokeTestImplementation 'io.karatelabs:karate-junit5:1.5.1'
 }

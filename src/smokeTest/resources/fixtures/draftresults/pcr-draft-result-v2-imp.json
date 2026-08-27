@@ -1,0 +1,410 @@
+{
+  "hearingId" : "HEARING_ID",
+  "relations" : [ {
+    "resultLineId" : "IMP_LINE_ID",
+    "ruleType" : "standalone",
+    "childResultLineIds" : [ "VULNERABILITY_LINE_ID", "VSA_LINE_ID", "OATC_LINE_ID", "TIMP_LINE_ID" ]
+  }, {
+    "resultLineId" : "VULNERABILITY_LINE_ID",
+    "ruleType" : "optional",
+    "childResultLineIds" : [ ]
+  }, {
+    "resultLineId" : "VSA_LINE_ID",
+    "ruleType" : "mandatory",
+    "childResultLineIds" : [ "FVS_LINE_ID" ]
+  }, {
+    "resultLineId" : "OATC_LINE_ID",
+    "ruleType" : "optional",
+    "childResultLineIds" : [ ]
+  }, {
+    "resultLineId" : "TIMP_LINE_ID",
+    "ruleType" : "mandatory",
+    "childResultLineIds" : [ ]
+  }, {
+    "resultLineId" : "FVS_LINE_ID",
+    "ruleType" : "mandatory",
+    "childResultLineIds" : [ "NOCOLLO_LINE_ID", "ACON_LINE_ID", "COLLOM_LINE_ID", "PAYT_LINE_ID" ]
+  }, {
+    "resultLineId" : "NOCOLLO_LINE_ID",
+    "ruleType" : "optional",
+    "childResultLineIds" : [ ]
+  }, {
+    "resultLineId" : "ACON_LINE_ID",
+    "ruleType" : "optional",
+    "childResultLineIds" : [ ]
+  }, {
+    "resultLineId" : "COLLOM_LINE_ID",
+    "ruleType" : "mandatory",
+    "childResultLineIds" : [ ]
+  }, {
+    "resultLineId" : "PAYT_LINE_ID",
+    "ruleType" : "oneOf",
+    "childResultLineIds" : [ "PDATE_LINE_ID" ]
+  }, {
+    "resultLineId" : "PDATE_LINE_ID",
+    "ruleType" : "oneOf",
+    "childResultLineIds" : [ ]
+  } ],
+  "hearingDay" : "HEARING_DAY",
+  "resultLines" : {
+    "IMP_LINE_ID" : {
+      "resultLineId" : "IMP_LINE_ID",
+      "originalText" : "IMP",
+      "resultDefinitionId" : "abb95a52-2a75-40c3-8d3f-a1d75a199c47",
+      "shortCode" : "imp",
+      "resultLevel" : "O",
+      "orderedDate" : "ORDER_DATE",
+      "label" : "Imprisonment",
+      "unscheduled" : false,
+      "unresolvedParts" : [ ],
+      "masterDefendantId" : "DEFENDANT_ID",
+      "caseId" : "CASE_ID",
+      "defendantId" : "DEFENDANT_ID",
+      "offenceId" : "OFFENCE_ID",
+      "resultPrompts" : [ {
+        "promptRef" : "imprisonmentPeriod",
+        "promptId" : "76f15753-1706-42fb-b922-0d56d01e5706",
+        "label" : "Imprisonment Period",
+        "type" : "DURATION",
+        "value" : [ {
+          "promptRef" : "Years",
+          "promptId" : "76f15753-1706-42fb-b922-0d56d01e5706",
+          "label" : "Years",
+          "type" : "INTM",
+          "welshLabel" : "Flynedd",
+          "value" : "3"
+        }, {
+          "promptRef" : "Months",
+          "promptId" : "76f15753-1706-42fb-b922-0d56d01e5706",
+          "label" : "Months",
+          "type" : "INTM",
+          "welshLabel" : "Mis",
+          "value" : "7"
+        }, {
+          "promptRef" : "Weeks",
+          "promptId" : "76f15753-1706-42fb-b922-0d56d01e5706",
+          "label" : "Weeks",
+          "type" : "INTM",
+          "welshLabel" : "Wythnos",
+          "value" : "2"
+        }, {
+          "promptRef" : "Days",
+          "promptId" : "76f15753-1706-42fb-b922-0d56d01e5706",
+          "label" : "Days",
+          "type" : "INTM",
+          "welshLabel" : "Niwrnod",
+          "value" : "20"
+        } ]
+      }, {
+        "promptRef" : "imprisonmentReasons",
+        "promptId" : "ea957761-0813-4a92-9e7c-b536654325f0",
+        "label" : "Imprisonment reasons",
+        "type" : "FIXL",
+        "value" : "failure to comply with a pre-sentence drug testing order"
+      }, {
+        "promptRef" : "theReasonsForThis",
+        "promptId" : "622aa563-a3db-4102-ba7e-21c21cee0110",
+        "label" : "Reason for custody",
+        "type" : "FIXLOM",
+        "value" : [ "an unprovoked attack of a serious nature" ]
+      }, {
+        "promptRef" : "bailRemandDaysToCountTaggedDays",
+        "promptId" : "4d10cd4b-fb39-40dd-88e1-2397832bc914",
+        "label" : "Bail remand days to count (tagged days)",
+        "type" : "INT",
+        "value" : "1"
+      } ],
+      "valid" : true
+    },
+    "VULNERABILITY_LINE_ID" : {
+      "resultLineId" : "VULNERABILITY_LINE_ID",
+      "originalText" : "vulnerability",
+      "resultDefinitionId" : "66105417-41c8-420d-820f-40b61b507442",
+      "shortCode" : "vulnerability",
+      "resultLevel" : "D",
+      "orderedDate" : "ORDER_DATE",
+      "label" : "Risk or vulnerability factors",
+      "unscheduled" : false,
+      "unresolvedParts" : [ ],
+      "resultPrompts" : [ ],
+      "valid" : false,
+      "masterDefendantId" : "DEFENDANT_ID",
+      "caseId" : "CASE_ID",
+      "defendantId" : "DEFENDANT_ID",
+      "offenceId" : "OFFENCE_ID"
+    },
+    "VSA_LINE_ID" : {
+      "resultLineId" : "VSA_LINE_ID",
+      "originalText" : "vsa",
+      "resultDefinitionId" : "386a3a47-b2cb-4017-9dd8-19ffeb457b56",
+      "shortCode" : "vsa",
+      "resultLevel" : "D",
+      "orderedDate" : "ORDER_DATE",
+      "label" : "Victim Surcharge Applies?",
+      "unscheduled" : false,
+      "unresolvedParts" : [ ],
+      "resultPrompts" : [ ],
+      "valid" : true,
+      "masterDefendantId" : "DEFENDANT_ID",
+      "caseId" : "CASE_ID",
+      "defendantId" : "DEFENDANT_ID",
+      "offenceId" : "OFFENCE_ID"
+    },
+    "OATC_LINE_ID" : {
+      "resultLineId" : "OATC_LINE_ID",
+      "originalText" : "oatc",
+      "resultDefinitionId" : "0fcddac3-f2f9-4c36-84ce-b3babcc57cb0",
+      "shortCode" : "oatc",
+      "resultLevel" : "O",
+      "orderedDate" : "ORDER_DATE",
+      "label" : "Aggravated by a terrorist connection",
+      "unscheduled" : false,
+      "unresolvedParts" : [ ],
+      "resultPrompts" : [ ],
+      "valid" : false,
+      "masterDefendantId" : "DEFENDANT_ID",
+      "caseId" : "CASE_ID",
+      "defendantId" : "DEFENDANT_ID",
+      "offenceId" : "OFFENCE_ID"
+    },
+    "TIMP_LINE_ID" : {
+      "resultLineId" : "TIMP_LINE_ID",
+      "originalText" : "timp",
+      "resultDefinitionId" : "6cb15971-c945-4398-b7c9-3f8b743a4de3",
+      "shortCode" : "timp",
+      "resultLevel" : "D",
+      "orderedDate" : "ORDER_DATE",
+      "label" : "Total custodial period",
+      "unscheduled" : false,
+      "unresolvedParts" : [ ],
+      "resultPrompts" : [ {
+        "promptRef" : "totalCustodialPeriod",
+        "promptId" : "b2cf5a1e-8539-45a1-a287-4be5094a0e73",
+        "label" : "Total custodial period",
+        "type" : "ONEOF",
+        "value" : {
+          "promptRef" : "totalCustodialPeriod",
+          "promptId" : "b2cf5a1e-8539-45a1-a287-4be5094a0e73",
+          "label" : "Total custodial period",
+          "type" : "DURATION",
+          "value" : [ {
+            "promptRef" : "Years",
+            "promptId" : "b2cf5a1e-8539-45a1-a287-4be5094a0e73",
+            "label" : "Years",
+            "type" : "INTM",
+            "welshLabel" : "Flynedd",
+            "value" : "3"
+          }, {
+            "promptRef" : "Months",
+            "promptId" : "b2cf5a1e-8539-45a1-a287-4be5094a0e73",
+            "label" : "Months",
+            "type" : "INTM",
+            "welshLabel" : "Mis",
+            "value" : "7"
+          }, {
+            "promptRef" : "Weeks",
+            "promptId" : "b2cf5a1e-8539-45a1-a287-4be5094a0e73",
+            "label" : "Weeks",
+            "type" : "INTM",
+            "welshLabel" : "Wythnos",
+            "value" : "2"
+          }, {
+            "promptRef" : "Days",
+            "promptId" : "b2cf5a1e-8539-45a1-a287-4be5094a0e73",
+            "label" : "Days",
+            "type" : "INTM",
+            "welshLabel" : "Niwrnod",
+            "value" : "20"
+          } ]
+        }
+      }, {
+        "promptRef" : "prison",
+        "promptId" : "2d6330a2-1f12-45fb-bb72-65f4c1215e9c",
+        "label" : "Prison",
+        "type" : "NAMEADDRESS",
+        "value" : [ {
+          "promptRef" : "prisonOrganisationName",
+          "promptId" : "2d6330a2-1f12-45fb-bb72-65f4c1215e9c",
+          "label" : "Prison organisation name",
+          "type" : "TXT",
+          "value" : "Example Prison"
+        }, {
+          "promptRef" : "prisonEmailAddress1",
+          "promptId" : "2d6330a2-1f12-45fb-bb72-65f4c1215e9c",
+          "label" : "Prison email address 1",
+          "type" : "TXT",
+          "value" : "omu@example-prison.gov.uk"
+        }, {
+          "promptRef" : "prisonEmailAddress2",
+          "promptId" : "2d6330a2-1f12-45fb-bb72-65f4c1215e9c",
+          "label" : "Prison email address 2",
+          "type" : "TXT",
+          "value" : "reception@example-prison.gov.uk"
+        } ]
+      }, {
+        "promptRef" : "conveyorcustodianname",
+        "promptId" : "6927b6ac-4c85-4532-838d-88ac00ea83f9",
+        "label" : "Conveyor / custodian name",
+        "type" : "NAMEADDRESS",
+        "value" : [ {
+          "promptRef" : "conveyorcustodiannameOrganisationName",
+          "promptId" : "6927b6ac-4c85-4532-838d-88ac00ea83f9",
+          "label" : "Conveyor / custodian name organisation name",
+          "type" : "TXT",
+          "value" : "Example Probation Division"
+        }, {
+          "promptRef" : "conveyorcustodiannameEmailAddress1",
+          "promptId" : "6927b6ac-4c85-4532-838d-88ac00ea83f9",
+          "label" : "Conveyor / custodian name email address 1",
+          "type" : "TXT",
+          "value" : "court@example-probation.gov.uk"
+        } ]
+      }, {
+        "promptRef" : "probationteamtobenotified",
+        "promptId" : "68c92035-27fd-4ee6-b03c-fe18ea6dbcb0",
+        "label" : "Probation team to be notified",
+        "type" : "NAMEADDRESS",
+        "value" : [ {
+          "promptRef" : "probationteamtobenotifiedOrganisationName",
+          "promptId" : "68c92035-27fd-4ee6-b03c-fe18ea6dbcb0",
+          "label" : "Probation team to be notified organisation name",
+          "type" : "TXT",
+          "value" : "Example Probation Division"
+        }, {
+          "promptRef" : "probationteamtobenotifiedEmailAddress1",
+          "promptId" : "68c92035-27fd-4ee6-b03c-fe18ea6dbcb0",
+          "label" : "Probation team to be notified email address 1",
+          "type" : "TXT",
+          "value" : "court@example-probation.gov.uk"
+        } ]
+      } ],
+      "valid" : true,
+      "masterDefendantId" : "DEFENDANT_ID",
+      "caseId" : "CASE_ID",
+      "defendantId" : "DEFENDANT_ID",
+      "offenceId" : "OFFENCE_ID"
+    },
+    "FVS_LINE_ID" : {
+      "resultLineId" : "FVS_LINE_ID",
+      "originalText" : "fvs",
+      "resultDefinitionId" : "e866cd11-6073-4fdf-a229-51c9d694e1d0",
+      "shortCode" : "fvs",
+      "resultLevel" : "D",
+      "orderedDate" : "ORDER_DATE",
+      "label" : "Surcharge",
+      "resultDefinitionGroup" : "Imposition",
+      "unscheduled" : false,
+      "unresolvedParts" : [ ],
+      "resultPrompts" : [ {
+        "promptRef" : "AOS",
+        "promptId" : "629a971e-9d7a-4526-838d-0a4cb922b5cb",
+        "label" : "Amount of surcharge",
+        "type" : "CURR",
+        "value" : 100
+      } ],
+      "valid" : true,
+      "masterDefendantId" : "DEFENDANT_ID",
+      "caseId" : "CASE_ID",
+      "defendantId" : "DEFENDANT_ID",
+      "offenceId" : "OFFENCE_ID"
+    },
+    "NOCOLLO_LINE_ID" : {
+      "resultLineId" : "NOCOLLO_LINE_ID",
+      "originalText" : "nocollo",
+      "resultDefinitionId" : "615313b5-0647-4d61-b7b8-6b36265d8929",
+      "shortCode" : "nocollo",
+      "resultLevel" : "D",
+      "orderedDate" : "ORDER_DATE",
+      "label" : "No collection order reason",
+      "unscheduled" : false,
+      "unresolvedParts" : [ ],
+      "resultPrompts" : [ ],
+      "valid" : false,
+      "masterDefendantId" : "DEFENDANT_ID",
+      "caseId" : "CASE_ID",
+      "defendantId" : "DEFENDANT_ID",
+      "offenceId" : "OFFENCE_ID"
+    },
+    "ACON_LINE_ID" : {
+      "resultLineId" : "ACON_LINE_ID",
+      "originalText" : "acon",
+      "resultDefinitionId" : "923f8b82-d4b5-4c9b-8b54-6d1ec8e16dd6",
+      "shortCode" : "acon",
+      "resultLevel" : "D",
+      "orderedDate" : "ORDER_DATE",
+      "label" : "Account Consolidated",
+      "resultDefinitionGroup" : "Enforcement",
+      "unscheduled" : false,
+      "unresolvedParts" : [ ],
+      "resultPrompts" : [ ],
+      "valid" : false,
+      "masterDefendantId" : "DEFENDANT_ID",
+      "caseId" : "CASE_ID",
+      "defendantId" : "DEFENDANT_ID",
+      "offenceId" : "OFFENCE_ID"
+    },
+    "COLLOM_LINE_ID" : {
+      "resultLineId" : "COLLOM_LINE_ID",
+      "originalText" : "collom",
+      "resultDefinitionId" : "cfa66730-f81c-4768-a36e-581791cb0270",
+      "shortCode" : "collom",
+      "resultLevel" : "D",
+      "orderedDate" : "ORDER_DATE",
+      "label" : "Has a collection order been made?",
+      "unscheduled" : false,
+      "unresolvedParts" : [ ],
+      "resultPrompts" : [ ],
+      "valid" : true,
+      "masterDefendantId" : "DEFENDANT_ID",
+      "caseId" : "CASE_ID",
+      "defendantId" : "DEFENDANT_ID",
+      "offenceId" : "OFFENCE_ID"
+    },
+    "PAYT_LINE_ID" : {
+      "resultLineId" : "PAYT_LINE_ID",
+      "originalText" : "payt",
+      "resultDefinitionId" : "4fdd9548-c521-48c9-baa3-1bd2f13a4fcc",
+      "shortCode" : "payt",
+      "resultLevel" : "D",
+      "orderedDate" : "ORDER_DATE",
+      "label" : "Payment terms",
+      "unscheduled" : false,
+      "unresolvedParts" : [ ],
+      "resultPrompts" : [ ],
+      "valid" : true,
+      "masterDefendantId" : "DEFENDANT_ID",
+      "caseId" : "CASE_ID",
+      "defendantId" : "DEFENDANT_ID",
+      "offenceId" : "OFFENCE_ID"
+    },
+    "PDATE_LINE_ID" : {
+      "resultLineId" : "PDATE_LINE_ID",
+      "originalText" : "pdate",
+      "resultDefinitionId" : "bcb5a496-f7cf-11e8-8eb2-f2801f1b9fd1",
+      "shortCode" : "pdate",
+      "resultLevel" : "D",
+      "orderedDate" : "ORDER_DATE",
+      "label" : "Pay by date",
+      "resultDefinitionGroup" : "Payment terms",
+      "unscheduled" : false,
+      "unresolvedParts" : [ ],
+      "resultPrompts" : [ {
+        "promptRef" : "PBD",
+        "promptId" : "ee7d253a-c629-11e8-a355-529269fb1459",
+        "label" : "Date to pay in full by",
+        "type" : "DATE",
+        "value" : "FUTURE_DATE"
+      } ],
+      "valid" : true,
+      "masterDefendantId" : "DEFENDANT_ID",
+      "caseId" : "CASE_ID",
+      "defendantId" : "DEFENDANT_ID",
+      "offenceId" : "OFFENCE_ID"
+    }
+  },
+  "shadowListedOffenceIds" : [ ],
+  "__metadata__" : {
+    "version" : 1
+  },
+  "version" : 1
+}
