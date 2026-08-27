@@ -293,3 +293,24 @@ run, in production or in tests; discovered the hard way when repository tests fa
   existing `src/test` suite (`HearingResultedEventServiceTest`, `ResultsIngestionServiceTest`,
   etc.) is unit-level with mocked Redis clients only; the E2E test under `integration/e2e`
   drives the real path via `mockMvc` POST to `/internal/hearing-results` against a real Postgres/Redis.
+- **Karate smoke-test scaffold** (`src/smokeTest/`, ADR-010/AMP-1051,
+  `docs/designs/2026-08-27-pcr-dev-smoke-test-release-gate-design.md`) gates release promotion to
+  SIT: `./gradlew smokeTestSetup smokeTestRun` creates a case via
+  SPI-IN, enters a guilty plea, drafts and shares a custodial result, then polls the PCR query
+  endpoint — Setup never calls `/internal/hearing-results` directly, it lets the real Event
+  Grid → `pcr-eventgrid-relay-function` path deliver ingestion, so the gate proves the whole
+  pipeline, not just this service. Wired into `ci-build-publish.yml`: `Deploy-Dev` →
+  `Wait-Dev-Ready` → `Smoke-Test-Dev` → `Auto-Release`, which holds on the `sit-release-approval`
+  GitHub Environment until a human QA reviewer approves — a failing dev smoke test blocks
+  `Auto-Release` outright (`needs:` dependency), and a passing one still isn't sufficient on its
+  own. SIT-side smoke-test automation is a later phase, not part of this wiring. Does not seed a
+  `now-subscriptions` entry — assumes dev already carries a standing PCR subscription for the
+  smoke test's court/offence combination.
+  Secrets resolve from the existing "dev" GitHub Environment (`CJSCPPUID`, `SMOKE_ENTRA_*`,
+  `SMOKE_APIM_SUBSCRIPTION_KEY`) plus `DEV_`-prefixed repo-level secrets for the URLs
+  (`DEV_SMOKE_SERVICE_BASE_URL`, `DEV_CP_BACKEND_URL`, `DEV_SMOKE_HEALTH_CHECK_URL`) — confirmed
+  working end to end against dev. `Auto-Release`'s changelog
+  (`.github/scripts/generate-release-notes.sh`) is a deterministic re-implementation of the
+  `/release` skill's dependabot/chore/docs filter, not the skill itself (that skill can't run
+  inside a CI job) — the skill remains available for manual minor/major bumps or off-cycle
+  releases.
