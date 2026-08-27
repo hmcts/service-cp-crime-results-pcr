@@ -11,9 +11,7 @@ architecture.
 
 ## Context
 
-Implementing,
-[`2026-07-29-pcr-eventgrid-webhook-ingestion-design.md`](../designs/2026-07-29-pcr-eventgrid-webhook-ingestion-design.md)
-replaces this service's first event-driven ingestion path — Azure Event Grid → self-provisioned
+This decision replaces this service's first event-driven ingestion path — Azure Event Grid → self-provisioned
 Service Bus queue → `HearingResultedProcessorService` (adopted in
 [ADR-002](002-AMP-889-event-driven-hearing-ingestion-servicebus-redis.md)) — with Azure Event
 Grid delivering directly to a new internal webhook endpoint on this service

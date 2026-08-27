@@ -1,8 +1,7 @@
 # PCR Event Grid → Service Bus Ingestion Design
 
-**Status:** Agreed, 25 Aug 2026 — revised from the shared-Topic model (agreed 20 Aug 2026) to a
-dedicated Queue per consumer, per Common Platform TA review.
-**ADR:** [009-AMP-1030](../pipeline/adrs/009-AMP-1030-pcr-eventgrid-servicebus-topic-ingestion.md) — Accepted.
+**Status:** Agreed, 25 Aug 2026.
+**ADR:** [009-AMP-1030](../pipeline/adrs/009-AMP-1030-pcr-eventgrid-servicebus-queue-ingestion.md) — Accepted.
 
 **Context:** `pcr-eventgrid-relay-function` (the Function App relaying `Hearing_Resulted` to
 `/internal/hearing-results`) is being retired. This document replaces it: Event Grid delivers
@@ -20,7 +19,7 @@ before either environment cuts over.
   between them.
 - **Each queue is fed by its own independent Event Grid event subscription** off the same
   `Hearing_Resulted` source event — Event Grid's native support for multiple event subscriptions
-  provides the fan-out, not a Service Bus Topic.
+  provides the fan-out.
 - **Payload unchanged:** `hearingId`, `hearingDay`, `userId` — the same
   `HearingResultedWebhookEventData` fields the relay already forwards. No new shared key.
 

@@ -7,7 +7,7 @@
 
 [`2026-08-17-pcr-eventgrid-servicebus-ingestion-design.md`](../designs/2026-08-17-pcr-eventgrid-servicebus-ingestion-design.md)
 replaces the current path — Event Grid → `pcr-eventgrid-relay-function` (Function App) →
-`POST /internal/hearing-results` ([ADR-007](007-AMP-892-pcr-eventgrid-webhook-ingestion.md)) — with
+`POST /internal/hearing-results` ([ADR-007](007-AMP-892-pcr-eventgrid-direct-ingestion.md)) — with
 Event Grid delivering directly to a Service Bus Queue owned solely by this service, consumed via
 peek-lock.
 
@@ -18,23 +18,14 @@ Motivated by:
 - **A second confirmed consumer.** The NOW service needs the same `Hearing_Resulted` signal for its
   own generation-gate decision. A webhook delivers to one destination only.
 
-A shared Service Bus Topic with a Subscription per consumer was the design originally agreed here
-(20 Aug 2026) to serve both consumers without duplicating relay infrastructure. Before
-implementation shipped, Common Platform's technical architecture review recommended per-consumer
-dedicated Queues instead — each service provisions and owns its own queue outright, with no shared
-Service Bus resource (and no cross-team coordination over its settings or lifecycle) between PCR
-and NOW. This ADR reflects that revised recommendation.
-
 ## Decision
 
-Adopt a Service Bus **Queue** owned solely by this service, `pcr.hearing-resulted`, fed by its own
+Adopt a Service Bus Queue owned solely by this service, `pcr.hearing-resulted`, fed by its own
 independent Event Grid event subscription:
 
-- **One dedicated Queue per consuming service, not a shared Topic** — PCR owns
-  `pcr.hearing-resulted` outright; NOW will own its own separate queue, fed by its own separate
-  Event Grid event subscription, when built. Event Grid's native support for multiple independent
-  event subscriptions off one source event provides the fan-out — no Service Bus Topic is needed
-  for it.
+- **One dedicated Queue per consuming service** — PCR owns `pcr.hearing-resulted` outright; NOW
+  will own its own separate queue, fed by its own separate Event Grid event subscription, when
+  built.
 - **Payload unchanged:** `hearingId`, `hearingDay`, `userId` — the existing
   `HearingResultedWebhookEventData` fields, no new shared key.
 - **Native `maxDeliveryCount` + dead-lettering** for outright failures — peek-lock,
@@ -47,23 +38,22 @@ independent Event Grid event subscription:
   routing is disabled. Never both channels active in one environment (`ingestAndPersist` isn't
   idempotent). Both channels log receipt during the coexistence window.
 - **Both the Event Grid event subscription and the Service Bus queue are provisioned via
-  Terraform (IaC)** — the same shared per-environment Service Bus namespace as before, just no
-  shared Topic resource within it. The app never creates the queue itself: at startup it only
-  verifies the queue exists (`ServiceBusProvisioningService.queueExists`) and fails startup if it
-  doesn't, naming Terraform as the expected owner. This keeps the app off `Manage`-level Service
-  Bus permissions it would otherwise only need for a create call it should never actually have to
-  make, and avoids an ordering problem for the Event Grid event subscription's
-  `service_bus_queue_endpoint_id`, which must reference the queue as a real resource — a queue
-  the app only creates at runtime wouldn't exist yet when Terraform first applies. The queue's
-  durability settings (`LockDuration` `PT1M`, `MaxDeliveryCount` 10, `DefaultMessageTimeToLive`
-  `PT10M`, `DeadLetteringOnMessageExpiration` `true`) are set on the Terraform resource.
+  Terraform (IaC)** — the same shared per-environment Service Bus namespace as before. The app
+  never creates the queue itself: at startup it only verifies the queue exists
+  (`ServiceBusProvisioningService.queueExists`) and fails startup if it doesn't, naming Terraform
+  as the expected owner. This keeps the app off `Manage`-level Service Bus permissions it would
+  otherwise only need for a create call it should never actually have to make, and avoids an
+  ordering problem for the Event Grid event subscription's `service_bus_queue_endpoint_id`, which
+  must reference the queue as a real resource — a queue the app only creates at runtime wouldn't
+  exist yet when Terraform first applies. The queue's durability settings (`LockDuration` `PT1M`,
+  `MaxDeliveryCount` 10, `DefaultMessageTimeToLive` `PT10M`, `DeadLetteringOnMessageExpiration`
+  `true`) are set on the Terraform resource.
 - **Managed Identity throughout** — no connection strings, SAS tokens, or account keys.
 
 ## Consequences
 
-- Reintroduces a Service Bus dependency into PCR (removed in ADR-007), now as a queue PCR owns
-  outright rather than a shared Topic — no cross-team governance over a shared resource's settings
-  or lifecycle.
+- Reintroduces a Service Bus dependency into PCR (removed in ADR-007) — PCR owns its queue
+  outright, no cross-team governance over shared resource settings or lifecycle.
 - Two ingestion paths coexist temporarily — a bounded, switch-gated exception to ADR-007. Relay
   decommissioning is separate follow-up work once the new path is proven.
 - Retry-schedule tuning and alerting are out of scope — native dead-lettering ships now; proactive
@@ -79,11 +69,6 @@ independent Event Grid event subscription:
 
 ## Alternatives considered
 
-- **A shared Service Bus Topic with a Subscription per consumer** — the design originally agreed
-  here (20 Aug 2026); superseded by Common Platform TA review before implementation shipped, in
-  favour of per-consumer Queues, which avoid a shared resource whose settings and lifecycle would
-  otherwise need coordinating between PCR and NOW. Event Grid's own native multi-subscription
-  fan-out makes the Topic's fan-out redundant here.
 - **Give NOW its own separate relay/webhook** — rejected; duplicates relay infrastructure and its
   known production-readiness gaps.
 - **A single Queue shared by both consumers** — rejected; competing-consumer semantics mean only

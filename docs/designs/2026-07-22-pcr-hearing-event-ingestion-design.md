@@ -1,8 +1,12 @@
 # PCR Hearing Event Ingestion Design
 
-**Status:** Draft, 22 Jul 2026. Deep-dive expansion of v2 §3a/§3b/§4/§8's Event
-Grid trigger and Results Query Client sections — the same target architecture,
-written out with concrete Spring/Azure wiring instead of prose-only.
+**Status:** Draft, 22 Jul 2026. This trigger design was replaced by a direct Event Grid webhook
+(29 Jul 2026), then replaced again by a dedicated Service Bus queue (25 Aug 2026, see
+[`2026-08-17-pcr-eventgrid-servicebus-ingestion-design.md`](2026-08-17-pcr-eventgrid-servicebus-ingestion-design.md))
+— that later document reflects the actual current trigger mechanism. Much of this document's
+client-construction pattern and completeness-retry reasoning carried forward into that final
+design; kept below in its original form as the historical record of those decisions, not a
+description of the current architecture.
 **Jira:** AMP-889 — inbound contract via Event Grid. See
 [`docs/pipeline/adrs/002-AMP-889-event-driven-hearing-ingestion-servicebus-redis.md`](../pipeline/adrs/002-AMP-889-event-driven-hearing-ingestion-servicebus-redis.md)
 for the dependency-adoption decision this design doc drove.
