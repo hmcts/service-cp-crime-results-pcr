@@ -109,7 +109,7 @@ the same internal-network access `Wait-Dev-Ready` lacked (§4).
 - SIT-side smoke-test automation (`Wait-Sit-Ready`/`Smoke-Test-Sit`) — deferred to a later phase,
   cherry-picked from this branch when scheduled.
 
-## 5. Proposed: split Setup/Run execution by network reachability (not yet implemented)
+## 5. Split Setup/Run execution by network reachability (GitHub Actions side implemented; ADO side not)
 
 ### Constraints (established, not assumed)
 
@@ -124,6 +124,7 @@ the same internal-network access `Wait-Dev-Ready` lacked (§4).
 | 7 | Running the smoke test twice (once in ADO, once in GitHub Actions) is not acceptable | Confirmed decision |
 | 8 | ADO agents already have ACR access; general public internet access (GitHub, Maven Central) is unconfirmed and shouldn't be assumed | Agent already does `az acr login` — proven. Self-hosted agents are commonly locked to an allowlist that excludes general internet egress even when internal/Azure access works fine — no evidence either way for GitHub/Maven reachability specifically |
 | 9 | The exact ADO artifact-download REST shape is unconfirmed (classic Build API vs modern Pipelines API) | Not yet checked against a real run — verify before building |
+| 10 | GitHub Actions has no ACR-push credential today; the only proven ACR-write path is ADO pipeline 460, which copies a Maven-published JAR, not an arbitrary Docker image | Confirmed via grep across CI workflows — no ACR login/push step exists on the GitHub Actions side |
 
 ### Decision shape
 
@@ -134,17 +135,23 @@ that can only reach one of them.
 
 Getting the smoke-test code onto the ADO agent doesn't need `git clone`/Gradle dependency
 resolution there at all (which would need unconfirmed public internet egress — constraint 8).
-GitHub Actions already has full internet access and already builds this repo; it can build a
-self-contained smoke-test artifact there and push it to ACR, which the ADO agent already
-authenticates against (`az acr login`, constraint 8) to pull the app image itself. The ADO
-piggyback step then only needs to *pull*, not build.
+GitHub Actions already has full internet access and already builds this repo; it pre-warms a
+Gradle dependency cache into a Docker image there (`Dockerfile.smoketest`, resolved via
+`--dry-run` so no real backend call is needed at build time) and pushes it to GHCR — the same
+registry `Build-Docker` already pushes the app image to. That image then runs fully offline
+(`docker run --network none` — verified locally: `smokeTestSetup` completes its Gradle
+task-execution phase using only the pre-warmed cache, no dependency-resolution network traffic).
+The ADO piggyback step then only needs to *pull and run*, not build or resolve anything.
+
+An initially-considered fat-jar artifact was dropped: making a runnable fat jar needs a new
+dependency (`junit-platform-launcher`/console-standalone) not in this repo today, which would
+trigger the ADR-for-new-dependency rule for no real benefit over the image approach.
 
 ```
 GitHub Actions (service-cp-crime-results-pcr, hosted runner, public network)
-  Build:
-    ./gradlew build                              (existing)
-    Build smoke-test artifact (fat jar or small image, self-contained)
-    Push to ACR: <acrUrl>/hmcts/service-cp-crime-results-pcr-smoke:$(tag)
+  Build-Smoke-Test-Image:
+    docker build -f Dockerfile.smoketest .        (pre-warms Gradle cache, --dry-run)
+    Push to GHCR: ghcr.io/hmcts/service-cp-crime-results-pcr-smoke:$(tag)
 
   Deploy-Dev:
     action-ado-deploy@v1  wait: true             (existing, §3)
@@ -165,28 +172,47 @@ ADO pipeline 434 (cp-vp-aks-deploy, self-hosted agent, internal network)
   DeployService[service-cp-crime-results-pcr]:
     helm upgrade --install --wait ...             (existing)
     if PCR:
-      docker pull <acrUrl>/hmcts/service-cp-crime-results-pcr-smoke:$(TAG)  (ACR already reachable)
+      docker pull <registry>/hmcts/service-cp-crime-results-pcr-smoke:$(TAG)  (registry TBD - see gap below)
       run smokeTestSetup from that image           (needs CP_BACKEND_URL - constraint 2 has it)
       PublishPipelineArtifact "pcr-smoke-config"    (build/smoke-test-config/dev.json)
 ```
 
+**Open gap: GHCR to ACR transport is unresolved.** The ADO agent's only proven registry access is
+ACR (`az acr login`, constraint 2/8); it has never been confirmed to reach GHCR directly. GitHub
+Actions, conversely, has no existing ACR-push credential — the only proven ACR-write path today
+is ADO pipeline 460, which copies a Maven-published JAR into an image, not an arbitrary pre-built
+Docker image. So the image the ADO step needs (in ACR) is not the registry GitHub Actions can
+currently push to (GHCR). This is a real, currently-unresolved blocker for the ADO-side pull
+step — distinct from constraint 8, which was about general internet egress; this is specifically
+about which registry credential exists where. Options not yet evaluated: extend pipeline 460 to
+also copy this image, confirm GHCR is reachable from the ADO agent pool, or provision a GitHub
+Actions to ACR push credential directly.
+
 ### Component design
 
-**GitHub Actions-side artifact build** (extends the existing `Build` job):
-- Packages `src/smokeTest/` and its runtime dependencies into a self-contained artifact — a fat
-  jar is simplest (no image-runtime overhead on the ADO side), a small Docker image is the
-  alternative if the ADO step would rather `docker run` than manage a JRE itself.
-- Pushed to ACR under a distinct tag (e.g. `-smoke` suffix), alongside the existing app image
-  push — same registry, same credentials already configured for `Build-Docker`.
+**GitHub Actions-side artifact build** (`Build-Smoke-Test-Image` job, implemented):
+- Builds `Dockerfile.smoketest` — copies the repo, runs
+  `./gradlew smokeTestSetup smokeTestRun --dry-run --no-daemon` to populate `/root/.gradle/caches`
+  with every dependency both tasks need, without executing either against a real backend.
+- Pushed to GHCR under a `-smoke` suffix (`ghcr.io/${{ github.repository }}-smoke:$(tag)`),
+  mirroring `Build-Docker`'s existing GHCR login/push pattern exactly.
+- Getting this image (or its cache contents) into ACR is the open gap above — not yet built.
 
 **ADO-side piggyback** (append to `vp-deploy.yml`'s existing `Deploy $(APP)` script, after
 `echo "Deployed $APP"`, gated `[ "$APP" == "service-cp-crime-results-pcr" ]`):
+- Guarded behind `PCR_SMOKE_TEST_ENABLED`, an env var nothing sets yet — a deliberate no-op today
+  so merging this doesn't change current behaviour for PCR or any other service in the shared
+  `DeployService` matrix, until the GHCR-to-ACR gap is resolved and the guard is actually turned
+  on.
 - Credentials sourced via `vault read -field value secret/${ENV}/pcr/...` — the same mechanism
-  this pipeline already uses for every other service, not GitHub-passed, not a new secret store.
+  this pipeline already uses for every other service, not GitHub-passed, not a new secret store
+  (illustrative paths only — real paths need confirming, see verification item 2 below).
 - `az acr login` (already done earlier in this same script for the app image) + pull the
-  smoke-test artifact, run it — no `git clone`, no Gradle dependency resolution on the agent.
+  smoke-test image, run it — no `git clone`, no Gradle dependency resolution on the agent.
 - Publishes `build/smoke-test-config/${ENV}.json` via `PublishPipelineArtifact@1` (already used
-  elsewhere in this same file for the deploy artifact) as a distinctly-named artifact.
+  elsewhere in this same file for the deploy artifact) as a distinctly-named artifact
+  (`pcr-smoke-config`) — always created, even empty, so this task never fails looking for a
+  missing path whether or not the smoke test itself actually ran.
 - **Isolation (constraint 6, 7):** a failure here must not fail the shared matrix run for every
   other service redeployed in the same batch. Needs `continueOnError` or equivalent per-step
   isolation so a PCR smoke-test failure blocks only PCR's own promotion, not other teams' deploys
@@ -224,10 +250,13 @@ ADO instead (an earlier, rejected alternative) would have conflated both into on
    existing style; real paths need confirming with whoever owns this Vault instance.
 3. **Matrix isolation semantics** — whether `continueOnError`/per-step isolation actually prevents
    a PCR failure from red-flagging the whole shared `DeployService` run.
-4. **Artifact shape (fat jar vs image)** — whichever is simpler for the ADO step to run given
-   what's already available on the agent (a JRE it can reuse vs `docker run`).
+4. **GHCR → ACR transport** — resolved artifact shape to a pre-warmed Docker image
+   (`Dockerfile.smoketest`, built and verified locally); still unresolved is how that image
+   reaches ACR from GHCR, since GitHub Actions has no ACR-push credential today and the ADO agent
+   has no confirmed GHCR access. Blocks turning on `PCR_SMOKE_TEST_ENABLED`.
 
-Building the smoke-test artifact in GitHub Actions and pulling it via ACR (rather than cloning
-and building on the agent) removes constraint 8 as a hard blocker — ACR access is already
-proven, unlike general internet egress. No throwaway network diagnostic is needed before starting
-this work as a result.
+Building the smoke-test image in GitHub Actions removes constraint 8 as a hard blocker for the
+*build* step — GHCR access from GitHub Actions is already proven, unlike general internet egress
+from the ADO agent. No throwaway network diagnostic is needed for that half. The remaining
+registry-transport gap (item 4) is a distinct, narrower problem than constraint 8 and needs its
+own resolution before the ADO-side piggyback can be enabled.
