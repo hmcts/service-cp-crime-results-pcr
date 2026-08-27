@@ -10,7 +10,9 @@ name: THROWAWAY - verify ADO 460 internet egress for smoke-test image
 # nothing reaches the live ACR. Delete this file once the answer is known.
 
 on:
-  workflow_dispatch:
+  push:
+    branches:
+      - docs/pcr-smoke-test-health-check-url-fix
 
 jobs:
   Trigger-Egress-Test:
