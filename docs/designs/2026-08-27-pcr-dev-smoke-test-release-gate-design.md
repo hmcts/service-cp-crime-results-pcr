@@ -93,11 +93,11 @@ environment-scoping bought no actual gating for those three, only naming.
 
 `SMOKE_SERVICE_BASE_URL` is the APIM-fronted gateway host (`amp.dev.<internal-domain>/amp/pcr`) —
 Run calls it with an Entra bearer token and `Ocp-Apim-Subscription-Key`, headers that only make
-sense against APIM. `CP_BACKEND_URL` and `SMOKE_HEALTH_CHECK_URL` hit the per-stack ingress
-directly (`<stack>.ingress01.dev.<internal-domain>`) — Setup's SPI-IN/hearing calls carry no
-Entra/APIM headers, and a health probe has no reason to go through APIM either. Health path:
-`/actuator/health/readiness`, from this service's own `management.endpoint.health.probes.enabled`
-config.
+sense against APIM. `CP_BACKEND_URL` hits CP's own backend stack ingress directly
+(`<stack>.ingress01.dev.<internal-domain>`, no path prefix). `SMOKE_HEALTH_CHECK_URL` hits this
+service's own dev pod directly via its dedicated ingress
+(`<dev-amp-stack>.ingress01.dev.<internal-domain>/pcr/actuator/health`) — the `/pcr` path prefix
+is this service's own context path, confirmed working against a real dev deployment.
 
 ## 4. Open items
 
