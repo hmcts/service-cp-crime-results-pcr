@@ -24,6 +24,7 @@ import uk.gov.hmcts.cp.openapi.model.HearingResultedEventData;
 import uk.gov.hmcts.cp.servicebus.config.ServiceBusProperties;
 import uk.gov.hmcts.cp.services.ingestion.ResultsIngestionService;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.Map;
@@ -244,6 +245,7 @@ class HearingResultedServiceBusConsumerTest {
         assertThat(followUp.getApplicationProperties().get("attempt")).isEqualTo(2);
         assertThat(followUp.getScheduledEnqueueTime()).isEqualTo(nextTryTime);
         assertThat(followUp.getCorrelationId()).isEqualTo(GENERATED_CORRELATION_ID);
+        assertThat(followUp.getTimeToLive()).isEqualTo(Duration.ofHours(24));
     }
 
     @Test

@@ -86,13 +86,23 @@ exists (`ServiceBusProvisioningService.queueExists`) and fails startup if it doe
 Terraform as the expected owner. Uses the existing shared per-environment Service Bus namespace —
 only the queue itself belongs solely to PCR, not the namespace.
 
-| Property | Value for `pcr.hearing-resulted` | Why |
+| Property | Value for `pcr.hearing-resulted` (confirmed against the real Terraform-provisioned queue, `sbdevamp01`) | Why |
 | --- | --- | --- |
 | Receive mode | Peek-lock (client-side, not a queue property) | Required for at-least-once delivery and for `maxDeliveryCount`/dead-lettering to apply |
-| `LockDuration` | `PT1M` (capped `PT5M`) | Only needs to cover one completeness check |
-| `MaxDeliveryCount` | Explicit, no deliberate delayed first retry (immediate-until-exhausted) | Bounds the outright-failure tier — further retry-timing tuning is separate follow-up work |
-| `DefaultMessageTimeToLive` | Explicit, generously longer than ~14s + processing time | Avoids a message silently expiring before completion |
+| `LockDuration` | `1 minute` | Only needs to cover one completeness check |
+| `MaxDeliveryCount` | `10` | Bounds the outright-failure tier only (native abandon/lock-expiry redelivery) — orthogonal to `service-bus.max-tries`, which bounds the completeness-retry tier's own explicit follow-up messages |
+| `DefaultMessageTimeToLive` | `10 minutes` | Sized for a first-attempt message, not for the completeness-retry tail (see below) |
 | `DeadLetteringOnMessageExpiration` | `true` | Without it an expired message is deleted with no trace |
+
+**Follow-up messages set their own explicit TTL, decoupled from the queue default.** The queue's
+10-minute `DefaultMessageTimeToLive` is shorter than several `service-bus.retry-durations` entries
+(`10m,10m,30m,30m,1h`) — left unoverridden, a scheduled follow-up would risk Azure Service Bus
+auto-expiring it into the DLQ (via `DeadLetteringOnMessageExpiration`) before `handleIncomplete()`'s
+own `max-tries` check ever runs, silently replacing the application's own dead-letter reason with
+an unexplained system one. `HearingResultedServiceBusConsumer.scheduleFollowUp()` sets each
+follow-up's `TimeToLive` to a flat 24 hours — comfortably longer than the ~10.6-hour worst-case
+schedule — so `max-tries` is always what decides when to give up, never an accidental TTL
+interaction with a queue setting sized for a different scenario (first-attempt delivery).
 
 **Completeness retry mechanism** — a separate, non-blocking schedule from `ResultsIngestionService`'s
 own 2s/4s/8s in-process retry (which still governs the synchronous webhook path only — that one
