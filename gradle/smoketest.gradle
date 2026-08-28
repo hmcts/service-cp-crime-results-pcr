@@ -63,6 +63,34 @@ sourceSets {
   }
 }
 
+// Self-contained runnable jar for smokeTestSetup only - the piece that has to run inside ADO
+// pipeline 434, which can't reach Maven Central/Gradle's own distribution server (confirmed by a
+// throwaway pipeline 460 test - see docs/designs/2026-08-27-pcr-dev-smoke-test-release-gate-design.md
+// §5). Built here in GitHub Actions, where every dependency below is already resolved by the
+// normal build; SmokeTestRunner (JUnit Platform Launcher API, not Gradle) is the entry point so
+// running it needs only a JRE, not Gradle. No shadow plugin - smokeTest has exactly one
+// TestEngine (junit-jupiter-engine, vintage excluded elsewhere in build.gradle), so there's no
+// META-INF/services merge conflict a plain zipTree concatenation would silently break.
+tasks.register('smokeTestSetupJar', Jar) {
+  description = "Self-contained runnable jar for smokeTestSetup (SmokeTestRunner entry point)"
+  group = "Verification"
+
+  archiveBaseName.set('smoke-test-setup')
+  zip64 = true
+  manifest {
+    attributes('Main-Class': 'uk.gov.hmcts.cp.smoketest.SmokeTestRunner')
+  }
+  duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
+  from(sourceSets.smokeTest.output)
+  from(sourceSets.main.output)
+  from({
+    configurations.smokeTestRuntimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+  }) {
+    exclude 'META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA'
+  }
+}
+
 configurations {
   smokeTestImplementation.extendsFrom testImplementation
   smokeTestRuntimeOnly.extendsFrom testRuntimeOnly

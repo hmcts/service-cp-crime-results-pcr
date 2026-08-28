@@ -71,4 +71,10 @@ dependencies {
 
   // Smoke test — Karate DSL, same pattern as service-cp-crime-hearing's dev/sit gate
   smokeTestImplementation 'io.karatelabs:karate-junit5:1.5.1'
+
+  // Already resolved transitively at runtime via spring-boot-starter-test (6.0.3) - declared
+  // explicitly, compileOnly, so SmokeTestRunner can call the Launcher API directly to run a
+  // smokeTest class outside Gradle. Not a new artifact in the build output, just compile-time
+  // visibility for something already on smokeTestRuntimeClasspath.
+  smokeTestCompileOnly 'org.junit.platform:junit-platform-launcher:6.0.3'
 }
