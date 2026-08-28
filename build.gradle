@@ -70,5 +70,5 @@ dependencies {
   implementation 'org.awaitility:awaitility:4.3.0'
 
   // Smoke test — Karate DSL, same pattern as service-cp-crime-hearing's dev/sit gate
-  smokeTestImplementation 'io.karatelabs:karate-junit5:1.5.1'
+  smokeTestImplementation 'io.karatelabs:karate-junit5:1.5.2'
 }
