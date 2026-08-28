@@ -39,15 +39,6 @@ public class HearingResultedServiceBusConsumer {
     private static final String MALFORMED_PAYLOAD_REASON = "Malformed HearingResultedEvent payload";
     private static final Duration MAX_READINESS_WAIT = Duration.ofMinutes(2);
     private static final Duration READINESS_POLL_INTERVAL = Duration.ofSeconds(2);
-    // pcr.hearing-resulted's DefaultMessageTimeToLive is 10 minutes (Terraform-provisioned,
-    // confirmed against the real queue config) - sized for a first-attempt message that's never
-    // been retried, not for this schedule's tail (service-bus.retry-durations reaches 1h delays,
-    // service-bus.max-tries=24 spans ~10.6h worst-case). With DeadLetteringOnMessageExpiration
-    // enabled, any follow-up left to inherit that 10-minute default would auto-expire into the
-    // DLQ before ever being redelivered, silently short-circuiting max-tries with an unexplained
-    // system dead-letter instead of this class's own reason. Set explicitly, comfortably longer
-    // than the worst-case schedule, so only handleIncomplete()'s own max-tries check ever decides
-    // when to give up.
     private static final Duration FOLLOW_UP_TIME_TO_LIVE = Duration.ofHours(24);
 
     private final ServiceBusProvisioningService provisioningService;
