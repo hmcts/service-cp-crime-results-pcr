@@ -30,9 +30,14 @@ independent Event Grid event subscription:
   `HearingResultedWebhookEventData` fields, no new shared key.
 - **Native `maxDeliveryCount` + dead-lettering** for outright failures — peek-lock,
   `complete()`/abandon, no application retry code.
-- **Completeness-retry schedule relocated, not revised** — `ResultsIngestionService`'s existing
-  2s/4s/8s check moves off the consumer thread onto a scheduled Service Bus message
-  (`ScheduledEnqueueTimeUtc`). Extending the schedule and alerting/escalation are deferred.
+- **Completeness retry moved off the consumer thread onto a scheduled Service Bus message**
+  (`ScheduledEnqueueTimeUtc`), with its own configurable schedule and ceiling
+  (`service-bus.retry-durations`, `service-bus.max-tries`, default 24 tries topping out at ~10.6
+  hours) — separate from `ResultsIngestionService.MAX_COMPLETENESS_RETRIES`, which still only
+  bounds the synchronous POST path's retry. Sized for PCR's own failure mode (viewstore
+  replication lag — minutes, not days). Each follow-up message sets its own 24h `TimeToLive`,
+  since the queue's own 10-minute default would otherwise auto-expire a longer-delayed retry into
+  the DLQ before `max-tries` gets a say.
 - **Staged cutover behind a switch**, off by default — `pcr-eventgrid-relay-function` stays live
   until the new path is proven in lower environments, then production, at which point the relay's
   routing is disabled. Never both channels active in one environment (`ingestAndPersist` isn't
@@ -56,7 +61,7 @@ independent Event Grid event subscription:
   outright, no cross-team governance over shared resource settings or lifecycle.
 - Two ingestion paths coexist temporarily — a bounded, switch-gated exception to ADR-007. Relay
   decommissioning is separate follow-up work once the new path is proven.
-- Retry-schedule tuning and alerting are out of scope — native dead-lettering ships now; proactive
+- Alerting/escalation on DLQ messages is still out of scope — native dead-lettering ships, proactive
   alerting doesn't.
 - `/internal/hearing-results` stays live for as long as the relay function does.
 - Doesn't design NOW's own queue, consumer, generation-gate logic, or data model — NOW's queue and
@@ -76,5 +81,5 @@ independent Event Grid event subscription:
   avoids this entirely.
 - **Immediate cutover, no staged switch** — rejected; a consumer is actively testing the existing
   path today.
-- **Extend the retry schedule and build alerting as part of this change** — deferred; out of scope
-  for a transport-mechanism migration.
+- **Extend the retry schedule and build alerting as part of this change** — deferred at the time;
+  the retry schedule was extended later (see Decision above), alerting is still outstanding.
