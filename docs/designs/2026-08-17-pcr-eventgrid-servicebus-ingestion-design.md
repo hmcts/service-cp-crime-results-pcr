@@ -94,11 +94,13 @@ only the queue itself belongs solely to PCR, not the namespace.
 | `DefaultMessageTimeToLive` | `10 minutes` | Fine for a first-attempt message, too short for the retry tail — see below |
 | `DeadLetteringOnMessageExpiration` | `true` | Without it an expired message is deleted with no trace |
 
-**Completeness retry** — a non-blocking schedule for the queue path (separate from the synchronous
-POST path's own 2s/4s/8s retry, ~14s total). We start with a few quick retries, then slow down to
-once an hour, 24 attempts total over about 10.6 hours — enough time for ordinary replication lag
-to clear. Still failing after most of the day usually means a real problem, so it dead-letters
-instead of retrying forever.
+**Completeness retry** — a non-blocking schedule, separate from `ResultsIngestionService`'s own
+2s/4s/8s in-process retry (that one only governs the synchronous POST path, ~14s total).
+On an incomplete result the consumer completes the message and sends one scheduled follow-up
+(`ScheduledEnqueueTimeUtc`), carrying the attempt count. `service-bus.retry-durations`
+(`0s,1s,2s,5s,10s,30s,1m,2m,5m,5m,5m,10m,10m,30m,30m,1h`) sets each delay; `service-bus.max-tries`
+(24) sets when to give up and dead-letter explicitly. Sized for PCR's own failure mode — viewstore
+replication lag, minutes not days. Worst case here is ~10.6 hours.
 
 Follow-up messages set their own 24-hour TTL rather than inheriting the queue's 10-minute default —
 otherwise a longer-delayed retry could auto-expire into the DLQ before `max-tries` ever gets to
