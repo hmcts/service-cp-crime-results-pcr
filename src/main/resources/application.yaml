@@ -50,6 +50,15 @@ management:
     enabled: true
     sampling:
       probability: 1.0
+  otlp:
+    metrics:
+      export:
+        # Prometheus scrape (/actuator/prometheus, exposed above) is this org's actual metrics
+        # pathway - OTLP metrics push has no configured receiver anywhere (local or deployed) and
+        # was never an intended transport, just an unused side effect of pulling in the OTEL
+        # starter for tracing. Left enabled it retries against localhost:4318 every ~60s and logs
+        # a connection-failure warning forever. Tracing (management.tracing above) is unaffected.
+        enabled: false
 
 logging:
   level:
