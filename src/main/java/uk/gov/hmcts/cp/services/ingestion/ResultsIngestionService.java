@@ -22,7 +22,6 @@ import uk.gov.hmcts.cp.services.ClockService;
 import uk.gov.hmcts.cp.services.pcrcompute.CPResultsPcrFilter;
 import uk.gov.hmcts.cp.services.pcrcompute.CPVocabularyService;
 
-import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
@@ -40,9 +39,6 @@ import java.util.UUID;
 @Slf4j
 public class ResultsIngestionService {
 
-    public static final int MAX_COMPLETENESS_RETRIES = 3;
-    private static final Duration INITIAL_BACKOFF = Duration.ofSeconds(2);
-
     private final HearingResultedCacheClient cacheClient;
     private final ResultsClient resultsClient;
     private final ObjectMapper objectMapper;
@@ -51,21 +47,6 @@ public class ResultsIngestionService {
     private final CPHearingResultEntityMapper entityMapper;
     private final ClockService clockService;
     private final CPEntityPersistenceService persistenceService;
-
-    public HearingDetailsResponse ingestHearingResults(final UUID hearingId, final LocalDate hearingDay) {
-        for (int attempt = 1; attempt <= MAX_COMPLETENESS_RETRIES; attempt++) {
-            final Optional<HearingDetailsResponse> response = fetchIfComplete(hearingId, hearingDay);
-            if (response.isPresent()) {
-                return response.get();
-            }
-            log.warn("Incomplete hearing details for hearingId:{} on attempt {}/{} — viewstore may not have caught up yet",
-                    hearingId, attempt, MAX_COMPLETENESS_RETRIES);
-            if (attempt < MAX_COMPLETENESS_RETRIES) {
-                sleepUninterruptibly(backoffFor(attempt));
-            }
-        }
-        throw new IncompleteHearingDetailsException(hearingId);
-    }
 
     public HearingDetailsResponse ingestHearingResultsOnce(final UUID hearingId, final LocalDate hearingDay) {
         return fetchIfComplete(hearingId, hearingDay).orElseThrow(() -> new IncompleteHearingDetailsException(hearingId));
@@ -76,23 +57,6 @@ public class ResultsIngestionService {
                 .map(this::deserializeCachedHearingResults)
                 .orElseGet(() -> resultsClient.getHearingDetails(hearingId));
         return isComplete(response) ? Optional.of(response) : Optional.empty();
-    }
-
-    /* default */ Duration backoffFor(final int attempt) {
-        return INITIAL_BACKOFF.multipliedBy((long) Math.pow(2, attempt - 1));
-    }
-
-    /* default */ void sleepUninterruptibly(final Duration duration) {
-        try {
-            Thread.sleep(duration);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
-    }
-
-    @Transactional
-    public void ingestAndPersist(final UUID hearingId, final LocalDate hearingDay) {
-        persist(hearingId, ingestHearingResults(hearingId, hearingDay));
     }
 
     @Transactional
