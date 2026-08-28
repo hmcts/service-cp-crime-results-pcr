@@ -19,9 +19,6 @@ jobs:
       HMCTS_ADO_PAT: ${{ secrets.HMCTS_CP_ADO_PAT }}
       DEPLOYMENT_APP_ID: ${{ secrets.DEPLOYMENT_APP_ID }}
       DEPLOYMENT_APP_PRIVATE_KEY: ${{ secrets.DEPLOYMENT_APP_PRIVATE_KEY }}
-      DEV_SMOKE_SERVICE_BASE_URL: ${{ secrets.DEV_SMOKE_SERVICE_BASE_URL }}
-      DEV_SMOKE_HEALTH_CHECK_URL: ${{ secrets.DEV_SMOKE_HEALTH_CHECK_URL }}
-      DEV_CP_BACKEND_URL: ${{ secrets.DEV_CP_BACKEND_URL }}
     with:
       environment: dev
       is_publish: ${{ github.event_name == 'push' }}
