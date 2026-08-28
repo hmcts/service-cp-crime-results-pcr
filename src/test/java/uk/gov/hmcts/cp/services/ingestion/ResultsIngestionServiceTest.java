@@ -2,8 +2,6 @@ package uk.gov.hmcts.cp.services.ingestion;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
@@ -29,7 +27,6 @@ import uk.gov.hmcts.cp.services.pcrcompute.CPResultsPcrFilter;
 import uk.gov.hmcts.cp.services.pcrcompute.CPVocabularyService;
 
 import java.time.Clock;
-import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
@@ -41,7 +38,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -69,94 +65,41 @@ class ResultsIngestionServiceTest {
     private ClockService clockService = new ClockService(Clock.fixed(Instant.parse("2026-07-28T10:00:00Z"), ZoneOffset.UTC));
     @Mock
     private CPEntityPersistenceService persistenceService;
-    @Captor
-    private ArgumentCaptor<Duration> durationCaptor;
 
     @Spy
     @InjectMocks
     private ResultsIngestionService ingestionService;
 
     @Test
-    void ingest_should_returnCachedPayload_whenRedisHit() {
+    void ingestHearingResultsOnce_should_returnCachedPayload_whenRedisHit() {
         when(cacheClient.get(HEARING_ID, HEARING_DAY))
                 .thenReturn(Optional.of("{\"hearing\":{\"prosecutionCases\":[{\"id\":\"case-1\"}]}}"));
 
-        final HearingDetailsResponse result = ingestionService.ingestHearingResults(HEARING_ID, HEARING_DAY);
+        final HearingDetailsResponse result = ingestionService.ingestHearingResultsOnce(HEARING_ID, HEARING_DAY);
 
         assertThat(result.getHearing().getProsecutionCases()).hasSize(1);
         verify(resultsClient, never()).getHearingDetails(any(UUID.class));
     }
 
     @Test
-    void ingest_should_throwIncompleteHearingDetailsException_whenCachedPayloadIsIncomplete() {
-        doNothing().when(ingestionService).sleepUninterruptibly(any());
+    void ingestHearingResultsOnce_should_throwIncompleteHearingDetailsException_whenCachedPayloadIsIncomplete() {
         when(cacheClient.get(HEARING_ID, HEARING_DAY))
                 .thenReturn(Optional.of("{\"hearing\":{\"prosecutionCases\":[]}}"));
 
-        assertThatThrownBy(() -> ingestionService.ingestHearingResults(HEARING_ID, HEARING_DAY))
+        assertThatThrownBy(() -> ingestionService.ingestHearingResultsOnce(HEARING_ID, HEARING_DAY))
                 .isInstanceOf(IncompleteHearingDetailsException.class);
 
         verify(resultsClient, never()).getHearingDetails(any(UUID.class));
     }
 
     @Test
-    void ingest_should_throwIllegalStateException_whenCachedPayloadIsMalformed() {
+    void ingestHearingResultsOnce_should_throwIllegalStateException_whenCachedPayloadIsMalformed() {
         // No HTTP status here — this path never runs inside a request, only the Service
         // Bus consumer, which just treats it as another "genuinely wrong" dead-letter case.
         when(cacheClient.get(HEARING_ID, HEARING_DAY)).thenReturn(Optional.of("not-json"));
 
-        assertThatThrownBy(() -> ingestionService.ingestHearingResults(HEARING_ID, HEARING_DAY))
+        assertThatThrownBy(() -> ingestionService.ingestHearingResultsOnce(HEARING_ID, HEARING_DAY))
                 .isInstanceOf(IllegalStateException.class);
-    }
-
-    @Test
-    void ingest_should_fetchViaRest_whenRedisMiss_andFirstResponseIsComplete() {
-        when(cacheClient.get(HEARING_ID, HEARING_DAY)).thenReturn(Optional.empty());
-        when(resultsClient.getHearingDetails(HEARING_ID)).thenReturn(completeResponse());
-
-        final HearingDetailsResponse result = ingestionService.ingestHearingResults(HEARING_ID, HEARING_DAY);
-
-        assertThat(result.getHearing().getProsecutionCases()).hasSize(1);
-        verify(resultsClient, times(1)).getHearingDetails(HEARING_ID);
-    }
-
-    @Test
-    void ingest_should_returnResponse_whenSecondRestAttemptIsComplete() {
-        doNothing().when(ingestionService).sleepUninterruptibly(any());
-        when(cacheClient.get(HEARING_ID, HEARING_DAY)).thenReturn(Optional.empty());
-        when(resultsClient.getHearingDetails(HEARING_ID))
-                .thenReturn(incompleteResponse())
-                .thenReturn(completeResponse());
-
-        final HearingDetailsResponse result = ingestionService.ingestHearingResults(HEARING_ID, HEARING_DAY);
-
-        assertThat(result.getHearing().getProsecutionCases()).hasSize(1);
-        verify(resultsClient, times(2)).getHearingDetails(HEARING_ID);
-    }
-
-    @Test
-    void ingest_should_throwIncompleteHearingDetailsException_whenAllThreeAttemptsAreIncomplete() {
-        doNothing().when(ingestionService).sleepUninterruptibly(any());
-        when(cacheClient.get(HEARING_ID, HEARING_DAY)).thenReturn(Optional.empty());
-        when(resultsClient.getHearingDetails(HEARING_ID)).thenReturn(incompleteResponse());
-
-        assertThatThrownBy(() -> ingestionService.ingestHearingResults(HEARING_ID, HEARING_DAY))
-                .isInstanceOf(IncompleteHearingDetailsException.class);
-
-        verify(resultsClient, times(3)).getHearingDetails(HEARING_ID);
-    }
-
-    @Test
-    void ingest_should_sleepWithExponentialBackoff_betweenRetries() {
-        doNothing().when(ingestionService).sleepUninterruptibly(any());
-        when(cacheClient.get(HEARING_ID, HEARING_DAY)).thenReturn(Optional.empty());
-        when(resultsClient.getHearingDetails(HEARING_ID)).thenReturn(incompleteResponse());
-
-        assertThatThrownBy(() -> ingestionService.ingestHearingResults(HEARING_ID, HEARING_DAY))
-                .isInstanceOf(IncompleteHearingDetailsException.class);
-
-        verify(ingestionService, times(2)).sleepUninterruptibly(durationCaptor.capture());
-        assertThat(durationCaptor.getAllValues()).containsExactly(Duration.ofSeconds(2), Duration.ofSeconds(4));
     }
 
     @Test
@@ -178,36 +121,12 @@ class ResultsIngestionServiceTest {
                 .isInstanceOf(IncompleteHearingDetailsException.class);
 
         verify(resultsClient, times(1)).getHearingDetails(HEARING_ID);
-        verify(ingestionService, never()).sleepUninterruptibly(any());
-    }
-
-    @Test
-    void backoffFor_should_returnExponentialBackoff() {
-        assertThat(ingestionService.backoffFor(1)).isEqualTo(Duration.ofSeconds(2));
-        assertThat(ingestionService.backoffFor(2)).isEqualTo(Duration.ofSeconds(4));
     }
 
     private static final String CASE_URN = "ABCD1234567";
     private static final UUID CASE_HEARING_ID = UUID.fromString("00000000-0000-0000-0000-000000000044");
     private static final CPVocabulary VOCABULARY = CPVocabulary.builder()
             .prosecutorMajorCreditor(List.of()).nonProsecutorMajorCreditor(List.of()).build();
-
-    @Test
-    void ingestAndPersist_should_createCaseHearingAndPersistVersion_whenRequiredAndNotYetCreated() {
-        when(cacheClient.get(HEARING_ID, HEARING_DAY)).thenReturn(Optional.empty());
-        when(resultsClient.getHearingDetails(HEARING_ID)).thenReturn(hearingWithOneDefendant());
-        when(vocabularyService.compute(any(), any())).thenReturn(VOCABULARY);
-        when(entityMapper.eligibleResults(any(), any())).thenReturn(List.of());
-        when(pcrFilter.excludePublishedForNows(any())).thenReturn(List.of());
-        when(pcrFilter.fetchPrisonCourtRegisterSubscriptions(any())).thenReturn(List.of());
-        when(pcrFilter.isPrisonCourtRegisterRequired(any(), any(), any())).thenReturn(true);
-        when(persistenceService.findOrCreateCaseHearing(any(), any(), eq(HEARING_ID))).thenReturn(CASE_HEARING_ID);
-
-        ingestionService.ingestAndPersist(HEARING_ID, HEARING_DAY);
-
-        verify(persistenceService).findOrCreateCaseHearing(any(), any(), eq(HEARING_ID));
-        verify(persistenceService).persist(any(), any(), eq(CASE_HEARING_ID), any(), any(), any());
-    }
 
     @Test
     void ingestAndPersistOnce_should_createCaseHearingAndPersistVersion_whenComplete() {
@@ -237,7 +156,7 @@ class ResultsIngestionServiceTest {
     }
 
     @Test
-    void ingestAndPersist_should_skipDefendant_whenPcrNotRequired() {
+    void ingestAndPersistOnce_should_skipDefendant_whenPcrNotRequired() {
         when(cacheClient.get(HEARING_ID, HEARING_DAY)).thenReturn(Optional.empty());
         when(resultsClient.getHearingDetails(HEARING_ID)).thenReturn(hearingWithOneDefendant());
         when(vocabularyService.compute(any(), any())).thenReturn(VOCABULARY);
@@ -246,14 +165,14 @@ class ResultsIngestionServiceTest {
         when(pcrFilter.fetchPrisonCourtRegisterSubscriptions(any())).thenReturn(List.of());
         when(pcrFilter.isPrisonCourtRegisterRequired(any(), any(), any())).thenReturn(false);
 
-        ingestionService.ingestAndPersist(HEARING_ID, HEARING_DAY);
+        ingestionService.ingestAndPersistOnce(HEARING_ID, HEARING_DAY);
 
         verify(persistenceService, never()).findOrCreateCaseHearing(any(), any(), any());
         verify(persistenceService, never()).persist(any(), any(), any(), any(), any(), any());
     }
 
     @Test
-    void ingestAndPersist_should_findCaseHearingOnce_whenTwoDefendantsShareTheSameCase() {
+    void ingestAndPersistOnce_should_findCaseHearingOnce_whenTwoDefendantsShareTheSameCase() {
         when(cacheClient.get(HEARING_ID, HEARING_DAY)).thenReturn(Optional.empty());
         when(resultsClient.getHearingDetails(HEARING_ID)).thenReturn(hearingWithTwoDefendantsOnOneCase());
         when(vocabularyService.compute(any(), any())).thenReturn(VOCABULARY);
@@ -263,7 +182,7 @@ class ResultsIngestionServiceTest {
         when(pcrFilter.isPrisonCourtRegisterRequired(any(), any(), any())).thenReturn(true);
         when(persistenceService.findOrCreateCaseHearing(any(), any(), eq(HEARING_ID))).thenReturn(CASE_HEARING_ID);
 
-        ingestionService.ingestAndPersist(HEARING_ID, HEARING_DAY);
+        ingestionService.ingestAndPersistOnce(HEARING_ID, HEARING_DAY);
 
         verify(persistenceService, times(1)).findOrCreateCaseHearing(any(), any(), eq(HEARING_ID));
         verify(persistenceService, times(2)).persist(any(), any(), eq(CASE_HEARING_ID), any(), any(), any());
@@ -299,11 +218,11 @@ class ResultsIngestionServiceTest {
     }
 
     @Test
-    void ingestAndPersist_should_throwNoOrderedDateFoundException_whenNoResultHasOrderedDate() {
+    void ingestAndPersistOnce_should_throwNoOrderedDateFoundException_whenNoResultHasOrderedDate() {
         when(cacheClient.get(HEARING_ID, HEARING_DAY)).thenReturn(Optional.empty());
         when(resultsClient.getHearingDetails(HEARING_ID)).thenReturn(hearingWithNoOrderedDate());
 
-        assertThatThrownBy(() -> ingestionService.ingestAndPersist(HEARING_ID, HEARING_DAY))
+        assertThatThrownBy(() -> ingestionService.ingestAndPersistOnce(HEARING_ID, HEARING_DAY))
                 .isInstanceOf(NoOrderedDateFoundException.class);
 
         verify(vocabularyService, never()).compute(any(), any());
