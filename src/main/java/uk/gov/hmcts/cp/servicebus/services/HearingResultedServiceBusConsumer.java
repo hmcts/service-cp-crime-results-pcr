@@ -28,7 +28,6 @@ import java.time.OffsetDateTime;
 import java.util.Optional;
 
 import static org.awaitility.Awaitility.await;
-import static uk.gov.hmcts.cp.services.ingestion.ResultsIngestionService.MAX_COMPLETENESS_RETRIES;
 
 @Slf4j
 @Service
@@ -37,8 +36,6 @@ public class HearingResultedServiceBusConsumer {
 
     private static final String HEARING_RESULTED_EVENT_TYPE = "Hearing_Resulted";
     private static final String ATTEMPT_PROPERTY = "attempt";
-    private static final String DEAD_LETTER_REASON = "IncompleteHearingDetailsException after "
-            + MAX_COMPLETENESS_RETRIES + " attempts";
     private static final String MALFORMED_PAYLOAD_REASON = "Malformed HearingResultedEvent payload";
     private static final Duration MAX_READINESS_WAIT = Duration.ofMinutes(2);
     private static final Duration READINESS_POLL_INTERVAL = Duration.ofSeconds(2);
@@ -146,9 +143,11 @@ public class HearingResultedServiceBusConsumer {
 
     private void handleIncomplete(final ServiceBusReceivedMessageContext context, final ServiceBusReceivedMessage message,
                                    final int attempt) {
-        if (attempt >= MAX_COMPLETENESS_RETRIES) {
+        final int maxTries = properties.getMaxTries();
+        if (attempt >= maxTries) {
             log.warn("handleIncomplete exhausted after {} attempts — dead-lettering", attempt);
-            context.deadLetter(new DeadLetterOptions().setDeadLetterReason(DEAD_LETTER_REASON));
+            context.deadLetter(new DeadLetterOptions()
+                    .setDeadLetterReason("IncompleteHearingDetailsException after " + maxTries + " attempts"));
             return;
         }
         context.complete();

@@ -94,14 +94,24 @@ only the queue itself belongs solely to PCR, not the namespace.
 | `DefaultMessageTimeToLive` | Explicit, generously longer than ~14s + processing time | Avoids a message silently expiring before completion |
 | `DeadLetteringOnMessageExpiration` | `true` | Without it an expired message is deleted with no trace |
 
-**Completeness retry mechanism** — relocates `ResultsIngestionService`'s existing 2s/4s/8s schedule
-off the consumer thread, unchanged in shape:
+**Completeness retry mechanism** — a separate, non-blocking schedule from `ResultsIngestionService`'s
+own 2s/4s/8s in-process retry (which still governs the synchronous webhook path only — that one
+sleeps the calling thread and needs to resolve in ~14s total, a different constraint entirely):
 
 - On an incomplete result: `complete()` the message, then publish one scheduled follow-up
   (`ScheduledEnqueueTimeUtc`), carrying the attempt count as an application property.
-- After the 3rd attempt: dead-letter explicitly via `deadLetterMessage(reason, description)` — e.g.
-  `"IncompleteHearingDetailsException after 3 attempts"` — clearly flagged, not an unexplained
+- `service-bus.retry-durations` (`0s,1s,2s,5s,10s,30s,1m,2m,5m,5m,5m,10m,10m,30m,30m,1h`) governs
+  each retry's delay, clamping to the last configured value once the attempt count exceeds the
+  list. `service-bus.max-tries` (default `24`) governs when to give up — after the 24th attempt,
+  dead-letter explicitly via `deadLetterMessage(reason, description)` — e.g.
+  `"IncompleteHearingDetailsException after 24 attempts"` — clearly flagged, not an unexplained
   generic dead-letter.
+- Sized for PCR's actual failure mode (viewstore replication lag — typically seconds to low
+  minutes), not copied from HRDS's schedule verbatim (`108` tries, `4h` tail, ~14.5 days
+  worst-case) — that schedule is tuned for a downed *external subscriber callback*, a
+  days-long-outage failure mode PCR doesn't have. A ~10.6-hour worst-case window comfortably
+  absorbs realistic replication lag while still surfacing a genuinely stuck message to the DLQ
+  within the same working day, not two weeks later.
 
 ### 2.3 Local dev / test story
 
