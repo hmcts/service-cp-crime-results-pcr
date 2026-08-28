@@ -89,19 +89,22 @@ only the queue itself belongs solely to PCR, not the namespace.
 | Property | Value for `pcr.hearing-resulted` | Why |
 | --- | --- | --- |
 | Receive mode | Peek-lock (client-side, not a queue property) | Required for at-least-once delivery and for `maxDeliveryCount`/dead-lettering to apply |
-| `LockDuration` | `PT1M` (capped `PT5M`) | Only needs to cover one completeness check |
-| `MaxDeliveryCount` | Explicit, no deliberate delayed first retry (immediate-until-exhausted) | Bounds the outright-failure tier — further retry-timing tuning is separate follow-up work |
-| `DefaultMessageTimeToLive` | Explicit, generously longer than ~14s + processing time | Avoids a message silently expiring before completion |
+| `LockDuration` | `1 minute` | Only needs to cover one completeness check |
+| `MaxDeliveryCount` | `10` | Native redelivery for outright failures — separate from `service-bus.max-tries` below |
+| `DefaultMessageTimeToLive` | `10 minutes` | Fine for a first-attempt message, too short for the retry tail — see below |
 | `DeadLetteringOnMessageExpiration` | `true` | Without it an expired message is deleted with no trace |
 
-**Completeness retry mechanism** — relocates `ResultsIngestionService`'s existing 2s/4s/8s schedule
-off the consumer thread, unchanged in shape:
+**Completeness retry** — a non-blocking schedule, separate from `ResultsIngestionService`'s own
+2s/4s/8s in-process retry (that one only governs the synchronous POST path, ~14s total).
+On an incomplete result the consumer completes the message and sends one scheduled follow-up
+(`ScheduledEnqueueTimeUtc`), carrying the attempt count. `service-bus.retry-durations`
+(`0s,1s,2s,5s,10s,30s,1m,2m,5m,5m,5m,10m,10m,30m,30m,1h`) sets each delay; `service-bus.max-tries`
+(24) sets when to give up and dead-letter explicitly. Sized for PCR's own failure mode — viewstore
+replication lag, minutes not days. Worst case here is ~10.6 hours.
 
-- On an incomplete result: `complete()` the message, then publish one scheduled follow-up
-  (`ScheduledEnqueueTimeUtc`), carrying the attempt count as an application property.
-- After the 3rd attempt: dead-letter explicitly via `deadLetterMessage(reason, description)` — e.g.
-  `"IncompleteHearingDetailsException after 3 attempts"` — clearly flagged, not an unexplained
-  generic dead-letter.
+Follow-up messages set their own 24-hour TTL rather than inheriting the queue's 10-minute default —
+otherwise a longer-delayed retry could auto-expire into the DLQ before `max-tries` ever gets to
+decide.
 
 ### 2.3 Local dev / test story
 

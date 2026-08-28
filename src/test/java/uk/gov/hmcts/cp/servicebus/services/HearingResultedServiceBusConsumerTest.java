@@ -24,6 +24,7 @@ import uk.gov.hmcts.cp.openapi.model.HearingResultedEventData;
 import uk.gov.hmcts.cp.servicebus.config.ServiceBusProperties;
 import uk.gov.hmcts.cp.services.ingestion.ResultsIngestionService;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.Map;
@@ -226,6 +227,7 @@ class HearingResultedServiceBusConsumerTest {
     @Test
     void processMessage_should_completeAndScheduleFollowUp_whenIncompleteAndAttemptsRemain() {
         when(properties.isIngestionEnabled()).thenReturn(true);
+        when(properties.getMaxTries()).thenReturn(24);
         givenMessage(hearingResultedEventJson(), 1);
         givenGeneratedCorrelationId();
         doThrow(new IncompleteHearingDetailsException(HEARING_ID))
@@ -243,11 +245,13 @@ class HearingResultedServiceBusConsumerTest {
         assertThat(followUp.getApplicationProperties().get("attempt")).isEqualTo(2);
         assertThat(followUp.getScheduledEnqueueTime()).isEqualTo(nextTryTime);
         assertThat(followUp.getCorrelationId()).isEqualTo(GENERATED_CORRELATION_ID);
+        assertThat(followUp.getTimeToLive()).isEqualTo(Duration.ofHours(24));
     }
 
     @Test
     void processMessage_should_reuseExistingCorrelationId_whenMessageAlreadyHasOne() {
         when(properties.isIngestionEnabled()).thenReturn(true);
+        when(properties.getMaxTries()).thenReturn(24);
         givenMessage(hearingResultedEventJson(), 1);
         when(message.getCorrelationId()).thenReturn(EXISTING_CORRELATION_ID);
         doThrow(new IncompleteHearingDetailsException(HEARING_ID))
@@ -264,7 +268,8 @@ class HearingResultedServiceBusConsumerTest {
     @Test
     void processMessage_should_deadLetter_whenIncompleteAndAttemptsExhausted() {
         when(properties.isIngestionEnabled()).thenReturn(true);
-        givenMessage(hearingResultedEventJson(), ResultsIngestionService.MAX_COMPLETENESS_RETRIES);
+        when(properties.getMaxTries()).thenReturn(24);
+        givenMessage(hearingResultedEventJson(), 24);
         givenGeneratedCorrelationId();
         doThrow(new IncompleteHearingDetailsException(HEARING_ID))
                 .when(ingestionService).ingestAndPersistOnce(HEARING_ID, HEARING_DAY);
@@ -274,7 +279,7 @@ class HearingResultedServiceBusConsumerTest {
         verify(context, never()).complete();
         verify(context).deadLetter(deadLetterCaptor.capture());
         assertThat(deadLetterCaptor.getValue().getDeadLetterReason())
-                .isEqualTo("IncompleteHearingDetailsException after 3 attempts");
+                .isEqualTo("IncompleteHearingDetailsException after 24 attempts");
         verify(clientFactory, never()).senderClient();
     }
 
