@@ -95,13 +95,12 @@ only the queue itself belongs solely to PCR, not the namespace.
 | `DeadLetteringOnMessageExpiration` | `true` | Without it an expired message is deleted with no trace |
 
 **Completeness retry** — a non-blocking schedule, separate from `ResultsIngestionService`'s own
-2s/4s/8s in-process retry (that one only governs the synchronous webhook path, ~14s total).
+2s/4s/8s in-process retry (that one only governs the synchronous POST path, ~14s total).
 On an incomplete result the consumer completes the message and sends one scheduled follow-up
 (`ScheduledEnqueueTimeUtc`), carrying the attempt count. `service-bus.retry-durations`
 (`0s,1s,2s,5s,10s,30s,1m,2m,5m,5m,5m,10m,10m,30m,30m,1h`) sets each delay; `service-bus.max-tries`
 (24) sets when to give up and dead-letter explicitly. Sized for PCR's own failure mode — viewstore
-replication lag, minutes not days — not copied from HRDS's schedule (108 tries, 4h tail, ~14.5
-days), which is tuned for a downed external subscriber. Worst case here is ~10.6 hours.
+replication lag, minutes not days. Worst case here is ~10.6 hours.
 
 Follow-up messages set their own 24-hour TTL rather than inheriting the queue's 10-minute default —
 otherwise a longer-delayed retry could auto-expire into the DLQ before `max-tries` ever gets to

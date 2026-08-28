@@ -34,11 +34,10 @@ independent Event Grid event subscription:
   (`ScheduledEnqueueTimeUtc`), with its own configurable schedule and ceiling
   (`service-bus.retry-durations`, `service-bus.max-tries`, default 24 tries topping out at ~10.6
   hours) — separate from `ResultsIngestionService.MAX_COMPLETENESS_RETRIES`, which still only
-  bounds the webhook path's synchronous retry. Sized for PCR's own failure mode (viewstore
-  replication lag — minutes, not days), not copied from HRDS's schedule (tuned for a downed
-  external subscriber, ~14.5 days worst case). Each follow-up message sets its own 24h
-  `TimeToLive`, since the queue's own 10-minute default would otherwise auto-expire a
-  longer-delayed retry into the DLQ before `max-tries` gets a say.
+  bounds the synchronous POST path's retry. Sized for PCR's own failure mode (viewstore
+  replication lag — minutes, not days). Each follow-up message sets its own 24h `TimeToLive`,
+  since the queue's own 10-minute default would otherwise auto-expire a longer-delayed retry into
+  the DLQ before `max-tries` gets a say.
 - **Staged cutover behind a switch**, off by default — `pcr-eventgrid-relay-function` stays live
   until the new path is proven in lower environments, then production, at which point the relay's
   routing is disabled. Never both channels active in one environment (`ingestAndPersist` isn't
