@@ -69,3 +69,8 @@ service-bus:
   auto-start-processors: ${SERVICE_BUS_AUTO_START_PROCESSORS:false}
   ingestion-enabled: ${SERVICE_BUS_INGESTION_ENABLED:false}
   retry-durations: ${SERVICE_BUS_RETRY_DURATIONS:2s,4s}
+
+dead-letter:
+  purge:
+    retention-days: ${DEAD_LETTER_PURGE_RETENTION_DAYS:30}
+    cron: ${DEAD_LETTER_PURGE_CRON:0 0 3 * * *}

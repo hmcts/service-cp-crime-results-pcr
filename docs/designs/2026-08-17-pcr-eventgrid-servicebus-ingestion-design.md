@@ -205,6 +205,22 @@ sequenceDiagram
     Q->>DLQ: move message (maxDeliveryCount exceeded)
 ```
 
+### 3.5 Dead-letter retention
+
+Azure Service Bus does not expire dead-lettered messages on its own — without an explicit purge
+they sit in the DLQ indefinitely. `DeadLetterPurgeService` runs a daily scheduled job
+(`dead-letter.purge.cron`, default `0 0 3 * * *`) that removes anything older than
+`dead-letter.purge.retention-days` (default `30`), mirroring
+service-cp-crime-hearing-results-document-subscription's own `DeadLetterPurgeService` exactly —
+same receive/complete/abandon-by-age mechanism, same defaults.
+
+**Purges blindly by age, with no "reviewed" check** — same as HRDS. A message that dead-letters
+and is never looked at is gone after the retention window regardless. This was raised as an open
+question in an earlier draft of this document (whether purge should require an explicit
+resolved/accepted marker first, to avoid silently losing an unreviewed failure) — resolved in
+favour of mirroring HRDS's existing, already-proven pattern rather than introducing a new
+tracking mechanism.
+
 ---
 
 ## 4. Migration outline
