@@ -86,42 +86,26 @@ exists (`ServiceBusProvisioningService.queueExists`) and fails startup if it doe
 Terraform as the expected owner. Uses the existing shared per-environment Service Bus namespace —
 only the queue itself belongs solely to PCR, not the namespace.
 
-| Property | Value for `pcr.hearing-resulted` (confirmed against the real Terraform-provisioned queue, `sbdevamp01`) | Why |
+| Property | Value for `pcr.hearing-resulted` | Why |
 | --- | --- | --- |
 | Receive mode | Peek-lock (client-side, not a queue property) | Required for at-least-once delivery and for `maxDeliveryCount`/dead-lettering to apply |
 | `LockDuration` | `1 minute` | Only needs to cover one completeness check |
-| `MaxDeliveryCount` | `10` | Bounds the outright-failure tier only (native abandon/lock-expiry redelivery) — orthogonal to `service-bus.max-tries`, which bounds the completeness-retry tier's own explicit follow-up messages |
-| `DefaultMessageTimeToLive` | `10 minutes` | Sized for a first-attempt message, not for the completeness-retry tail (see below) |
+| `MaxDeliveryCount` | `10` | Native redelivery for outright failures — separate from `service-bus.max-tries` below |
+| `DefaultMessageTimeToLive` | `10 minutes` | Fine for a first-attempt message, too short for the retry tail — see below |
 | `DeadLetteringOnMessageExpiration` | `true` | Without it an expired message is deleted with no trace |
 
-**Follow-up messages set their own explicit TTL, decoupled from the queue default.** The queue's
-10-minute `DefaultMessageTimeToLive` is shorter than several `service-bus.retry-durations` entries
-(`10m,10m,30m,30m,1h`) — left unoverridden, a scheduled follow-up would risk Azure Service Bus
-auto-expiring it into the DLQ (via `DeadLetteringOnMessageExpiration`) before `handleIncomplete()`'s
-own `max-tries` check ever runs, silently replacing the application's own dead-letter reason with
-an unexplained system one. `HearingResultedServiceBusConsumer.scheduleFollowUp()` sets each
-follow-up's `TimeToLive` to a flat 24 hours — comfortably longer than the ~10.6-hour worst-case
-schedule — so `max-tries` is always what decides when to give up, never an accidental TTL
-interaction with a queue setting sized for a different scenario (first-attempt delivery).
+**Completeness retry** — a non-blocking schedule, separate from `ResultsIngestionService`'s own
+2s/4s/8s in-process retry (that one only governs the synchronous webhook path, ~14s total).
+On an incomplete result the consumer completes the message and sends one scheduled follow-up
+(`ScheduledEnqueueTimeUtc`), carrying the attempt count. `service-bus.retry-durations`
+(`0s,1s,2s,5s,10s,30s,1m,2m,5m,5m,5m,10m,10m,30m,30m,1h`) sets each delay; `service-bus.max-tries`
+(24) sets when to give up and dead-letter explicitly. Sized for PCR's own failure mode — viewstore
+replication lag, minutes not days — not copied from HRDS's schedule (108 tries, 4h tail, ~14.5
+days), which is tuned for a downed external subscriber. Worst case here is ~10.6 hours.
 
-**Completeness retry mechanism** — a separate, non-blocking schedule from `ResultsIngestionService`'s
-own 2s/4s/8s in-process retry (which still governs the synchronous webhook path only — that one
-sleeps the calling thread and needs to resolve in ~14s total, a different constraint entirely):
-
-- On an incomplete result: `complete()` the message, then publish one scheduled follow-up
-  (`ScheduledEnqueueTimeUtc`), carrying the attempt count as an application property.
-- `service-bus.retry-durations` (`0s,1s,2s,5s,10s,30s,1m,2m,5m,5m,5m,10m,10m,30m,30m,1h`) governs
-  each retry's delay, clamping to the last configured value once the attempt count exceeds the
-  list. `service-bus.max-tries` (default `24`) governs when to give up — after the 24th attempt,
-  dead-letter explicitly via `deadLetterMessage(reason, description)` — e.g.
-  `"IncompleteHearingDetailsException after 24 attempts"` — clearly flagged, not an unexplained
-  generic dead-letter.
-- Sized for PCR's actual failure mode (viewstore replication lag — typically seconds to low
-  minutes), not copied from HRDS's schedule verbatim (`108` tries, `4h` tail, ~14.5 days
-  worst-case) — that schedule is tuned for a downed *external subscriber callback*, a
-  days-long-outage failure mode PCR doesn't have. A ~10.6-hour worst-case window comfortably
-  absorbs realistic replication lag while still surfacing a genuinely stuck message to the DLQ
-  within the same working day, not two weeks later.
+Follow-up messages set their own 24-hour TTL rather than inheriting the queue's 10-minute default —
+otherwise a longer-delayed retry could auto-expire into the DLQ before `max-tries` ever gets to
+decide.
 
 ### 2.3 Local dev / test story
 
