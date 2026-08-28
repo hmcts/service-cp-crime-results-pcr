@@ -84,29 +84,14 @@ class HearingResultedServiceBusConsumerTest {
     private HearingResultedServiceBusConsumer consumer;
 
     @Test
-    void initialise_should_skipEntirely_whenAutoStartProcessorsAndIngestionBothDisabled() {
+    void initialise_should_skipEntirely_whenAutoStartProcessorsDisabled() {
         when(properties.isAutoStartProcessors()).thenReturn(false);
-        when(properties.isIngestionEnabled()).thenReturn(false);
 
         consumer.initialise();
 
         verify(provisioningService, never()).isServiceBusReady();
         verify(provisioningService, never()).queueExists(any());
         verify(clientFactory, never()).processorClientBuilder();
-    }
-
-    @Test
-    void initialise_should_start_whenIngestionEnabled_evenIfAutoStartProcessorsDisabled() {
-        when(properties.isAutoStartProcessors()).thenReturn(false);
-        when(properties.isIngestionEnabled()).thenReturn(true);
-        when(provisioningService.isServiceBusReady()).thenReturn(true);
-        when(provisioningService.queueExists(ServiceBusProperties.QUEUE_NAME)).thenReturn(true);
-        givenProcessorBuilder();
-
-        consumer.initialise();
-
-        verify(provisioningService).queueExists(ServiceBusProperties.QUEUE_NAME);
-        verify(processorClient).start();
     }
 
     @Test
@@ -172,8 +157,7 @@ class HearingResultedServiceBusConsumerTest {
     }
 
     @Test
-    void processMessage_should_ingestAndComplete_whenIngestionEnabledAndComplete() {
-        when(properties.isIngestionEnabled()).thenReturn(true);
+    void processMessage_should_ingestAndComplete_whenComplete() {
         givenMessage(hearingResultedEventJson(), null);
         givenGeneratedCorrelationId();
 
@@ -186,20 +170,7 @@ class HearingResultedServiceBusConsumerTest {
     }
 
     @Test
-    void processMessage_should_completeWithoutIngesting_whenSwitchOff() {
-        when(properties.isIngestionEnabled()).thenReturn(false);
-        givenMessage(hearingResultedEventJson(), null);
-        givenGeneratedCorrelationId();
-
-        consumer.processMessage(context);
-
-        verify(ingestionService, never()).ingestAndPersistOnce(any(), any());
-        verify(context).complete();
-    }
-
-    @Test
     void processMessage_should_abandon_whenEventTypeUnrecognized() {
-        when(properties.isIngestionEnabled()).thenReturn(true);
         givenMessage(unrecognizedEventTypeJson(), null);
         givenGeneratedCorrelationId();
 
@@ -212,7 +183,6 @@ class HearingResultedServiceBusConsumerTest {
 
     @Test
     void processMessage_should_abandon_whenIngestionThrowsUnexpectedException() {
-        when(properties.isIngestionEnabled()).thenReturn(true);
         givenMessage(hearingResultedEventJson(), null);
         givenGeneratedCorrelationId();
         doThrow(new IllegalStateException("malformed cache payload"))
@@ -226,7 +196,6 @@ class HearingResultedServiceBusConsumerTest {
 
     @Test
     void processMessage_should_completeAndScheduleFollowUp_whenIncompleteAndAttemptsRemain() {
-        when(properties.isIngestionEnabled()).thenReturn(true);
         when(properties.getMaxTries()).thenReturn(24);
         givenMessage(hearingResultedEventJson(), 1);
         givenGeneratedCorrelationId();
@@ -250,7 +219,6 @@ class HearingResultedServiceBusConsumerTest {
 
     @Test
     void processMessage_should_reuseExistingCorrelationId_whenMessageAlreadyHasOne() {
-        when(properties.isIngestionEnabled()).thenReturn(true);
         when(properties.getMaxTries()).thenReturn(24);
         givenMessage(hearingResultedEventJson(), 1);
         when(message.getCorrelationId()).thenReturn(EXISTING_CORRELATION_ID);
@@ -267,7 +235,6 @@ class HearingResultedServiceBusConsumerTest {
 
     @Test
     void processMessage_should_deadLetter_whenIncompleteAndAttemptsExhausted() {
-        when(properties.isIngestionEnabled()).thenReturn(true);
         when(properties.getMaxTries()).thenReturn(24);
         givenMessage(hearingResultedEventJson(), 24);
         givenGeneratedCorrelationId();

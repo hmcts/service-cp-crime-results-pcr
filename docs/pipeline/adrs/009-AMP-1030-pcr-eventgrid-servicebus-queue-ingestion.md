@@ -38,10 +38,11 @@ independent Event Grid event subscription:
   replication lag — minutes, not days). Each follow-up message sets its own 24h `TimeToLive`,
   since the queue's own 10-minute default would otherwise auto-expire a longer-delayed retry into
   the DLQ before `max-tries` gets a say.
-- **Staged cutover behind a switch**, off by default — `pcr-eventgrid-relay-function` stays live
-  until the new path is proven in lower environments, then production, at which point the relay's
-  routing is disabled. Never both channels active in one environment (`ingestAndPersist` isn't
-  idempotent). Both channels log receipt during the coexistence window.
+- **Cutover complete — the queue is now the only ingestion path.** The synchronous POST path
+  (`HearingResultedEventController`, `HearingResultedEventService`, `POST /internal/hearing-results`)
+  and the coexistence switch (`service-bus.ingestion-enabled`) have been removed — there's nothing
+  left to switch between. Retiring `pcr-eventgrid-relay-function` itself is a separate, cross-repo
+  decision, tracked as AMP-1053 — not something this repo's code can do.
 - **Both the Event Grid event subscription and the Service Bus queue are provisioned via
   Terraform (IaC)** — the same shared per-environment Service Bus namespace as before. The app
   never creates the queue itself: at startup it only verifies the queue exists
@@ -59,11 +60,10 @@ independent Event Grid event subscription:
 
 - Reintroduces a Service Bus dependency into PCR (removed in ADR-007) — PCR owns its queue
   outright, no cross-team governance over shared resource settings or lifecycle.
-- Two ingestion paths coexist temporarily — a bounded, switch-gated exception to ADR-007. Relay
-  decommissioning is separate follow-up work once the new path is proven.
 - Alerting/escalation on DLQ messages is still out of scope — native dead-lettering ships, proactive
   alerting doesn't.
-- `/internal/hearing-results` stays live for as long as the relay function does.
+- `pcr-eventgrid-relay-function` itself isn't retired by this change (AMP-1053) — it's just no
+  longer called by anything in this repo.
 - Doesn't design NOW's own queue, consumer, generation-gate logic, or data model — NOW's queue and
   Event Grid event subscription are entirely its own to provision, on its own timeline.
 - The queue's existence at app startup depends on Terraform having already run in that
@@ -79,7 +79,7 @@ independent Event Grid event subscription:
 - **A single Queue shared by both consumers** — rejected; competing-consumer semantics mean only
   one of PCR/NOW would ever receive a given message. Each consumer owning its own dedicated queue
   avoids this entirely.
-- **Immediate cutover, no staged switch** — rejected; a consumer is actively testing the existing
-  path today.
+- **Immediate cutover, no staged switch** — rejected at the time; a consumer was actively testing
+  the existing path. Cutover happened later once that was no longer a concern (see Decision above).
 - **Extend the retry schedule and build alerting as part of this change** — deferred at the time;
   the retry schedule was extended later (see Decision above), alerting is still outstanding.
