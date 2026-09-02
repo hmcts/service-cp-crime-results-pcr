@@ -13,7 +13,7 @@
             "pleaValue": "GUILTY",
             "results": [
               {
-                "resultDescription": "IMP - Imprisonment",
+                "resultDescription": "IMP - Imprisonment\nCommitted to prison for 15 Days. Reason: the offence(s) are so serious that only a custodial sentence can be justified because of an unprovoked attack of a serious nature. Bail remand days to count (Tagged Days): 0. \n \n ",
                 "resultTexts": [
                   {
                     "label": "Imprisonment Period",
@@ -47,7 +47,7 @@
         "reference": "OD123921416",
         "results": [
           {
-            "resultDescription": "OREV - Order revoked",
+            "resultDescription": "OREV - Order revoked\ncommunity order made by Bexley Magistrates' Court on 10/08/2026 revoked.",
             "resultTexts": [
               {
                 "label": "Date original order made",
@@ -118,7 +118,7 @@
         "pleaValue": "GUILTY",
         "results": [
           {
-            "resultDescription": "IMP - Imprisonment",
+            "resultDescription": "IMP - Imprisonment\nCommitted to prison for 15 Days. Reason: the offence(s) are so serious that only a custodial sentence can be justified because of an unprovoked attack of a serious nature. Bail remand days to count (Tagged Days): 0. Total custodial period is life.\n \n ",
             "resultTexts": [
               {
                 "label": "Total custodial period is life",

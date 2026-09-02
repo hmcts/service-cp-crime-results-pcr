@@ -63,7 +63,7 @@
         "pleaValue": "NOT_GUILTY",
         "results": [
           {
-            "resultDescription": "IMP - Imprisonment",
+            "resultDescription": "IMP - Imprisonment\nCommitted to prison for 5 Months Concurrent Consecutive to offence test Consecutive to offence which is on case number 28DI9158668. Reason: failure to comply with requirements of post custodial sentence supervision because of an unprovoked attack of a serious nature, because the defendant has a flagrant disregard for court orders, test details. Bail remand days to count (Tagged Days): 0. Number of days in custody in foreign jurisdiction to count: 10. This offence is aggravated by the foreign power condition being met in relation to it as defined by section 31 of the National Security Act 2023. Total custodial period: 5 Months. Consecutive to sentence imposed on 11/08/2026, which was imposed by Bexley Magistrates' Court. Consecutive to all other terms being served. Minimum term: 5 Months. Early release provisions do not apply - sentence is a whole life order. Defendant sentenced without a pre-sentence report because test Reason for sentence without PSR. Sentenced in absence.\n \n ",
             "resultTexts": [
               {
                 "label": "Total custodial period",
@@ -180,7 +180,7 @@
         "pleaValue": "NOT_GUILTY",
         "results": [
           {
-            "resultDescription": "A - Adjournment",
+            "resultDescription": "A - Adjournment\nAdjourned for hearing on 17/08/2026 at 10:00 in Courtroom 01, Bexley Magistrates' Court. Reason: To attend or a warrant to issue. Defendant to attend the next hearing.",
             "resultTexts": [
               {
                 "label": "Next hearing in magistrates' court",
@@ -195,8 +195,12 @@
                 "value": "true"
               },
               {
+                "label": "To attend or a warrant to issue",
+                "value": ""
+              },
+              {
                 "label": "Adjournment reasons",
-                "value": "To attend or a warrant to issue"
+                "value": ""
               }
             ]
           }

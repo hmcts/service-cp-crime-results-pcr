@@ -60,7 +60,7 @@
         "pleaValue": "NOT_GUILTY",
         "results": [
           {
-            "resultDescription": "RI - Remanded in custody",
+            "resultDescription": "RI - Remanded in custody\nRemanded in custody until hearing on 02/09/2026 at 10:00 in Courtroom 01, Lavender Hill Magistrates' Court. Basis: Before conviction. Adjournment reason: To attend or a warrant to issue. Bail exceptions: Already in custody. Reason for applying: Offended on bail.",
             "resultTexts": [
               {
                 "label": "Next hearing in magistrates' court",
@@ -99,8 +99,12 @@
                 "value": "Offended on bail"
               },
               {
+                "label": "To attend or a warrant to issue",
+                "value": ""
+              },
+              {
                 "label": "Adjournment reasons",
-                "value": "To attend or a warrant to issue"
+                "value": ""
               }
             ]
           }

@@ -22,7 +22,7 @@
       "postHearingCustodyStatus": "A",
       "results": [
         {
-          "resultDescription": "COLLO - Collection order",
+          "resultDescription": "COLLO - Collection order\nCollection order made. Make payments as ordered.",
           "resultTexts": [
             {
               "label": "Collection order type",
@@ -31,7 +31,7 @@
           ]
         },
         {
-          "resultDescription": "PDATE - Pay by date",
+          "resultDescription": "PDATE - Pay by date\nPay by date. Date to pay in full by: 19/08/2026.",
           "resultTexts": [
             {
               "label": "Date to pay in full by",
@@ -74,7 +74,7 @@
         "pleaValue": "NOT_GUILTY",
         "results": [
           {
-            "resultDescription": "IMP - Imprisonment",
+            "resultDescription": "IMP - Imprisonment\nCommitted to prison for 7 Months Concurrent Consecutive to offence test Consecutive to offence which is on case number OG231065167. Reason: failure to comply with a pre-sentence drug testing order because of an unprovoked attack of a serious nature, test. Bail remand days to count (Tagged Days): 0. Number of days in custody in foreign jurisdiction to count: 10. This offence is aggravated by the foreign power condition being met in relation to it as defined by section 31 of the National Security Act 2023. Total custodial period: 7 Months.\n \n ",
             "resultTexts": [
               {
                 "label": "Total custodial period",
@@ -163,11 +163,11 @@
       "caseURN": "OG231065167",
       "results": [
         {
-          "resultDescription": "FCOST - Costs",
+          "resultDescription": "FCOST - Costs\nTo pay costs of \u00a3567.00 to City of London Police",
           "resultTexts": [
             {
               "label": "Amount of costs",
-              "value": "£567.00"
+              "value": "\u00a3567.00"
             },
             {
               "label": "Major creditor organisation name",

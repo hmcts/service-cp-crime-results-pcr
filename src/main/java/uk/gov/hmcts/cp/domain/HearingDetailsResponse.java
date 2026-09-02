@@ -338,14 +338,6 @@ public class HearingDetailsResponse {
         private LocalDate orderedDate;
         private NextHearing nextHearing;
         private List<JudicialResultPrompt> judicialResultPrompts;
-        // judicialResultId/parentJudicialResultId/resultDefinitionGroup: identify a result
-        // that is itself the resolved answer to a sibling "roll-up" prompt elsewhere in the
-        // same offence/application (e.g. an "Adjournment reasons" qualifier prompt whose real
-        // value is a separate, excludedFromResults child result) — see
-        // CPHearingResultEntityMapper.resolveRollUpPairs.
-        private String judicialResultId;
-        private String parentJudicialResultId;
-        private String resultDefinitionGroup;
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
