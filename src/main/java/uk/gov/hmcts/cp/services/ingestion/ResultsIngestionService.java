@@ -157,9 +157,11 @@ public class ResultsIngestionService {
     }
 
     private boolean isComplete(final HearingDetailsResponse response) {
-        return response != null
-                && response.getHearing() != null
-                && response.getHearing().getProsecutionCases() != null
-                && !response.getHearing().getProsecutionCases().isEmpty();
+        final HearingDetail hearing = response == null ? null : response.getHearing();
+        return hearing != null && (isNotEmpty(hearing.getProsecutionCases()) || isNotEmpty(hearing.getCourtApplications()));
+    }
+
+    private boolean isNotEmpty(final List<?> list) {
+        return list != null && !list.isEmpty();
     }
 }
