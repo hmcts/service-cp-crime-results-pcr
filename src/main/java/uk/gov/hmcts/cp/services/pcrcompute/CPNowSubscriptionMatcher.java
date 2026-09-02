@@ -103,7 +103,7 @@ public class CPNowSubscriptionMatcher {
     }
 
     private List<String> resultPromptReferencesOf(final List<CPResultPrompt> prompts) {
-        return prompts == null ? null : prompts.stream().map(CPResultPrompt::getResultPromptReference).toList();
+        return prompts == null ? List.of() : prompts.stream().map(CPResultPrompt::getResultPromptReference).toList();
     }
 
     private boolean resultTypeListsMatch(final SubscriptionVocabulary subVoc, final List<JudicialResult> results) {
