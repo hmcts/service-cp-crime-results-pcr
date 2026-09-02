@@ -170,6 +170,17 @@ class ResultsIngestionServiceTest {
     }
 
     @Test
+    void ingestHearingResultsOnce_should_returnResponse_whenApplicationOnlyHearing_hasNoProsecutionCases() {
+        when(cacheClient.get(HEARING_ID, HEARING_DAY)).thenReturn(Optional.empty());
+        when(resultsClient.getHearingDetails(HEARING_ID)).thenReturn(applicationOnlyResponse());
+
+        final HearingDetailsResponse result = ingestionService.ingestHearingResultsOnce(HEARING_ID, HEARING_DAY);
+
+        assertThat(result.getHearing().getCourtApplications()).hasSize(1);
+        verify(resultsClient, times(1)).getHearingDetails(HEARING_ID);
+    }
+
+    @Test
     void ingestHearingResultsOnce_should_throwImmediately_whenIncomplete_withoutRetrying() {
         when(cacheClient.get(HEARING_ID, HEARING_DAY)).thenReturn(Optional.empty());
         when(resultsClient.getHearingDetails(HEARING_ID)).thenReturn(incompleteResponse());
@@ -364,6 +375,14 @@ class ResultsIngestionServiceTest {
         return HearingDetailsResponse.builder()
                 .hearing(HearingDetailsResponse.HearingDetail.builder()
                         .prosecutionCases(List.of())
+                        .build())
+                .build();
+    }
+
+    private HearingDetailsResponse applicationOnlyResponse() {
+        return HearingDetailsResponse.builder()
+                .hearing(HearingDetailsResponse.HearingDetail.builder()
+                        .courtApplications(List.of(HearingDetailsResponse.CourtApplication.builder().id("app-1").build()))
                         .build())
                 .build();
     }
