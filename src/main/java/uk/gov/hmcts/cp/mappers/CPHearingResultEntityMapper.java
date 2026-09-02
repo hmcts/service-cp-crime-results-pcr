@@ -14,6 +14,7 @@ import uk.gov.hmcts.cp.domain.HearingDetailsResponse.Defendant;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.DefendantJudicialResult;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.HearingDetail;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.JudicialResult;
+import uk.gov.hmcts.cp.domain.HearingDetailsResponse.JudicialResultPrompt;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.Offence;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.PersonDetails;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.ProsecutionCase;
@@ -33,10 +34,15 @@ import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.IdentityHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Component
@@ -196,10 +202,16 @@ public class CPHearingResultEntityMapper {
     // excludePublishedForNows applies here (see its own comment for why it applies uniformly).
     private void addDefendantAndCaseLevelResults(final Defendant defendant, final HearingDetail hearing, final UUID versionPk,
                                                   final List<CPJudicialResultEntity> judicialResults, final List<CPJudicialResultPromptEntity> prompts) {
-        excludePublishedForNows(matchingDefendantJudicialResults(defendant, hearing))
-                .forEach(r -> addResult(r, null, null, versionPk, LEVEL_DEFENDANT, judicialResults, prompts));
-        excludePublishedForNows(Stream.ofNullable(defendant.getDefendantCaseJudicialResults()).flatMap(List::stream))
-                .forEach(r -> addResult(r, null, null, versionPk, LEVEL_CASE, judicialResults, prompts));
+        final List<JudicialResult> defendantResults = matchingDefendantJudicialResults(defendant, hearing).toList();
+        final Map<String, JudicialResult> defendantSiblings = toSiblingsById(defendantResults);
+        excludePublishedForNows(defendantResults.stream())
+                .forEach(r -> addResult(r, null, null, versionPk, LEVEL_DEFENDANT, defendantSiblings, judicialResults, prompts));
+
+        final List<JudicialResult> caseResults =
+                Stream.ofNullable(defendant.getDefendantCaseJudicialResults()).flatMap(List::stream).toList();
+        final Map<String, JudicialResult> caseSiblings = toSiblingsById(caseResults);
+        excludePublishedForNows(caseResults.stream())
+                .forEach(r -> addResult(r, null, null, versionPk, LEVEL_CASE, caseSiblings, judicialResults, prompts));
     }
 
     // Mirrors RegisterFragmentService.js's filterJudicialResultsApplicableForRegisters — same
@@ -228,8 +240,9 @@ public class CPHearingResultEntityMapper {
                                               final List<CPJudicialResultPromptEntity> prompts) {
         linkedOffencesOf(application)
                 .forEach(o -> addLinkedOffence(o, courtApplicationId, offences, judicialResults, prompts));
+        final Map<String, JudicialResult> siblingsById = toSiblingsById(application.getJudicialResults());
         excludePublishedForNows(application.getJudicialResults().stream())
-                .forEach(r -> addResult(r, null, courtApplicationId, judicialResults, prompts));
+                .forEach(r -> addResult(r, null, courtApplicationId, siblingsById, judicialResults, prompts));
     }
 
     private CPVersionEntity toVersionEntity(final Defendant defendant, final HearingDetail hearing, final UUID caseHearingId,
@@ -380,16 +393,28 @@ public class CPHearingResultEntityMapper {
                                    final List<CPJudicialResultEntity> judicialResults, final List<CPJudicialResultPromptEntity> prompts) {
         final CPOffenceEntity offenceEntity = toOffenceEntity(offence, versionPk, null);
         offences.add(offenceEntity);
+        final Map<String, JudicialResult> siblingsById = toSiblingsById(offence.getJudicialResults());
         excludePublishedForNows(offence.getJudicialResults().stream())
-                .forEach(r -> addResult(r, offenceEntity.getId(), null, judicialResults, prompts));
+                .forEach(r -> addResult(r, offenceEntity.getId(), null, siblingsById, judicialResults, prompts));
     }
 
     private void addLinkedOffence(final Offence offence, final UUID courtApplicationId, final List<CPOffenceEntity> offences,
                                    final List<CPJudicialResultEntity> judicialResults, final List<CPJudicialResultPromptEntity> prompts) {
         final CPOffenceEntity offenceEntity = toOffenceEntity(offence, null, courtApplicationId);
         offences.add(offenceEntity);
+        final Map<String, JudicialResult> siblingsById = toSiblingsById(offence.getJudicialResults());
         excludePublishedForNows(offence.getJudicialResults().stream())
-                .forEach(r -> addResult(r, offenceEntity.getId(), null, judicialResults, prompts));
+                .forEach(r -> addResult(r, offenceEntity.getId(), null, siblingsById, judicialResults, prompts));
+    }
+
+    // The sibling that resolves a roll-up prompt's real value (e.g. the "Adjournment reasons"
+    // qualifier's answer) is a separate JudicialResult in this same list, excluded from
+    // becoming its own persisted row by excludePublishedForNows — so the lookup map must be
+    // built from the list before that filter runs, not from what actually gets persisted.
+    private Map<String, JudicialResult> toSiblingsById(final List<JudicialResult> results) {
+        return results.stream()
+                .filter(r -> r.getJudicialResultId() != null)
+                .collect(Collectors.toMap(JudicialResult::getJudicialResultId, r -> r, (a, b) -> a));
     }
 
     private CPOffenceEntity toOffenceEntity(final Offence offence, final UUID versionPk, final UUID courtApplicationId) {
@@ -424,16 +449,17 @@ public class CPHearingResultEntityMapper {
     }
 
     private void addResult(final JudicialResult result, final UUID offenceId, final UUID courtApplicationId,
+                            final Map<String, JudicialResult> siblingsById,
                             final List<CPJudicialResultEntity> judicialResults, final List<CPJudicialResultPromptEntity> prompts) {
-        addResult(result, offenceId, courtApplicationId, null, null, judicialResults, prompts);
+        addResult(result, offenceId, courtApplicationId, null, null, siblingsById, judicialResults, prompts);
     }
 
     private void addResult(final JudicialResult result, final UUID offenceId, final UUID courtApplicationId,
-                            final UUID versionPk, final String level,
+                            final UUID versionPk, final String level, final Map<String, JudicialResult> siblingsById,
                             final List<CPJudicialResultEntity> judicialResults, final List<CPJudicialResultPromptEntity> prompts) {
         final CPJudicialResultEntity resultEntity = toJudicialResultEntity(result, offenceId, courtApplicationId, versionPk, level);
         judicialResults.add(resultEntity);
-        prompts.addAll(toPromptEntities(result, resultEntity.getId()));
+        prompts.addAll(toPromptEntities(result, resultEntity.getId(), siblingsById));
     }
 
     private CPJudicialResultEntity toJudicialResultEntity(final JudicialResult result, final UUID offenceId, final UUID courtApplicationId,
@@ -459,18 +485,86 @@ public class CPHearingResultEntityMapper {
                 .build();
     }
 
-    private List<CPJudicialResultPromptEntity> toPromptEntities(final JudicialResult result, final UUID judicialResultId) {
+    private List<CPJudicialResultPromptEntity> toPromptEntities(final JudicialResult result, final UUID judicialResultId,
+                                                                  final Map<String, JudicialResult> siblingsById) {
         // judicialResultPrompts absent entirely on a real judicial result that has none
         // (confirmed against a real hearing fixture) — not always an empty list.
-        return Stream.ofNullable(result.getJudicialResultPrompts()).flatMap(List::stream)
-                .map(p -> CPJudicialResultPromptEntity.builder()
-                        .id(UUID.randomUUID())
-                        .judicialResultId(judicialResultId)
-                        .promptReference(p.getPromptReference())
-                        .value(p.getValue())
-                        .label(p.getLabel())
-                        .type(p.getType())
-                        .build())
-                .toList();
+        final List<JudicialResultPrompt> rawPrompts =
+                Stream.ofNullable(result.getJudicialResultPrompts()).flatMap(List::stream).toList();
+        final List<RollUpPair> rollUpPairs = resolveRollUpPairs(rawPrompts, siblingsById);
+        final Set<JudicialResultPrompt> qualifiersToSkip = Collections.newSetFromMap(new IdentityHashMap<>());
+        final Map<JudicialResultPrompt, RollUpPair> pairsByAnswer = new IdentityHashMap<>();
+        for (final RollUpPair pair : rollUpPairs) {
+            qualifiersToSkip.add(pair.qualifier());
+            pairsByAnswer.put(pair.answer(), pair);
+        }
+
+        final List<CPJudicialResultPromptEntity> entities = new ArrayList<>();
+        for (final JudicialResultPrompt prompt : rawPrompts) {
+            if (qualifiersToSkip.contains(prompt)) {
+                continue;
+            }
+            final RollUpPair pair = pairsByAnswer.get(prompt);
+            entities.add(pair == null
+                    ? toPromptEntity(judicialResultId, prompt.getPromptReference(), prompt.getLabel(), prompt.getValue(), prompt.getType())
+                    : toPromptEntity(judicialResultId, prompt.getPromptReference(), pair.qualifier().getLabel(), pair.value(), prompt.getType()));
+        }
+        return entities;
+    }
+
+    private CPJudicialResultPromptEntity toPromptEntity(final UUID judicialResultId, final String promptReference,
+                                                          final String label, final String value, final String type) {
+        return CPJudicialResultPromptEntity.builder()
+                .id(UUID.randomUUID())
+                .judicialResultId(judicialResultId)
+                .promptReference(promptReference)
+                .value(value)
+                .label(label)
+                .type(type)
+                .build();
+    }
+
+    // A prompt with a blank value isn't necessarily a leaf — CP can model it as a pointer to a
+    // separate sibling JudicialResult (matched by promptReference == sibling.judicialResultId)
+    // carrying the real free-text answer, paired with a "qualifier" prompt in this same list
+    // that names the category (matched by sibling.parentJudicialResultId, or failing that
+    // sibling.resultDefinitionGroup). Confirmed against cpp-context-hearing's reference-data
+    // resultTextTemplate/ResultTextParseRule mechanism for e.g. "Adjournment reasons".
+    private List<RollUpPair> resolveRollUpPairs(final List<JudicialResultPrompt> prompts,
+                                                 final Map<String, JudicialResult> siblingsById) {
+        final List<RollUpPair> pairs = new ArrayList<>();
+        for (final JudicialResultPrompt answer : prompts) {
+            if (!isBlank(answer.getValue())) {
+                continue;
+            }
+            final JudicialResult sibling = siblingsById.get(answer.getPromptReference());
+            if (sibling == null || isBlank(sibling.getResultText())) {
+                continue;
+            }
+            findQualifier(prompts, answer, sibling)
+                    .ifPresent(qualifier -> pairs.add(new RollUpPair(answer, qualifier, sibling.getResultText())));
+        }
+        return pairs;
+    }
+
+    private Optional<JudicialResultPrompt> findQualifier(final List<JudicialResultPrompt> prompts,
+                                                           final JudicialResultPrompt answer, final JudicialResult sibling) {
+        return prompts.stream()
+                .filter(p -> !p.equals(answer))
+                .filter(p -> matchesQualifier(p, sibling))
+                .findFirst();
+    }
+
+    private boolean matchesQualifier(final JudicialResultPrompt prompt, final JudicialResult sibling) {
+        return sibling.getParentJudicialResultId() != null
+                ? sibling.getParentJudicialResultId().equals(prompt.getPromptReference())
+                : sibling.getResultDefinitionGroup() != null && sibling.getResultDefinitionGroup().equals(prompt.getLabel());
+    }
+
+    private boolean isBlank(final String value) {
+        return value == null || value.isBlank();
+    }
+
+    private record RollUpPair(JudicialResultPrompt answer, JudicialResultPrompt qualifier, String value) {
     }
 }

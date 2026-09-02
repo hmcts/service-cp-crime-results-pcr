@@ -99,12 +99,8 @@
                 "value": "Broken bail conditions"
               },
               {
-                "label": "To attend or a warrant to issue",
-                "value": ""
-              },
-              {
                 "label": "Adjournment reasons",
-                "value": ""
+                "value": "To attend or a warrant to issue"
               }
             ]
           }
@@ -163,12 +159,8 @@
                 "value": "Broken bail conditions"
               },
               {
-                "label": "To attend or a warrant to issue",
-                "value": ""
-              },
-              {
                 "label": "Adjournment reasons",
-                "value": ""
+                "value": "To attend or a warrant to issue"
               }
             ]
           }

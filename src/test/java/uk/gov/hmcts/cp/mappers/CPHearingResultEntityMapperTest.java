@@ -950,6 +950,69 @@ class CPHearingResultEntityMapperTest {
         assertThat(bundleB.courtApplications().get(0).getVersionPk()).isEqualTo(bundleB.version().getCpVersionPk());
     }
 
+    // Reproduces the "Adjournment reasons" defect: CP splits a roll-up prompt into a blank-value
+    // qualifier prompt ("Adjournment reasons") and a blank-value leaf prompt whose promptReference
+    // points to a separate, excludedFromResults sibling JudicialResult carrying the real answer.
+    @Test
+    void toWriteBundle_should_mergeRollUpQualifierAndAnswerPrompts_intoOneResultText() {
+        when(promptParser.fineAmount(any())).thenReturn(null);
+        final JudicialResultPrompt answerPrompt = JudicialResultPrompt.builder()
+                .promptReference("b207aa30-2440-49b1-9524-a88bfe2e0559")
+                .label("To attend or a warrant to issue").value("").build();
+        final JudicialResultPrompt qualifierPrompt = JudicialResultPrompt.builder()
+                .promptReference("ab502425-12bd-4d2c-aec7-75ae3ddacb42")
+                .label("Adjournment reasons").value("").build();
+        final JudicialResult rootResult = JudicialResult.builder()
+                .cjsCode("4028").label("Remanded in custody")
+                .resultText("RI - Remanded in custody")
+                .judicialResultPrompts(List.of(answerPrompt, qualifierPrompt))
+                .build();
+        final JudicialResult answerResult = JudicialResult.builder()
+                .judicialResultId("b207aa30-2440-49b1-9524-a88bfe2e0559")
+                .parentJudicialResultId("ab502425-12bd-4d2c-aec7-75ae3ddacb42")
+                .resultDefinitionGroup("Adjournment reasons")
+                .resultText("To attend or a warrant to issue")
+                .publishedForNows(true)
+                .build();
+        final Offence offence = Offence.builder().offenceCode("TH68001")
+                .judicialResults(List.of(rootResult, answerResult)).build();
+        final Defendant defendant = Defendant.builder()
+                .id(DEFENDANT_ID.toString())
+                .personDefendant(PersonDefendant.builder().build())
+                .offences(List.of(offence))
+                .build();
+        final HearingDetail hearing = HearingDetail.builder().courtApplications(List.of()).build();
+
+        final CPEntitySet bundle = mapper.toWriteBundle(defendant, hearing, CASE_HEARING_ID, SHARED_TIME, CREATED_AT, EXPIRES_AT);
+
+        assertThat(bundle.judicialResults()).hasSize(1);
+        assertThat(bundle.judicialResultPrompts()).hasSize(1);
+        assertThat(bundle.judicialResultPrompts().get(0).getLabel()).isEqualTo("Adjournment reasons");
+        assertThat(bundle.judicialResultPrompts().get(0).getValue()).isEqualTo("To attend or a warrant to issue");
+    }
+
+    @Test
+    void toWriteBundle_should_leaveBlankValuePrompt_unmerged_whenNoMatchingSiblingResult() {
+        when(promptParser.fineAmount(any())).thenReturn(null);
+        final JudicialResultPrompt unresolved = JudicialResultPrompt.builder()
+                .promptReference("no-such-sibling").label("Some standalone flag").value("").build();
+        final JudicialResult rootResult = JudicialResult.builder()
+                .cjsCode("1200").judicialResultPrompts(List.of(unresolved)).build();
+        final Offence offence = Offence.builder().offenceCode("TH68001").judicialResults(List.of(rootResult)).build();
+        final Defendant defendant = Defendant.builder()
+                .id(DEFENDANT_ID.toString())
+                .personDefendant(PersonDefendant.builder().build())
+                .offences(List.of(offence))
+                .build();
+        final HearingDetail hearing = HearingDetail.builder().courtApplications(List.of()).build();
+
+        final CPEntitySet bundle = mapper.toWriteBundle(defendant, hearing, CASE_HEARING_ID, SHARED_TIME, CREATED_AT, EXPIRES_AT);
+
+        assertThat(bundle.judicialResultPrompts()).hasSize(1);
+        assertThat(bundle.judicialResultPrompts().get(0).getLabel()).isEqualTo("Some standalone flag");
+        assertThat(bundle.judicialResultPrompts().get(0).getValue()).isEmpty();
+    }
+
     private ProsecutionCase minimalProsecutionCase() {
         return ProsecutionCase.builder()
                 .prosecutionCaseIdentifier(ProsecutionCaseIdentifier.builder().caseURN(CASE_URN).build())

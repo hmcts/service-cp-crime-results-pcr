@@ -3,17 +3,17 @@
     "courtApplications": [],
     "defendant": {
       "address": {
-        "address1": "99 Riverside Drive",
-        "address2": "Riverside Drive",
-        "address3": "Chester-le-Street",
+        "address1": "40 Market Place",
+        "address2": "Market Place",
+        "address3": "Bristol",
         "postCode": "NW1 5BR"
       },
-      "dateOfBirth": "1986-07-30",
-      "firstName": "Maurine",
+      "dateOfBirth": "2006-09-01",
+      "firstName": "Lazaro",
       "gender": "MALE",
-      "id": "a81dd0b5-ebca-47bb-a3e1-205c40f2c4dc",
-      "lastName": "Sipes",
-      "masterDefendantId": "a81dd0b5-ebca-47bb-a3e1-205c40f2c4dc",
+      "id": "f1fdca0e-a46d-42a0-bd1c-100c2ddedb11",
+      "lastName": "Hessel",
+      "masterDefendantId": "f1fdca0e-a46d-42a0-bd1c-100c2ddedb11",
       "postHearingCustodyStatus": "Not Applicable",
       "results": [],
       "title": "Mr"
@@ -36,9 +36,9 @@
         "ljaName": "Central London Magistrates' Court"
       },
       "defendantAppearanceDetails": "In person",
-      "hearingDate": "2026-07-31",
+      "hearingDate": "2026-09-01",
       "hearingType": "First hearing",
-      "id": "5151e511-7989-4ae0-8e38-2e697834edc6",
+      "id": "ae6de428-b738-4dd2-af4a-f8de7e96f942",
       "jurisdiction": "MAGISTRATES",
       "nextHearing": {
         "court": {
@@ -46,17 +46,17 @@
           "courtHouseId": "f8254db1-1683-483e-afb3-b87fde5a0a26",
           "courtHouseName": "Lavender Hill Magistrates' Court"
         },
-        "dateTime": "2026-07-31T09:00:00Z",
-        "hearingId": "41a6176a-4304-4986-91b6-588969195c56"
+        "dateTime": "2026-09-02T09:00:00Z",
+        "hearingId": "ea3284bb-712f-4a5b-8117-cc7cbb30c312"
       }
     },
     "offences": [
       {
-        "allocationDecision": "Indictable-only offence",
-        "code": "TH68023",
+        "code": "TH68001",
+        "id": "fb33a321-3491-46ba-8326-656e751e8e8d",
         "listingNumber": 1,
-        "offenceLegislation": "Contrary to section 8(1) of the Theft Act 1968.",
-        "pleaDate": "2026-07-31",
+        "offenceLegislation": "Contrary to section 1(1) and 7 of the Theft Act 1968.",
+        "pleaDate": "2026-09-01",
         "pleaValue": "NOT_GUILTY",
         "results": [
           {
@@ -64,19 +64,19 @@
             "resultTexts": [
               {
                 "label": "Next hearing in magistrates' court",
-                "value": "Date of hearing:31/07/2026\nTime of hearing:10:00\nCourthouse organisation name:Lavender Hill Magistrates' Court\nCourthouse address line 1:176A Lavender Hill\nCourthouse address line 2:London\nCourthouse post code:SW11 1JU\nCourtroom:Courtroom 01\nHearing type:Appeal\nEstimated duration:30 MINUTES\nBooking reference:dcb4cfc1-98a7-4be6-8dbe-22143e04a4ed"
+                "value": "Date of hearing:02/09/2026\nTime of hearing:10:00\nCourthouse organisation name:Lavender Hill Magistrates' Court\nCourthouse address line 1:176A Lavender Hill\nCourthouse address line 2:London\nCourthouse post code:SW11 1JU\nCourtroom:Courtroom 01\nHearing type:Appeal\nEstimated duration:30 MINUTES\nBooking reference:ea3284bb-712f-4a5b-8117-cc7cbb30c312"
               },
               {
                 "label": "Prison organisation name",
-                "value": "HMP Birmingham"
+                "value": "HMP Ashfield"
               },
               {
                 "label": "Prison email address 1",
-                "value": "Custody.Birmingham@justice.gov.uk"
+                "value": "yoiashfield.premiercustody@example-custody.co.uk"
               },
               {
                 "label": "Prison email address 2",
-                "value": "Reception.Birmingham@justice.gov.uk"
+                "value": "yoiashfield.premiercustody@example-custody.co.uk"
               },
               {
                 "label": "Conveyor / custodian name organisation name",
@@ -84,19 +84,19 @@
               },
               {
                 "label": "Conveyor / custodian name email address 1",
-                "value": "periodicwarrants@geoamey.co.uk"
+                "value": "periodicwarrants@example-conveyor.co.uk"
               },
               {
                 "label": "Remand basis",
-                "value": "Charged with a violent or sexual offence"
+                "value": "Before conviction"
               },
               {
                 "label": "Bail exception",
-                "value": "Breach of bail"
+                "value": "Already in custody"
               },
               {
                 "label": "Bail exception reason",
-                "value": "Broken bail conditions"
+                "value": "Offended on bail"
               },
               {
                 "label": "Adjournment reasons",
@@ -105,17 +105,16 @@
             ]
           }
         ],
-        "startDate": "2026-05-31",
-        "title": "Robbery",
-        "wording": "Robbery",
-        "id": "7c64f6df-c90e-4bb5-8821-f886dc1fc5b6"
+        "startDate": "2026-07-03",
+        "title": "Theft from the person of another",
+        "wording": "Theft from the person of another"
       }
     ],
     "prosecutionCase": {
       "caseMarkers": [],
-      "caseURN": "IQ231276955",
+      "caseURN": "OA231099847",
       "results": []
     },
-    "sharedTime": "2026-07-30T13:50:14.245Z"
+    "sharedTime": "2026-09-01T10:43:22.755Z"
   }
 ]
