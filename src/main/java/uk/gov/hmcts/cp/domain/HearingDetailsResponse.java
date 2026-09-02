@@ -367,15 +367,10 @@ public class HearingDetailsResponse {
         private String type;
     }
 
-    // Court applications are hearing-level, not nested per-defendant (confirmed —
-    // cpp-context-results's shared hearing.json has hearing.courtApplications[]
-    // as a sibling of prosecutionCases[]). `subject` is the only party role used for
-    // defendant-linkage/vocabulary merge purposes — confirmed against
-    // cpp-context-azure-legalaidagency's DefendantContextBaseService.js, which reads only
-    // `subject.masterDefendant.masterDefendantId` for this. The real payload also carries
-    // `respondents[]`/`applicant`, but those serve a separate NOW/document-mapping subsystem and
-    // a CPS-eligibility check respectively (not defendant linkage) — neither is in this service's
-    // scope, so neither is modelled here.
+    // Court applications are hearing-level, not nested per-defendant. `subject` identifies the
+    // defendant (also the source of a standalone PCR record with no linked prosecution case —
+    // design doc 2026-09-02); `applicant`/`respondents[]` feed the Applicant/Appellant/Respondent
+    // label instead (CPHearingResultEntityMapper.defendantType).
     @JsonIgnoreProperties(ignoreUnknown = true)
     @Builder
     @AllArgsConstructor
@@ -389,6 +384,8 @@ public class HearingDetailsResponse {
         // hearing fixture; deserialization of the entire payload fails otherwise.
         private ApplicationType type;
         private ApplicationParty subject;
+        private ApplicationParty applicant;
+        private List<ApplicationParty> respondents;
         private List<CourtApplicationCase> courtApplicationCases;
         private List<JudicialResult> judicialResults;
         private CourtOrder courtOrder;
@@ -420,6 +417,9 @@ public class HearingDetailsResponse {
     public static class ApplicationType {
         private String code;
         private String type;
+        // Feeds CPHearingResultEntityMapper.defendantType — boxed, see CourtCentre.welshCourtCentre.
+        private Boolean appealFlag;
+        private Boolean applicantAppellantFlag;
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
@@ -438,6 +438,21 @@ public class HearingDetailsResponse {
     @Getter
     public static class MasterDefendant {
         private String masterDefendantId;
+        // Feeds CPHearingResultEntityMapper.applicationOnlyDefendant (design doc 2026-09-02).
+        private Boolean isYouth;
+        private PersonDefendant personDefendant;
+        private List<DefendantCase> defendantCase;
+    }
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Getter
+    public static class DefendantCase {
+        private String caseId;
+        private String caseReference;
+        private String defendantId;
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
@@ -447,5 +462,8 @@ public class HearingDetailsResponse {
     @Getter
     public static class CourtApplicationCase {
         private List<Offence> offences;
+        // Matches this application to a defendantCase entry when a defendant has several — not
+        // used for case URN, which is applicationReference (design doc 2026-09-02).
+        private String prosecutionCaseId;
     }
 }

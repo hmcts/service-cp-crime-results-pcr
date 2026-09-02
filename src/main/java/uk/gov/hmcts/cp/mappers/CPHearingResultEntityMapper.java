@@ -7,13 +7,16 @@ import uk.gov.hmcts.cp.domain.HearingDetailsResponse.Address;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.AttendanceDay;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.CaseMarker;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.CourtApplication;
+import uk.gov.hmcts.cp.domain.HearingDetailsResponse.CourtApplicationCase;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.CourtCentre;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.CourtOrderOffence;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.CustodialEstablishment;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.Defendant;
+import uk.gov.hmcts.cp.domain.HearingDetailsResponse.DefendantCase;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.DefendantJudicialResult;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.HearingDetail;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.JudicialResult;
+import uk.gov.hmcts.cp.domain.HearingDetailsResponse.MasterDefendant;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.Offence;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.PersonDetails;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.ProsecutionCase;
@@ -36,7 +39,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Component
@@ -47,14 +52,26 @@ public class CPHearingResultEntityMapper {
     // Matches legacy's own LevelTypeEnum literally: {DEFENDANT:'D', CASE:'C', OFFENCE:'O', APPLICATION:'A'}.
     private static final String LEVEL_DEFENDANT = "D";
     private static final String LEVEL_CASE = "C";
+    // Ported from cpp-context-progression's PrisonCourtRegisterHandler.getDefendantType.
+    private static final String DEFENDANT_TYPE_DEFENDANT = "Defendant";
+    private static final String DEFENDANT_TYPE_APPLICANT = "Applicant";
+    private static final String DEFENDANT_TYPE_APPELLANT = "Appellant";
+    private static final String DEFENDANT_TYPE_RESPONDENT = "Respondent";
+    private static final int SINGLE_DEFENDANT_CASE = 1;
 
     private final CPJudicialResultPromptParser promptParser;
 
     public CPCaseHearingEntity toCaseHearingEntity(final ProsecutionCase prosecutionCase, final HearingDetail hearing,
                                                     final UUID hearingId, final OffsetDateTime createdAt) {
+        return toCaseHearingEntity(prosecutionCase.getProsecutionCaseIdentifier().getCaseURN(), hearing, hearingId, createdAt);
+    }
+
+    // Overload for an application-only case, which has no ProsecutionCase to read a caseURN off.
+    public CPCaseHearingEntity toCaseHearingEntity(final String caseUrn, final HearingDetail hearing,
+                                                    final UUID hearingId, final OffsetDateTime createdAt) {
         final CPCaseHearingEntity.CPCaseHearingEntityBuilder builder = CPCaseHearingEntity.builder()
                 .id(UUID.randomUUID())
-                .caseUrn(prosecutionCase.getProsecutionCaseIdentifier().getCaseURN())
+                .caseUrn(caseUrn)
                 .hearingId(hearingId)
                 .courtHouseId(hearing.getCourtCentre() == null || hearing.getCourtCentre().getId() == null
                         ? null : UUID.fromString(hearing.getCourtCentre().getId()))
@@ -170,9 +187,84 @@ public class CPHearingResultEntityMapper {
                 : application.getSubject().getMasterDefendant().getMasterDefendantId();
     }
 
+    // Builds a Defendant for a court application with no linked prosecution case. offences is
+    // deliberately empty — matchingCourtApplications/linkedOffencesOf above already supply this
+    // defendant's real content once masterDefendantId matches. Empty when no defendant is named,
+    // or a defendantId can't be resolved unambiguously — never guessed.
+    public Optional<Defendant> applicationOnlyDefendant(final CourtApplication application) {
+        final MasterDefendant masterDefendant = application.getSubject() == null
+                ? null : application.getSubject().getMasterDefendant();
+        return masterDefendant == null
+                ? Optional.empty()
+                : resolveDefendantId(masterDefendant, application)
+                        .map(defendantId -> buildApplicationOnlyDefendant(defendantId, masterDefendant));
+    }
+
+    private Defendant buildApplicationOnlyDefendant(final String defendantId, final MasterDefendant masterDefendant) {
+        return Defendant.builder()
+                .id(defendantId)
+                .masterDefendantId(masterDefendant.getMasterDefendantId())
+                .isYouth(masterDefendant.getIsYouth())
+                .personDefendant(masterDefendant.getPersonDefendant())
+                .offences(List.of())
+                .build();
+    }
+
+    // Falls back to the sole defendantCase entry, else matches by prosecutionCaseId.
+    private Optional<String> resolveDefendantId(final MasterDefendant masterDefendant, final CourtApplication application) {
+        final List<DefendantCase> defendantCases = Stream.ofNullable(masterDefendant.getDefendantCase())
+                .flatMap(List::stream).toList();
+        return defendantCases.size() == SINGLE_DEFENDANT_CASE
+                ? Optional.ofNullable(defendantCases.get(0).getDefendantId())
+                : matchingDefendantId(defendantCases, application);
+    }
+
+    private Optional<String> matchingDefendantId(final List<DefendantCase> defendantCases, final CourtApplication application) {
+        final Set<String> applicationCaseIds = Stream.ofNullable(application.getCourtApplicationCases())
+                .flatMap(List::stream)
+                .map(CourtApplicationCase::getProsecutionCaseId)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+        return defendantCases.stream()
+                .filter(dc -> applicationCaseIds.contains(dc.getCaseId()))
+                .map(DefendantCase::getDefendantId)
+                .findFirst();
+    }
+
+    // Ports PrisonCourtRegisterHandler.getDefendantType verbatim, quirks included — the applicant
+    // branch never checks whose masterDefendant it is, unlike the respondent branch, which does.
+    public String defendantType(final CourtApplication application, final String masterDefendantId) {
+        final MasterDefendant applicantMasterDefendant = application.getApplicant() == null
+                ? null : application.getApplicant().getMasterDefendant();
+        return applicantMasterDefendant != null
+                ? applicantDefendantType(application)
+                : respondentDefendantType(application, masterDefendantId);
+    }
+
+    private String applicantDefendantType(final CourtApplication application) {
+        final boolean isAppeal = application.getType() != null
+                && Boolean.TRUE.equals(application.getType().getAppealFlag())
+                && Boolean.TRUE.equals(application.getType().getApplicantAppellantFlag());
+        return isAppeal ? DEFENDANT_TYPE_APPELLANT : DEFENDANT_TYPE_APPLICANT;
+    }
+
+    private String respondentDefendantType(final CourtApplication application, final String masterDefendantId) {
+        final boolean isRespondent = Stream.ofNullable(application.getRespondents()).flatMap(List::stream)
+                .filter(respondent -> respondent.getMasterDefendant() != null)
+                .anyMatch(respondent -> masterDefendantId.equals(respondent.getMasterDefendant().getMasterDefendantId()));
+        return isRespondent ? DEFENDANT_TYPE_RESPONDENT : DEFENDANT_TYPE_APPLICANT;
+    }
+
     public CPEntitySet toWriteBundle(final Defendant defendant, final HearingDetail hearing, final UUID caseHearingId,
                                                final Instant sharedTime, final OffsetDateTime createdAt, final OffsetDateTime expiresAt) {
-        final CPVersionEntity version = toVersionEntity(defendant, hearing, caseHearingId, sharedTime, createdAt, expiresAt);
+        return toWriteBundle(defendant, hearing, caseHearingId, sharedTime, createdAt, expiresAt, DEFENDANT_TYPE_DEFENDANT);
+    }
+
+    // Overload for a court-application-only defendant, whose computed label the caller passes in.
+    public CPEntitySet toWriteBundle(final Defendant defendant, final HearingDetail hearing, final UUID caseHearingId,
+                                               final Instant sharedTime, final OffsetDateTime createdAt, final OffsetDateTime expiresAt,
+                                               final String defendantType) {
+        final CPVersionEntity version = toVersionEntity(defendant, hearing, caseHearingId, sharedTime, createdAt, expiresAt, defendantType);
         final List<CourtApplication> linkedApplications = matchingCourtApplications(defendant, hearing);
         final List<CPCourtApplicationEntity> courtApplications = linkedApplications.stream()
                 .map(a -> toCourtApplicationEntity(a, version.getCpVersionPk()))
@@ -233,7 +325,8 @@ public class CPHearingResultEntityMapper {
     }
 
     private CPVersionEntity toVersionEntity(final Defendant defendant, final HearingDetail hearing, final UUID caseHearingId,
-                                             final Instant sharedTime, final OffsetDateTime createdAt, final OffsetDateTime expiresAt) {
+                                             final Instant sharedTime, final OffsetDateTime createdAt, final OffsetDateTime expiresAt,
+                                             final String defendantType) {
         final CPVersionEntity.CPVersionEntityBuilder builder = CPVersionEntity.builder()
                 .cpVersionPk(UUID.randomUUID())
                 .eventId(null) // no event-correlation pipeline yet — data-store design doc §3
@@ -242,6 +335,7 @@ public class CPHearingResultEntityMapper {
                 .custodyLocation(toCustodyLocation(defendant))
                 .custodyType(toCustodyType(defendant))
                 .masterDefendantId(masterDefendantId(defendant))
+                .defendantType(defendantType)
                 .nextHearing(toNextHearingEmbeddable(hearing))
                 .sharedTime(sharedTime == null ? null : sharedTime.atOffset(ZoneOffset.UTC))
                 .postHearingCustodyStatus(populatePostHearingCustodyStatus(defendant))

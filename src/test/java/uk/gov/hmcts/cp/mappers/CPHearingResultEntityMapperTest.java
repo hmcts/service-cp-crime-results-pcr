@@ -16,6 +16,7 @@ import uk.gov.hmcts.cp.domain.HearingDetailsResponse.CourtOrderOffence;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.CustodialEstablishment;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.Defendant;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.DefendantAttendance;
+import uk.gov.hmcts.cp.domain.HearingDetailsResponse.DefendantCase;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.DefendantJudicialResult;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.AttendanceDay;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.Verdict;
@@ -49,6 +50,7 @@ import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -948,6 +950,185 @@ class CPHearingResultEntityMapperTest {
                 .isNotEqualTo(bundleB.courtApplications().get(0).getId());
         assertThat(bundleA.courtApplications().get(0).getVersionPk()).isEqualTo(bundleA.version().getCpVersionPk());
         assertThat(bundleB.courtApplications().get(0).getVersionPk()).isEqualTo(bundleB.version().getCpVersionPk());
+    }
+
+    @Test
+    void toCaseHearingEntity_should_mapCaseUrn_whenGivenPlainCaseUrnString() {
+        final HearingDetail hearing = HearingDetail.builder()
+                .courtCentre(CourtCentre.builder().code("B01LY").name("Leeds Crown Court").build())
+                .hearingDays(List.of(HearingDay.builder().sittingDay("2026-07-23").build()))
+                .courtApplications(List.of())
+                .prosecutionCases(List.of())
+                .build();
+
+        final CPCaseHearingEntity result = mapper.toCaseHearingEntity("APP-REF-1", hearing, HEARING_ID, CREATED_AT);
+
+        assertThat(result.getCaseUrn()).isEqualTo("APP-REF-1");
+        assertThat(result.getHearingId()).isEqualTo(HEARING_ID);
+        assertThat(result.getCourtHouseCode()).isEqualTo("B01LY");
+    }
+
+    @Test
+    void toWriteBundle_should_defaultDefendantType_toDefendant_whenNotGivenExplicitly() {
+        final CPEntitySet bundle = mapper.toWriteBundle(minimalDefendant(),
+                HearingDetail.builder().courtApplications(List.of()).build(), CASE_HEARING_ID, SHARED_TIME, CREATED_AT, EXPIRES_AT);
+
+        assertThat(bundle.version().getDefendantType()).isEqualTo("Defendant");
+    }
+
+    @Test
+    void toWriteBundle_should_setDefendantType_whenGivenExplicitly() {
+        final CPEntitySet bundle = mapper.toWriteBundle(minimalDefendant(),
+                HearingDetail.builder().courtApplications(List.of()).build(), CASE_HEARING_ID, SHARED_TIME, CREATED_AT, EXPIRES_AT,
+                "Respondent");
+
+        assertThat(bundle.version().getDefendantType()).isEqualTo("Respondent");
+    }
+
+    @Test
+    void applicationOnlyDefendant_should_buildDefendant_whenSingleDefendantCase() {
+        final CourtApplication application = CourtApplication.builder()
+                .id("a9b8c7d6-e5f4-4321-9876-0a1b2c3d4e5f")
+                .subject(ApplicationParty.builder()
+                        .masterDefendant(MasterDefendant.builder()
+                                .masterDefendantId(MASTER_DEFENDANT_ID)
+                                .isYouth(false)
+                                .personDefendant(PersonDefendant.builder()
+                                        .personDetails(PersonDetails.builder().firstName("Chase").lastName("Von").build())
+                                        .build())
+                                .defendantCase(List.of(DefendantCase.builder()
+                                        .caseId("case-A").caseReference("CV1").defendantId(DEFENDANT_ID.toString()).build()))
+                                .build())
+                        .build())
+                .courtApplicationCases(List.of())
+                .build();
+
+        final Optional<Defendant> result = mapper.applicationOnlyDefendant(application);
+
+        assertThat(result).isPresent();
+        assertThat(result.get().getId()).isEqualTo(DEFENDANT_ID.toString());
+        assertThat(result.get().getMasterDefendantId()).isEqualTo(MASTER_DEFENDANT_ID);
+        assertThat(result.get().getIsYouth()).isFalse();
+        assertThat(result.get().getPersonDefendant().getPersonDetails().getFirstName()).isEqualTo("Chase");
+        assertThat(result.get().getOffences()).isEmpty();
+    }
+
+    @Test
+    void applicationOnlyDefendant_should_returnEmpty_whenNoSubjectMasterDefendant() {
+        final CourtApplication application = CourtApplication.builder()
+                .id("a9b8c7d6-e5f4-4321-9876-0a1b2c3d4e5f")
+                .subject(ApplicationParty.builder().build())
+                .build();
+
+        assertThat(mapper.applicationOnlyDefendant(application)).isEmpty();
+    }
+
+    @Test
+    void applicationOnlyDefendant_should_resolveDefendantId_byMatchingProsecutionCaseId_whenMultipleDefendantCases() {
+        final CourtApplication application = CourtApplication.builder()
+                .id("a9b8c7d6-e5f4-4321-9876-0a1b2c3d4e5f")
+                .subject(ApplicationParty.builder()
+                        .masterDefendant(MasterDefendant.builder()
+                                .masterDefendantId(MASTER_DEFENDANT_ID)
+                                .personDefendant(PersonDefendant.builder().build())
+                                .defendantCase(List.of(
+                                        DefendantCase.builder().caseId("case-A").defendantId("11111111-1111-1111-1111-111111111111").build(),
+                                        DefendantCase.builder().caseId("case-B").defendantId("22222222-2222-2222-2222-222222222222").build()))
+                                .build())
+                        .build())
+                .courtApplicationCases(List.of(CourtApplicationCase.builder().prosecutionCaseId("case-B").build()))
+                .build();
+
+        final Optional<Defendant> result = mapper.applicationOnlyDefendant(application);
+
+        assertThat(result).isPresent();
+        assertThat(result.get().getId()).isEqualTo("22222222-2222-2222-2222-222222222222");
+    }
+
+    @Test
+    void applicationOnlyDefendant_should_returnEmpty_whenMultipleDefendantCasesAndNoMatchingProsecutionCaseId() {
+        final CourtApplication application = CourtApplication.builder()
+                .id("a9b8c7d6-e5f4-4321-9876-0a1b2c3d4e5f")
+                .subject(ApplicationParty.builder()
+                        .masterDefendant(MasterDefendant.builder()
+                                .masterDefendantId(MASTER_DEFENDANT_ID)
+                                .personDefendant(PersonDefendant.builder().build())
+                                .defendantCase(List.of(
+                                        DefendantCase.builder().caseId("case-A").defendantId("11111111-1111-1111-1111-111111111111").build(),
+                                        DefendantCase.builder().caseId("case-B").defendantId("22222222-2222-2222-2222-222222222222").build()))
+                                .build())
+                        .build())
+                .courtApplicationCases(List.of(CourtApplicationCase.builder().prosecutionCaseId("case-C").build()))
+                .build();
+
+        assertThat(mapper.applicationOnlyDefendant(application)).isEmpty();
+    }
+
+    // Ports PrisonCourtRegisterHandler.getDefendantType (progression-command-handler/.../
+    // PrisonCourtRegisterHandler.java:149-166) — applicant.masterDefendant present and the
+    // application is not flagged as an appeal.
+    @Test
+    void defendantType_should_returnApplicant_whenApplicantHasMasterDefendant_andNotAnAppeal() {
+        final CourtApplication application = CourtApplication.builder()
+                .type(ApplicationType.builder().appealFlag(false).applicantAppellantFlag(false).build())
+                .applicant(ApplicationParty.builder().masterDefendant(MasterDefendant.builder().masterDefendantId(MASTER_DEFENDANT_ID).build()).build())
+                .build();
+
+        assertThat(mapper.defendantType(application, MASTER_DEFENDANT_ID)).isEqualTo("Applicant");
+    }
+
+    @Test
+    void defendantType_should_returnAppellant_whenApplicantHasMasterDefendant_andBothAppealFlagsTrue() {
+        final CourtApplication application = CourtApplication.builder()
+                .type(ApplicationType.builder().appealFlag(true).applicantAppellantFlag(true).build())
+                .applicant(ApplicationParty.builder().masterDefendant(MasterDefendant.builder().masterDefendantId(MASTER_DEFENDANT_ID).build()).build())
+                .build();
+
+        assertThat(mapper.defendantType(application, MASTER_DEFENDANT_ID)).isEqualTo("Appellant");
+    }
+
+    @Test
+    void defendantType_should_returnApplicant_whenApplicantHasMasterDefendant_andOnlyOneAppealFlagTrue() {
+        final CourtApplication application = CourtApplication.builder()
+                .type(ApplicationType.builder().appealFlag(true).applicantAppellantFlag(false).build())
+                .applicant(ApplicationParty.builder().masterDefendant(MasterDefendant.builder().masterDefendantId(MASTER_DEFENDANT_ID).build()).build())
+                .build();
+
+        assertThat(mapper.defendantType(application, MASTER_DEFENDANT_ID)).isEqualTo("Applicant");
+    }
+
+    // Applicant branch never checks whose masterDefendant it is — a literal port of the
+    // legacy quirk (design doc 2026-09-02 §2 point 3), not "fixed".
+    @Test
+    void defendantType_should_returnApplicant_whenApplicantMasterDefendantBelongsToSomeoneElse() {
+        final CourtApplication application = CourtApplication.builder()
+                .type(ApplicationType.builder().appealFlag(false).applicantAppellantFlag(false).build())
+                .applicant(ApplicationParty.builder().masterDefendant(MasterDefendant.builder().masterDefendantId("99999999-9999-9999-9999-999999999999").build()).build())
+                .build();
+
+        assertThat(mapper.defendantType(application, MASTER_DEFENDANT_ID)).isEqualTo("Applicant");
+    }
+
+    @Test
+    void defendantType_should_returnRespondent_whenNoApplicantMasterDefendant_andMasterDefendantIdMatchesRespondent() {
+        final CourtApplication application = CourtApplication.builder()
+                .applicant(ApplicationParty.builder().build())
+                .respondents(List.of(ApplicationParty.builder()
+                        .masterDefendant(MasterDefendant.builder().masterDefendantId(MASTER_DEFENDANT_ID).build()).build()))
+                .build();
+
+        assertThat(mapper.defendantType(application, MASTER_DEFENDANT_ID)).isEqualTo("Respondent");
+    }
+
+    @Test
+    void defendantType_should_returnApplicant_whenNeitherApplicantNorAnyRespondentMatches() {
+        final CourtApplication application = CourtApplication.builder()
+                .applicant(ApplicationParty.builder().build())
+                .respondents(List.of(ApplicationParty.builder()
+                        .masterDefendant(MasterDefendant.builder().masterDefendantId("99999999-9999-9999-9999-999999999999").build()).build()))
+                .build();
+
+        assertThat(mapper.defendantType(application, MASTER_DEFENDANT_ID)).isEqualTo("Applicant");
     }
 
     private ProsecutionCase minimalProsecutionCase() {
