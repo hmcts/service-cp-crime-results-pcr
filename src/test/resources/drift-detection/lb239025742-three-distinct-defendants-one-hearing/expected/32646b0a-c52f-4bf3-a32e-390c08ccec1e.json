@@ -22,7 +22,7 @@
       "postHearingCustodyStatus": "Not Applicable",
       "results": [
         {
-          "resultDescription": "PDATE - Pay by date",
+          "resultDescription": "PDATE - Pay by date\nPay by date. Date to pay in full by: 28/09/2026.",
           "resultTexts": [
             {
               "label": "Date to pay in full by",
@@ -63,7 +63,7 @@
         "offenceLegislation": "Contrary to regulation 18(1) of the Road Vehicles    (Construction and Use) Regulations 1986, section 41A of the Road    Traffic Act 1988 and Schedule 2 to the Road Traffic Offenders Act 1988.",
         "results": [
           {
-            "resultDescription": "FO - Fine",
+            "resultDescription": "FO - Fine\nFined £555.00",
             "resultTexts": [
               {
                 "label": "Amount of fine",

@@ -61,7 +61,7 @@
         "pleaValue": "GUILTY",
         "results": [
           {
-            "resultDescription": "IMP - Imprisonment",
+            "resultDescription": "IMP - Imprisonment\nCommitted to prison for 4 Months 7 Weeks Concurrent Consecutive to offence test Consecutive to offence which is on case number 28DI2927792. Reason: failure to comply with requirements of post custodial sentence supervision because the offence was committed during the operational period of a suspended sentence, because the offence was aggravated by being committed whilst on bail, because the number and nature of the offences shows that the defendant is operating as a professional criminal. Bail remand days to count (Tagged Days): 0. Number of days in custody in foreign jurisdiction to count: 5. This offence is aggravated by the foreign power condition being met in relation to it as defined by section 31 of the National Security Act 2023. Total custodial period: 6 Months. Consecutive to sentence imposed on 27/07/2026, which was imposed by Bexley Magistrates' Court. Consecutive to all other terms being served. Minimum term: 5 Months. Early release provisions apply. Early release provisions do not apply - sentence is a whole life order. Defendant sentenced without a pre-sentence report because test Reason for sentence without PSR.\n \n ",
             "resultTexts": [
               {
                 "label": "Total custodial period",
@@ -166,7 +166,7 @@
             ]
           },
           {
-            "resultDescription": "OATC - Aggravated by a terrorist connection",
+            "resultDescription": "OATC - Aggravated by a terrorist connection\nThe court determined a terrorist connection under Section 69 of the Sentencing Act 2020 applies to this count   ",
             "resultTexts": [
               {
                 "label": "The court determined a terrorist connection under Section 69 of the Sentencing Act 2020 applies to this count",
@@ -190,7 +190,7 @@
         "pleaValue": "GUILTY",
         "results": [
           {
-            "resultDescription": "A - Adjournment",
+            "resultDescription": "A - Adjournment\nAdjourned for hearing on 29/07/2026 at 14:00 in Courtroom 01, Bexley Magistrates' Court. Reason: To attend or a warrant to issue. Defendant to attend the next hearing.",
             "resultTexts": [
               {
                 "label": "Next hearing in magistrates' court",

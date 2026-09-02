@@ -18,7 +18,7 @@
       "postHearingCustodyStatus": "A",
       "results": [
         {
-          "resultDescription": "COLLO - Collection order",
+          "resultDescription": "COLLO - Collection order\nCollection order made. Make payments as ordered.",
           "resultTexts": [
             {
               "label": "Collection order type",
@@ -27,7 +27,7 @@
           ]
         },
         {
-          "resultDescription": "PDATE - Pay by date",
+          "resultDescription": "PDATE - Pay by date\nPay by date. Date to pay in full by: 15/07/2027.",
           "resultTexts": [
             {
               "label": "Date to pay in full by",
@@ -82,7 +82,7 @@
         "pleaValue": "NOT_GUILTY",
         "results": [
           {
-            "resultDescription": "RIB - Remanded in custody with bail direction",
+            "resultDescription": "RIB - Remanded in custody with bail direction\nRemanded in custody with bail direction until hearing on 13/08/2026 at 10:00 in Courtroom 02, City of London Magistrates' Court. Basis: Remanded for psychiatric reports by two medical practitioners. To be released on bail until 23/08/2026 at 12:30 upon satisfying the following conditions: Passport - give to the court any passport held. Reasons for imposing conditions: To attend an interview with a legal adviser.",
             "resultTexts": [
               {
                 "label": "Remanded for medical reports under Section",
@@ -198,7 +198,7 @@
       "caseURN": "UW370139697",
       "results": [
         {
-          "resultDescription": "FCOST - Costs",
+          "resultDescription": "FCOST - Costs\nTo pay costs of £657.00 to City of London Police",
           "resultTexts": [
             {
               "label": "Amount of costs",

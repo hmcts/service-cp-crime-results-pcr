@@ -3,17 +3,17 @@
     "courtApplications": [],
     "defendant": {
       "address": {
-        "address1": "99 Riverside Drive",
-        "address2": "Riverside Drive",
-        "address3": "Chester-le-Street",
+        "address1": "40 Market Place",
+        "address2": "Market Place",
+        "address3": "Bristol",
         "postCode": "NW1 5BR"
       },
-      "dateOfBirth": "1954-08-14",
-      "firstName": "Cecil",
+      "dateOfBirth": "2006-09-01",
+      "firstName": "Lazaro",
       "gender": "MALE",
-      "id": "a05a07fc-cb0a-450c-9500-02ca29efd2c1",
-      "lastName": "Brakus",
-      "masterDefendantId": "a05a07fc-cb0a-450c-9500-02ca29efd2c1",
+      "id": "f1fdca0e-a46d-42a0-bd1c-100c2ddedb11",
+      "lastName": "Hessel",
+      "masterDefendantId": "f1fdca0e-a46d-42a0-bd1c-100c2ddedb11",
       "postHearingCustodyStatus": "Not Applicable",
       "results": [],
       "title": "Mr"
@@ -36,9 +36,9 @@
         "ljaName": "Central London Magistrates' Court"
       },
       "defendantAppearanceDetails": "In person",
-      "hearingDate": "2026-08-15",
+      "hearingDate": "2026-09-01",
       "hearingType": "First hearing",
-      "id": "27cc647d-0818-4a4b-87f3-c8ba15781d80",
+      "id": "ae6de428-b738-4dd2-af4a-f8de7e96f942",
       "jurisdiction": "MAGISTRATES",
       "nextHearing": {
         "court": {
@@ -46,38 +46,37 @@
           "courtHouseId": "f8254db1-1683-483e-afb3-b87fde5a0a26",
           "courtHouseName": "Lavender Hill Magistrates' Court"
         },
-        "dateTime": "2026-08-15T09:00:00Z",
-        "hearingId": "e2a6187c-26a0-4862-8041-beeb37e4b83a"
+        "dateTime": "2026-09-02T09:00:00Z",
+        "hearingId": "ea3284bb-712f-4a5b-8117-cc7cbb30c312"
       }
     },
-    "sharedTime": "2026-08-14T07:52:19.997Z",
     "offences": [
       {
-        "allocationDecision": "Indictable-only offence",
-        "code": "TH68023",
+        "code": "TH68001",
+        "id": "fb33a321-3491-46ba-8326-656e751e8e8d",
         "listingNumber": 1,
-        "offenceLegislation": "Contrary to section 8(1) of the Theft Act 1968.",
-        "pleaDate": "2026-08-15",
+        "offenceLegislation": "Contrary to section 1(1) and 7 of the Theft Act 1968.",
+        "pleaDate": "2026-09-01",
         "pleaValue": "NOT_GUILTY",
         "results": [
           {
-            "resultDescription": "RI - Remanded in custody\nRemanded in custody until hearing on 15/08/2026 at 10:00 in Courtroom 01, Lavender Hill Magistrates' Court. Basis: Charged with a violent or sexual offence. Adjournment reason: To attend or a warrant to issue. Bail exceptions: Breach of bail. Reason for applying: Broken bail conditions.",
+            "resultDescription": "RI - Remanded in custody\nRemanded in custody until hearing on 02/09/2026 at 10:00 in Courtroom 01, Lavender Hill Magistrates' Court. Basis: Before conviction. Adjournment reason: To attend or a warrant to issue. Bail exceptions: Already in custody. Reason for applying: Offended on bail.",
             "resultTexts": [
               {
                 "label": "Next hearing in magistrates' court",
-                "value": "Date of hearing:15/08/2026\nTime of hearing:10:00\nCourthouse organisation name:Lavender Hill Magistrates' Court\nCourthouse address line 1:176A Lavender Hill\nCourthouse address line 2:London\nCourthouse post code:SW11 1JU\nCourtroom:Courtroom 01\nHearing type:Appeal\nEstimated duration:30 MINUTES\nBooking reference:7d785fec-656d-4530-9a16-46144919ea88"
+                "value": "Date of hearing:02/09/2026\nTime of hearing:10:00\nCourthouse organisation name:Lavender Hill Magistrates' Court\nCourthouse address line 1:176A Lavender Hill\nCourthouse address line 2:London\nCourthouse post code:SW11 1JU\nCourtroom:Courtroom 01\nHearing type:Appeal\nEstimated duration:30 MINUTES\nBooking reference:ea3284bb-712f-4a5b-8117-cc7cbb30c312"
               },
               {
                 "label": "Prison organisation name",
-                "value": "HMP Birmingham"
+                "value": "HMP Ashfield"
               },
               {
                 "label": "Prison email address 1",
-                "value": "Custody.Birmingham@example-prison.gov.uk"
+                "value": "yoiashfield.premiercustody@example-custody.co.uk"
               },
               {
                 "label": "Prison email address 2",
-                "value": "Reception.Birmingham@example-prison.gov.uk"
+                "value": "yoiashfield.premiercustody@example-custody.co.uk"
               },
               {
                 "label": "Conveyor / custodian name organisation name",
@@ -89,15 +88,15 @@
               },
               {
                 "label": "Remand basis",
-                "value": "Charged with a violent or sexual offence"
+                "value": "Before conviction"
               },
               {
                 "label": "Bail exception",
-                "value": "Breach of bail"
+                "value": "Already in custody"
               },
               {
                 "label": "Bail exception reason",
-                "value": "Broken bail conditions"
+                "value": "Offended on bail"
               },
               {
                 "label": "To attend or a warrant to issue",
@@ -110,16 +109,16 @@
             ]
           }
         ],
-        "startDate": "2026-06-15",
-        "title": "Robbery",
-        "wording": "Robbery",
-        "id": "6a9d3751-5d5e-4cc8-b92b-cd6bd5933b62"
+        "startDate": "2026-07-03",
+        "title": "Theft from the person of another",
+        "wording": "Theft from the person of another"
       }
     ],
     "prosecutionCase": {
       "caseMarkers": [],
-      "caseURN": "MF231295264",
+      "caseURN": "OA231099847",
       "results": []
-    }
+    },
+    "sharedTime": "2026-09-01T10:43:22.755Z"
   }
 ]

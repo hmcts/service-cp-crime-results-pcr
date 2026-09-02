@@ -202,17 +202,12 @@ public class PcrResultsMapper {
 
     private ResultText toResultText(final CPJudicialResultEntity result, final List<CPJudicialResultPromptEntity> allPrompts) {
         return ResultText.builder()
-                .resultDescription(toResultDescription(result.getResultText()))
+                .resultDescription(result.getResultText())
                 .resultTexts(allPrompts.stream()
                         .filter(p -> result.getId().equals(p.getJudicialResultId()))
                         .map(this::toText)
                         .toList())
                 .build();
-    }
-
-    private String toResultDescription(final String resultText) {
-        final int newlineIndex = resultText == null ? -1 : resultText.indexOf('\n');
-        return newlineIndex == -1 ? resultText : resultText.substring(0, newlineIndex);
     }
 
     private Text toText(final CPJudicialResultPromptEntity prompt) {
