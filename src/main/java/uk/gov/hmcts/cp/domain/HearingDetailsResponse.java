@@ -367,17 +367,10 @@ public class HearingDetailsResponse {
         private String type;
     }
 
-    // Court applications are hearing-level, not nested per-defendant (confirmed —
-    // cpp-context-results's shared hearing.json has hearing.courtApplications[]
-    // as a sibling of prosecutionCases[]). `subject` is the party role used for
-    // defendant-linkage/vocabulary merge purposes, and also the source of a standalone
-    // PCR record when an application has no linked prosecution case at all (design doc
-    // 2026-09-02-pcr-court-application-only-hearing-persistence-design.md) — confirmed against
-    // cpp-context-azure-legalaidagency's DefendantContextBaseService.js, which reads only
-    // `subject.masterDefendant.masterDefendantId` for both. `applicant`/`respondents[]` are now
-    // also modelled (previously deliberately omitted as "not in scope") — needed to port
-    // cpp-context-progression's PrisonCourtRegisterHandler.getDefendantType, which decides the
-    // Applicant/Appellant/Respondent label from exactly these two fields, not from `subject`.
+    // Court applications are hearing-level, not nested per-defendant. `subject` identifies the
+    // defendant (also the source of a standalone PCR record with no linked prosecution case —
+    // design doc 2026-09-02); `applicant`/`respondents[]` feed the Applicant/Appellant/Respondent
+    // label instead (CPHearingResultEntityMapper.defendantType).
     @JsonIgnoreProperties(ignoreUnknown = true)
     @Builder
     @AllArgsConstructor
@@ -424,9 +417,7 @@ public class HearingDetailsResponse {
     public static class ApplicationType {
         private String code;
         private String type;
-        // appealFlag/applicantAppellantFlag: sourced for cpp-context-progression's
-        // PrisonCourtRegisterHandler.getDefendantType port (design doc 2026-09-02) — boxed, not
-        // primitive, see CourtCentre.welshCourtCentre for why.
+        // Feeds CPHearingResultEntityMapper.defendantType — boxed, see CourtCentre.welshCourtCentre.
         private Boolean appealFlag;
         private Boolean applicantAppellantFlag;
     }
@@ -447,9 +438,7 @@ public class HearingDetailsResponse {
     @Getter
     public static class MasterDefendant {
         private String masterDefendantId;
-        // isYouth/personDefendant/defendantCase: sourced for building a standalone PCR record
-        // from a court-application-only hearing (design doc 2026-09-02) — the real CP payload
-        // already carries these on subject.masterDefendant, just not deserialized until now.
+        // Feeds CPHearingResultEntityMapper.applicationOnlyDefendant (design doc 2026-09-02).
         private Boolean isYouth;
         private PersonDefendant personDefendant;
         private List<DefendantCase> defendantCase;
@@ -473,9 +462,8 @@ public class HearingDetailsResponse {
     @Getter
     public static class CourtApplicationCase {
         private List<Offence> offences;
-        // prosecutionCaseId: sourced to match this application to the right defendantCase entry
-        // when a court-application-only defendant is linked to more than one case (design doc
-        // 2026-09-02) — not used for case URN, which comes from applicationReference instead.
+        // Matches this application to a defendantCase entry when a defendant has several — not
+        // used for case URN, which is applicationReference (design doc 2026-09-02).
         private String prosecutionCaseId;
     }
 }

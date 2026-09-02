@@ -52,8 +52,7 @@ public class CPHearingResultEntityMapper {
     // Matches legacy's own LevelTypeEnum literally: {DEFENDANT:'D', CASE:'C', OFFENCE:'O', APPLICATION:'A'}.
     private static final String LEVEL_DEFENDANT = "D";
     private static final String LEVEL_CASE = "C";
-    // defendantType literals — ported verbatim from cpp-context-progression's
-    // PrisonCourtRegisterHandler.getDefendantType (design doc 2026-09-02).
+    // Ported from cpp-context-progression's PrisonCourtRegisterHandler.getDefendantType.
     private static final String DEFENDANT_TYPE_DEFENDANT = "Defendant";
     private static final String DEFENDANT_TYPE_APPLICANT = "Applicant";
     private static final String DEFENDANT_TYPE_APPELLANT = "Appellant";
@@ -67,9 +66,7 @@ public class CPHearingResultEntityMapper {
         return toCaseHearingEntity(prosecutionCase.getProsecutionCaseIdentifier().getCaseURN(), hearing, hearingId, createdAt);
     }
 
-    // caseUrn overload — a court-application-only case has no ProsecutionCase to read a caseURN
-    // off; its case URN is the application's own applicationReference instead (design doc
-    // 2026-09-02 §4, matching cpp-context-azure-legalaidagency's own "Case reference" field).
+    // Overload for an application-only case, which has no ProsecutionCase to read a caseURN off.
     public CPCaseHearingEntity toCaseHearingEntity(final String caseUrn, final HearingDetail hearing,
                                                     final UUID hearingId, final OffsetDateTime createdAt) {
         final CPCaseHearingEntity.CPCaseHearingEntityBuilder builder = CPCaseHearingEntity.builder()
@@ -190,15 +187,10 @@ public class CPHearingResultEntityMapper {
                 : application.getSubject().getMasterDefendant().getMasterDefendantId();
     }
 
-    // Builds a Defendant for a court application with no linked prosecution case at all —
-    // subject.masterDefendant is the only party role used, same as the enrichment case above
-    // (design doc 2026-09-02, confirmed against cpp-context-azure-legalaidagency's
-    // DefendantMapper.getFirstDefendants/ProsecutionCaseOrApplicationMapper.getDefendant, which
-    // both fall back to it identically). offences is deliberately empty — matchingCourtApplications/
-    // linkedOffencesOf above already supply this defendant's real offence/result content once
-    // masterDefendantId matches, so nothing to duplicate here. Empty when the application names no
-    // defendant, or when a genuine defendantId can't be resolved (§6 of the design doc) — never
-    // guessed.
+    // Builds a Defendant for a court application with no linked prosecution case. offences is
+    // deliberately empty — matchingCourtApplications/linkedOffencesOf above already supply this
+    // defendant's real content once masterDefendantId matches. Empty when no defendant is named,
+    // or a defendantId can't be resolved unambiguously — never guessed.
     public Optional<Defendant> applicationOnlyDefendant(final CourtApplication application) {
         final MasterDefendant masterDefendant = application.getSubject() == null
                 ? null : application.getSubject().getMasterDefendant();
@@ -218,10 +210,7 @@ public class CPHearingResultEntityMapper {
                 .build();
     }
 
-    // Matches defendantCase[].caseId against this application's courtApplicationCases[].
-    // prosecutionCaseId to pick the right defendantId when a party is linked to more than one
-    // case — falls back to the sole entry when there's exactly one. Empty (skip) when neither
-    // resolves unambiguously, rather than guessing (design doc 2026-09-02 §6).
+    // Falls back to the sole defendantCase entry, else matches by prosecutionCaseId.
     private Optional<String> resolveDefendantId(final MasterDefendant masterDefendant, final CourtApplication application) {
         final List<DefendantCase> defendantCases = Stream.ofNullable(masterDefendant.getDefendantCase())
                 .flatMap(List::stream).toList();
@@ -242,12 +231,8 @@ public class CPHearingResultEntityMapper {
                 .findFirst();
     }
 
-    // Ports cpp-context-progression's PrisonCourtRegisterHandler.getDefendantType verbatim
-    // (progression-command-handler/.../PrisonCourtRegisterHandler.java:149-166), quirks included —
-    // the applicant branch never checks whose masterDefendant it is, unlike the respondent branch,
-    // which does (design doc 2026-09-02 §2). Only ever called for a court-application-only
-    // defendant — Progression's own list-ordering guarantees this never fires for a
-    // prosecution-case-driven one, which stays the literal "Defendant" instead (§6).
+    // Ports PrisonCourtRegisterHandler.getDefendantType verbatim, quirks included — the applicant
+    // branch never checks whose masterDefendant it is, unlike the respondent branch, which does.
     public String defendantType(final CourtApplication application, final String masterDefendantId) {
         final MasterDefendant applicantMasterDefendant = application.getApplicant() == null
                 ? null : application.getApplicant().getMasterDefendant();
@@ -275,9 +260,7 @@ public class CPHearingResultEntityMapper {
         return toWriteBundle(defendant, hearing, caseHearingId, sharedTime, createdAt, expiresAt, DEFENDANT_TYPE_DEFENDANT);
     }
 
-    // defendantType overload — used only for a court-application-only defendant, whose
-    // computed Applicant/Appellant/Respondent label the caller already knows (design doc
-    // 2026-09-02). Every prosecution-case-driven defendant keeps the literal "Defendant" above.
+    // Overload for a court-application-only defendant, whose computed label the caller passes in.
     public CPEntitySet toWriteBundle(final Defendant defendant, final HearingDetail hearing, final UUID caseHearingId,
                                                final Instant sharedTime, final OffsetDateTime createdAt, final OffsetDateTime expiresAt,
                                                final String defendantType) {

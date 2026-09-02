@@ -115,11 +115,8 @@ public class ResultsIngestionService {
         processApplicationOnlyDefendants(hearing, hearingId, sharedTime, subscriptions);
     }
 
-    // Handles a defendant only reachable via hearing.courtApplications — no matching
-    // hearing.prosecutionCases entry at all (design doc 2026-09-02). alreadyProcessed is seeded
-    // with every prosecution-case-driven defendantId and grown as each application-only
-    // defendant is handled, so the same (hearingId, defendantId) is never persisted twice —
-    // whether they're reached via both paths, or via more than one court application.
+    // alreadyProcessed is seeded with prosecution-case-driven defendantIds and grown per
+    // application, so the same (hearingId, defendantId) is never persisted twice.
     private void processApplicationOnlyDefendants(final HearingDetail hearing, final UUID hearingId,
                                                     final Instant sharedTime, final List<CPNowSubscription> subscriptions) {
         final Set<String> alreadyProcessed = new HashSet<>(prosecutionCaseDefendantIds(hearing));

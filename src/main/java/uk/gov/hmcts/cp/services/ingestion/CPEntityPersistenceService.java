@@ -42,9 +42,7 @@ public class CPEntityPersistenceService {
                 .orElseGet(() -> createCaseHearing(prosecutionCase, hearing, hearingId));
     }
 
-    // caseUrn overload — a court-application-only case has no ProsecutionCase to find-or-create
-    // from; its case URN is the application's own applicationReference (design doc 2026-09-02),
-    // and it has no case markers (CP models those only against a ProsecutionCase).
+    // Overload for a court-application-only case — no case markers, CP has none for these.
     public UUID findOrCreateCaseHearing(final String caseUrn, final HearingDetail hearing, final UUID hearingId) {
         return caseHearingRepository.findByCaseUrnAndHearingId(caseUrn, hearingId)
                 .map(CPCaseHearingEntity::getId)
@@ -69,8 +67,7 @@ public class CPEntityPersistenceService {
         persistEntitySet(entityMapper.toWriteBundle(defendant, hearing, caseHearingId, sharedTime, createdAt, expiresAt));
     }
 
-    // defendantType overload — used only for a court-application-only defendant (design doc
-    // 2026-09-02); every prosecution-case-driven defendant keeps calling the overload above.
+    // Overload for a court-application-only defendant's computed label.
     public void persist(final Defendant defendant, final HearingDetail hearing, final UUID caseHearingId,
                          final Instant sharedTime, final OffsetDateTime createdAt, final OffsetDateTime expiresAt,
                          final String defendantType) {

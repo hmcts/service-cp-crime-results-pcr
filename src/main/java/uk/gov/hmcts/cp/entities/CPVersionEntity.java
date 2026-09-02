@@ -56,9 +56,7 @@ public class CPVersionEntity {
     @Column(name = "master_defendant_id")
     private UUID masterDefendantId;
 
-    // Applicant/Appellant/Respondent/Defendant — ported from cpp-context-progression's
-    // PrisonCourtRegisterHandler.getDefendantType (design doc 2026-09-02). Literal "Defendant"
-    // for a prosecution-case-driven defendant; computed for a court-application-only one.
+    // Applicant/Appellant/Respondent/Defendant — see CPHearingResultEntityMapper.defendantType.
     @Column(name = "defendant_type")
     private String defendantType;
 
