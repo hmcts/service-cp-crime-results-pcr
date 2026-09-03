@@ -56,6 +56,10 @@ public class CPVersionEntity {
     @Column(name = "master_defendant_id")
     private UUID masterDefendantId;
 
+    // Applicant/Appellant/Respondent/Defendant — see CPHearingResultEntityMapper.defendantType.
+    @Column(name = "defendant_type")
+    private String defendantType;
+
     @Embedded
     private CPNextHearingEmbeddable nextHearing;
 

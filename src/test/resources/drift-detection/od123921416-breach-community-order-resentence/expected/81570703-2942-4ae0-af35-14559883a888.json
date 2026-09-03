@@ -64,7 +64,8 @@
             ]
           }
         ],
-        "type": "Conviction of an offence while a community order is in force"
+        "type": "Conviction of an offence while a community order is in force",
+        "defendantType": "Defendant"
       }
     ],
     "defendant": {

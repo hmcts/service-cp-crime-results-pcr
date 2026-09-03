@@ -1,0 +1,86 @@
+[
+  {
+    "courtApplications": [
+      {
+        "offences": [
+          {
+            "code": "TH68013A",
+            "convictionDate": "2026-09-01",
+            "id": "7028b58f-c907-47b2-a064-fc3da2286200",
+            "listingNumber": 1,
+            "offenceLegislation": "Contrary to section 1(1)    of the Criminal Attempts Act 1981.",
+            "pleaDate": "2026-09-01",
+            "pleaValue": "GUILTY",
+            "results": [
+              {
+                "resultDescription": "AD - Absolute discharge",
+                "resultTexts": []
+              }
+            ],
+            "startDate": "2026-07-03",
+            "title": "Attempt theft of motor vehicle",
+            "wording": "Attempt theft to vehicle"
+          }
+        ],
+        "reference": "JQ780658399",
+        "results": [
+          {
+            "resultDescription": "G - Granted",
+            "resultTexts": []
+          }
+        ],
+        "type": "Application to reopen case",
+        "defendantType": "Applicant"
+      }
+    ],
+    "custodyLocation": {
+      "custodyType": "Prison",
+      "name": "HMP Bure"
+    },
+    "defendant": {
+      "address": {
+        "address1": "18 George Square",
+        "address2": "George Square",
+        "address3": "Glasgow",
+        "postCode": "NW1 5BR"
+      },
+      "dateOfBirth": "1988-09-01",
+      "firstName": "Cindy",
+      "gender": "MALE",
+      "id": "ae302495-d536-436c-8586-d50c66268251",
+      "lastName": "Cronin",
+      "masterDefendantId": "ae302495-d536-436c-8586-d50c66268251",
+      "nationality": "Unknown",
+      "postHearingCustodyStatus": "Not Applicable",
+      "results": [],
+      "title": "Mr"
+    },
+    "hearing": {
+      "courtDetails": {
+        "court": {
+          "courtHouseCode": "B01LY00",
+          "courtHouseId": "f8254db1-1683-483e-afb3-b87fde5a0a26",
+          "courtHouseName": "Lavender Hill Magistrates' Court"
+        },
+        "courtAddress": {
+          "address1": "176A Lavender Hill",
+          "address2": "London",
+          "postCode": "SW11 1JU"
+        },
+        "ljaName": "South West London Magistrates' Court"
+      },
+      "defendantAppearanceDetails": "In person",
+      "hearingDate": "2026-09-01",
+      "hearingType": "Application",
+      "id": "05ba25b5-85ba-4f88-bdc9-2dfdb41b195a",
+      "jurisdiction": "MAGISTRATES"
+    },
+    "offences": [],
+    "prosecutionCase": {
+      "caseMarkers": [],
+      "caseURN": "JQ780658399",
+      "results": []
+    },
+    "sharedTime": "2026-09-01T11:32:37.943Z"
+  }
+]

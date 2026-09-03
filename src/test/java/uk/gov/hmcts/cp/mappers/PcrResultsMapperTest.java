@@ -314,4 +314,18 @@ class PcrResultsMapperTest {
         assertThat(mappedApplication.getResults()).hasSize(1);
         assertThat(mappedApplication.getOffences()).extracting("code").containsExactly("LINKOFF");
     }
+
+    @Test
+    void toPcrHearingResult_should_mapDefendantTypeOntoEveryCourtApplication() {
+        final CPCaseHearingEntity caseHearing = CPCaseHearingEntity.builder().hearingId(HEARING_ID).build();
+        final CPVersionEntity version = minimalVersion().toBuilder().defendantType("Respondent").build();
+        final CPCourtApplicationEntity application = CPCourtApplicationEntity.builder()
+                .id(UUID.fromString("00000000-0000-0000-0000-000000000066"))
+                .versionPk(version.getCpVersionPk()).reference("REF1").type("Bail").build();
+
+        final PcrHearingResult result = mapper.toPcrHearingResult(caseHearing, version, List.of(),
+                List.of(application), List.of(), List.of(), List.of());
+
+        assertThat(result.getCourtApplications().get(0).getDefendantType()).isEqualTo("Respondent");
+    }
 }

@@ -42,6 +42,13 @@ public class CPEntityPersistenceService {
                 .orElseGet(() -> createCaseHearing(prosecutionCase, hearing, hearingId));
     }
 
+    // Overload for a court-application-only case — no case markers, CP has none for these.
+    public UUID findOrCreateCaseHearing(final String caseUrn, final HearingDetail hearing, final UUID hearingId) {
+        return caseHearingRepository.findByCaseUrnAndHearingId(caseUrn, hearingId)
+                .map(CPCaseHearingEntity::getId)
+                .orElseGet(() -> createCaseHearing(caseUrn, hearing, hearingId));
+    }
+
     private UUID createCaseHearing(final ProsecutionCase prosecutionCase, final HearingDetail hearing, final UUID hearingId) {
         final CPCaseHearingEntity entity = entityMapper.toCaseHearingEntity(prosecutionCase, hearing, hearingId, clockService.nowOffsetUTC());
         caseHearingRepository.save(entity);
@@ -49,9 +56,25 @@ public class CPEntityPersistenceService {
         return entity.getId();
     }
 
+    private UUID createCaseHearing(final String caseUrn, final HearingDetail hearing, final UUID hearingId) {
+        final CPCaseHearingEntity entity = entityMapper.toCaseHearingEntity(caseUrn, hearing, hearingId, clockService.nowOffsetUTC());
+        caseHearingRepository.save(entity);
+        return entity.getId();
+    }
+
     public void persist(final Defendant defendant, final HearingDetail hearing, final UUID caseHearingId,
                          final Instant sharedTime, final OffsetDateTime createdAt, final OffsetDateTime expiresAt) {
-        final CPEntitySet entitySet = entityMapper.toWriteBundle(defendant, hearing, caseHearingId, sharedTime, createdAt, expiresAt);
+        persistEntitySet(entityMapper.toWriteBundle(defendant, hearing, caseHearingId, sharedTime, createdAt, expiresAt));
+    }
+
+    // Overload for a court-application-only defendant's computed label.
+    public void persist(final Defendant defendant, final HearingDetail hearing, final UUID caseHearingId,
+                         final Instant sharedTime, final OffsetDateTime createdAt, final OffsetDateTime expiresAt,
+                         final String defendantType) {
+        persistEntitySet(entityMapper.toWriteBundle(defendant, hearing, caseHearingId, sharedTime, createdAt, expiresAt, defendantType));
+    }
+
+    private void persistEntitySet(final CPEntitySet entitySet) {
         versionRepository.save(entitySet.version());
         courtApplicationRepository.saveAll(entitySet.courtApplications());
         offenceRepository.saveAll(entitySet.offences());
