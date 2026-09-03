@@ -29,7 +29,8 @@
             "resultTexts": []
           }
         ],
-        "type": "Application to reopen case"
+        "type": "Application to reopen case",
+        "defendantType": "Applicant"
       }
     ],
     "custodyLocation": {

@@ -10,7 +10,8 @@
             "resultTexts": []
           }
         ],
-        "type": "Application within criminal proceedings"
+        "type": "Application within criminal proceedings",
+        "defendantType": "Defendant"
       }
     ],
     "custodyLocation": {

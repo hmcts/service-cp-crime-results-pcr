@@ -53,7 +53,7 @@ public class PcrResultsMapper {
                         .map(o -> toOffence(o, judicialResults, prompts))
                         .toList())
                 .courtApplications(courtApplications.stream()
-                        .map(a -> toCourtApplication(a, offences, judicialResults, prompts))
+                        .map(a -> toCourtApplication(a, offences, judicialResults, prompts, version.getDefendantType()))
                         .toList())
                 .build();
     }
@@ -218,10 +218,12 @@ public class PcrResultsMapper {
     }
 
     private CourtApplication toCourtApplication(final CPCourtApplicationEntity application, final List<CPOffenceEntity> allOffences,
-                                                 final List<CPJudicialResultEntity> allResults, final List<CPJudicialResultPromptEntity> allPrompts) {
+                                                 final List<CPJudicialResultEntity> allResults, final List<CPJudicialResultPromptEntity> allPrompts,
+                                                 final String defendantType) {
         return CourtApplication.builder()
                 .reference(application.getReference())
                 .type(application.getType())
+                .defendantType(defendantType)
                 .decision(application.getDecision())
                 .decisionDate(application.getDecisionDate())
                 .response(application.getResponse())
