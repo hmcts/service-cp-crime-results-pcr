@@ -139,6 +139,16 @@ prosecution-case-driven defendant keeps `"Defendant"` unconditionally.
   (a third NPE site beyond §3's Gap A), and `matchingDefendants` silently dropped an
   application-only defendant's own custody establishment from every check, since it only ever
   found defendants by scanning `prosecutionCases`, never including the input defendant itself.
+- ~~Drift-detection coverage for the `Appellant` branch of `defendantType`~~ **Done.** A real
+  appeal hearing (`fixture: ie137532124-appeal-against-conviction-appellant`, PII scrubbed) — an
+  application-only defendant with `type.appealFlag`/`.applicantAppellantFlag` both true — confirms
+  `applicantDefendantType` correctly computes `"Appellant"` against real data, not just the unit
+  tests in `CPHearingResultEntityMapperTest`. It also surfaced a second real bug:
+  `applicationReference` for a court application spanning multiple prosecution cases (this
+  appeal referenced two) is comma-joined by CP itself, but `PcrResultsController.CASE_URN_REGEX`
+  rejected commas — `GET /pcr` returned 400 for a hearing that had ingested successfully. Widened
+  to `^[0-9a-zA-Z,]{1,100}$`. The `Respondent` branch remains unit-test-only — no real payload
+  exercising it has been found yet.
 
 ## 7. Open item
 

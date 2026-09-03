@@ -21,7 +21,11 @@ import java.util.UUID;
 @Slf4j
 public class PcrResultsController implements PcrApi {
 
-    private static final String CASE_URN_REGEX = "^[0-9a-zA-Z]{1,30}$";
+    // Comma-joined and >30 chars for a court application spanning multiple prosecution cases —
+    // CP's own applicationReference literally comma-joins every linked caseURN (confirmed via a
+    // real appeal hearing referencing two cases), and this repo's own persistence path
+    // (CPEntityPersistenceService.findOrCreateCaseHearing) stores that value as-is as case_urn.
+    private static final String CASE_URN_REGEX = "^[0-9a-zA-Z,]{1,100}$";
 
     private final PcrResultsService pcrResultsService;
 
