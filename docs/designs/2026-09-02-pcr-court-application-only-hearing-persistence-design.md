@@ -133,12 +133,22 @@ prosecution-case-driven defendant keeps `"Defendant"` unconditionally.
   gap, not specific to this work.
 - ~~Drift-detection fixture for the real payload above, and the `PcrDriftDetectionIntegrationTest`
   harness fix needed to run it~~ **Done.** A different real payload — an "Application to reopen
-  case" (`fixture: jq780658399-application-to-reopen-case`) — exercises the `applicant` branch of
+  case" (`fixture: application-to-reopen-case-jq780658399`) — exercises the `applicant` branch of
   `defendantType` for the first time against real data, and caught two bugs unit tests missed:
   `CPVocabularyService.matchingDefendants`/`.cpsProsecuted` NPE'd on a null `prosecutionCases`
   (a third NPE site beyond §3's Gap A), and `matchingDefendants` silently dropped an
   application-only defendant's own custody establishment from every check, since it only ever
   found defendants by scanning `prosecutionCases`, never including the input defendant itself.
+- ~~Drift-detection coverage for the `Appellant` branch of `defendantType`~~ **Done.** A real
+  appeal hearing (`fixture: appeal-against-conviction-appellant-ie137532124-xi137534386`, PII
+  scrubbed) — an
+  application-only defendant with `type.appealFlag`/`.applicantAppellantFlag` both true — confirms
+  `applicantDefendantType` correctly computes `"Appellant"` against real data, not just the unit
+  tests in `CPHearingResultEntityMapperTest`. It also surfaced a second real bug:
+  `applicationReference` for a court application spanning multiple prosecution cases (this
+  appeal referenced two) is comma-joined by CP itself, but `PcrResultsController.CASE_URN_REGEX`
+  rejected commas — `GET /pcr` returned 400 for a hearing that had ingested successfully. Widened
+  to `^[0-9a-zA-Z,]{1,100}$`.
 - ~~Drift-detection coverage for the `Respondent` branch of `defendantType`~~ **Done.** A real
   appeal-against-conviction application (`fixture:
   case-with-application-defendant-respondent-xu780538628`, PII scrubbed) whose `applicant` slot

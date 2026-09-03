@@ -21,7 +21,7 @@ import java.util.UUID;
 @Slf4j
 public class PcrResultsController implements PcrApi {
 
-    private static final String CASE_URN_REGEX = "^[0-9a-zA-Z]{1,30}$";
+    private static final String CASE_URN_REGEX = "^[0-9a-zA-Z,]{1,100}$";
 
     private final PcrResultsService pcrResultsService;
 
