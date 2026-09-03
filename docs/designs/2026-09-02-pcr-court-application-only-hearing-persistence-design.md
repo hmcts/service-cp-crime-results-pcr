@@ -148,8 +148,14 @@ prosecution-case-driven defendant keeps `"Defendant"` unconditionally.
   `applicationReference` for a court application spanning multiple prosecution cases (this
   appeal referenced two) is comma-joined by CP itself, but `PcrResultsController.CASE_URN_REGEX`
   rejected commas — `GET /pcr` returned 400 for a hearing that had ingested successfully. Widened
-  to `^[0-9a-zA-Z,]{1,100}$`. The `Respondent` branch remains unit-test-only — no real payload
-  exercising it has been found yet.
+  to `^[0-9a-zA-Z,]{1,100}$`.
+- ~~Drift-detection coverage for the `Respondent` branch of `defendantType`~~ **Done.** A real
+  appeal-against-conviction application (`fixture:
+  case-with-application-defendant-respondent-xu780538628`, PII scrubbed) whose `applicant` slot
+  is occupied by a prosecuting authority (`Organisation`/no `masterDefendant`) confirms
+  `applicantDefendantType`'s check correctly fails in that case and `respondentDefendantType`
+  matches the sole respondent's `masterDefendantId` and computes `"Respondent"` — against real
+  data, not just the unit tests in `CPHearingResultEntityMapperTest`.
 
 ## 7. Open item
 
