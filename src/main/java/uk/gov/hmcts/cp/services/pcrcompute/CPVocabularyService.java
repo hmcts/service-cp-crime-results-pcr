@@ -54,13 +54,17 @@ public class CPVocabularyService {
     // more than one prosecutionCase, and as a respondent on a court application, all on the
     // same hearing — a valid CP scenario, not an edge case. Every hearing-wide scan below
     // merges across all of them, matching legacy CPVocabularyService.js (design doc §2).
+    // Always includes `defendant` itself, not just prosecutionCases matches — otherwise a
+    // defendant with no prosecutionCases entry at all (an application-only one) would have their
+    // own custody establishment silently dropped from every anyMatch check below.
     private List<Defendant> matchingDefendants(final Defendant defendant, final HearingDetail hearing) {
         final String masterDefendantId = defendant.getMasterDefendantId();
         return masterDefendantId == null
                 ? List.of(defendant)
-                : hearing.getProsecutionCases().stream()
-                        .flatMap(c -> c.getDefendants().stream())
-                        .filter(d -> masterDefendantId.equals(d.getMasterDefendantId()))
+                : Stream.concat(Stream.of(defendant),
+                        Stream.ofNullable(hearing.getProsecutionCases()).flatMap(List::stream)
+                                .flatMap(c -> c.getDefendants().stream())
+                                .filter(d -> masterDefendantId.equals(d.getMasterDefendantId())))
                         .toList();
     }
 
@@ -136,7 +140,7 @@ public class CPVocabularyService {
     private boolean cpsProsecuted(final HearingDetail hearing) {
         // Scans ALL prosecutionCases on the hearing for prosecutor.isCps == true — not scoped
         // to the defendant's own case. Replicated as-is (design doc §2/§7).
-        return hearing.getProsecutionCases().stream()
+        return Stream.ofNullable(hearing.getProsecutionCases()).flatMap(List::stream)
                 .map(ProsecutionCase::getProsecutor)
                 .filter(Objects::nonNull)
                 .anyMatch(p -> Boolean.TRUE.equals(p.getIsCps()));
