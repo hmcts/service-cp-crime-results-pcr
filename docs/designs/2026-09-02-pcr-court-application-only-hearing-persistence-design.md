@@ -122,9 +122,12 @@ prosecution-case-driven defendant keeps `"Defendant"` unconditionally.
 
 ## 6. Out of scope, tracked separately
 
-- **AMP-1081**: exposing `defendant_type` via `GET /pcr` — needs a contract addition to
-  `api-cp-crime-results-pcr` (separate repo, own review cycle). This design persists the value;
-  it doesn't expose it.
+- ~~**AMP-1081**: exposing `defendant_type` via `GET /pcr`~~ **Done.** `CourtApplication
+  .defendantType` added to `api-cp-crime-results-pcr` (hmcts/api-cp-crime-results-pcr#69,
+  additive/non-breaking). `PcrResultsMapper.toCourtApplication` sets the same value on every
+  court application belonging to a defendant, since the label describes the defendant's role,
+  not a per-application fact — a prosecution-case-driven defendant's applications all show the
+  literal `"Defendant"` (§4), an application-only one's shows the computed value.
 - **AMP-1082**: the "Prosecutor" name shown on every PCR (case-driven or application-driven)
   isn't captured anywhere in this repo's data model or contract today — a broader, pre-existing
   gap, not specific to this work.
