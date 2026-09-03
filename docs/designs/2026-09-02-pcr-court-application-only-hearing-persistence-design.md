@@ -140,7 +140,8 @@ prosecution-case-driven defendant keeps `"Defendant"` unconditionally.
   application-only defendant's own custody establishment from every check, since it only ever
   found defendants by scanning `prosecutionCases`, never including the input defendant itself.
 - ~~Drift-detection coverage for the `Appellant` branch of `defendantType`~~ **Done.** A real
-  appeal hearing (`fixture: ie137532124-appeal-against-conviction-appellant`, PII scrubbed) — an
+  appeal hearing (`fixture: appeal-against-conviction-appellant-ie137532124-xi137534386`, PII
+  scrubbed) — an
   application-only defendant with `type.appealFlag`/`.applicantAppellantFlag` both true — confirms
   `applicantDefendantType` correctly computes `"Appellant"` against real data, not just the unit
   tests in `CPHearingResultEntityMapperTest`. It also surfaced a second real bug:
