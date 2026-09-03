@@ -368,9 +368,10 @@ public class HearingDetailsResponse {
     }
 
     // Court applications are hearing-level, not nested per-defendant. `subject` identifies the
-    // defendant (also the source of a standalone PCR record with no linked prosecution case —
-    // design doc 2026-09-02); `applicant`/`respondents[]` feed the Applicant/Appellant/Respondent
-    // label instead (CPHearingResultEntityMapper.defendantType).
+    // defendant — also the PCR source when they're not reached via this hearing's own
+    // prosecutionCases[] (the application's own case link is courtApplicationCases[], a separate
+    // thing — design doc 2026-09-02). `applicant`/`respondents[]` feed the Applicant/Appellant/
+    // Respondent label instead (CPHearingResultEntityMapper.defendantType).
     @JsonIgnoreProperties(ignoreUnknown = true)
     @Builder
     @AllArgsConstructor

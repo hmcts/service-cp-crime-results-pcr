@@ -20,7 +20,15 @@ their Applicant/Appellant/Respondent label.
 - Three CP-generated PCR register PDFs, dated the same day, each for a different
   court-application-only hearing (two appeals, one application to reopen a case). Each shows a
   full PCR entry — party details, case reference, offence + result, and an "Applications" block —
-  generated with no prosecution case at all.
+  generated with no `hearing.prosecutionCases` entry at all.
+
+**Not "no case exists"** — the appeal hearing's application still references its case via
+`courtApplicationCases[].prosecutionCaseId`/`.prosecutionCaseIdentifier` (real values in the
+evidence above). What's actually missing is a full `ProsecutionCase` object on *this* hearing —
+likely because the case wasn't being actively prosecuted at this (appeal) hearing, only
+referenced by the application. §2/§3 use `applicationReference` for the case URN and
+`courtApplicationCases[].prosecutionCaseId` only for `defendantId` matching — neither treats the
+application as case-less.
 
 CP's own Function App/Progression pipeline generates a PCR for this hearing shape today.
 

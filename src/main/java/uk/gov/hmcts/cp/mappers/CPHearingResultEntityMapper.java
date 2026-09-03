@@ -187,10 +187,10 @@ public class CPHearingResultEntityMapper {
                 : application.getSubject().getMasterDefendant().getMasterDefendantId();
     }
 
-    // Builds a Defendant for a court application with no linked prosecution case. offences is
-    // deliberately empty — matchingCourtApplications/linkedOffencesOf above already supply this
-    // defendant's real content once masterDefendantId matches. Empty when no defendant is named,
-    // or a defendantId can't be resolved unambiguously — never guessed.
+    // Builds a Defendant for an application-named defendant not reached via this hearing's own
+    // prosecutionCases[]. offences is deliberately empty — matchingCourtApplications/
+    // linkedOffencesOf above already supply this defendant's real content. Empty when no
+    // defendant is named, or a defendantId can't be resolved unambiguously — never guessed.
     public Optional<Defendant> applicationOnlyDefendant(final CourtApplication application) {
         final MasterDefendant masterDefendant = application.getSubject() == null
                 ? null : application.getSubject().getMasterDefendant();
