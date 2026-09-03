@@ -139,6 +139,13 @@ prosecution-case-driven defendant keeps `"Defendant"` unconditionally.
   (a third NPE site beyond §3's Gap A), and `matchingDefendants` silently dropped an
   application-only defendant's own custody establishment from every check, since it only ever
   found defendants by scanning `prosecutionCases`, never including the input defendant itself.
+- ~~Drift-detection coverage for the `Respondent` branch of `defendantType`~~ **Done.** A real
+  appeal-against-conviction application (`fixture:
+  case-with-application-defendant-respondent-xu780538628`, PII scrubbed) whose `applicant` slot
+  is occupied by a prosecuting authority (`Organisation`/no `masterDefendant`) confirms
+  `applicantDefendantType`'s check correctly fails in that case and `respondentDefendantType`
+  matches the sole respondent's `masterDefendantId` and computes `"Respondent"` — against real
+  data, not just the unit tests in `CPHearingResultEntityMapperTest`.
 
 ## 7. Open item
 

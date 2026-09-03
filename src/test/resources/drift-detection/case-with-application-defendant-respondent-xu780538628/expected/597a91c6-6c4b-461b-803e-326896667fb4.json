@@ -1,0 +1,86 @@
+[
+  {
+    "courtApplications": [
+      {
+        "defendantType": "Respondent",
+        "offences": [
+          {
+            "code": "TH68013A",
+            "convictionDate": "2026-09-03",
+            "id": "89a87320-2fc5-4bc8-8ee9-93692b17631a",
+            "listingNumber": 1,
+            "offenceLegislation": "Contrary to section 1(1)    of the Criminal Attempts Act 1981.",
+            "pleaDate": "2026-09-03",
+            "pleaValue": "GUILTY",
+            "results": [
+              {
+                "resultDescription": "AD - Absolute discharge",
+                "resultTexts": []
+              }
+            ],
+            "startDate": "2026-07-05",
+            "title": "Attempt theft of motor vehicle",
+            "wording": "Attempt theft to vehicle"
+          }
+        ],
+        "reference": "XU780538628",
+        "results": [
+          {
+            "resultDescription": "G - Granted",
+            "resultTexts": []
+          }
+        ],
+        "type": "Appeal against conviction by a Magistrates' Court to the Crown Court"
+      }
+    ],
+    "custodyLocation": {
+      "custodyType": "Prison",
+      "name": "HMP Bure"
+    },
+    "defendant": {
+      "address": {
+        "address1": "14 Willowmead Close",
+        "address2": "Willowmead Close",
+        "address3": "Coventry",
+        "postCode": "CV3 2AB"
+      },
+      "dateOfBirth": "1978-04-22",
+      "firstName": "Renata",
+      "gender": "MALE",
+      "id": "597a91c6-6c4b-461b-803e-326896667fb4",
+      "lastName": "Fairweather",
+      "masterDefendantId": "597a91c6-6c4b-461b-803e-326896667fb4",
+      "nationality": "Unknown",
+      "postHearingCustodyStatus": "Not Applicable",
+      "results": [],
+      "title": "Mr"
+    },
+    "hearing": {
+      "courtDetails": {
+        "court": {
+          "courtHouseCode": "B01LY00",
+          "courtHouseId": "f8254db1-1683-483e-afb3-b87fde5a0a26",
+          "courtHouseName": "Lavender Hill Magistrates' Court"
+        },
+        "courtAddress": {
+          "address1": "176A Lavender Hill",
+          "address2": "London",
+          "postCode": "SW11 1JU"
+        },
+        "ljaName": "South West London Magistrates' Court"
+      },
+      "defendantAppearanceDetails": "In person",
+      "hearingDate": "2026-09-03",
+      "hearingType": "Application",
+      "id": "3a50a062-3bd7-4c9c-866e-64ab2bd212f9",
+      "jurisdiction": "MAGISTRATES"
+    },
+    "offences": [],
+    "prosecutionCase": {
+      "caseMarkers": [],
+      "caseURN": "XU780538628",
+      "results": []
+    },
+    "sharedTime": "2026-09-03T14:41:08.516Z"
+  }
+]
