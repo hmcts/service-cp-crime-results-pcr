@@ -133,7 +133,7 @@ prosecution-case-driven defendant keeps `"Defendant"` unconditionally.
   gap, not specific to this work.
 - ~~Drift-detection fixture for the real payload above, and the `PcrDriftDetectionIntegrationTest`
   harness fix needed to run it~~ **Done.** A different real payload — an "Application to reopen
-  case" (`fixture: jq780658399-application-to-reopen-case`) — exercises the `applicant` branch of
+  case" (`fixture: application-to-reopen-case-jq780658399`) — exercises the `applicant` branch of
   `defendantType` for the first time against real data, and caught two bugs unit tests missed:
   `CPVocabularyService.matchingDefendants`/`.cpsProsecuted` NPE'd on a null `prosecutionCases`
   (a third NPE site beyond §3's Gap A), and `matchingDefendants` silently dropped an
