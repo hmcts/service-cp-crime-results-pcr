@@ -128,8 +128,14 @@ prosecution-case-driven defendant keeps `"Defendant"` unconditionally.
 - **AMP-1082**: the "Prosecutor" name shown on every PCR (case-driven or application-driven)
   isn't captured anywhere in this repo's data model or contract today — a broader, pre-existing
   gap, not specific to this work.
-- Drift-detection fixture for the real payload above, and the `PcrDriftDetectionIntegrationTest`
-  harness fix needed to run it (currently assumes every hearing has `prosecutionCases`).
+- ~~Drift-detection fixture for the real payload above, and the `PcrDriftDetectionIntegrationTest`
+  harness fix needed to run it~~ **Done.** A different real payload — an "Application to reopen
+  case" (`fixture: jq780658399-application-to-reopen-case`) — exercises the `applicant` branch of
+  `defendantType` for the first time against real data, and caught two bugs unit tests missed:
+  `CPVocabularyService.matchingDefendants`/`.cpsProsecuted` NPE'd on a null `prosecutionCases`
+  (a third NPE site beyond §3's Gap A), and `matchingDefendants` silently dropped an
+  application-only defendant's own custody establishment from every check, since it only ever
+  found defendants by scanning `prosecutionCases`, never including the input defendant itself.
 
 ## 7. Open item
 
