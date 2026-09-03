@@ -76,6 +76,14 @@ below.
   `.getCourtApplicationId`/`.getDefendantType` (lines 57-166) — not reinterpreted. Needs
   `courtApplication.applicant`/`.respondents[]`, not previously modelled here (only `subject`
   was, for the enrichment case).
+- **A prosecuting authority can occupy the applicant *or* a respondent slot** — Progression's own
+  generated `CourtApplicationParty` type (used for both `applicant` and every `respondents[]`
+  entry) declares `masterDefendant`/`prosecutingAuthority`/`organisation`/`personDetails` as
+  independent nullable fields on one shared party shape, not separate types. `getDefendantType`'s
+  respondent check filters out entries with no `masterDefendant` before matching — the applicant
+  check has no equivalent filter (the quirk above), which is why it never verifies whose
+  `masterDefendant` it is. Ported the respondent filter faithfully; without it a
+  prosecuting-authority respondent would either NPE or (worse) never be correctly excluded.
 
 ## 3. What changes
 

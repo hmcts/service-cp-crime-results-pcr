@@ -1131,6 +1131,22 @@ class CPHearingResultEntityMapperTest {
         assertThat(mapper.defendantType(application, MASTER_DEFENDANT_ID)).isEqualTo("Applicant");
     }
 
+    // A respondent can be a prosecuting authority, not a defendant — CourtApplicationParty (CP's
+    // own model) has masterDefendant/prosecutingAuthority as independent nullable fields on the
+    // same party type. Must not NPE, and must not falsely match.
+    @Test
+    void defendantType_should_returnApplicant_whenARespondentHasNoMasterDefendantAtAll() {
+        final CourtApplication application = CourtApplication.builder()
+                .applicant(ApplicationParty.builder().build())
+                .respondents(List.of(
+                        ApplicationParty.builder().build(),
+                        ApplicationParty.builder()
+                                .masterDefendant(MasterDefendant.builder().masterDefendantId("99999999-9999-9999-9999-999999999999").build()).build()))
+                .build();
+
+        assertThat(mapper.defendantType(application, MASTER_DEFENDANT_ID)).isEqualTo("Applicant");
+    }
+
     private ProsecutionCase minimalProsecutionCase() {
         return ProsecutionCase.builder()
                 .prosecutionCaseIdentifier(ProsecutionCaseIdentifier.builder().caseURN(CASE_URN).build())
