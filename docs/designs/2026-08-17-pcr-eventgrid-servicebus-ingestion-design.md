@@ -8,9 +8,10 @@
 directly to a Service Bus **Queue** owned solely by this service, `pcr.hearing-resulted`, via its
 own independent Event Grid event subscription.
 
-**Cutover is staged, not immediate** — `pcr-eventgrid-relay-function` stays live in production
-through the coming release; the Service Bus path is built and proven in parallel, behind a switch,
-before either environment cuts over.
+**Cutover is complete.** The synchronous POST path (`HearingResultedEventController`,
+`HearingResultedEventService`, `POST /internal/hearing-results`) and the coexistence switch
+(`service-bus.ingestion-enabled`) have been removed — the queue is the only ingestion path.
+Retiring `pcr-eventgrid-relay-function` itself is separate, cross-repo follow-up (AMP-1053).
 
 **Headline decisions:**
 
@@ -182,12 +183,13 @@ sequenceDiagram
     Q->>C: deliver follow-up, attempt 2
     C->>RQ: GET hearing details
     RQ-->>C: still incomplete
-    C->>Q: complete() + schedule next follow-up (4s)
-    Q->>C: deliver follow-up, attempt 3
+    C->>Q: complete() + schedule next follow-up
+    Note over Q: ... repeats per service-bus.retry-durations ...
+    Q->>C: deliver follow-up, attempt 24
     C->>RQ: GET hearing details
     RQ-->>C: still incomplete
-    Note over Q: attempt 3 still incomplete - budget exhausted (~14s elapsed)
-    C->>Q: deadLetterMessage(reason: "IncompleteHearingDetailsException after 3 attempts")
+    Note over Q: max-tries reached (~10.6h elapsed)
+    C->>Q: deadLetterMessage(reason: "IncompleteHearingDetailsException after 24 attempts")
     Q->>DLQ: move message
 ```
 
@@ -210,15 +212,13 @@ sequenceDiagram
 
 ---
 
-## 4. Migration outline
+## 4. Migration (completed)
 
-1. Provision PCR's own queue and its own Event Grid event subscription (§2.2) — both channels now
-   receive events in parallel. NOW provisions its own queue and event subscription independently,
-   on its own timeline — no coordination with PCR needed.
-2. Deploy the Service Bus consumer behind a switch, off by default in every environment.
-3. Enable the switch in lower environments only to validate end-to-end — never both channels active
-   in the same environment.
-4. Once proven, flip the switch in all env's, disabling the relay function at the same
-   time.
-5. Decommission `pcr-eventgrid-relay-function` and its Event Grid webhook subscription;
-   `/internal/hearing-results` retires with it.
+1. Provisioned PCR's own queue and its own Event Grid event subscription (§2.2). NOW provisions
+   its own queue and event subscription independently, on its own timeline.
+2. Deployed the Service Bus consumer behind a switch, validated in lower environments first.
+3. Cutover: the switch and the synchronous POST path (`HearingResultedEventController`,
+   `HearingResultedEventService`, `/internal/hearing-results`) were removed from the codebase —
+   the queue is now the only ingestion path.
+4. `pcr-eventgrid-relay-function` itself is not yet decommissioned — nothing calls it any more,
+   but retiring the Function App is a separate, cross-repo action, tracked as AMP-1053.
