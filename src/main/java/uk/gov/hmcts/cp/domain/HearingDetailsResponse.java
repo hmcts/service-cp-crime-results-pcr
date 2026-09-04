@@ -226,7 +226,6 @@ public class HearingDetailsResponse {
     @NoArgsConstructor
     @Getter
     public static class Offence {
-        // Retained as source_offence_id, not the primary key — see V1.009 migration.
         private String id;
         private String offenceCode;
         private String offenceTitle;
