@@ -88,7 +88,6 @@ public class HearingDetailsResponse {
         private String id;
         private String code;
         private String name;
-        // Boxed, not primitive — not confirmed present on every response; a missing field must not fail deserialization.
         private Boolean welshCourtCentre;
         private LocalJusticeArea lja;
         private Address address;
@@ -141,7 +140,6 @@ public class HearingDetailsResponse {
     @NoArgsConstructor
     @Getter
     public static class Prosecutor {
-        // Boxed, not primitive — see welshCourtCentre.
         private Boolean isCps;
     }
 
@@ -163,7 +161,7 @@ public class HearingDetailsResponse {
     public static class Defendant {
         private String id;
         private String masterDefendantId;
-        // Youth/adult vocabulary source — boxed, not primitive, see welshCourtCentre.
+        // Youth/adult vocabulary source.
         private Boolean isYouth;
         private PersonDefendant personDefendant;
         private List<Offence> offences;
@@ -217,7 +215,6 @@ public class HearingDetailsResponse {
         private String address1;
         private String address2;
         private String address3;
-        // address4/address5: never populated on a defendant address, but courtCentre.address genuinely uses all 5 lines — same shape either way.
         private String address4;
         private String address5;
         private String postcode;
@@ -279,7 +276,6 @@ public class HearingDetailsResponse {
     @NoArgsConstructor
     @Getter
     public static class VerdictType {
-        // verdictCode kept for correlation/debugging — description is what's actually surfaced (see toVerdict).
         private String verdictCode;
         private String description;
     }
@@ -307,7 +303,7 @@ public class HearingDetailsResponse {
         private String postHearingCustodyStatus;
         private boolean isFinancialResult;
         private boolean isConvictedResult;
-        // publishedForNows: the PCR eligibility flag — boxed, not primitive, see welshCourtCentre.
+        // The PCR eligibility flag.
         private Boolean publishedForNows;
         // orderedDate: sourced for resolveActiveAt.
         private LocalDate orderedDate;
@@ -383,7 +379,7 @@ public class HearingDetailsResponse {
     public static class ApplicationType {
         private String code;
         private String type;
-        // Feeds defendantType — boxed, see welshCourtCentre.
+        // Feeds defendantType.
         private Boolean appealFlag;
         private Boolean applicantAppellantFlag;
     }
