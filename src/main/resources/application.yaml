@@ -50,6 +50,12 @@ management:
     enabled: true
     sampling:
       probability: 1.0
+  otlp:
+    metrics:
+      export:
+        # No OTLP collector listening in dev — actuator/prometheus is the real scrape target,
+        # this push was only ever logging ConnectException noise every export cycle.
+        enabled: false
 
 logging:
   level:
@@ -66,6 +72,6 @@ reference-data-client:
 service-bus:
   admin-connection: ${AZURE_SERVICE_BUS_ADMIN_URI:Endpoint=sb://localhost:5300;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;}
   connection: ${AZURE_SERVICE_BUS_URI:Endpoint=sb://localhost;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;}
-  auto-start-processors: ${SERVICE_BUS_AUTO_START_PROCESSORS:false}
+  auto-start-processors: ${SERVICE_BUS_AUTO_START_PROCESSORS:true}
   retry-durations: ${SERVICE_BUS_RETRY_DURATIONS:0s,1s,2s,5s,10s,30s,1m,2m,5m,5m,5m,10m,10m,30m,30m,1h}
   max-tries: ${SERVICE_BUS_MAX_TRIES:24}
