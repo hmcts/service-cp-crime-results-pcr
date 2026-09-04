@@ -1,8 +1,5 @@
--- Legacy PCR parity fields, confirmed against the legacy Function App's own PCR mappers:
--- gender/nationality/postHearingCustodyStatus (defendant-level aggregate) and defendantPresent
--- on cp_version; jurisdiction on cp_case_hearing (hearing-wide, unlike defendantPresent which
--- varies per defendant); offence_legislation on cp_offence. Rows written before this migration
--- have them null.
+-- Legacy PCR parity fields: defendant-level aggregates on cp_version, hearing-wide jurisdiction
+-- on cp_case_hearing, offence_legislation on cp_offence. Rows before this migration have them null.
 ALTER TABLE cp_version
     ADD COLUMN gender varchar,
     ADD COLUMN nationality varchar,
@@ -15,9 +12,6 @@ ALTER TABLE cp_case_hearing
 ALTER TABLE cp_offence
     ADD COLUMN offence_legislation varchar;
 
--- Confirmed dead: legacy's own ResultMapper never surfaces a per-result custody status at any
--- level (offence/case/application/defendant) — only the defendant-level aggregate above is a
--- real PCR concept. This column was never populated with anything but the raw per-result
--- passthrough this migration removes.
+-- Dead column — legacy never surfaces a per-result custody status; only the defendant-level aggregate above is real.
 ALTER TABLE cp_judicial_result
     DROP COLUMN post_hearing_custody_status;

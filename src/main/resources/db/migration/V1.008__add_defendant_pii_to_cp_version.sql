@@ -1,6 +1,5 @@
--- Defendant PII, per ADR-004 (docs/pipeline/adrs/004-AMP-891-carry-defendant-pii-encrypted-at-rest.md).
--- Encryption at rest is future scope, not part of this phase -- columns hold plain values today,
--- so date_of_birth is a real date rather than varchar.
+-- Defendant PII, per docs/pipeline/adrs/004-AMP-891-carry-defendant-pii-encrypted-at-rest.md.
+-- Encryption at rest is future scope — columns hold plain values today.
 ALTER TABLE cp_version
     ADD COLUMN title varchar,
     ADD COLUMN first_name varchar,

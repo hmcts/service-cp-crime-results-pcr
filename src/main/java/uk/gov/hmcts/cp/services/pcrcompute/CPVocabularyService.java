@@ -50,13 +50,10 @@ public class CPVocabularyService {
                 .build();
     }
 
-    // Same physical person (masterDefendantId) can appear as a separate Defendant record on
-    // more than one prosecutionCase, and as a respondent on a court application, all on the
-    // same hearing — a valid CP scenario, not an edge case. Every hearing-wide scan below
-    // merges across all of them, matching legacy CPVocabularyService.js (design doc §2).
-    // Always includes `defendant` itself, not just prosecutionCases matches — otherwise a
-    // defendant with no prosecutionCases entry at all (an application-only one) would have their
-    // own custody establishment silently dropped from every anyMatch check below.
+    // Same masterDefendantId can appear as a separate Defendant record on more than one
+    // prosecutionCase, and as a respondent on a court application, same hearing — a real scenario.
+    // Every scan below merges across all of them. Always includes `defendant` itself — otherwise
+    // an application-only defendant's own custody establishment gets silently dropped.
     private List<Defendant> matchingDefendants(final Defendant defendant, final HearingDetail hearing) {
         final String masterDefendantId = defendant.getMasterDefendantId();
         return masterDefendantId == null
@@ -68,13 +65,10 @@ public class CPVocabularyService {
                         .toList();
     }
 
-    // `subject` is the only party role used for defendant-linkage — confirmed against
-    // cpp-context-azure-legalaidagency's DefendantContextBaseService.js, which reads only
-    // `subject.masterDefendant.masterDefendantId` for this same hearing-wide merge.
+    // `subject` is the only party role used for defendant-linkage.
     private List<CourtApplication> matchingApplications(final Defendant defendant, final HearingDetail hearing) {
         final String masterDefendantId = defendant.getMasterDefendantId();
-        // courtApplications absent entirely on a real hearing that has none (confirmed against
-        // a real hearing fixture) — not always an empty list.
+        // courtApplications can be absent entirely, not just an empty list.
         return masterDefendantId == null
                 ? List.of()
                 : Stream.ofNullable(hearing.getCourtApplications()).flatMap(List::stream)
@@ -94,8 +88,7 @@ public class CPVocabularyService {
                 .flatMap(o -> o.getJudicialResults().stream());
         final Stream<JudicialResult> applicationResults = applications.stream()
                 .flatMap(a -> a.getJudicialResults().stream());
-        // A real courtApplicationCase can omit "offences" entirely (confirmed against a real
-        // hearing fixture) — not always an empty list.
+        // courtApplicationCase can omit "offences" entirely, not just an empty list.
         final Stream<JudicialResult> linkedOffenceResults = applications.stream()
                 .flatMap(a -> a.getCourtApplicationCases().stream())
                 .flatMap(c -> Stream.ofNullable(c.getOffences()).flatMap(List::stream))
@@ -116,12 +109,8 @@ public class CPVocabularyService {
         return results.stream().anyMatch(this::hasCustodialPrompt);
     }
 
-    // Legacy VocabularyService.js:getHasAtleastOneNonCustodialResult scans every prompt on every
-    // result for any promptReference other than the custodial one — not "a result with no
-    // custodial prompt" (that would be allNonCustodialResults). A single custodial result nearly
-    // always carries other prompts (duration, reasons, conveyor/custodian, probation team, ...),
-    // so this is almost always true once atleastOneCustodialResult is true — only reached from
-    // that branch in compute().
+    // Scans every prompt on every result for any promptReference other than the custodial one —
+    // not "a result with no custodial prompt" (that's allNonCustodialResults).
     private boolean hasNonCustodialPrompt(final List<JudicialResult> results) {
         return results.stream()
                 .flatMap(r -> Stream.ofNullable(r.getJudicialResultPrompts()).flatMap(List::stream))
@@ -130,16 +119,14 @@ public class CPVocabularyService {
     }
 
     private boolean hasCustodialPrompt(final JudicialResult result) {
-        // judicialResultPrompts absent entirely on a real judicial result that has none
-        // (confirmed against a real hearing fixture) — not always an empty list.
+        // judicialResultPrompts can be absent entirely, not just an empty list.
         return Stream.ofNullable(result.getJudicialResultPrompts()).flatMap(List::stream)
                 .map(JudicialResultPrompt::getPromptReference)
                 .anyMatch(CUSTODIAL_RESULT_PROMPT::equals);
     }
 
     private boolean cpsProsecuted(final HearingDetail hearing) {
-        // Scans ALL prosecutionCases on the hearing for prosecutor.isCps == true — not scoped
-        // to the defendant's own case. Replicated as-is (design doc §2/§7).
+        // Scans all prosecutionCases on the hearing for prosecutor.isCps == true — not scoped to the defendant's own case.
         return Stream.ofNullable(hearing.getProsecutionCases()).flatMap(List::stream)
                 .map(ProsecutionCase::getProsecutor)
                 .filter(Objects::nonNull)

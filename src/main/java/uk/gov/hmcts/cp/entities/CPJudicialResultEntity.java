@@ -14,11 +14,8 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.UUID;
 
-// Polymorphic parent (design doc §3) — exactly one of offenceId/courtApplicationId/versionPk is
-// set, enforced by the chk_cp_judicial_result_one_parent DB constraint, not by this entity.
-// versionPk is the third parent, for hearing/case-level results that aren't tied to a specific
-// offence or court application (round 3: defendantResults/caseResults) — level then distinguishes
-// which of the two it is.
+// Polymorphic parent — exactly one of offenceId/courtApplicationId/versionPk is set, enforced by
+// the chk_cp_judicial_result_one_parent DB constraint. versionPk is the third parent (hearing/case-level results); level distinguishes which.
 @Entity
 @Table(name = "cp_judicial_result")
 @Getter
@@ -40,9 +37,7 @@ public class CPJudicialResultEntity {
     @Column(name = "version_pk")
     private UUID versionPk;
 
-    // Only meaningful when versionPk is set — 'D' (hearing.defendantJudicialResults, matched by
-    // masterDefendantId) or 'C' (defendant.defendantCaseJudicialResults). Matches legacy's own
-    // LevelTypeEnum literally: {DEFENDANT:'D', CASE:'C', OFFENCE:'O', APPLICATION:'A'}.
+    // Only meaningful when versionPk is set — 'D' (defendantJudicialResults) or 'C' (defendantCaseJudicialResults).
     private String level;
 
     @Column(name = "result_code")

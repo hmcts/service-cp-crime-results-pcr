@@ -72,8 +72,7 @@ public class CPVersionEntity {
     @Column(name = "expires_at")
     private OffsetDateTime expiresAt;
 
-    // Defendant PII (ADR-004/AMP-891) — carried as plain values; encryption at rest is future
-    // scope, not part of this phase.
+    // Defendant PII (ADR-004) — carried as plain values; encryption at rest is future scope.
     private String title;
 
     @Column(name = "first_name")

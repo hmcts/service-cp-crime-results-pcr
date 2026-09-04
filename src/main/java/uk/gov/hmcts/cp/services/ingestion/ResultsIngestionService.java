@@ -36,10 +36,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-/**
- * Fetches a hearing's results and decides which defendants need a PCR (delegating the actual
- * gate to CPResultsPcrFilter) — all persistence is delegated to CPEntityPersistenceService.
- */
+// Decides which defendants need a PCR (via CPResultsPcrFilter); persistence is delegated to CPEntityPersistenceService.
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -115,8 +112,7 @@ public class ResultsIngestionService {
         processApplicationOnlyDefendants(hearing, hearingId, sharedTime, subscriptions);
     }
 
-    // alreadyProcessed is seeded with prosecution-case-driven defendantIds and grown per
-    // application, so the same (hearingId, defendantId) is never persisted twice.
+    // alreadyProcessed prevents the same (hearingId, defendantId) being persisted twice.
     private void processApplicationOnlyDefendants(final HearingDetail hearing, final UUID hearingId,
                                                     final Instant sharedTime, final List<CPNowSubscription> subscriptions) {
         final Set<String> alreadyProcessed = new HashSet<>(prosecutionCaseDefendantIds(hearing));
