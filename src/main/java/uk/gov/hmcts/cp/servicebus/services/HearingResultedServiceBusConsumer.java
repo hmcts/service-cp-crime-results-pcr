@@ -54,8 +54,8 @@ public class HearingResultedServiceBusConsumer {
 
     @PostConstruct
     public void initialise() {
-        if (!properties.isAutoStartProcessors() && !properties.isIngestionEnabled()) {
-            log.info("service-bus.auto-start-processors=false and ingestion-enabled=false — skipping Service Bus initialisation");
+        if (!properties.isAutoStartProcessors()) {
+            log.info("service-bus.auto-start-processors=false — skipping Service Bus initialisation");
             return;
         }
         awaitServiceBusReady();
@@ -66,8 +66,8 @@ public class HearingResultedServiceBusConsumer {
                 .processError(this::processError)
                 .buildProcessorClient();
         processorClient.start();
-        log.info("HearingResultedServiceBusConsumer started on pcr queue:{} ingestionEnabled:{} maxDeliveryCount:{}",
-                ServiceBusProperties.QUEUE_NAME, properties.isIngestionEnabled(), maxDeliveryCount);
+        log.info("HearingResultedServiceBusConsumer started on pcr queue:{} maxDeliveryCount:{}",
+                ServiceBusProperties.QUEUE_NAME, maxDeliveryCount);
     }
 
     private void awaitServiceBusReady() {
@@ -146,13 +146,9 @@ public class HearingResultedServiceBusConsumer {
     private void processEvent(final HearingResultedEvent event, final ServiceBusReceivedMessageContext context,
                                final ServiceBusReceivedMessage message, final int attempt) {
         final HearingResultedEventData data = event.getData();
-        log.info("HearingResultedServiceBusConsumer received channel:servicebus active:{} attempt:{} deliveryCount:{} "
+        log.info("HearingResultedServiceBusConsumer received channel:servicebus attempt:{} deliveryCount:{} "
                         + "hearingId:{} hearingDay:{} userId:{}",
-                properties.isIngestionEnabled(), attempt, message.getDeliveryCount(), data.getHearingId(), data.getHearingDay(), data.getUserId());
-        if (!properties.isIngestionEnabled()) {
-            context.complete();
-            return;
-        }
+                attempt, message.getDeliveryCount(), data.getHearingId(), data.getHearingDay(), data.getUserId());
         if (!HEARING_RESULTED_EVENT_TYPE.equals(event.getEventType())) {
             throw new IllegalArgumentException("Unrecognized eventType: " + event.getEventType());
         }
