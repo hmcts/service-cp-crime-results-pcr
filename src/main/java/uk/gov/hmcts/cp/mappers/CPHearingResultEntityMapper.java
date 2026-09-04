@@ -235,11 +235,7 @@ public class CPHearingResultEntityMapper {
                 .findFirst();
     }
 
-    // AMP-1082: prosecutor name for an application-only case hearing — sourced from the linked
-    // case's own identifier, not the application's applicant/respondent parties (that's a
-    // different CP concept, the defendantType computation below). Takes the first
-    // courtApplicationCases entry when several are linked (e.g. a comma-joined applicationReference
-    // spanning multiple cases) — every real fixture seen so far shares one prosecutor across them.
+    // AMP-1082: sourced from the linked case's own identifier, not the applicant/respondent parties.
     public String prosecutorNameOf(final CourtApplication application) {
         return Stream.ofNullable(application.getCourtApplicationCases())
                 .flatMap(List::stream)
