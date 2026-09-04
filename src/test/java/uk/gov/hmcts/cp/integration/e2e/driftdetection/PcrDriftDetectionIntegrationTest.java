@@ -82,10 +82,6 @@ class PcrDriftDetectionIntegrationTest extends IngestionE2ETestBase {
         WireMock.configureFor("localhost", 8081);
     }
 
-    // Persistence here happens on the Service Bus consumer thread, not this test's own thread -
-    // @Transactional only rolls back the calling thread's transaction, so it can't undo rows
-    // committed by that consumer. Cleaned up explicitly instead, same as
-    // HearingResultedServiceBusE2EIntegrationTest.
     @AfterEach
     void afterEach() {
         if (wireMockServer != null) {
