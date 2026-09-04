@@ -64,17 +64,20 @@ public class CPHearingResultEntityMapper {
     public CPCaseHearingEntity toCaseHearingEntity(final ProsecutionCase prosecutionCase, final HearingDetail hearing,
                                                     final UUID hearingId, final OffsetDateTime createdAt) {
         return toCaseHearingEntity(prosecutionCase.getProsecutionCaseIdentifier().getCaseURN(), hearing, hearingId, createdAt,
-                prosecutionCase.getProsecutionCaseIdentifier().getProsecutionAuthorityName());
+                prosecutionCase.getProsecutionCaseIdentifier().getProsecutionAuthorityName(),
+                prosecutionCase.getId() == null ? null : UUID.fromString(prosecutionCase.getId()));
     }
 
-    // Overload for an application-only case, which has no ProsecutionCase to read a caseURN or
-    // prosecutor name off — the caller resolves prosecutorName via prosecutorNameOf(CourtApplication).
+    // Overload for an application-only case, which has no ProsecutionCase to read a caseURN, case
+    // id, or prosecutor name off — the caller resolves prosecutorName via prosecutorNameOf(CourtApplication)
+    // and passes a null caseId, since there is no internal CP case identifier for it to carry.
     public CPCaseHearingEntity toCaseHearingEntity(final String caseUrn, final HearingDetail hearing,
                                                     final UUID hearingId, final OffsetDateTime createdAt,
-                                                    final String prosecutorName) {
+                                                    final String prosecutorName, final UUID caseId) {
         final CPCaseHearingEntity.CPCaseHearingEntityBuilder builder = CPCaseHearingEntity.builder()
                 .id(UUID.randomUUID())
                 .caseUrn(caseUrn)
+                .caseId(caseId)
                 .prosecutorName(prosecutorName)
                 .hearingId(hearingId)
                 .courtHouseId(hearing.getCourtCentre() == null || hearing.getCourtCentre().getId() == null
@@ -232,6 +235,18 @@ public class CPHearingResultEntityMapper {
                 .map(HearingDetailsResponse.ProsecutionCaseIdentifier::getProsecutionAuthorityName)
                 .filter(Objects::nonNull)
                 .findFirst()
+                .orElse(null);
+    }
+
+    // Sourced the same way as prosecutorNameOf — a court application not linked to any
+    // prosecution case has no id to carry; one linked via courtApplicationCases does.
+    public UUID caseIdOf(final CourtApplication application) {
+        return Stream.ofNullable(application.getCourtApplicationCases())
+                .flatMap(List::stream)
+                .map(CourtApplicationCase::getProsecutionCaseId)
+                .filter(Objects::nonNull)
+                .findFirst()
+                .map(UUID::fromString)
                 .orElse(null);
     }
 
