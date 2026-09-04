@@ -60,7 +60,7 @@ public class CPEntityPersistenceService {
     private UUID createCaseHearing(final String caseUrn, final HearingDetail hearing, final UUID hearingId,
                                     final String prosecutorName) {
         final CPCaseHearingEntity entity = entityMapper.toCaseHearingEntity(caseUrn, hearing, hearingId,
-                clockService.nowOffsetUTC(), prosecutorName);
+                clockService.nowOffsetUTC(), prosecutorName, null);
         caseHearingRepository.save(entity);
         return entity.getId();
     }
