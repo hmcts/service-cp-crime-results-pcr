@@ -16,7 +16,6 @@ import java.util.List;
 public class CPNowSubscription {
 
     private boolean isPrisonCourtRegisterSubscription;
-    // The one "unconfigured means pass" case — every dimension in SubscriptionVocabulary fails closed instead.
     private boolean applySubscriptionRules;
     private SubscriptionVocabulary subscriptionVocabulary;
 
