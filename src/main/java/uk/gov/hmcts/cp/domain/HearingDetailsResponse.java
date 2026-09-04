@@ -467,8 +467,6 @@ public class HearingDetailsResponse {
         // Matches this application to a defendantCase entry when a defendant has several — not
         // used for case URN, which is applicationReference (design doc 2026-09-02).
         private String prosecutionCaseId;
-        // Source of the prosecutor name for an application-only defendant (AMP-1082) — the
-        // linked case's own identifier, not the application's applicant/respondent parties.
         private ProsecutionCaseIdentifier prosecutionCaseIdentifier;
     }
 }
