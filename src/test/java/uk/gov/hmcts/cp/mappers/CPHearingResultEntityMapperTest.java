@@ -1128,6 +1128,25 @@ class CPHearingResultEntityMapperTest {
         assertThat(mapper.prosecutorNameOf(application)).isNull();
     }
 
+    @Test
+    void caseIdOf_should_returnFirstCourtApplicationCaseProsecutionCaseId() {
+        final UUID caseId = UUID.fromString("b1b2b3b4-1111-2222-3333-444455556666");
+        final CourtApplication application = CourtApplication.builder()
+                .courtApplicationCases(List.of(CourtApplicationCase.builder()
+                        .prosecutionCaseId(caseId.toString())
+                        .build()))
+                .build();
+
+        assertThat(mapper.caseIdOf(application)).isEqualTo(caseId);
+    }
+
+    @Test
+    void caseIdOf_should_returnNull_whenNoCourtApplicationCases() {
+        final CourtApplication application = CourtApplication.builder().courtApplicationCases(List.of()).build();
+
+        assertThat(mapper.caseIdOf(application)).isNull();
+    }
+
     // Ports PrisonCourtRegisterHandler.getDefendantType (progression-command-handler/.../PrisonCourtRegisterHandler.java:149-166).
     @Test
     void defendantType_should_returnApplicant_whenApplicantHasMasterDefendant_andNotAnAppeal() {

@@ -238,6 +238,18 @@ public class CPHearingResultEntityMapper {
                 .orElse(null);
     }
 
+    // Sourced the same way as prosecutorNameOf — a court application not linked to any
+    // prosecution case has no id to carry; one linked via courtApplicationCases does.
+    public UUID caseIdOf(final CourtApplication application) {
+        return Stream.ofNullable(application.getCourtApplicationCases())
+                .flatMap(List::stream)
+                .map(CourtApplicationCase::getProsecutionCaseId)
+                .filter(Objects::nonNull)
+                .findFirst()
+                .map(UUID::fromString)
+                .orElse(null);
+    }
+
     // Ports PrisonCourtRegisterHandler.getDefendantType verbatim, quirks included — the applicant
     // branch never checks whose masterDefendant it is, unlike the respondent branch, which does.
     public String defendantType(final CourtApplication application, final String masterDefendantId) {
