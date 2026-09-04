@@ -18,8 +18,7 @@ import java.util.List;
 public class HearingDetailsResponse {
 
     private HearingDetail hearing;
-    // Sibling of hearing in CP's own payload, not nested under it — a version-correlation
-    // candidate (design §7), not yet used to correlate anything.
+    // Version-correlation candidate, not yet used.
     private Instant sharedTime;
 
     @JsonIgnoreProperties(ignoreUnknown = true)
@@ -35,11 +34,8 @@ public class HearingDetailsResponse {
         private HearingType type;
         private String jurisdictionType;
         private List<DefendantAttendance> defendantAttendance;
-        // Hearing-wide defendant-level results, matched by masterDefendantId — a distinct CP
-        // concept from Defendant.defendantCaseJudicialResults (which is per-defendant nested, not
-        // hearing-wide). Confirmed via the legacy Function App's own
-        // DefendantContextBaseService.js:setJudicialResultsAtDefendantCaseLevel, which reads this
-        // exact field name and keys off masterDefendantId, not defendantId.
+        // Hearing-wide defendant-level results, matched by masterDefendantId — distinct from
+        // Defendant.defendantCaseJudicialResults, which is per-defendant nested.
         private List<DefendantJudicialResult> defendantJudicialResults;
     }
 
@@ -92,12 +88,7 @@ public class HearingDetailsResponse {
         private String id;
         private String code;
         private String name;
-        // Boxed, not primitive — not yet confirmed present on every real
-        // hearingDetails/internal response (design doc §2/§7); a missing field must not
-        // fail deserialization of the whole payload.
         private Boolean welshCourtCentre;
-        // lja/address confirmed via the legacy Function App's own HearingVenueMapper.js, which
-        // reads hearing.courtCentre.lja.ljaName and hearing.courtCentre.address verbatim.
         private LocalJusticeArea lja;
         private Address address;
     }
@@ -149,7 +140,6 @@ public class HearingDetailsResponse {
     @NoArgsConstructor
     @Getter
     public static class Prosecutor {
-        // Boxed, not primitive — see CourtCentre.welshCourtCentre for why.
         private Boolean isCps;
     }
 
@@ -171,15 +161,11 @@ public class HearingDetailsResponse {
     public static class Defendant {
         private String id;
         private String masterDefendantId;
-        // Youth/adult vocabulary source (design doc §2/§7) — boxed, not primitive, see
-        // CourtCentre.welshCourtCentre for why.
+        // Youth/adult vocabulary source.
         private Boolean isYouth;
         private PersonDefendant personDefendant;
         private List<Offence> offences;
-        // Case-level results attached directly to the defendant, not tied to any specific
-        // offence — a distinct CP concept from offences[].judicialResults. Confirmed via the
-        // legacy Function App's DefendantMapper.js/DefendantContextBaseService.js, which reads
-        // this exact field name.
+        // Case-level results attached directly to the defendant, not tied to any offence — distinct from offences[].judicialResults.
         private List<JudicialResult> defendantCaseJudicialResults;
     }
 
@@ -190,8 +176,6 @@ public class HearingDetailsResponse {
     @Getter
     public static class PersonDefendant {
         private CustodialEstablishment custodialEstablishment;
-        // personDetails: confirmed present on CP's own hearing payload (ADR-004, updated
-        // 28 Jul 2026) — no longer "deliberately absent".
         private PersonDetails personDetails;
     }
 
@@ -231,10 +215,6 @@ public class HearingDetailsResponse {
         private String address1;
         private String address2;
         private String address3;
-        // address4/address5: never populated on a real defendant address (no 4th/5th line
-        // upstream there), but HearingVenueMapper.js confirms CP's courtCentre.address genuinely
-        // carries all 5 lines — kept here rather than on a separate court-only address type since
-        // this is the same raw CP address shape either way.
         private String address4;
         private String address5;
         private String postcode;
@@ -246,8 +226,6 @@ public class HearingDetailsResponse {
     @NoArgsConstructor
     @Getter
     public static class Offence {
-        // Confirmed present on CP's own hearing payload — see V1.009 migration comment for why
-        // it's retained as source_offence_id, not the primary key.
         private String id;
         private String offenceCode;
         private String offenceTitle;
@@ -260,9 +238,6 @@ public class HearingDetailsResponse {
         private List<JudicialResult> judicialResults;
         private String offenceLegislation;
         private Verdict verdict;
-        // allocationDecision/indicatedPlea confirmed via the legacy Function App's own
-        // OffenceMapper.js, which reads offence.allocationDecision.motReasonDescription and
-        // offence.indicatedPlea.indicatedPleaValue verbatim.
         private AllocationDecision allocationDecision;
         private IndicatedPlea indicatedPlea;
     }
@@ -300,10 +275,6 @@ public class HearingDetailsResponse {
     @NoArgsConstructor
     @Getter
     public static class VerdictType {
-        // CP's own verdict code (e.g. "G" for guilty) — kept for correlation/debugging, but
-        // description is the field actually surfaced (see CPHearingResultEntityMapper.toVerdict):
-        // legacy's OffenceMapper.js sources its "verdictCode" output from verdictType.description,
-        // and the api-cp contract's Offence.verdict mirrors that same description value.
         private String verdictCode;
         private String description;
     }
@@ -331,11 +302,8 @@ public class HearingDetailsResponse {
         private String postHearingCustodyStatus;
         private boolean isFinancialResult;
         private boolean isConvictedResult;
-        // publishedForNows: the PCR eligibility flag (orchestrator design doc §3) — boxed,
-        // not primitive, see CourtCentre.welshCourtCentre for why.
+        // The PCR eligibility flag.
         private Boolean publishedForNows;
-        // orderedDate: sourced for the persistence-wiring design's resolveActiveAt (design
-        // doc §4.2) — needs a real fixture check, same caveat as publishedForNows was under.
         private LocalDate orderedDate;
         private NextHearing nextHearing;
         private List<JudicialResultPrompt> judicialResultPrompts;
@@ -347,10 +315,6 @@ public class HearingDetailsResponse {
     @NoArgsConstructor
     @Getter
     public static class NextHearing {
-        // CP's real payload has no bare `date` field — it sends `listedStartDateTime` (full
-        // ISO instant) and `courtCentre`, matching the shape already used for the hearing
-        // itself. `bookingReference` is the closest CP field identifying this specific future
-        // hearing occurrence.
         private String bookingReference;
         private Instant listedStartDateTime;
         private CourtCentre courtCentre;
@@ -368,11 +332,8 @@ public class HearingDetailsResponse {
         private String type;
     }
 
-    // Court applications are hearing-level, not nested per-defendant. `subject` identifies the
-    // defendant — also the PCR source when they're not reached via this hearing's own
-    // prosecutionCases[] (the application's own case link is courtApplicationCases[], a separate
-    // thing — design doc 2026-09-02). `applicant`/`respondents[]` feed the Applicant/Appellant/
-    // Respondent label instead (CPHearingResultEntityMapper.defendantType).
+    // Hearing-level, not nested per-defendant. `subject` identifies the defendant; `applicant`/
+    // `respondents[]` feed the Applicant/Appellant/Respondent label instead (see defendantType).
     @JsonIgnoreProperties(ignoreUnknown = true)
     @Builder
     @AllArgsConstructor
@@ -381,9 +342,6 @@ public class HearingDetailsResponse {
     public static class CourtApplication {
         private String id;
         private String applicationReference;
-        // Real CP payload sends a whole object here (code + human-readable description +
-        // several other classification flags), not a plain string — confirmed against a real
-        // hearing fixture; deserialization of the entire payload fails otherwise.
         private ApplicationType type;
         private ApplicationParty subject;
         private ApplicationParty applicant;
@@ -419,7 +377,7 @@ public class HearingDetailsResponse {
     public static class ApplicationType {
         private String code;
         private String type;
-        // Feeds CPHearingResultEntityMapper.defendantType — boxed, see CourtCentre.welshCourtCentre.
+        // Feeds defendantType.
         private Boolean appealFlag;
         private Boolean applicantAppellantFlag;
     }
@@ -440,7 +398,7 @@ public class HearingDetailsResponse {
     @Getter
     public static class MasterDefendant {
         private String masterDefendantId;
-        // Feeds CPHearingResultEntityMapper.applicationOnlyDefendant (design doc 2026-09-02).
+        // Feeds applicationOnlyDefendant.
         private Boolean isYouth;
         private PersonDefendant personDefendant;
         private List<DefendantCase> defendantCase;
@@ -464,8 +422,7 @@ public class HearingDetailsResponse {
     @Getter
     public static class CourtApplicationCase {
         private List<Offence> offences;
-        // Matches this application to a defendantCase entry when a defendant has several — not
-        // used for case URN, which is applicationReference (design doc 2026-09-02).
+        // Matches this application to a defendantCase entry when a defendant has several — not used for case URN.
         private String prosecutionCaseId;
         private ProsecutionCaseIdentifier prosecutionCaseIdentifier;
     }

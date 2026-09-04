@@ -16,9 +16,6 @@ import java.util.List;
 public class CPNowSubscription {
 
     private boolean isPrisonCourtRegisterSubscription;
-    // false, or subscriptionVocabulary absent -> matches by default (checkIfCustodyMatch et al
-    // are never consulted) — the one place "unconfigured means pass" is correct; every
-    // dimension inside SubscriptionVocabulary is fail-closed when unconfigured instead.
     private boolean applySubscriptionRules;
     private SubscriptionVocabulary subscriptionVocabulary;
 
@@ -29,29 +26,18 @@ public class CPNowSubscription {
     @Getter
     public static class SubscriptionVocabulary {
 
-        // Every field below is Boolean, not boolean — the confirmed real fixture
-        // (reference-data-service-result-1-3-true.json) only includes the dimensions a given
-        // subscription actually configures; a PCR subscription with no major-creditor or
-        // custody-ignore requirement simply omits those keys rather than sending false.
-        // Boxed null is treated as "not configured" (unset), same fail-closed default as an
-        // explicit false, via the isTrue()/isSet() helpers in CPNowSubscriptionMatcher.
+        // Boolean not boolean — a subscription omits keys it doesn't configure; null means
+        // "not configured" (fail-closed), via isTrue()/isSet() in CPNowSubscriptionMatcher.
 
-        // CPS short-circuit — bypasses every other dimension below once both this and the
-        // defendant's own CPVocabulary.cpsProsecuted are true (checkIfCpsProsecuted).
+        // CPS short-circuit — bypasses every other dimension once this and cpsProsecuted are both true.
         private Boolean isCpsProsecuted;
 
-        // Attendance — matched against SubscriptionsService.js:240-256's checkIfAttendanceTypeMatch,
-        // but CPVocabulary has no real appearedInPerson/appearedByVideoLink source yet (design doc §7 —
-        // hearing.defendantAttendance is unconfirmed by fixture). anyAppearance still bypasses per
-        // real behaviour; a specific requirement without it can never be satisfied today.
+        // CPVocabulary has no real appearedInPerson/appearedByVideoLink source yet — those can never be satisfied.
         private Boolean anyAppearance;
         private Boolean appearedInPerson;
         private Boolean appearedByVideoLink;
 
-        // CPVocabulary.prosecutorMajorCreditor/nonProsecutorMajorCreditor are always empty,
-        // non-null lists for PCR (design doc §2) — requiresProsecutorMajorCreditor/
-        // requiresNonProsecutorMajorCreditor can therefore never be satisfied on their own;
-        // only anyMajorCreditor genuinely defaults to pass (checkIfMajorCreditorTypeMatch).
+        // prosecutorMajorCreditor/nonProsecutorMajorCreditor are always empty for PCR — only anyMajorCreditor can pass.
         private Boolean anyMajorCreditor;
         private Boolean requiresProsecutorMajorCreditor;
         private Boolean requiresNonProsecutorMajorCreditor;
@@ -78,8 +64,7 @@ public class CPNowSubscription {
         private Boolean atleastOneCustodialResult;
         private Boolean atleastOneNonCustodialResult;
 
-        // Prompt/result include-exclude lists — matched by exact promptReference/cjsCode value
-        // (SubscriptionsService.js:212-238's NAMEADDRESS substring-match nuance is not modelled).
+        // Prompt/result include-exclude lists — matched by exact promptReference/cjsCode value.
         // Prompts are objects on the real API, not bare strings — matched on resultPromptReference.
         private List<CPResultPrompt> includedPrompts;
         private List<CPResultPrompt> excludedPrompts;

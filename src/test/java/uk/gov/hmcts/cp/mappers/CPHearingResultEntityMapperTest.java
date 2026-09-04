@@ -463,10 +463,7 @@ class CPHearingResultEntityMapperTest {
         assertThat(bundle.version().getCustodyType()).isNull();
     }
 
-    // Confirmed against DefendantContextBaseService.js/RegisterFragmentService.js: OFFENCE and
-    // APPLICATION level results are pushed into the same combined array as DEFENDANT/CASE level
-    // ones, and publishedForNows is filtered out of that whole array before any level reads from
-    // it — the exclusion is not specific to defendantResults/caseResults.
+    // publishedForNows filtering applies to the whole combined result array, not just defendant/case level.
     @Test
     void toWriteBundle_should_excludePublishedForNows_fromDirectAndLinkedOffenceResults() {
         final JudicialResult keep = JudicialResult.builder().cjsCode("KEEP").label("Keep").judicialResultPrompts(List.of()).build();
@@ -572,8 +569,7 @@ class CPHearingResultEntityMapperTest {
 
         final CPEntitySet bundle = mapper.toWriteBundle(defendant, hearing, CASE_HEARING_ID, SHARED_TIME, CREATED_AT, EXPIRES_AT);
 
-        // Sourced from verdictType.description, not verdictType.verdictCode — legacy's own
-        // OffenceMapper.js naming quirk, mirrored deliberately (see toVerdict's comment).
+        // Sourced from verdictType.description, not verdictType.verdictCode (see toVerdict).
         assertThat(bundle.offences().get(0).getVerdict()).isEqualTo("Found guilty");
         assertThat(bundle.offences().get(0).getOffenceLegislation())
                 .isEqualTo("Contrary to section 1(1) and 7 of the Theft Act 1968.");
@@ -679,11 +675,7 @@ class CPHearingResultEntityMapperTest {
         assertThat(result.getResultCode()).isEqualTo("D1");
     }
 
-    // Confirmed against a real hearing fixture: every hearing.defendantJudicialResults entry
-    // observed so far is publishedForNows=true, meaning it never actually reaches the register —
-    // RegisterFragmentService.js's filterJudicialResultsApplicableForRegisters excludes it before
-    // any level split, same rule CPResultsPcrFilter.excludePublishedForNows already applies to
-    // the PCR-required gate.
+    // Real fixtures: every defendantJudicialResults entry is publishedForNows=true, so it's excluded before any level split.
     @Test
     void toWriteBundle_should_excludePublishedForNows_fromDefendantAndCaseResults() {
         final JudicialResult publishedForNowsResult = JudicialResult.builder()
@@ -754,9 +746,7 @@ class CPHearingResultEntityMapperTest {
                 .build();
     }
 
-    // Legacy's own algorithm has a real bug here (`=` instead of `===`, always matching the
-    // first attendance entry) — this proves the fix: a SECOND defendant with no matching
-    // attendance entry of their own must not inherit the FIRST defendant's appearance details.
+    // Legacy bug (`=` not `===`) always matched the first attendance entry — a defendant with no match must not inherit another's.
     @Test
     void toWriteBundle_should_notMatchAnotherDefendantsAttendance_forMultiDefendantHearing() {
         final Defendant secondDefendant = Defendant.builder()
@@ -1103,9 +1093,7 @@ class CPHearingResultEntityMapperTest {
         assertThat(mapper.prosecutorNameOf(application)).isNull();
     }
 
-    // Ports PrisonCourtRegisterHandler.getDefendantType (progression-command-handler/.../
-    // PrisonCourtRegisterHandler.java:149-166) — applicant.masterDefendant present and the
-    // application is not flagged as an appeal.
+    // Ports PrisonCourtRegisterHandler.getDefendantType (progression-command-handler/.../PrisonCourtRegisterHandler.java:149-166).
     @Test
     void defendantType_should_returnApplicant_whenApplicantHasMasterDefendant_andNotAnAppeal() {
         final CourtApplication application = CourtApplication.builder()
@@ -1136,8 +1124,7 @@ class CPHearingResultEntityMapperTest {
         assertThat(mapper.defendantType(application, MASTER_DEFENDANT_ID)).isEqualTo("Applicant");
     }
 
-    // Applicant branch never checks whose masterDefendant it is — a literal port of the
-    // legacy quirk (design doc 2026-09-02 §2 point 3), not "fixed".
+    // Applicant branch never checks whose masterDefendant it is — a literal port of the legacy quirk, not "fixed".
     @Test
     void defendantType_should_returnApplicant_whenApplicantMasterDefendantBelongsToSomeoneElse() {
         final CourtApplication application = CourtApplication.builder()
@@ -1170,9 +1157,7 @@ class CPHearingResultEntityMapperTest {
         assertThat(mapper.defendantType(application, MASTER_DEFENDANT_ID)).isEqualTo("Applicant");
     }
 
-    // A respondent can be a prosecuting authority, not a defendant — CourtApplicationParty (CP's
-    // own model) has masterDefendant/prosecutingAuthority as independent nullable fields on the
-    // same party type. Must not NPE, and must not falsely match.
+    // A respondent can be a prosecuting authority, not a defendant — must not NPE or falsely match.
     @Test
     void defendantType_should_returnApplicant_whenARespondentHasNoMasterDefendantAtAll() {
         final CourtApplication application = CourtApplication.builder()

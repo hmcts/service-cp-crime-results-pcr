@@ -33,7 +33,7 @@ import java.util.UUID;
 @Component
 public class PcrResultsMapper {
 
-    // Matches legacy's own LevelTypeEnum literally: {DEFENDANT:'D', CASE:'C', OFFENCE:'O', APPLICATION:'A'}.
+    // Matches CP Azure Legal Aid Agency's LevelTypeEnum: DEFENDANT='D', CASE='C', OFFENCE='O', APPLICATION='A'.
     private static final String LEVEL_DEFENDANT = "D";
     private static final String LEVEL_CASE = "C";
 
@@ -165,8 +165,7 @@ public class PcrResultsMapper {
                         .build();
     }
 
-    // dateTime: uses the recorded time when the write path has populated it; midnight UTC is
-    // only a fallback for when the source data genuinely carries a date with no time.
+    // Uses the recorded time if present; midnight UTC is only a fallback for a date with no time.
     private Instant toNextHearingDateTime(final CPNextHearingEmbeddable nextHearing) {
         return nextHearing.getTime() == null
                 ? nextHearing.getDate().atStartOfDay(ZoneOffset.UTC).toInstant()

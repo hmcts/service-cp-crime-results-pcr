@@ -10,13 +10,8 @@ import uk.gov.hmcts.cp.domain.pcrcompute.CPVocabulary;
 
 import java.util.List;
 
-// Matches design doc §4 / SubscriptionsService.js's matchVocabularyRules — PCR subscriptions
-// (isPrisonCourtRegisterSubscription) are matched by this alone, no court-house/prosecutor/
-// NOW-list gate applies. Every dimension below fails closed when unconfigured — a boxed
-// Boolean field on SubscriptionVocabulary that is null (dimension not sent on this
-// subscription, confirmed real per the fixture) is treated identically to an explicit false.
-// Only applySubscriptionRules == false (or no subscriptionVocabulary at all) genuinely
-// defaults to pass.
+// Every dimension fails closed when unconfigured — a null Boolean is treated as false. Only
+// applySubscriptionRules == false (or no subscriptionVocabulary at all) defaults to pass.
 @Component
 public class CPNowSubscriptionMatcher {
 
@@ -41,18 +36,13 @@ public class CPNowSubscriptionMatcher {
                         && resultTypeListsMatch(subVoc, eligibleResults));
     }
 
-    // Real appearedInPerson/appearedByVideoLink source (hearing.defendantAttendance) is
-    // unconfirmed on our own HearingDetailsResponse (design doc §7) — CPVocabulary carries no
-    // attendance facts yet. anyAppearance still bypasses per real behaviour; a specific
-    // requirement without it can never be satisfied until that fixture gap is closed.
+    // CPVocabulary carries no real attendance facts yet — only anyAppearance can pass.
     private boolean attendanceMatches(final SubscriptionVocabulary subVoc) {
         return isTrue(subVoc.getAnyAppearance());
     }
 
     private boolean majorCreditorTypeMatches(final SubscriptionVocabulary subVoc) {
-        // CPVocabulary.prosecutorMajorCreditor()/nonProsecutorMajorCreditor() are always empty,
-        // non-null lists for PCR (design doc §2) — a specific requirement without
-        // anyMajorCreditor can never be satisfied.
+        // prosecutorMajorCreditor()/nonProsecutorMajorCreditor() are always empty for PCR — a specific requirement without anyMajorCreditor can never be satisfied.
         return isTrue(subVoc.getAnyMajorCreditor())
                 || (!isTrue(subVoc.getRequiresProsecutorMajorCreditor())
                         && !isTrue(subVoc.getRequiresNonProsecutorMajorCreditor()));

@@ -220,8 +220,7 @@ class PcrDriftDetectionIntegrationTest extends IngestionE2ETestBase {
         }
     }
 
-    // Mirrors CPHearingResultEntityMapper.applicationOnlyDefendant/resolveDefendantId — case URN
-    // is applicationReference, matching production (design doc 2026-09-02).
+    // Mirrors CPHearingResultEntityMapper.applicationOnlyDefendant/resolveDefendantId.
     private void addApplicationOnlyDefendants(final JsonNode hearing, final Map<String, String> caseUrnByDefendantId) {
         final JsonNode courtApplications = hearing.get("courtApplications");
         if (courtApplications == null) {
