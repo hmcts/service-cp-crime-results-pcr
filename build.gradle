@@ -28,7 +28,7 @@ apply {
 // Sadly, dependabot does not track dependencies in the apply-from files
 dependencies {
   // Api spec
-  implementation('uk.gov.hmcts.cp:api-cp-crime-results-pcr:1.1.20') // AMP-1082: prosecutor name on ProsecutionCase
+  implementation('uk.gov.hmcts.cp:api-cp-crime-results-pcr:1.1.22') // AMP-1082: prosecutor name on ProsecutionCase
   implementation 'io.swagger.core.v3:swagger-annotations:2.2.55'
 
   // Java core
