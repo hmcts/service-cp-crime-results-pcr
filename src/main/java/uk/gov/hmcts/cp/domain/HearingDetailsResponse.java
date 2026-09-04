@@ -304,7 +304,6 @@ public class HearingDetailsResponse {
         private boolean isConvictedResult;
         // The PCR eligibility flag.
         private Boolean publishedForNows;
-        // orderedDate: sourced for resolveActiveAt.
         private LocalDate orderedDate;
         private NextHearing nextHearing;
         private List<JudicialResultPrompt> judicialResultPrompts;
