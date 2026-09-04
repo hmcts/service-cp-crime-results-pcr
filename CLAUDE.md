@@ -10,21 +10,19 @@ as a new pull-based read channel for API Marketplace subscribers. The contract i
 to any single consumer's stated needs — decisions here apply platform-wide, not to one
 subscriber.
 
-**Pattern**: Hybrid — synchronous stateless proxy (`GET /pcr`) implemented; Event Grid-sourced
-ingestion (`POST /internal/hearing-results`) wired end-to-end into the DB-backed version store
-(Postgres/Flyway, `cp_version` rows), gated by the generation-gate check.
+**Pattern**: Hybrid — synchronous stateless proxy (`GET /pcr`) implemented; Service Bus
+queue-based ingestion wired end-to-end into the DB-backed version store (Postgres/Flyway,
+`cp_version` rows), gated by the generation-gate check.
 **Spring Boot version**: 4.1.0
-**Implements**: `api-cp-crime-results-pcr` v1.1.14 (`PcrApi`/`InternalApi` — see `build.gradle`)
+**Implements**: `api-cp-crime-results-pcr` v1.1.14 (`PcrApi` — see `build.gradle`)
 
-Replaces the earlier self-provisioned Service Bus queue ingestion path (ADR-002/AMP-889). ADR-007
-/AMP-892 (`docs/plans/2026-07-29-pcr-eventgrid-webhook-ingestion.md`) originally had Event Grid
-delivering straight to a webhook on this service; that design has since been superseded by
-`pcr-eventgrid-relay-function` — a standalone Function App that owns the Event Grid subscription,
-answers its subscription-validation handshake itself (via its own `@EventGridTrigger` binding), and
-relays each `Hearing_Resulted` event verbatim to this same `/internal/hearing-results` endpoint as
-a plain internal HTTP call. This service's own contract and code have **no Event Grid-specific
-surface left** — no handshake handling, no `aeg-event-type` awareness — it just receives an
-ordinary internal POST.
+History: ADR-002/AMP-889 (an earlier self-provisioned Service Bus queue) → ADR-007/AMP-892
+(Event Grid → `pcr-eventgrid-relay-function` → `POST /internal/hearing-results`, a plain internal
+HTTP call, no Event Grid-specific surface on this service) → **ADR-009/AMP-1030 (current)**: Event
+Grid delivers directly to `pcr.hearing-resulted`, a Service Bus queue owned solely by this
+service, consumed via `HearingResultedServiceBusConsumer`. The POST path and its coexistence
+switch have since been removed (AMP-1053) — the queue is the only ingestion path. Retiring
+`pcr-eventgrid-relay-function` itself is separate, cross-repo follow-up work, not yet done.
 
 **Status**: `GET /pcr` now reads from the data store; the ingestion path drives the generation
 gate and the data store as one connected pipeline:
@@ -34,13 +32,16 @@ gate and the data store as one connected pipeline:
   recorded history as an array, ordered oldest-to-newest by `created_at` — no `version` query
   param, no live call to `ResultsClient` or the Results Query API at all. See
   `docs/designs/2026-07-28-pcr-read-path-data-store-design.md`.
-- `POST /internal/hearing-results` (`HearingResultedEventController` → `HearingResultedEventService`
-  → `ResultsIngestionService`) receives the relayed `Hearing_Resulted` pointer event, checks
-  Redis-then-REST for complete hearing data with an in-process 2s/4s/8s retry, and — via
-  `ResultsIngestionService.ingestAndPersist` — **does persist**:
-  for each defendant it invokes the generation gate, then delegates to `CPEntityPersistenceService`
-  to find-or-create a `cp_case_hearing` row and write a `cp_version` row (plus its offences, court
-  applications, judicial results, and prompts) through the repository layer.
+- `HearingResultedServiceBusConsumer` (queue `pcr.hearing-resulted`) receives the
+  `Hearing_Resulted` pointer event, checks Redis-then-REST for complete hearing data via
+  `ResultsIngestionService.ingestAndPersistOnce` (single attempt, no in-process retry — the retry
+  now lives at the queue level, see below), and — if complete — **does persist**: for each
+  defendant it invokes the generation gate, then delegates to `CPEntityPersistenceService` to
+  find-or-create a `cp_case_hearing` row and write a `cp_version` row (plus its offences, court
+  applications, judicial results, and prompts) through the repository layer. On an incomplete
+  hearing, the consumer completes the message and schedules a follow-up on the queue itself
+  (`service-bus.retry-durations`/`service-bus.max-tries`, default 24 tries topping out at ~10.6h)
+  rather than retrying in-process — see `docs/designs/2026-08-17-pcr-eventgrid-servicebus-ingestion-design.md`.
 - The generation-gate package (`CPVocabularyService`, `CPResultsPcrFilter`,
   `CPNowSubscriptionMatcher`, `ReferenceDataClient`) is now called — `ResultsIngestionService`
   computes a `CPVocabulary` per defendant and invokes `isPrisonCourtRegisterRequired` to decide
@@ -59,13 +60,13 @@ that looks arbitrary; it likely isn't.
 
 | Component | Technology | Purpose |
 |---|---|---|
-| Ingestion trigger | `pcr-eventgrid-relay-function` (owns the Event Grid subscription and its handshake) → `POST /internal/hearing-results` (`HearingResultedEventController` → `HearingResultedEventService`) | Delivered as a JSON array of the generated `HearingResultedEvent` model, relayed verbatim by the Function App — this service never sees Event Grid's subscription-validation handshake. Malformed/unrecognized payloads return `400`, not silently dropped |
+| Ingestion trigger | Azure Event Grid → Service Bus queue `pcr.hearing-resulted` (Terraform-provisioned, this service's own event subscription) → `HearingResultedServiceBusConsumer` | Delivered as the generated `HearingResultedEvent` model. Malformed messages are dead-lettered immediately (`MALFORMED_PAYLOAD_REASON`), not silently dropped or redelivered |
 | Results Query Client | `HearingResultedCacheClient` (Redis, read-only `StringRedisTemplate`) first, `ResultsClient` (`RestClient`) REST fallback against `results-query-api/.../hearingDetails/internal/{hearingId}` | Two-step retrieval per design §4a/4b — **ingestion path only**; `GET /pcr` calls neither of these, it reads the data store |
-| Completeness retry | `ResultsIngestionService.ingestHearingResults` in-process retry (`sleepUninterruptibly`) | On an incomplete hearing, retries up to 3 attempts with 2s/4s exponential backoff before throwing `IncompleteHearingDetailsException`, mapped to `503` by `GlobalExceptionHandler` — Event Grid redelivers per its own retry policy on `503` |
+| Completeness retry | Queue-level, not in-process — `HearingResultedServiceBusConsumer.handleIncomplete()` completes the message and schedules a follow-up (`ScheduledEnqueueTimeUtc`) rather than blocking | `service-bus.retry-durations` sets each delay (0s..1h, 16 entries), `service-bus.max-tries` (default 24) sets when to give up and dead-letter explicitly — ~10.6h worst case, sized for viewstore replication lag (minutes, not days), not copied from HRDS's schedule. Follow-up messages carry their own 24h TTL, since the queue's own `DefaultMessageTimeToLive` (10 minutes) is shorter than the longer delays |
 | Reference Data — `ResultDefinition` | Lookups, offence metadata (e.g. `startDate`) | Not yet built — "to be analysed" per design §8 |
-| Reference Data — `now-subscriptions` | `ReferenceDataClient` (`RestClient`) → `.../referencedata-query-api/.../now-subscriptions?on=<date>`; `CPNowSubscriptionMatcher` matches the PCR-flagged subset against a `CPVocabulary` | Now called from `ResultsIngestionService.ingestAndPersist`, once per hearing, using the first `JudicialResult.orderedDate` found on the hearing as `on` — a provisional stand-in, not the confirmed date-selection strategy from design §7 |
-| Generation gate | `CPVocabularyService` (fact computation) + `CPResultsPcrFilter` (`excludePublishedForNows`, `isPrisonCourtRegisterRequired`) | Design §4 scope, confirmed with Common Platform TA per ADR-005/AMP-943 — generation-gate logic only; recipient resolution and Progression submission are explicitly out of scope. Now called from `ResultsIngestionService.ingestAndPersist`, gating whether a `cp_version` row gets written per defendant |
-| Data store | Flyway migrations (`V1.001`-`V1.010`), 7 JPA entities (`entities/`), 7 plain `JpaRepository`s (`repositories/`) | Schema + persistence layer built and integration-tested against a real, manually-started Postgres (`PostgresInitialise`, same pattern as HRDS). Wired on both sides — `ResultsIngestionService.ingestAndPersist` delegates to `CPEntityPersistenceService`, which writes `cp_case_hearing`/`cp_version` (and dependent) rows via the repository layer once the generation gate passes, and `PcrResultsService` reads them back for `GET /pcr`. Encryption (ADR-004) and the version-correlation mechanism (§7) are separate, still-open work |
+| Reference Data — `now-subscriptions` | `ReferenceDataClient` (`RestClient`) → `.../referencedata-query-api/.../now-subscriptions?on=<date>`; `CPNowSubscriptionMatcher` matches the PCR-flagged subset against a `CPVocabulary` | Called from `ResultsIngestionService.ingestAndPersistOnce`, once per hearing, using the first `JudicialResult.orderedDate` found on the hearing as `on` — a provisional stand-in, not the confirmed date-selection strategy from design §7 |
+| Generation gate | `CPVocabularyService` (fact computation) + `CPResultsPcrFilter` (`excludePublishedForNows`, `isPrisonCourtRegisterRequired`) | Design §4 scope, confirmed with Common Platform TA per ADR-005/AMP-943 — generation-gate logic only; recipient resolution and Progression submission are explicitly out of scope. Called from `ResultsIngestionService.ingestAndPersistOnce`, gating whether a `cp_version` row gets written per defendant |
+| Data store | Flyway migrations (`V1.001`-`V1.010`), 7 JPA entities (`entities/`), 7 plain `JpaRepository`s (`repositories/`) | Schema + persistence layer built and integration-tested against a real, manually-started Postgres (`PostgresInitialise`, same pattern as HRDS). Wired on both sides — `ResultsIngestionService.ingestAndPersistOnce` delegates to `CPEntityPersistenceService`, which writes `cp_case_hearing`/`cp_version` (and dependent) rows via the repository layer once the generation gate passes, and `PcrResultsService` reads them back for `GET /pcr`. Encryption (ADR-004) and the version-correlation mechanism (§7) are separate, still-open work |
 | Version lookup / retention | Read path implemented — `GET /pcr` returns the full recorded history per `(caseURN, hearingId, defendantId)`, ordered oldest-to-newest. The separate `/versions` metadata-only endpoint and retention policy remain `501`/not implemented, pending the still-undecided version-correlation mechanism (§7) |
 
 ## Source Structure
@@ -76,18 +77,25 @@ that looks arbitrary; it likely isn't.
   repository layer for a given `(caseURN, hearingId, defendantId)` and maps each recorded version
   to a `PcrHearingResult`; always returns `200` with an empty array when nothing is found — no
   `404` distinction, per the settled design decision
-- `controllers/HearingResultedEventController` — implements generated `InternalApi`; delegates
-  `POST /internal/hearing-results` straight to `HearingResultedEventService`, no logic of its own
-- `services/HearingResultedEventService` — checks the generated `HearingResultedEvent`'s
-  `eventType` is `Hearing_Resulted`, unpacks the strongly-typed `HearingResultedEventData`
-  (`hearingId`/`hearingDay`/`userId`) and calls `ResultsIngestionService.ingestAndPersist`; throws
-  `IllegalArgumentException` (→ `400`) on an unrecognized `eventType` or empty delivery. Never sees
-  Event Grid's subscription-validation handshake — `pcr-eventgrid-relay-function` answers that
-  upstream
-- `services/ingestion/ResultsIngestionService` — Redis-then-REST hearing lookup with an in-process
-  2s/4s/8s completeness retry (`sleepUninterruptibly`, up to 3 attempts) before throwing
-  `IncompleteHearingDetailsException`; `ingestAndPersist` additionally runs the generation gate per
-  defendant and delegates to `CPEntityPersistenceService` to write the `cp_version` write-graph
+- `servicebus/services/HearingResultedServiceBusConsumer` — the ingestion entry point; peek-lock
+  consumer on `pcr.hearing-resulted`, checks the generated `HearingResultedEvent`'s `eventType` is
+  `Hearing_Resulted`, calls `ResultsIngestionService.ingestAndPersistOnce`. On
+  `IncompleteHearingDetailsException` schedules a follow-up message rather than retrying
+  in-process; on outright failure abandons for native `maxDeliveryCount`-based redelivery;
+  malformed payloads dead-letter immediately
+- `servicebus/config/ServiceBusProperties` — connection strings, `auto-start-processors` (test/
+  local convenience only — gates whether the processor starts at all, unrelated to business
+  logic), `max-tries`
+- `servicebus/config/RetryServiceConfig` / `servicebus/services/ServiceBusRetryService` — holds
+  and computes `service-bus.retry-durations`, clamping to the last configured delay once the
+  attempt count exceeds the list
+- `servicebus/services/ServiceBusProvisioningService` — read-only queue-existence check at
+  startup; fails fast if Terraform hasn't provisioned `pcr.hearing-resulted` yet, never creates it
+- `services/ingestion/ResultsIngestionService` — Redis-then-REST hearing lookup, single attempt
+  (`ingestHearingResultsOnce`/`fetchIfComplete`) — no in-process retry, that now lives at the
+  queue level (see `HearingResultedServiceBusConsumer` above). `ingestAndPersistOnce` additionally
+  runs the generation gate per defendant and delegates to `CPEntityPersistenceService` to write
+  the `cp_version` write-graph
 - `services/ingestion/CPEntityPersistenceService` — find-or-creates the shared `cp_case_hearing`
   row and writes a `cp_version` row (plus its offences, court applications, judicial results, and
   prompts) via the repository layer, once the generation gate has already decided a PCR is
@@ -115,7 +123,7 @@ that looks arbitrary; it likely isn't.
 ### The `pcrcompute` sub-package (`services/pcrcompute/`, `domain/pcrcompute/`)
 
 Every class here is built and unit-tested and is now called from `ResultsIngestionService`
-(invoked by the ingestion path via `ingestAndPersist`) — but still **not called from
+(invoked by the ingestion path via `ingestAndPersistOnce`) — but still **not called from
 `PcrResultsController` or `PcrResultsService`**; `GET /pcr` is unaffected by this wiring. It's
 sub-packaged (not a new top-level layer — every sibling `service-cp-*` repo's
 `controllers/services/clients/domain` shape stays intact) specifically so this boundary stays
@@ -152,11 +160,11 @@ client, no different in kind from the others:
   never surfaces in `PcrVersion`/`cp_version` — it exists only to decide *whether* a PCR is
   generated, not to describe its content (design doc §2)
 
-`HearingDetailsResponse` stays in top-level `domain/` — it's genuinely shared across all three
-code paths, unlike the `pcrcompute`-only types above. The generated `HearingResultedEvent`/
+`HearingDetailsResponse` stays in top-level `domain/` — it's genuinely shared across both the
+read and write paths, unlike the `pcrcompute`-only types above. The generated `HearingResultedEvent`/
 `HearingResultedEventData` models (from `api-cp-crime-results-pcr`) are consumed directly
-by `HearingResultedEventService` — no hand-written envelope/pointer domain type exists for the
-ingestion path.
+by `HearingResultedServiceBusConsumer` — no hand-written envelope/pointer domain type exists for
+the ingestion path.
 
 ### Data store (`entities/`, `repositories/`)
 
@@ -172,7 +180,7 @@ is wired yet; encryption at rest (ADR-004) is deferred to a future phase, not th
 Every repository is a bare `JpaRepository<Entity, UUID>` — `CPCaseHearingRepository` now also has
 `findByCaseUrnAndHearingId` (a real custom query method, added to support find-or-create), and
 all 7 repositories are now called from `CPEntityPersistenceService` (invoked by
-`ResultsIngestionService.ingestAndPersist`). Proven against
+`ResultsIngestionService.ingestAndPersistOnce`). Proven against
 a real Postgres, not an in-memory substitute — same pattern as
 `service-cp-crime-hearing-results-document-subscription`: full `@SpringBootTest` +
 `PostgresInitialise` (`integration/config/PostgresInitialise.java`, a `TestPropertyValues`-based
@@ -209,23 +217,25 @@ run, in production or in tests; discovered the hard way when repository tests fa
   hearing by `masterDefendantId` for this reason (generation-gate design doc §2/§7). This is
   orthogonal to the point above: computing *eligibility* against the merged view does not mean
   the *persisted* `cp_version` row merges — it stays keyed per `(hearingId, defendantId)`.
-- **Redis-first, REST-fallback-with-retry is mandatory, not an optimisation** — Redis is written
+- **Redis-first, REST-fallback is mandatory, not an optimisation** — Redis is written
   synchronously before `Hearing_Resulted` fires (guaranteed populated); the REST viewstore is
   updated asynchronously and can race. Skipping the Redis check reintroduces a real, confirmed
-  race condition (design §4a/§4b), not a theoretical one. The in-process 2s/4s/8s retry in
-  `ResultsIngestionService.ingestHearingResults` is now actually implemented (previously only
-  designed) — three attempts before throwing `IncompleteHearingDetailsException` (→ `503`,
-  Event Grid redelivers). **This rule currently applies to the ingestion path
-  only** — `GET /pcr` (`PcrResultsService`) does not check Redis and has no completeness gate;
-  don't assume the synchronous endpoint is race-safe just because the ingestion path is.
-- **The ingestion path now persists, via `ResultsIngestionService.ingestAndPersist`** — see
+  race condition (design §4a/§4b), not a theoretical one. Completeness retry is no longer
+  in-process — `ResultsIngestionService.ingestHearingResultsOnce` makes a single attempt and
+  throws `IncompleteHearingDetailsException` immediately if incomplete;
+  `HearingResultedServiceBusConsumer` is what retries, by scheduling a follow-up message on the
+  queue itself (`service-bus.retry-durations`/`max-tries`), not by blocking. **This rule currently
+  applies to the ingestion path only** — `GET /pcr` (`PcrResultsService`) does not check Redis and
+  has no completeness gate; don't assume the synchronous endpoint is race-safe just because the
+  ingestion path is.
+- **The ingestion path now persists, via `ResultsIngestionService.ingestAndPersistOnce`** — see
   `docs/designs/2026-07-28-pcr-persistence-wiring-design.md`. A successful
-  `ingestHearingResults` call only proves the hearing data is complete and retryable-safe;
-  `ingestAndPersist` is the method that additionally runs the generation gate per defendant and
-  delegates to `CPEntityPersistenceService` to write `cp_case_hearing`/`cp_version` (and
-  dependent) rows when it passes. `GET /pcr` now reads from the same data store this write path
-  populates, via the repository layer — not from "whatever the listener last saw" in memory, and
-  not from `ResultsClient` any more.
+  `ingestHearingResultsOnce` call only proves the hearing data is complete; `ingestAndPersistOnce`
+  is the method that additionally runs the generation gate per defendant and delegates to
+  `CPEntityPersistenceService` to write `cp_case_hearing`/`cp_version` (and dependent) rows when
+  it passes. `GET /pcr` now reads from the same data store this write path populates, via the
+  repository layer — not from "whatever the listener last saw" in memory, and not from
+  `ResultsClient` any more.
 - **Version correlation mechanism is still TBD** (design §7) — three options considered
   (`recorded_date` ruled out, `sharedTime` propagation, `resultEventId` propagation), none
   decided. Don't build against any of them as if settled; check design doc status first.
@@ -292,6 +302,9 @@ run, in production or in tests; discovered the hard way when repository tests fa
 - MVP scope is Story 3's non-amendment phase-1 slice (mirror the Function App, no amendment
   handling) to get early subscriber feedback before the full service is built (design §12).
 - No `apiTest`/docker-compose integration coverage for the ingestion + Redis path yet — the
-  existing `src/test` suite (`HearingResultedEventServiceTest`, `ResultsIngestionServiceTest`,
-  etc.) is unit-level with mocked Redis clients only; the E2E test under `integration/e2e`
-  drives the real path via `mockMvc` POST to `/internal/hearing-results` against a real Postgres/Redis.
+  existing `src/test` suite (`ResultsIngestionServiceTest`, `HearingResultedServiceBusConsumerTest`,
+  etc.) is unit-level with mocked Redis/Service Bus clients only; the E2E tests under
+  `integration/e2e` (`HearingResultedServiceBusE2EIntegrationTest`,
+  `PcrDriftDetectionIntegrationTest`) drive the real path by publishing onto the Service Bus
+  emulator against a real Postgres/Redis — not `mockMvc`, since there's no HTTP entry point for
+  ingestion any more.

@@ -15,8 +15,7 @@ import java.time.Duration;
 import static org.awaitility.Awaitility.await;
 
 @TestPropertySource(properties = {
-        "service-bus.auto-start-processors=true",
-        "service-bus.ingestion-enabled=true"
+        "service-bus.auto-start-processors=true"
 })
 class HearingResultedServiceBusE2EIntegrationTest extends HearingResultedFixtureAssertions {
 
