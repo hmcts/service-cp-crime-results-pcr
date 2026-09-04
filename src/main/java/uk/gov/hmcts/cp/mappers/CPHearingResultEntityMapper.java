@@ -63,15 +63,19 @@ public class CPHearingResultEntityMapper {
 
     public CPCaseHearingEntity toCaseHearingEntity(final ProsecutionCase prosecutionCase, final HearingDetail hearing,
                                                     final UUID hearingId, final OffsetDateTime createdAt) {
-        return toCaseHearingEntity(prosecutionCase.getProsecutionCaseIdentifier().getCaseURN(), hearing, hearingId, createdAt);
+        return toCaseHearingEntity(prosecutionCase.getProsecutionCaseIdentifier().getCaseURN(), hearing, hearingId, createdAt,
+                prosecutionCase.getProsecutionCaseIdentifier().getProsecutionAuthorityName());
     }
 
-    // Overload for an application-only case, which has no ProsecutionCase to read a caseURN off.
+    // Overload for an application-only case, which has no ProsecutionCase to read a caseURN or
+    // prosecutor name off — the caller resolves prosecutorName via prosecutorNameOf(CourtApplication).
     public CPCaseHearingEntity toCaseHearingEntity(final String caseUrn, final HearingDetail hearing,
-                                                    final UUID hearingId, final OffsetDateTime createdAt) {
+                                                    final UUID hearingId, final OffsetDateTime createdAt,
+                                                    final String prosecutorName) {
         final CPCaseHearingEntity.CPCaseHearingEntityBuilder builder = CPCaseHearingEntity.builder()
                 .id(UUID.randomUUID())
                 .caseUrn(caseUrn)
+                .prosecutorName(prosecutorName)
                 .hearingId(hearingId)
                 .courtHouseId(hearing.getCourtCentre() == null || hearing.getCourtCentre().getId() == null
                         ? null : UUID.fromString(hearing.getCourtCentre().getId()))
@@ -229,6 +233,18 @@ public class CPHearingResultEntityMapper {
                 .filter(dc -> applicationCaseIds.contains(dc.getCaseId()))
                 .map(DefendantCase::getDefendantId)
                 .findFirst();
+    }
+
+    // AMP-1082: sourced from the linked case's own identifier, not the applicant/respondent parties.
+    public String prosecutorNameOf(final CourtApplication application) {
+        return Stream.ofNullable(application.getCourtApplicationCases())
+                .flatMap(List::stream)
+                .map(CourtApplicationCase::getProsecutionCaseIdentifier)
+                .filter(Objects::nonNull)
+                .map(HearingDetailsResponse.ProsecutionCaseIdentifier::getProsecutionAuthorityName)
+                .filter(Objects::nonNull)
+                .findFirst()
+                .orElse(null);
     }
 
     // Ports PrisonCourtRegisterHandler.getDefendantType verbatim, quirks included — the applicant

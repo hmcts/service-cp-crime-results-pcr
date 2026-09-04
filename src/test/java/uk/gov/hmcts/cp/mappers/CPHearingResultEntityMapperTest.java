@@ -97,6 +97,25 @@ class CPHearingResultEntityMapperTest {
     }
 
     @Test
+    void toCaseHearingEntity_should_mapProsecutorName_fromProsecutionCaseIdentifier() {
+        final ProsecutionCase prosecutionCase = ProsecutionCase.builder()
+                .prosecutionCaseIdentifier(ProsecutionCaseIdentifier.builder()
+                        .caseURN(CASE_URN).prosecutionAuthorityName("City of London Police").build())
+                .caseMarkers(List.of())
+                .defendants(List.of())
+                .build();
+        final HearingDetail hearing = HearingDetail.builder()
+                .hearingDays(List.of(HearingDay.builder().sittingDay("2026-07-23").build()))
+                .courtApplications(List.of())
+                .prosecutionCases(List.of())
+                .build();
+
+        final CPCaseHearingEntity result = mapper.toCaseHearingEntity(prosecutionCase, hearing, HEARING_ID, CREATED_AT);
+
+        assertThat(result.getProsecutorName()).isEqualTo("City of London Police");
+    }
+
+    @Test
     void toCaseHearingEntity_should_mapHearingType_whenPresent() {
         final ProsecutionCase prosecutionCase = minimalProsecutionCase();
         final HearingDetail hearing = HearingDetail.builder()
@@ -961,9 +980,10 @@ class CPHearingResultEntityMapperTest {
                 .prosecutionCases(List.of())
                 .build();
 
-        final CPCaseHearingEntity result = mapper.toCaseHearingEntity("APP-REF-1", hearing, HEARING_ID, CREATED_AT);
+        final CPCaseHearingEntity result = mapper.toCaseHearingEntity("APP-REF-1", hearing, HEARING_ID, CREATED_AT, "City of London Police");
 
         assertThat(result.getCaseUrn()).isEqualTo("APP-REF-1");
+        assertThat(result.getProsecutorName()).isEqualTo("City of London Police");
         assertThat(result.getHearingId()).isEqualTo(HEARING_ID);
         assertThat(result.getCourtHouseCode()).isEqualTo("B01LY");
     }
@@ -1062,6 +1082,25 @@ class CPHearingResultEntityMapperTest {
                 .build();
 
         assertThat(mapper.applicationOnlyDefendant(application)).isEmpty();
+    }
+
+    @Test
+    void prosecutorNameOf_should_returnFirstCourtApplicationCaseProsecutionAuthorityName() {
+        final CourtApplication application = CourtApplication.builder()
+                .courtApplicationCases(List.of(CourtApplicationCase.builder()
+                        .prosecutionCaseIdentifier(ProsecutionCaseIdentifier.builder()
+                                .prosecutionAuthorityName("City of London Police").build())
+                        .build()))
+                .build();
+
+        assertThat(mapper.prosecutorNameOf(application)).isEqualTo("City of London Police");
+    }
+
+    @Test
+    void prosecutorNameOf_should_returnNull_whenNoCourtApplicationCases() {
+        final CourtApplication application = CourtApplication.builder().courtApplicationCases(List.of()).build();
+
+        assertThat(mapper.prosecutorNameOf(application)).isNull();
     }
 
     // Ports PrisonCourtRegisterHandler.getDefendantType (progression-command-handler/.../

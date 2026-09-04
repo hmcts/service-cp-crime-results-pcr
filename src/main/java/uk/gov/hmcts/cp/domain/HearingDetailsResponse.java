@@ -140,6 +140,7 @@ public class HearingDetailsResponse {
     @Getter
     public static class ProsecutionCaseIdentifier {
         private String caseURN;
+        private String prosecutionAuthorityName;
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
@@ -466,5 +467,6 @@ public class HearingDetailsResponse {
         // Matches this application to a defendantCase entry when a defendant has several — not
         // used for case URN, which is applicationReference (design doc 2026-09-02).
         private String prosecutionCaseId;
+        private ProsecutionCaseIdentifier prosecutionCaseIdentifier;
     }
 }

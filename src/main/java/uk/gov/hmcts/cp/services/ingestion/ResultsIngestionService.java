@@ -143,7 +143,8 @@ public class ResultsIngestionService {
 
     private void persistApplicationOnlyDefendant(final Defendant defendant, final CourtApplication application, final HearingDetail hearing,
                                                   final UUID hearingId, final Instant sharedTime) {
-        final UUID caseHearingId = persistenceService.findOrCreateCaseHearing(application.getApplicationReference(), hearing, hearingId);
+        final UUID caseHearingId = persistenceService.findOrCreateCaseHearing(application.getApplicationReference(), hearing, hearingId,
+                entityMapper.prosecutorNameOf(application));
         final String defendantType = entityMapper.defendantType(application, defendant.getMasterDefendantId());
         persistCPEntitySet(defendant, hearing, caseHearingId, sharedTime, defendantType);
     }

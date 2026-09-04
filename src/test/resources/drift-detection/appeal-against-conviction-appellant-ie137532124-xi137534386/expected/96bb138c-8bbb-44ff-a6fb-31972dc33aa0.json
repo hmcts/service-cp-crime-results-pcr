@@ -380,6 +380,7 @@
     "prosecutionCase": {
       "caseMarkers": [],
       "caseURN": "IE137532124,XI137534386",
+      "prosecutor": "City of London Police",
       "results": []
     },
     "sharedTime": "2026-09-03T11:50:21.611Z"

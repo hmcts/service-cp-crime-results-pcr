@@ -62,6 +62,7 @@ public class PcrResultsMapper {
                                                final List<CPJudicialResultEntity> judicialResults, final List<CPJudicialResultPromptEntity> prompts) {
         return ProsecutionCase.builder()
                 .caseURN(caseHearing.getCaseUrn())
+                .prosecutor(caseHearing.getProsecutorName())
                 .caseMarkers(caseMarkers.stream().map(this::toCaseMarker).toList())
                 .results(judicialResults.stream()
                         .filter(r -> LEVEL_CASE.equals(r.getLevel()))

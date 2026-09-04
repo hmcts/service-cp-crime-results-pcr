@@ -40,7 +40,8 @@ class PcrResultsMapperTest {
 
     @Test
     void toPcrHearingResult_should_mapCaseUrnAndCaseMarkers() {
-        final CPCaseHearingEntity caseHearing = CPCaseHearingEntity.builder().caseUrn("ABCD1234567").hearingId(HEARING_ID).build();
+        final CPCaseHearingEntity caseHearing = CPCaseHearingEntity.builder()
+                .caseUrn("ABCD1234567").prosecutorName("City of London Police").hearingId(HEARING_ID).build();
         final CPVersionEntity version = minimalVersion();
         final List<CPCaseMarkerEntity> markers = List.of(
                 CPCaseMarkerEntity.builder().code("DomesticViolence").description("Domestic Violence").build());
@@ -48,6 +49,7 @@ class PcrResultsMapperTest {
         final PcrHearingResult result = mapper.toPcrHearingResult(caseHearing, version, markers, List.of(), List.of(), List.of(), List.of());
 
         assertThat(result.getProsecutionCase().getCaseURN()).isEqualTo("ABCD1234567");
+        assertThat(result.getProsecutionCase().getProsecutor()).isEqualTo("City of London Police");
         assertThat(result.getProsecutionCase().getCaseMarkers()).extracting("description").containsExactly("Domestic Violence");
     }
 
