@@ -12,8 +12,7 @@ public class ServiceBusProperties {
 
     private static final String HTTPS = "https";
 
-    // Fixed, not environment config — Terraform provisions this queue, so the name must be
-    // identical across every environment or the app looks for a queue that doesn't exist there.
+    // Fixed, not environment config — Terraform provisions this queue with an identical name everywhere.
     public static final String QUEUE_NAME = "pcr.hearing-resulted";
 
     private final String adminConnectionString;

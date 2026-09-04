@@ -79,8 +79,7 @@ public class PcrResultsService {
                 .flatMap(o -> judicialResultRepository.findByOffenceId(o.getId()).stream());
         final Stream<CPJudicialResultEntity> applicationResults = courtApplications.stream()
                 .flatMap(a -> judicialResultRepository.findByCourtApplicationId(a.getId()).stream());
-        // Third parent (design doc §3 extension) — defendantResults/caseResults, distinguished
-        // from each other by level, not by a separate repository lookup.
+        // Third parent — defendantResults/caseResults, distinguished by level, not a separate repository lookup.
         final Stream<CPJudicialResultEntity> versionResults = judicialResultRepository.findByVersionPk(versionPk).stream();
         return Stream.concat(Stream.concat(offenceResults, applicationResults), versionResults).toList();
     }

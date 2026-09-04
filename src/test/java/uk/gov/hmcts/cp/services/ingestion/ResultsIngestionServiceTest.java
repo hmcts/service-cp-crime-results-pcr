@@ -103,8 +103,7 @@ class ResultsIngestionServiceTest {
 
     @Test
     void ingest_should_throwIllegalStateException_whenCachedPayloadIsMalformed() {
-        // No HTTP status here — this path never runs inside a request, only the Service
-        // Bus consumer, which just treats it as another "genuinely wrong" dead-letter case.
+        // No HTTP status here — only the Service Bus consumer runs this path.
         when(cacheClient.get(HEARING_ID, HEARING_DAY)).thenReturn(Optional.of("not-json"));
 
         assertThatThrownBy(() -> ingestionService.ingestHearingResults(HEARING_ID, HEARING_DAY))
