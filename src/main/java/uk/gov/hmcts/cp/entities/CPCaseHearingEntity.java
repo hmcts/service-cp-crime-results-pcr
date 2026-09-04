@@ -29,6 +29,9 @@ public class CPCaseHearingEntity {
     @Column(name = "case_urn")
     private String caseUrn;
 
+    @Column(name = "prosecutor_name")
+    private String prosecutorName;
+
     @Column(name = "hearing_id")
     private UUID hearingId;
 

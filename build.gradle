@@ -28,7 +28,10 @@ apply {
 // Sadly, dependabot does not track dependencies in the apply-from files
 dependencies {
   // Api spec
-  implementation('uk.gov.hmcts.cp:api-cp-crime-results-pcr:1.1.19') // AMP-1081: defendantType on CourtApplication
+  // AMP-1082: prosecutor name on ProsecutionCase — TODO bump to the real released version once
+  // hmcts/api-cp-crime-results-pcr#74 is merged and published; 1.1.20-SNAPSHOT is a local
+  // publishToMavenLocal build for development only, not resolvable in CI.
+  implementation('uk.gov.hmcts.cp:api-cp-crime-results-pcr:1.1.20-SNAPSHOT')
   implementation 'io.swagger.core.v3:swagger-annotations:2.2.55'
 
   // Java core

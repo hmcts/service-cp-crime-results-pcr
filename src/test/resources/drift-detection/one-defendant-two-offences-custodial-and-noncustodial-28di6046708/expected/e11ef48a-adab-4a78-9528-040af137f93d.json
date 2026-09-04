@@ -145,7 +145,7 @@
             "resultDescription": "CD - Conditional discharge\nDischarged conditionally for 7 Months.",
             "resultTexts": [
               {
-                "label": "Period of conditional discharge",
+                "label": "Period\u00a0of conditional discharge",
                 "value": "7 Months"
               }
             ]
@@ -161,6 +161,7 @@
     "prosecutionCase": {
       "caseMarkers": [],
       "caseURN": "28DI6046708",
+      "prosecutor": "Warwickshire Police",
       "results": []
     },
     "sharedTime": "2026-07-29T12:09:12.646Z"

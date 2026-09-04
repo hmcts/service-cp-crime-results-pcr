@@ -147,7 +147,7 @@ class CPEntityPersistenceServiceTest {
         final CPCaseHearingEntity existing = CPCaseHearingEntity.builder().id(CASE_HEARING_ID).build();
         when(caseHearingRepository.findByCaseUrnAndHearingId("APP-REF-1", HEARING_ID)).thenReturn(Optional.of(existing));
 
-        final UUID result = persistenceService.findOrCreateCaseHearing("APP-REF-1", hearing, HEARING_ID);
+        final UUID result = persistenceService.findOrCreateCaseHearing("APP-REF-1", hearing, HEARING_ID, "City of London Police");
 
         assertThat(result).isEqualTo(CASE_HEARING_ID);
         verify(caseHearingRepository, never()).save(any());
@@ -159,9 +159,9 @@ class CPEntityPersistenceServiceTest {
         final HearingDetail hearing = HearingDetail.builder().courtApplications(List.of()).build();
         when(caseHearingRepository.findByCaseUrnAndHearingId("APP-REF-1", HEARING_ID)).thenReturn(Optional.empty());
         final CPCaseHearingEntity created = CPCaseHearingEntity.builder().id(CASE_HEARING_ID).build();
-        when(entityMapper.toCaseHearingEntity("APP-REF-1", hearing, HEARING_ID, CREATED_AT)).thenReturn(created);
+        when(entityMapper.toCaseHearingEntity("APP-REF-1", hearing, HEARING_ID, CREATED_AT, "City of London Police")).thenReturn(created);
 
-        final UUID result = persistenceService.findOrCreateCaseHearing("APP-REF-1", hearing, HEARING_ID);
+        final UUID result = persistenceService.findOrCreateCaseHearing("APP-REF-1", hearing, HEARING_ID, "City of London Police");
 
         assertThat(result).isEqualTo(CASE_HEARING_ID);
         verify(caseHearingRepository).save(created);

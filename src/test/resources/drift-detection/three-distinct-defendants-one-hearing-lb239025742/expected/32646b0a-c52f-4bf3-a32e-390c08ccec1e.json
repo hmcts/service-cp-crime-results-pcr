@@ -63,11 +63,11 @@
         "offenceLegislation": "Contrary to regulation 18(1) of the Road Vehicles    (Construction and Use) Regulations 1986, section 41A of the Road    Traffic Act 1988 and Schedule 2 to the Road Traffic Offenders Act 1988.",
         "results": [
           {
-            "resultDescription": "FO - Fine\nFined £555.00",
+            "resultDescription": "FO - Fine\nFined \u00a3555.00",
             "resultTexts": [
               {
                 "label": "Amount of fine",
-                "value": "£555.00"
+                "value": "\u00a3555.00"
               }
             ]
           }
@@ -81,6 +81,7 @@
     "prosecutionCase": {
       "caseMarkers": [],
       "caseURN": "LB239025742",
+      "prosecutor": "City of London Police",
       "results": []
     },
     "sharedTime": "2026-08-14T14:18:43.074Z"

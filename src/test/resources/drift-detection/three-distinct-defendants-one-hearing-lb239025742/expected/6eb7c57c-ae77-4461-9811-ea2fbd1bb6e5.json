@@ -56,7 +56,7 @@
             "resultDescription": "CD - Conditional discharge\nDischarged conditionally for 34 Months.",
             "resultTexts": [
               {
-                "label": "Period of conditional discharge",
+                "label": "Period\u00a0of conditional discharge",
                 "value": "34 Months"
               }
             ]
@@ -71,6 +71,7 @@
     "prosecutionCase": {
       "caseMarkers": [],
       "caseURN": "LB239025742",
+      "prosecutor": "City of London Police",
       "results": []
     },
     "sharedTime": "2026-08-14T14:18:43.074Z"

@@ -196,13 +196,14 @@
         }
       ],
       "caseURN": "UW370139697",
+      "prosecutor": "City of London Police",
       "results": [
         {
-          "resultDescription": "FCOST - Costs\nTo pay costs of £657.00 to City of London Police",
+          "resultDescription": "FCOST - Costs\nTo pay costs of \u00a3657.00 to City of London Police",
           "resultTexts": [
             {
               "label": "Amount of costs",
-              "value": "£657.00"
+              "value": "\u00a3657.00"
             },
             {
               "label": "Major creditor organisation name",
