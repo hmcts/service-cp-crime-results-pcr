@@ -16,7 +16,7 @@ import java.util.List;
 public class CPNowSubscription {
 
     private boolean isPrisonCourtRegisterSubscription;
-    // false, or subscriptionVocabulary absent -> matches by default. The one "unconfigured means pass" case; every dimension inside SubscriptionVocabulary fails closed instead.
+    // The one "unconfigured means pass" case — every dimension in SubscriptionVocabulary fails closed instead.
     private boolean applySubscriptionRules;
     private SubscriptionVocabulary subscriptionVocabulary;
 
@@ -27,21 +27,18 @@ public class CPNowSubscription {
     @Getter
     public static class SubscriptionVocabulary {
 
-        // Every field below is Boolean, not boolean — a subscription omits keys it doesn't
-        // configure rather than sending false. Boxed null means "not configured" (fail-closed),
-        // via isTrue()/isSet() in CPNowSubscriptionMatcher.
+        // Boolean not boolean — a subscription omits keys it doesn't configure; null means
+        // "not configured" (fail-closed), via isTrue()/isSet() in CPNowSubscriptionMatcher.
 
-        // CPS short-circuit — bypasses every other dimension once both this and the defendant's own cpsProsecuted are true.
+        // CPS short-circuit — bypasses every other dimension once this and cpsProsecuted are both true.
         private Boolean isCpsProsecuted;
 
-        // Attendance — CPVocabulary has no real appearedInPerson/appearedByVideoLink source yet.
-        // anyAppearance still bypasses; a specific requirement without it can never be satisfied today.
+        // CPVocabulary has no real appearedInPerson/appearedByVideoLink source yet — those can never be satisfied.
         private Boolean anyAppearance;
         private Boolean appearedInPerson;
         private Boolean appearedByVideoLink;
 
-        // prosecutorMajorCreditor/nonProsecutorMajorCreditor are always empty for PCR, so
-        // requiresProsecutorMajorCreditor/requiresNonProsecutorMajorCreditor can never be satisfied alone; only anyMajorCreditor defaults to pass.
+        // prosecutorMajorCreditor/nonProsecutorMajorCreditor are always empty for PCR — only anyMajorCreditor can pass.
         private Boolean anyMajorCreditor;
         private Boolean requiresProsecutorMajorCreditor;
         private Boolean requiresNonProsecutorMajorCreditor;

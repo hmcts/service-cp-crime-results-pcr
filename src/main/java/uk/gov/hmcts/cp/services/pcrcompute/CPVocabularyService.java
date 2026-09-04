@@ -50,10 +50,8 @@ public class CPVocabularyService {
                 .build();
     }
 
-    // Same masterDefendantId can appear as a separate Defendant record on more than one
-    // prosecutionCase, and as a respondent on a court application, same hearing — a real scenario.
-    // Every scan below merges across all of them. Always includes `defendant` itself — otherwise
-    // an application-only defendant's own custody establishment gets silently dropped.
+    // Same masterDefendantId can appear across several prosecutionCases and court applications on
+    // one hearing — every scan below merges across all of them, always including `defendant` itself.
     private List<Defendant> matchingDefendants(final Defendant defendant, final HearingDetail hearing) {
         final String masterDefendantId = defendant.getMasterDefendantId();
         return masterDefendantId == null

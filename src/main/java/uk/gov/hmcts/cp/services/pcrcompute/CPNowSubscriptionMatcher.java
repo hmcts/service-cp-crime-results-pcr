@@ -10,9 +10,8 @@ import uk.gov.hmcts.cp.domain.pcrcompute.CPVocabulary;
 
 import java.util.List;
 
-// PCR subscriptions are matched by this alone, no court-house/prosecutor/NOW-list gate applies.
-// Every dimension fails closed when unconfigured — a null Boolean field is treated as explicit
-// false. Only applySubscriptionRules == false (or no subscriptionVocabulary at all) defaults to pass.
+// Every dimension fails closed when unconfigured — a null Boolean is treated as false. Only
+// applySubscriptionRules == false (or no subscriptionVocabulary at all) defaults to pass.
 @Component
 public class CPNowSubscriptionMatcher {
 
@@ -37,8 +36,7 @@ public class CPNowSubscriptionMatcher {
                         && resultTypeListsMatch(subVoc, eligibleResults));
     }
 
-    // CPVocabulary carries no real attendance facts yet. anyAppearance still bypasses; a specific
-    // requirement without it can never be satisfied until that gap is closed.
+    // CPVocabulary carries no real attendance facts yet — only anyAppearance can pass.
     private boolean attendanceMatches(final SubscriptionVocabulary subVoc) {
         return isTrue(subVoc.getAnyAppearance());
     }

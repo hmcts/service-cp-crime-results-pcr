@@ -18,7 +18,7 @@ import java.util.List;
 public class HearingDetailsResponse {
 
     private HearingDetail hearing;
-    // Sibling of hearing in CP's payload, not nested under it — a version-correlation candidate, not yet used.
+    // Version-correlation candidate, not yet used.
     private Instant sharedTime;
 
     @JsonIgnoreProperties(ignoreUnknown = true)
@@ -178,7 +178,6 @@ public class HearingDetailsResponse {
     @Getter
     public static class PersonDefendant {
         private CustodialEstablishment custodialEstablishment;
-        // personDetails: confirmed present on CP's hearing payload (ADR-004).
         private PersonDetails personDetails;
     }
 
@@ -322,7 +321,6 @@ public class HearingDetailsResponse {
     @NoArgsConstructor
     @Getter
     public static class NextHearing {
-        // No bare `date` field — CP sends `listedStartDateTime` + `courtCentre`. `bookingReference` identifies the occurrence.
         private String bookingReference;
         private Instant listedStartDateTime;
         private CourtCentre courtCentre;
@@ -340,8 +338,7 @@ public class HearingDetailsResponse {
         private String type;
     }
 
-    // Court applications are hearing-level, not nested per-defendant. `subject` identifies the
-    // defendant (also the PCR source when not reached via prosecutionCases[]); `applicant`/
+    // Hearing-level, not nested per-defendant. `subject` identifies the defendant; `applicant`/
     // `respondents[]` feed the Applicant/Appellant/Respondent label instead (see defendantType).
     @JsonIgnoreProperties(ignoreUnknown = true)
     @Builder
@@ -351,7 +348,6 @@ public class HearingDetailsResponse {
     public static class CourtApplication {
         private String id;
         private String applicationReference;
-        // CP sends a whole object here (code + description + flags), not a plain string.
         private ApplicationType type;
         private ApplicationParty subject;
         private ApplicationParty applicant;

@@ -14,8 +14,8 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.UUID;
 
-// Polymorphic parent — exactly one of offenceId/courtApplicationId/versionPk is set, enforced by
-// the chk_cp_judicial_result_one_parent DB constraint. versionPk is the third parent (hearing/case-level results); level distinguishes which.
+// Belongs to exactly one parent — offenceId, courtApplicationId, or versionPk (hearing/case-level
+// results, distinguished by `level`) — enforced by the chk_cp_judicial_result_one_parent constraint.
 @Entity
 @Table(name = "cp_judicial_result")
 @Getter

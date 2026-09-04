@@ -18,14 +18,12 @@ public class CPResultsPcrFilter {
     private final ReferenceDataClient referenceDataClient;
 
     public List<JudicialResult> excludePublishedForNows(final List<JudicialResult> results) {
-        // Plain field filter, no lookup.
         return results.stream()
                 .filter(r -> !Boolean.TRUE.equals(r.getPublishedForNows()))
                 .toList();
     }
 
-    // Only subscriptions flagged isPrisonCourtRegisterSubscription are considered. Fetched once
-    // per hearing (activeAt is hearing-wide) and passed into isPrisonCourtRegisterRequired for every defendant.
+    // Fetched once per hearing (activeAt is hearing-wide), reused for every defendant.
     public List<CPNowSubscription> fetchPrisonCourtRegisterSubscriptions(final LocalDate activeAt) {
         return referenceDataClient.getPrisonCourtRegisterSubscriptions(activeAt).stream()
                 .filter(CPNowSubscription::isPrisonCourtRegisterSubscription)

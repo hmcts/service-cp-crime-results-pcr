@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDate;
 import java.util.UUID;
 
-// Polymorphic parent — exactly one of versionPk/courtApplicationId is set, enforced by the chk_cp_offence_one_parent DB constraint.
+// Belongs to exactly one parent — versionPk or courtApplicationId — enforced by the chk_cp_offence_one_parent constraint.
 @Entity
 @Table(name = "cp_offence")
 @Getter

@@ -2,7 +2,7 @@ package uk.gov.hmcts.cp.exceptions;
 
 import java.util.UUID;
 
-// A hearing can have no orderedDate anywhere — legacy silently swallows this; replicated explicitly instead of inventing a fallback date.
+// A hearing can have no orderedDate anywhere — CP Azure Legal Aid Agency swallows this silently; we raise it instead.
 public class NoOrderedDateFoundException extends RuntimeException {
 
     private static final long serialVersionUID = 1L;

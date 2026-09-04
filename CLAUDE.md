@@ -162,9 +162,11 @@ ingestion path.
 
 Flat entity-per-table mapping, no JPA associations (`@ManyToOne`/`@OneToMany`) — foreign keys
 are plain `UUID` fields, matching `service-cp-crime-hearing-results-document-subscription`'s
-established convention. `cp_offence`/`cp_judicial_result`'s polymorphic parent (exactly one of
-two nullable FKs set, design doc §1/§3) is enforced by the DB `CHECK` constraint only, not
-modelled as inheritance in Java. `CPVersionEntity`'s PII columns (`title`/`firstName`/etc.) are
+established convention. `cp_offence` (`version_pk`/`court_application_id`) and
+`cp_judicial_result` (`offence_id`/`court_application_id`) each have two nullable parent FKs, so a
+row belongs to one of two different parent types depending on which FK is set — this "polymorphic
+parent" is enforced only by a DB `CHECK` constraint requiring exactly one non-null, not modelled
+as inheritance in Java (design doc §1/§3). `CPVersionEntity`'s PII columns (`title`/`firstName`/etc.) are
 plain values today — `dateOfBirth` a real `LocalDate`, the rest `String` — no `EncryptionService`
 is wired yet; encryption at rest (ADR-004) is deferred to a future phase, not this one.
 Every repository is a bare `JpaRepository<Entity, UUID>` — `CPCaseHearingRepository` now also has

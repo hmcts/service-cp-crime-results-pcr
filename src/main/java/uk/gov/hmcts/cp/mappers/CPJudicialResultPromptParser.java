@@ -49,8 +49,7 @@ public class CPJudicialResultPromptParser {
         return findPrompt(result, IMPRISONMENT_PERIOD_PROMPT).orElse(null);
     }
 
-    // "Life" takes priority even if a duration prompt is also present (e.g. a minimum term).
-    // Otherwise falls back from totalCustodialPeriod to imprisonmentPeriod (single-offence results only carry the latter).
+    // "Life" wins even if a duration prompt is also present. Otherwise falls back to imprisonmentPeriod.
     public String totalCustodialPeriod(final JudicialResult result) {
         return isLife(result)
                 ? LIFE
