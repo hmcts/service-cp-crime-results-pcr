@@ -1,0 +1,199 @@
+[
+  {
+    "courtApplications": [],
+    "custodyLocation": {
+      "custodyType": "Prison",
+      "name": "HMP Ashfield"
+    },
+    "defendant": {
+      "address": {
+        "address1": "12 King Street",
+        "address2": "King Street",
+        "address3": "Covent Garden",
+        "postCode": "NW1 5BR"
+      },
+      "dateOfBirth": "1993-08-11",
+      "firstName": "Rita",
+      "gender": "MALE",
+      "id": "86fc543b-4090-43f3-bd6d-8c1522844c99",
+      "lastName": "Wyman",
+      "masterDefendantId": "86fc543b-4090-43f3-bd6d-8c1522844c99",
+      "nationality": "British",
+      "postHearingCustodyStatus": "A",
+      "results": [
+        {
+          "resultDescription": "COLLO - Collection order\nCollection order made. Make payments as ordered.",
+          "resultTexts": [
+            {
+              "label": "Collection order type",
+              "value": "Make payments as ordered"
+            }
+          ]
+        },
+        {
+          "resultDescription": "PDATE - Pay by date\nPay by date. Date to pay in full by: 19/08/2026.",
+          "resultTexts": [
+            {
+              "label": "Date to pay in full by",
+              "value": "19/08/2026"
+            }
+          ]
+        }
+      ],
+      "title": "Mr"
+    },
+    "hearing": {
+      "courtDetails": {
+        "court": {
+          "courtHouseCode": "B01LY00",
+          "courtHouseId": "f8254db1-1683-483e-afb3-b87fde5a0a26",
+          "courtHouseName": "Lavender Hill Magistrates' Court"
+        },
+        "courtAddress": {
+          "address1": "176A Lavender Hill",
+          "address2": "London",
+          "address3": "",
+          "address4": "",
+          "address5": "",
+          "postCode": "SW11 1JU"
+        },
+        "ljaName": "South West London Magistrates' Court"
+      },
+      "defendantAppearanceDetails": "In person",
+      "hearingDate": "2026-08-12",
+      "hearingType": "Appeal",
+      "id": "c95ea2d2-0845-40d9-adbe-71ac88af4962",
+      "jurisdiction": "MAGISTRATES"
+    },
+    "offences": [
+      {
+        "code": "TH68001",
+        "listingNumber": 2,
+        "offenceLegislation": "Contrary to section 1(1) and 7 of the Theft Act 1968.",
+        "pleaDate": "2026-08-11",
+        "pleaValue": "NOT_GUILTY",
+        "results": [
+          {
+            "resultDescription": "IMP - Imprisonment\nCommitted to prison for 7 Months Concurrent Consecutive to offence test Consecutive to offence which is on case number OG231065167. Reason: failure to comply with a pre-sentence drug testing order because of an unprovoked attack of a serious nature, test. Bail remand days to count (Tagged Days): 0. Number of days in custody in foreign jurisdiction to count: 10. This offence is aggravated by the foreign power condition being met in relation to it as defined by section 31 of the National Security Act 2023. Total custodial period: 7 Months.\n \n ",
+            "resultTexts": [
+              {
+                "label": "Total custodial period",
+                "value": "7 Months"
+              },
+              {
+                "label": "Prison organisation name",
+                "value": "HMP/YOI High Down"
+              },
+              {
+                "label": "Prison email address 1",
+                "value": "OMU.Highdown@justice.gov.uk"
+              },
+              {
+                "label": "Prison email address 2",
+                "value": "Reception.Highdown@justice.gov.uk"
+              },
+              {
+                "label": "Conveyor / custodian name organisation name",
+                "value": "London Division NPS"
+              },
+              {
+                "label": "Conveyor / custodian name email address 1",
+                "value": "londonnps.court@justice.gov.uk"
+              },
+              {
+                "label": "Probation team to be notified organisation name",
+                "value": "London Division NPS"
+              },
+              {
+                "label": "Probation team to be notified email address 1",
+                "value": "londonnps.court@justice.gov.uk"
+              },
+              {
+                "label": "Imprisonment Period",
+                "value": "7 Months"
+              },
+              {
+                "label": "Concurrent",
+                "value": "true"
+              },
+              {
+                "label": "Consecutive to offence",
+                "value": "test Consecutive to offence"
+              },
+              {
+                "label": "which is on case number",
+                "value": "OG231065167"
+              },
+              {
+                "label": "Imprisonment reasons",
+                "value": "failure to comply with a pre-sentence drug testing order"
+              },
+              {
+                "label": "Reason for custody",
+                "value": "because of an unprovoked attack of a serious nature, test"
+              },
+              {
+                "label": "Number of days in custody in foreign jurisdiction to count",
+                "value": "10"
+              },
+              {
+                "label": "Bail remand days to count (tagged days)",
+                "value": "0"
+              },
+              {
+                "label": "This offence is aggravated by the foreign power condition being met in relation to it as defined by section 31 of the National Security Act 2023",
+                "value": "true"
+              }
+            ]
+          }
+        ],
+        "startDate": "2026-06-12",
+        "title": "Theft from the person of another",
+        "verdict": "Autrefois convict",
+        "wording": "Theft from the person of another",
+        "id": "d834c351-0738-44ee-b18a-b0cc22d944fa"
+      }
+    ],
+    "prosecutionCase": {
+      "caseMarkers": [
+        {
+          "description": "Domestic Violence"
+        }
+      ],
+      "caseURN": "OG231065167",
+      "prosecutor": "City of London Police",
+      "results": [
+        {
+          "resultDescription": "FCOST - Costs\nTo pay costs of £567.00 to City of London Police",
+          "resultTexts": [
+            {
+              "label": "Amount of costs",
+              "value": "£567.00"
+            },
+            {
+              "label": "Major creditor organisation name",
+              "value": "City of London Police"
+            },
+            {
+              "label": "Major creditor address line 1",
+              "value": "Bishopsgate police station"
+            },
+            {
+              "label": "Major creditor address line 2",
+              "value": "182, Bishopsgate"
+            },
+            {
+              "label": "Major creditor address line 5",
+              "value": "London"
+            },
+            {
+              "label": "Major creditor post code",
+              "value": "EC2M 4NP"
+            }
+          ]
+        }
+      ]
+    },
+    "sharedTime": "2026-08-12T08:44:03.431Z"
+  }
+]

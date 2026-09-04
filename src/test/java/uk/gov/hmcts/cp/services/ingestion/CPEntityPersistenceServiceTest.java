@@ -127,6 +127,47 @@ class CPEntityPersistenceServiceTest {
         verify(caseMarkerRepository).saveAll(eq(List.of()));
     }
 
+    @Test
+    void persist_should_useDefendantTypeOverload_whenGiven() {
+        final Defendant defendant = Defendant.builder().id("11111111-1111-1111-1111-111111111111").build();
+        final HearingDetail hearing = HearingDetail.builder().build();
+        final CPVersionEntity version = CPVersionEntity.builder().cpVersionPk(UUID.randomUUID()).build();
+        final CPEntitySet entitySet = new CPEntitySet(version, List.of(), List.of(), List.of(), List.of());
+        when(entityMapper.toWriteBundle(defendant, hearing, CASE_HEARING_ID, SHARED_TIME, CREATED_AT, EXPIRES_AT, "Respondent"))
+                .thenReturn(entitySet);
+
+        persistenceService.persist(defendant, hearing, CASE_HEARING_ID, SHARED_TIME, CREATED_AT, EXPIRES_AT, "Respondent");
+
+        verify(versionRepository).save(version);
+    }
+
+    @Test
+    void findOrCreateCaseHearing_should_reuseExisting_whenGivenPlainCaseUrn() {
+        final HearingDetail hearing = HearingDetail.builder().courtApplications(List.of()).build();
+        final CPCaseHearingEntity existing = CPCaseHearingEntity.builder().id(CASE_HEARING_ID).build();
+        when(caseHearingRepository.findByCaseUrnAndHearingId("APP-REF-1", HEARING_ID)).thenReturn(Optional.of(existing));
+
+        final UUID result = persistenceService.findOrCreateCaseHearing("APP-REF-1", hearing, HEARING_ID, "City of London Police");
+
+        assertThat(result).isEqualTo(CASE_HEARING_ID);
+        verify(caseHearingRepository, never()).save(any());
+        verify(caseMarkerRepository, never()).saveAll(any());
+    }
+
+    @Test
+    void findOrCreateCaseHearing_should_createNew_andSkipCaseMarkers_whenGivenPlainCaseUrn() {
+        final HearingDetail hearing = HearingDetail.builder().courtApplications(List.of()).build();
+        when(caseHearingRepository.findByCaseUrnAndHearingId("APP-REF-1", HEARING_ID)).thenReturn(Optional.empty());
+        final CPCaseHearingEntity created = CPCaseHearingEntity.builder().id(CASE_HEARING_ID).build();
+        when(entityMapper.toCaseHearingEntity("APP-REF-1", hearing, HEARING_ID, CREATED_AT, "City of London Police")).thenReturn(created);
+
+        final UUID result = persistenceService.findOrCreateCaseHearing("APP-REF-1", hearing, HEARING_ID, "City of London Police");
+
+        assertThat(result).isEqualTo(CASE_HEARING_ID);
+        verify(caseHearingRepository).save(created);
+        verify(caseMarkerRepository, never()).saveAll(any());
+    }
+
     private ProsecutionCase prosecutionCase() {
         return ProsecutionCase.builder()
                 .prosecutionCaseIdentifier(ProsecutionCaseIdentifier.builder().caseURN(CASE_URN).build())

@@ -230,6 +230,24 @@ class CPVocabularyServiceTest {
         assertThat(vocabulary.englishCourtHearing()).isFalse();
     }
 
+    // A court-application-only hearing has no prosecutionCases entry at all — matchingDefendants/
+    // cpsProsecuted must not NPE, and the defendant's own custody establishment (there being no
+    // prosecutionCases record to find it in otherwise) must still be picked up.
+    @Test
+    void compute_should_useDefendantsOwnCustody_whenHearingHasNoProsecutionCasesAtAll() {
+        final Defendant defendant = defendantWithEstablishment(DEFENDANT_ID, MASTER_DEFENDANT_ID, "Prison");
+        final HearingDetail hearing = HearingDetail.builder()
+                .courtCentre(CourtCentre.builder().build())
+                .hearingDays(List.of())
+                .courtApplications(List.of())
+                .build();
+
+        final CPVocabulary vocabulary = vocabularyService.compute(defendant, hearing);
+
+        assertThat(vocabulary.custodyLocationIsPrison()).isTrue();
+        assertThat(vocabulary.cpsProsecuted()).isFalse();
+    }
+
     @Test
     void compute_should_returnEmptyMajorCreditorLists_always() {
         final Defendant defendant = defendantWithNoOffences(DEFENDANT_ID, MASTER_DEFENDANT_ID);

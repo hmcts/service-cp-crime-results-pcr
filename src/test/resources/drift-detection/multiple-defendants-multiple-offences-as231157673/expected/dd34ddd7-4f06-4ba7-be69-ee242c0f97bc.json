@@ -1,0 +1,147 @@
+[
+  {
+    "courtApplications": [],
+    "defendant": {
+      "address": {
+        "address1": "40 Market Place",
+        "address2": "Market Place",
+        "address3": "Bristol",
+        "postCode": "BS1 1AA"
+      },
+      "dateOfBirth": "1981-07-30",
+      "firstName": "DroidAlan",
+      "gender": "MALE",
+      "id": "dd34ddd7-4f06-4ba7-be69-ee242c0f97bc",
+      "lastName": "DotMacejkovic",
+      "masterDefendantId": "dd34ddd7-4f06-4ba7-be69-ee242c0f97bc",
+      "postHearingCustodyStatus": "Not Applicable",
+      "results": [],
+      "title": "Mr"
+    },
+    "hearing": {
+      "courtDetails": {
+        "court": {
+          "courtHouseCode": "B52CM00",
+          "courtHouseId": "1a359d44-6b52-3919-b052-065413e4a801",
+          "courtHouseName": "Bristol Magistrates' Court"
+        },
+        "courtAddress": {
+          "address1": "Marlborough St",
+          "address2": "Bristol",
+          "address3": "",
+          "address4": "",
+          "address5": "",
+          "postCode": "BS1 3NU"
+        },
+        "ljaName": "Avon & Somerset Magistrates' Court"
+      },
+      "defendantAppearanceDetails": "In person",
+      "hearingDate": "2026-07-31",
+      "hearingType": "First hearing",
+      "id": "f15a49db-812e-43d2-bfc5-7f3c7ee9ede1",
+      "jurisdiction": "MAGISTRATES",
+      "nextHearing": {
+        "court": {
+          "courtHouseCode": "B01LY00",
+          "courtHouseId": "f8254db1-1683-483e-afb3-b87fde5a0a26",
+          "courtHouseName": "Lavender Hill Magistrates' Court"
+        },
+        "dateTime": "2026-07-31T09:00:00Z",
+        "hearingId": "cf1f6d0c-6f9c-461f-b91a-5458a16c6342"
+      }
+    },
+    "offences": [
+      {
+        "code": "FS13012",
+        "listingNumber": 1,
+        "offenceLegislation": "Contrary to paragraph 6 of Schedule 4 to, and regulation 19(2) of, the Food Safety and Hygiene (England) Regulations 2013.",
+        "pleaDate": "2026-07-31",
+        "pleaValue": "NOT_GUILTY",
+        "results": [
+          {
+            "resultDescription": "WDRN - Withdrawn\nComplaint withdrawn.",
+            "resultTexts": [
+              {
+                "label": "Details",
+                "value": "Complaint withdrawn"
+              }
+            ]
+          }
+        ],
+        "startDate": "2026-05-01",
+        "title": "Keep cooked or reheated food at temperature below 63 Celsius",
+        "wording": "Keep cooked or reheated food at temperature below 63 Celsius",
+        "id": "8253b1e8-85ac-4ef2-a986-1772fce48ce4"
+      },
+      {
+        "code": "BC90005",
+        "listingNumber": 1,
+        "offenceLegislation": "Contrary to section 178(2) and (4) of the Broadcasting Act 1990.",
+        "pleaDate": "2026-07-31",
+        "pleaValue": "NOT_GUILTY",
+        "results": [
+          {
+            "resultDescription": "RI - Remanded in custody\nRemanded in custody until hearing on 31/07/2026 at 10:00 in Courtroom 01, Lavender Hill Magistrates' Court. Basis: Charged with a violent or sexual offence. Adjournment reason: To attend or a warrant to issue. Bail exceptions: Breach of bail. Reason for applying: Broken bail conditions.",
+            "resultTexts": [
+              {
+                "label": "Next hearing in magistrates' court",
+                "value": "Date of hearing:31/07/2026\nTime of hearing:10:00\nCourthouse organisation name:Lavender Hill Magistrates' Court\nCourthouse address line 1:176A Lavender Hill\nCourthouse address line 2:London\nCourthouse post code:SW11 1JU\nCourtroom:Courtroom 01\nHearing type:Appeal\nEstimated duration:30 MINUTES\nBooking reference:cf1f6d0c-6f9c-461f-b91a-5458a16c6342"
+              },
+              {
+                "label": "Prison organisation name",
+                "value": "HMP Ashfield"
+              },
+              {
+                "label": "Prison email address 1",
+                "value": "yoiashfield.premiercustody@premier-serco.cjsm.net"
+              },
+              {
+                "label": "Prison email address 2",
+                "value": "yoiashfield.premiercustody@premier-serco.cjsm.net"
+              },
+              {
+                "label": "Conveyor / custodian name organisation name",
+                "value": "Lavender Hill Magistrates' Court: PECS"
+              },
+              {
+                "label": "Conveyor / custodian name email address 1",
+                "value": "periodicwarrants@geoamey.co.uk"
+              },
+              {
+                "label": "Remand basis",
+                "value": "Charged with a violent or sexual offence"
+              },
+              {
+                "label": "Bail exception",
+                "value": "Breach of bail"
+              },
+              {
+                "label": "Bail exception reason",
+                "value": "Broken bail conditions"
+              },
+              {
+                "label": "To attend or a warrant to issue",
+                "value": ""
+              },
+              {
+                "label": "Adjournment reasons",
+                "value": ""
+              }
+            ]
+          }
+        ],
+        "startDate": "2026-05-01",
+        "title": "Offer to supply a foreign satellite programme",
+        "wording": "Offer to supply a foreign satellite programme",
+        "id": "8d39105b-eceb-410b-8d92-4afc0fd6f553"
+      }
+    ],
+    "prosecutionCase": {
+      "caseMarkers": [],
+      "caseURN": "AS231157673",
+      "prosecutor": "City of London Police",
+      "results": []
+    },
+    "sharedTime": "2026-07-30T13:45:43.563Z"
+  }
+]

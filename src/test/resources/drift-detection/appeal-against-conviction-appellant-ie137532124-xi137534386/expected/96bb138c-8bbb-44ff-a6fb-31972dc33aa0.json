@@ -1,0 +1,388 @@
+[
+  {
+    "courtApplications": [
+      {
+        "defendantType": "Appellant",
+        "offences": [
+          {
+            "code": "PT00018",
+            "id": "a25a3ca9-2b4b-4ea2-ae0c-9d6a0b7b3bc6",
+            "listingNumber": 1,
+            "offenceLegislation": "Contrary to sections 15(3) and 22 of the Terrorism Act 2000.",
+            "results": [
+              {
+                "resultDescription": "IMP - Imprisonment\nCommitted to prison for 6 Months Concurrent Consecutive to offence Test offence which is on case number XI137534386. Reason: failure to comply with a pre-sentence drug testing order because of an unprovoked attack of a serious nature, because the defendant has a flagrant disregard for court orders. Bail remand days to count (Tagged Days): 0. Number of days in custody in foreign jurisdiction to count: 0. This offence is aggravated by the foreign power condition being met in relation to it as defined by section 31 of the National Security Act 2023. Total custodial period: 3 Years. Consecutive to sentence imposed on 03/09/2026, which was imposed by Bristol Magistrates' Court. Consecutive to all other terms being served. Minimum term: 2 Years. Early release provisions do not apply - sentence is a whole life order. Defendant sentenced without a pre-sentence report because test Reasons for sentence without PSR.\n \n ",
+                "resultTexts": [
+                  {
+                    "label": "Total custodial period",
+                    "value": "3 Years"
+                  },
+                  {
+                    "label": "Consecutive to sentence imposed on",
+                    "value": "03/09/2026"
+                  },
+                  {
+                    "label": "which was imposed by",
+                    "value": "Bristol Magistrates' Court"
+                  },
+                  {
+                    "label": "Consecutive to all other terms being served",
+                    "value": "true"
+                  },
+                  {
+                    "label": "Minimum term",
+                    "value": "2 Years"
+                  },
+                  {
+                    "label": "Early release provisions apply",
+                    "value": "false"
+                  },
+                  {
+                    "label": "Early release provisions do not apply - sentence is a whole life order",
+                    "value": "true"
+                  },
+                  {
+                    "label": "Prison organisation name",
+                    "value": "HMP Birmingham"
+                  },
+                  {
+                    "label": "Prison email address 1",
+                    "value": "Custody.Birmingham@justice.gov.uk"
+                  },
+                  {
+                    "label": "Prison email address 2",
+                    "value": "Reception.Birmingham@justice.gov.uk"
+                  },
+                  {
+                    "label": "Conveyor / custodian name organisation name",
+                    "value": "Lavender Hill Magistrates' Court: PECS"
+                  },
+                  {
+                    "label": "Conveyor / custodian name email address 1",
+                    "value": "periodicwarrants@geoamey.co.uk"
+                  },
+                  {
+                    "label": "Reason for sentence without PSR",
+                    "value": "test Reasons for sentence without PSR"
+                  },
+                  {
+                    "label": "Probation team to be notified organisation name",
+                    "value": "Midlands Division NPS"
+                  },
+                  {
+                    "label": "Probation team to be notified email address 1",
+                    "value": "midlandsnps.court@justice.gov.uk"
+                  },
+                  {
+                    "label": "Sentenced in absence",
+                    "value": "false"
+                  },
+                  {
+                    "label": "Imprisonment Period",
+                    "value": "6 Months"
+                  },
+                  {
+                    "label": "Concurrent",
+                    "value": "true"
+                  },
+                  {
+                    "label": "Consecutive to offence",
+                    "value": "Test offence"
+                  },
+                  {
+                    "label": "which is on case number",
+                    "value": "XI137534386"
+                  },
+                  {
+                    "label": "Imprisonment reasons",
+                    "value": "failure to comply with a pre-sentence drug testing order"
+                  },
+                  {
+                    "label": "Reason for custody",
+                    "value": "because of an unprovoked attack of a serious nature, because the defendant has a flagrant disregard for court orders"
+                  },
+                  {
+                    "label": "Number of days in custody in foreign jurisdiction to count",
+                    "value": "0"
+                  },
+                  {
+                    "label": "Bail remand days to count (tagged days)",
+                    "value": "0"
+                  },
+                  {
+                    "label": "This offence is aggravated by the foreign power condition being met in relation to it as defined by section 31 of the National Security Act 2023",
+                    "value": "true"
+                  }
+                ]
+              },
+              {
+                "resultDescription": "OATC - Aggravated by a terrorist connection\nThe court determined a terrorist connection under Section 69 of the Sentencing Act 2020 applies to this count   ",
+                "resultTexts": [
+                  {
+                    "label": "The court determined a terrorist connection under Section 69 of the Sentencing Act 2020 applies to this count",
+                    "value": "true"
+                  }
+                ]
+              }
+            ],
+            "startDate": "2026-06-05",
+            "title": "Provide money / property for use in acts of terrorism",
+            "wording": "Provide money / property for use in acts of terrorism"
+          },
+          {
+            "code": "BA76004",
+            "id": "0562c09b-7b72-4550-afe0-30a1381c5d92",
+            "listingNumber": 1,
+            "offenceLegislation": "Pursuant to section 7(3)(a), (4) and (5) of the Bail Act 1976.",
+            "results": [
+              {
+                "resultDescription": "IMP - Imprisonment\nCommitted to prison for 6 Months Concurrent Consecutive to offence Test offence which is on case number XI137534386. Reason: failure to comply with a pre-sentence drug testing order because of an unprovoked attack of a serious nature, because the defendant has a flagrant disregard for court orders. Bail remand days to count (Tagged Days): 0. Number of days in custody in foreign jurisdiction to count: 0. This offence is aggravated by the foreign power condition being met in relation to it as defined by section 31 of the National Security Act 2023. \n \n ",
+                "resultTexts": [
+                  {
+                    "label": "Imprisonment Period",
+                    "value": "6 Months"
+                  },
+                  {
+                    "label": "Concurrent",
+                    "value": "true"
+                  },
+                  {
+                    "label": "Consecutive to offence",
+                    "value": "Test offence"
+                  },
+                  {
+                    "label": "which is on case number",
+                    "value": "XI137534386"
+                  },
+                  {
+                    "label": "Imprisonment reasons",
+                    "value": "failure to comply with a pre-sentence drug testing order"
+                  },
+                  {
+                    "label": "Reason for custody",
+                    "value": "because of an unprovoked attack of a serious nature, because the defendant has a flagrant disregard for court orders"
+                  },
+                  {
+                    "label": "Number of days in custody in foreign jurisdiction to count",
+                    "value": "0"
+                  },
+                  {
+                    "label": "Bail remand days to count (tagged days)",
+                    "value": "0"
+                  },
+                  {
+                    "label": "This offence is aggravated by the foreign power condition being met in relation to it as defined by section 31 of the National Security Act 2023",
+                    "value": "true"
+                  }
+                ]
+              },
+              {
+                "resultDescription": "OATC - Aggravated by a terrorist connection\nThe court determined a terrorist connection under Section 69 of the Sentencing Act 2020 applies to this count   ",
+                "resultTexts": [
+                  {
+                    "label": "The court determined a terrorist connection under Section 69 of the Sentencing Act 2020 applies to this count",
+                    "value": "true"
+                  }
+                ]
+              }
+            ],
+            "startDate": "2026-06-05",
+            "title": "Arrest by a constable as unlikely to surrender to custody",
+            "wording": "Provide money / property for use in acts of terrorism"
+          },
+          {
+            "code": "PT00018",
+            "id": "f8507a5e-7e30-4597-b3ef-c4d6910b9b2d",
+            "listingNumber": 1,
+            "offenceLegislation": "Contrary to sections 15(3) and 22 of the Terrorism Act 2000.",
+            "results": [
+              {
+                "resultDescription": "IMP - Imprisonment\nCommitted to prison for 6 Months Concurrent Consecutive to offence Test offence which is on case number XI137534386. Reason: failure to comply with a pre-sentence drug testing order because of an unprovoked attack of a serious nature, because the defendant has a flagrant disregard for court orders. Bail remand days to count (Tagged Days): 0. Number of days in custody in foreign jurisdiction to count: 0. This offence is aggravated by the foreign power condition being met in relation to it as defined by section 31 of the National Security Act 2023. \n \n ",
+                "resultTexts": [
+                  {
+                    "label": "Imprisonment Period",
+                    "value": "6 Months"
+                  },
+                  {
+                    "label": "Concurrent",
+                    "value": "true"
+                  },
+                  {
+                    "label": "Consecutive to offence",
+                    "value": "Test offence"
+                  },
+                  {
+                    "label": "which is on case number",
+                    "value": "XI137534386"
+                  },
+                  {
+                    "label": "Imprisonment reasons",
+                    "value": "failure to comply with a pre-sentence drug testing order"
+                  },
+                  {
+                    "label": "Reason for custody",
+                    "value": "because of an unprovoked attack of a serious nature, because the defendant has a flagrant disregard for court orders"
+                  },
+                  {
+                    "label": "Number of days in custody in foreign jurisdiction to count",
+                    "value": "0"
+                  },
+                  {
+                    "label": "Bail remand days to count (tagged days)",
+                    "value": "0"
+                  },
+                  {
+                    "label": "This offence is aggravated by the foreign power condition being met in relation to it as defined by section 31 of the National Security Act 2023",
+                    "value": "true"
+                  }
+                ]
+              },
+              {
+                "resultDescription": "OATC - Aggravated by a terrorist connection\nThe court determined a terrorist connection under Section 69 of the Sentencing Act 2020 applies to this count   ",
+                "resultTexts": [
+                  {
+                    "label": "The court determined a terrorist connection under Section 69 of the Sentencing Act 2020 applies to this count",
+                    "value": "true"
+                  }
+                ]
+              }
+            ],
+            "startDate": "2026-06-05",
+            "title": "Provide money / property for use in acts of terrorism",
+            "wording": "Provide money / property for use in acts of terrorism"
+          },
+          {
+            "code": "BA76004",
+            "id": "f080ae92-d075-4766-a27e-5eb08223b7a7",
+            "listingNumber": 1,
+            "offenceLegislation": "Pursuant to section 7(3)(a), (4) and (5) of the Bail Act 1976.",
+            "results": [
+              {
+                "resultDescription": "IMP - Imprisonment\nCommitted to prison for 6 Months Concurrent Consecutive to offence Test offence which is on case number XI137534386. Reason: failure to comply with a pre-sentence drug testing order because of an unprovoked attack of a serious nature, because the defendant has a flagrant disregard for court orders. Bail remand days to count (Tagged Days): 0. Number of days in custody in foreign jurisdiction to count: 0. This offence is aggravated by the foreign power condition being met in relation to it as defined by section 31 of the National Security Act 2023. \n \n ",
+                "resultTexts": [
+                  {
+                    "label": "Imprisonment Period",
+                    "value": "6 Months"
+                  },
+                  {
+                    "label": "Concurrent",
+                    "value": "true"
+                  },
+                  {
+                    "label": "Consecutive to offence",
+                    "value": "Test offence"
+                  },
+                  {
+                    "label": "which is on case number",
+                    "value": "XI137534386"
+                  },
+                  {
+                    "label": "Imprisonment reasons",
+                    "value": "failure to comply with a pre-sentence drug testing order"
+                  },
+                  {
+                    "label": "Reason for custody",
+                    "value": "because of an unprovoked attack of a serious nature, because the defendant has a flagrant disregard for court orders"
+                  },
+                  {
+                    "label": "Number of days in custody in foreign jurisdiction to count",
+                    "value": "0"
+                  },
+                  {
+                    "label": "Bail remand days to count (tagged days)",
+                    "value": "0"
+                  },
+                  {
+                    "label": "This offence is aggravated by the foreign power condition being met in relation to it as defined by section 31 of the National Security Act 2023",
+                    "value": "true"
+                  }
+                ]
+              },
+              {
+                "resultDescription": "OATC - Aggravated by a terrorist connection\nThe court determined a terrorist connection under Section 69 of the Sentencing Act 2020 applies to this count   ",
+                "resultTexts": [
+                  {
+                    "label": "The court determined a terrorist connection under Section 69 of the Sentencing Act 2020 applies to this count",
+                    "value": "true"
+                  }
+                ]
+              }
+            ],
+            "startDate": "2026-06-05",
+            "title": "Arrest by a constable as unlikely to surrender to custody",
+            "wording": "Provide money / property for use in acts of terrorism"
+          }
+        ],
+        "reference": "IE137532124,XI137534386",
+        "results": [
+          {
+            "resultDescription": "AACA - Appeal against conviction allowed \nDate of Conviction 03/09/2026. Sentence set aside. ",
+            "resultTexts": [
+              {
+                "label": "Sentence set aside",
+                "value": "true"
+              },
+              {
+                "label": "Reasons",
+                "value": "test reasons"
+              },
+              {
+                "label": "Date of conviction",
+                "value": "03/09/2026"
+              }
+            ]
+          }
+        ],
+        "type": "Appeal against conviction by a Magistrates' Court to the Crown Court"
+      }
+    ],
+    "defendant": {
+      "address": {
+        "address1": "12 Foundry Lane",
+        "address2": "Foundry Lane",
+        "address3": "Manchester",
+        "postCode": "M1 4AB"
+      },
+      "dateOfBirth": "1985-11-14",
+      "firstName": "Marcus",
+      "gender": "MALE",
+      "id": "96bb138c-8bbb-44ff-a6fb-31972dc33aa0",
+      "lastName": "Whitfield",
+      "masterDefendantId": "96bb138c-8bbb-44ff-a6fb-31972dc33aa0",
+      "postHearingCustodyStatus": "Not Applicable",
+      "results": [],
+      "title": "Mr"
+    },
+    "hearing": {
+      "courtDetails": {
+        "court": {
+          "courtHouseCode": "C05LV00",
+          "courtHouseId": "9b583616-049b-30f9-a14f-028a53b7cfe8",
+          "courtHouseName": "Liverpool Crown Court"
+        },
+        "courtAddress": {
+          "address1": "QEII Law Courts",
+          "address2": "Derby Square",
+          "address3": "Liverpool",
+          "address4": "",
+          "address5": "",
+          "postCode": "L2 1XA"
+        },
+        "ljaName": "Merseyside Magistrates' Court"
+      },
+      "defendantAppearanceDetails": "In person",
+      "hearingDate": "2026-09-03",
+      "hearingType": "Appeal against Conviction",
+      "id": "4752070e-b8c2-45d2-9281-31d43df63213",
+      "jurisdiction": "CROWN"
+    },
+    "offences": [],
+    "prosecutionCase": {
+      "caseMarkers": [],
+      "caseURN": "IE137532124,XI137534386",
+      "prosecutor": "City of London Police",
+      "results": []
+    },
+    "sharedTime": "2026-09-03T11:50:21.611Z"
+  }
+]

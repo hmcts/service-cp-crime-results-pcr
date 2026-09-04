@@ -1,0 +1,197 @@
+[
+  {
+    "courtApplications": [
+      {
+        "offences": [
+          {
+            "allocationDecision": "Indictable-only offence",
+            "code": "CJ03522",
+            "convictionDate": "2026-08-11",
+            "listingNumber": 1,
+            "offenceLegislation": "Contrary to section 8(1) of the Theft Act 1968.",
+            "pleaDate": "2026-08-11",
+            "pleaValue": "GUILTY",
+            "results": [
+              {
+                "resultDescription": "IMP - Imprisonment\nCommitted to prison for 15 Days. Reason: the offence(s) are so serious that only a custodial sentence can be justified because of an unprovoked attack of a serious nature. Bail remand days to count (Tagged Days): 0. \n \n ",
+                "resultTexts": [
+                  {
+                    "label": "Imprisonment Period",
+                    "value": "15 Days"
+                  },
+                  {
+                    "label": "Imprisonment reasons",
+                    "value": "the offence(s) are so serious that only a custodial sentence can be justified"
+                  },
+                  {
+                    "label": "Reason for custody",
+                    "value": "because of an unprovoked attack of a serious nature"
+                  },
+                  {
+                    "label": "Bail remand days to count (tagged days)",
+                    "value": "0"
+                  },
+                  {
+                    "label": "This offence is aggravated by the foreign power condition being met in relation to it as defined by section 31 of the National Security Act 2023",
+                    "value": "false"
+                  }
+                ]
+              }
+            ],
+            "startDate": "2026-06-12",
+            "title": "Robbery",
+            "wording": "Original CaseURN: YX123927526, Re-sentenced Original code : TH68023, Original details: Robbery",
+            "id": "9b9d7cdd-e5cb-4eef-b477-a7e9551b117c"
+          }
+        ],
+        "reference": "OD123921416",
+        "results": [
+          {
+            "resultDescription": "OREV - Order revoked\ncommunity order made by Bexley Magistrates' Court on 10/08/2026 revoked.",
+            "resultTexts": [
+              {
+                "label": "Date original order made",
+                "value": "10/08/2026"
+              },
+              {
+                "label": "Order revoked",
+                "value": "community order"
+              },
+              {
+                "label": "Court that made the original order",
+                "value": "Bexley Magistrates' Court"
+              }
+            ]
+          }
+        ],
+        "type": "Conviction of an offence while a community order is in force",
+        "defendantType": "Defendant"
+      }
+    ],
+    "defendant": {
+      "address": {
+        "address1": "90 Mill Lane",
+        "address2": "Mill Lane",
+        "address3": "Cardiff",
+        "postCode": "NW1 5BR"
+      },
+      "dateOfBirth": "1971-08-11",
+      "firstName": "Marya",
+      "gender": "MALE",
+      "id": "81570703-2942-4ae0-af35-14559883a888",
+      "lastName": "Klocko",
+      "masterDefendantId": "f4b5e73e-e7f7-421a-9b9f-88003d5355c3",
+      "postHearingCustodyStatus": "Not Applicable",
+      "results": [],
+      "title": "Mr"
+    },
+    "hearing": {
+      "courtDetails": {
+        "court": {
+          "courtHouseCode": "B01BH00",
+          "courtHouseId": "7e967376-eacf-4fca-9b30-21b0c5aad427",
+          "courtHouseName": "Bexley Magistrates' Court"
+        },
+        "courtAddress": {
+          "address1": "Norwich Place",
+          "address2": "Bexleyheath",
+          "address3": "Kent",
+          "address4": "",
+          "address5": "",
+          "postCode": "DA6 7ND"
+        },
+        "ljaName": "South East London Magistrates' Court"
+      },
+      "defendantAppearanceDetails": "In person",
+      "hearingDate": "2026-08-11",
+      "hearingType": "First hearing",
+      "id": "cd274eae-19f3-4a4a-b615-ad85dace6331",
+      "jurisdiction": "MAGISTRATES"
+    },
+    "offences": [
+      {
+        "allocationDecision": "Indictable-only offence",
+        "code": "TH68023",
+        "convictionDate": "2026-08-11",
+        "listingNumber": 1,
+        "offenceLegislation": "Contrary to section 8(1) of the Theft Act 1968.",
+        "pleaDate": "2026-08-11",
+        "pleaValue": "GUILTY",
+        "results": [
+          {
+            "resultDescription": "IMP - Imprisonment\nCommitted to prison for 15 Days. Reason: the offence(s) are so serious that only a custodial sentence can be justified because of an unprovoked attack of a serious nature. Bail remand days to count (Tagged Days): 0. Total custodial period is life.\n \n ",
+            "resultTexts": [
+              {
+                "label": "Total custodial period is life",
+                "value": "true"
+              },
+              {
+                "label": "Prison organisation name",
+                "value": "HMP/YOI Low Newton"
+              },
+              {
+                "label": "Prison email address 1",
+                "value": "OMU.LowNewton@justice.gov.uk"
+              },
+              {
+                "label": "Prison email address 2",
+                "value": "Reception.LowNewton@justice.gov.uk"
+              },
+              {
+                "label": "Conveyor / custodian name organisation name",
+                "value": "North East Division NPS"
+              },
+              {
+                "label": "Conveyor / custodian name email address 1",
+                "value": "nenps.court@justice.gov.uk"
+              },
+              {
+                "label": "Probation team to be notified organisation name",
+                "value": "South West and Central Division NPS"
+              },
+              {
+                "label": "Probation team to be notified email address 1",
+                "value": "SWSCNPS.Court@justice.gov.uk"
+              },
+              {
+                "label": "Imprisonment Period",
+                "value": "15 Days"
+              },
+              {
+                "label": "Imprisonment reasons",
+                "value": "the offence(s) are so serious that only a custodial sentence can be justified"
+              },
+              {
+                "label": "Reason for custody",
+                "value": "because of an unprovoked attack of a serious nature"
+              },
+              {
+                "label": "Bail remand days to count (tagged days)",
+                "value": "0"
+              },
+              {
+                "label": "This offence is aggravated by the foreign power condition being met in relation to it as defined by section 31 of the National Security Act 2023",
+                "value": "false"
+              },
+              {
+                "label": "Risk or vulnerability factors",
+                "value": "Risk or vulnerability factors:RiskFactor"
+              }
+            ]
+          }
+        ],
+        "startDate": "2026-06-12",
+        "title": "Robbery",
+        "wording": "Robbery",
+        "id": "b85c59d2-0018-4469-95a1-3d90fda709e2"
+      }
+    ],
+    "prosecutionCase": {
+      "caseMarkers": [],
+      "caseURN": "OD123921416",
+      "prosecutor": "City of London Police",
+      "results": []
+    },
+    "sharedTime": "2026-08-11T10:57:08.180Z"
+  }
+]

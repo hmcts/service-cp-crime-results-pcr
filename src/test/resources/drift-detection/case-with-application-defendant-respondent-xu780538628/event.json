@@ -1,0 +1,419 @@
+{
+    "hearing": {
+        "courtApplications": [
+            {
+                "applicant": {
+                    "id": "2ee50902-7aaa-45a7-ac6f-f847e91cc597",
+                    "notificationRequired": true,
+                    "prosecutingAuthority": {
+                        "address": {
+                            "address1": "Bishopsgate police station",
+                            "address2": "182, Bishopsgate",
+                            "address5": "London",
+                            "postcode": "EC2M 4NP"
+                        },
+                        "contact": {
+                            "primaryEmail": "casebuilderscpsmemos@cityoflondon.police.uk"
+                        },
+                        "majorCreditorCode": "COLP",
+                        "name": "City of London Police",
+                        "prosecutionAuthorityCode": "CITYPF",
+                        "prosecutionAuthorityId": "baa2ec52-296b-3f38-922a-9e641c1f94d3",
+                        "prosecutionAuthorityOUCode": "0480000",
+                        "welshName": "Heddlu Dinas Llundain"
+                    },
+                    "summonsRequired": false
+                },
+                "applicationReceivedDate": "2026-09-03",
+                "applicationReference": "XU780538628",
+                "applicationStatus": "FINALISED",
+                "commissionerOfOath": false,
+                "courtApplicationCases": [
+                    {
+                        "caseStatus": "INACTIVE",
+                        "isSJP": false,
+                        "offences": [
+                            {
+                                "arrestDate": "2026-08-19",
+                                "chargeDate": "2026-08-24",
+                                "convictingCourt": {
+                                    "code": "B01LY00",
+                                    "id": "f8254db1-1683-483e-afb3-b87fde5a0a26",
+                                    "lja": {
+                                        "ljaCode": "2577",
+                                        "ljaName": "South West London Magistrates' Court"
+                                    },
+                                    "name": "Lavender Hill Magistrates' Court",
+                                    "roomId": "9e4932f7-97b2-3010-b942-ddd2624e4dd8"
+                                },
+                                "convictionDate": "2026-09-03",
+                                "count": 0,
+                                "dvlaOffenceCode": "NE99",
+                                "endorsableFlag": false,
+                                "id": "89a87320-2fc5-4bc8-8ee9-93692b17631a",
+                                "isDisposed": true,
+                                "judicialResults": [
+                                    {
+                                        "alwaysPublished": false,
+                                        "canBeSubjectOfBreach": false,
+                                        "canBeSubjectOfVariation": false,
+                                        "canExtendActiveOrder": false,
+                                        "category": "FINAL",
+                                        "cjsCode": "1017",
+                                        "committedToCC": false,
+                                        "courtClerk": {
+                                            "firstName": "Erica",
+                                            "lastName": "Wilson",
+                                            "userId": "a085e359-6069-4694-8820-7810e7dfe762"
+                                        },
+                                        "d20": false,
+                                        "dvlaCode": "J",
+                                        "excludedFromResults": false,
+                                        "isAdjournmentResult": false,
+                                        "isAvailableForCourtExtract": true,
+                                        "isConvictedResult": true,
+                                        "isDeleted": false,
+                                        "isFinancialResult": false,
+                                        "isNewAmendment": true,
+                                        "isUnscheduled": false,
+                                        "judicialResultId": "b6548dda-8502-4f4c-a6ce-6264ad86c383",
+                                        "judicialResultTypeId": "b9c6047b-fb84-4b12-97a1-2175e4b8bbac",
+                                        "label": "Absolute discharge",
+                                        "lastSharedDateTime": "2026-09-03",
+                                        "level": "O",
+                                        "lifeDuration": false,
+                                        "orderedDate": "2026-09-03",
+                                        "orderedHearingId": "3a50a062-3bd7-4c9c-866e-64ab2bd212f9",
+                                        "policeSubjectLineTitle": "Final Sentence",
+                                        "postHearingCustodyStatus": "A",
+                                        "preserveActiveOrder": false,
+                                        "publishedAsAPrompt": false,
+                                        "publishedForNows": false,
+                                        "rank": 53800,
+                                        "resultText": "AD - Absolute discharge",
+                                        "resultWording": "",
+                                        "rollUpPrompts": true,
+                                        "rootJudicialResultId": "b6548dda-8502-4f4c-a6ce-6264ad86c383",
+                                        "rootJudicialResultTypeId": "b9c6047b-fb84-4b12-97a1-2175e4b8bbac",
+                                        "sentToCC": false,
+                                        "terminatesOffenceProceedings": false,
+                                        "urgent": false,
+                                        "usergroups": [],
+                                        "welshLabel": "Rhyddhad diamod"
+                                    }
+                                ],
+                                "listingNumber": 1,
+                                "maxPenalty": "EW:6M &/or Ultd Fine",
+                                "modeOfTrial": "Either Way",
+                                "offenceCode": "TH68013A",
+                                "offenceDateCode": 1,
+                                "offenceDefinitionId": "ce94a77f-182e-3dcd-91e2-fdde31b74844",
+                                "offenceFacts": {
+                                    "alcoholReadingAmount": 500,
+                                    "alcoholReadingMethodCode": "A",
+                                    "alcoholReadingMethodDescription": "Blood"
+                                },
+                                "offenceLegislation": "Contrary to section 1(1)    of the Criminal Attempts Act 1981.",
+                                "offenceLegislationWelsh": "Yn groes i adran 1(1) Deddf Ymgeisiau i Droseddu 1981.",
+                                "offenceTitle": "Attempt theft of motor vehicle",
+                                "offenceTitleWelsh": "Ymgais i ddwyn cerbyd modur",
+                                "orderIndex": 1,
+                                "plea": {
+                                    "offenceId": "89a87320-2fc5-4bc8-8ee9-93692b17631a",
+                                    "originatingHearingId": "0d52fc9d-71e6-4634-a78c-5fde1c6437f4",
+                                    "pleaDate": "2026-09-03",
+                                    "pleaValue": "GUILTY"
+                                },
+                                "proceedingsConcluded": true,
+                                "startDate": "2026-07-05",
+                                "wording": "Attempt theft to vehicle"
+                            }
+                        ],
+                        "prosecutionCaseId": "d7e25eca-19ad-4979-ad1e-013b0e26c966",
+                        "prosecutionCaseIdentifier": {
+                            "address": {
+                                "address1": "Bishopsgate police station",
+                                "address2": "182, Bishopsgate",
+                                "address5": "London",
+                                "postcode": "EC2M 4NP"
+                            },
+                            "contact": {
+                                "primaryEmail": "casebuilderscpsmemos@cityoflondon.police.uk"
+                            },
+                            "majorCreditorCode": "COLP",
+                            "prosecutionAuthorityCode": "CITYPF",
+                            "prosecutionAuthorityId": "baa2ec52-296b-3f38-922a-9e641c1f94d3",
+                            "prosecutionAuthorityName": "City of London Police",
+                            "prosecutionAuthorityOUCode": "0480000",
+                            "caseURN": "XU780538628"
+                        }
+                    }
+                ],
+                "courtApplicationPayment": {
+                    "feeStatus": "NOT_APPLICABLE"
+                },
+                "courtCivilApplication": {
+                    "isCivil": false
+                },
+                "id": "326de91a-177f-40d6-8837-31e8cfa05540",
+                "judicialResults": [
+                    {
+                        "alwaysPublished": false,
+                        "canBeSubjectOfBreach": false,
+                        "canBeSubjectOfVariation": false,
+                        "canExtendActiveOrder": false,
+                        "category": "FINAL",
+                        "committedToCC": false,
+                        "courtClerk": {
+                            "firstName": "Erica",
+                            "lastName": "Wilson",
+                            "userId": "a085e359-6069-4694-8820-7810e7dfe762"
+                        },
+                        "d20": false,
+                        "excludedFromResults": false,
+                        "isAdjournmentResult": false,
+                        "isAvailableForCourtExtract": true,
+                        "isConvictedResult": false,
+                        "isDeleted": false,
+                        "isFinancialResult": false,
+                        "isNewAmendment": true,
+                        "isUnscheduled": false,
+                        "judicialResultId": "e5b33384-61c1-49d8-94b5-28c8f0b2bd62",
+                        "judicialResultTypeId": "2b3f7c20-8fc1-4fad-9076-df196c24b27e",
+                        "label": "Granted",
+                        "lastSharedDateTime": "2026-09-03",
+                        "level": "O",
+                        "lifeDuration": false,
+                        "orderedDate": "2026-09-03",
+                        "orderedHearingId": "3a50a062-3bd7-4c9c-866e-64ab2bd212f9",
+                        "postHearingCustodyStatus": "A",
+                        "preserveActiveOrder": false,
+                        "publishedAsAPrompt": false,
+                        "publishedForNows": false,
+                        "rank": 98500,
+                        "resultText": "G - Granted",
+                        "rollUpPrompts": true,
+                        "rootJudicialResultId": "e5b33384-61c1-49d8-94b5-28c8f0b2bd62",
+                        "rootJudicialResultTypeId": "2b3f7c20-8fc1-4fad-9076-df196c24b27e",
+                        "sentToCC": false,
+                        "terminatesOffenceProceedings": false,
+                        "urgent": false,
+                        "usergroups": []
+                    }
+                ],
+                "respondents": [
+                    {
+                        "id": "4cefbb34-bea7-46c0-96c4-a8e0f2888336",
+                        "masterDefendant": {
+                            "defendantCase": [
+                                {
+                                    "caseId": "d7e25eca-19ad-4979-ad1e-013b0e26c966",
+                                    "caseReference": "XU780538628",
+                                    "defendantId": "597a91c6-6c4b-461b-803e-326896667fb4"
+                                }
+                            ],
+                            "isYouth": false,
+                            "masterDefendantId": "597a91c6-6c4b-461b-803e-326896667fb4",
+                            "personDefendant": {
+                                "arrestSummonsNumber": "2391NX0000998877665D",
+                                "bailStatus": {
+                                    "code": "A",
+                                    "description": "Not applicable",
+                                    "id": "86009c70-759d-3308-8de4-194886ff9a77"
+                                },
+                                "custodialEstablishment": {
+                                    "custody": "Prison",
+                                    "id": "675bb417-b46a-36c5-bbe3-2058d401f270",
+                                    "name": "HMP Bure"
+                                },
+                                "driverNumber": "FAIRW002222RF9QZ",
+                                "personDetails": {
+                                    "address": {
+                                        "address1": "14 Willowmead Close",
+                                        "address2": "Willowmead Close",
+                                        "address3": "Coventry",
+                                        "address4": "West Midlands",
+                                        "postcode": "CV3 2AB"
+                                    },
+                                    "contact": {
+                                        "home": "01247123456",
+                                        "mobile": "07700123456",
+                                        "primaryEmail": "renata.fairweather@example.com"
+                                    },
+                                    "dateOfBirth": "1978-04-22",
+                                    "documentationLanguageNeeds": "ENGLISH",
+                                    "ethnicity": {
+                                        "observedEthnicityCode": "1",
+                                        "observedEthnicityDescription": "1",
+                                        "observedEthnicityId": "c4ca4238-a0b9-3382-8dcc-509a6f75849b",
+                                        "selfDefinedEthnicityCode": "W1",
+                                        "selfDefinedEthnicityDescription": "British",
+                                        "selfDefinedEthnicityId": "c4ca4238-a0b9-3382-8dcc-509a6f75849b"
+                                    },
+                                    "firstName": "Renata",
+                                    "gender": "MALE",
+                                    "hearingLanguageNeeds": "ENGLISH",
+                                    "lastName": "Fairweather",
+                                    "nationalityDescription": "Unknown",
+                                    "nationalityId": "22ef7a73-df50-4349-8c72-ca3b9ace6363",
+                                    "title": "Mr"
+                                },
+                                "policeBailStatus": {
+                                    "code": "C",
+                                    "description": "Custody",
+                                    "id": "12e69486-4d01-3403-a50a-7419ca040635"
+                                }
+                            }
+                        },
+                        "notificationRequired": true,
+                        "summonsRequired": false,
+                        "updatedOn": "2026-09-03"
+                    }
+                ],
+                "subject": {
+                    "id": "4cefbb34-bea7-46c0-96c4-a8e0f2888336",
+                    "masterDefendant": {
+                        "defendantCase": [
+                            {
+                                "caseId": "d7e25eca-19ad-4979-ad1e-013b0e26c966",
+                                "caseReference": "XU780538628",
+                                "defendantId": "597a91c6-6c4b-461b-803e-326896667fb4"
+                            }
+                        ],
+                        "isYouth": false,
+                        "masterDefendantId": "597a91c6-6c4b-461b-803e-326896667fb4",
+                        "personDefendant": {
+                            "arrestSummonsNumber": "2391NX0000998877665D",
+                            "bailConditions": "",
+                            "bailStatus": {
+                                "code": "A",
+                                "description": "Not applicable",
+                                "id": "86009c70-759d-3308-8de4-194886ff9a77"
+                            },
+                            "custodialEstablishment": {
+                                "custody": "Prison",
+                                "id": "675bb417-b46a-36c5-bbe3-2058d401f270",
+                                "name": "HMP Bure"
+                            },
+                            "driverNumber": "FAIRW002222RF9QZ",
+                            "personDetails": {
+                                "address": {
+                                    "address1": "14 Willowmead Close",
+                                    "address2": "Willowmead Close",
+                                    "address3": "Coventry",
+                                    "address4": "West Midlands",
+                                    "postcode": "CV3 2AB"
+                                },
+                                "contact": {
+                                    "home": "01247123456",
+                                    "mobile": "07700123456",
+                                    "primaryEmail": "renata.fairweather@example.com"
+                                },
+                                "dateOfBirth": "1978-04-22",
+                                "documentationLanguageNeeds": "ENGLISH",
+                                "ethnicity": {
+                                    "observedEthnicityCode": "1",
+                                    "observedEthnicityDescription": "1",
+                                    "observedEthnicityId": "c4ca4238-a0b9-3382-8dcc-509a6f75849b",
+                                    "selfDefinedEthnicityCode": "W1",
+                                    "selfDefinedEthnicityDescription": "British",
+                                    "selfDefinedEthnicityId": "c4ca4238-a0b9-3382-8dcc-509a6f75849b"
+                                },
+                                "firstName": "Renata",
+                                "gender": "MALE",
+                                "hearingLanguageNeeds": "ENGLISH",
+                                "lastName": "Fairweather",
+                                "nationalityDescription": "Unknown",
+                                "nationalityId": "22ef7a73-df50-4349-8c72-ca3b9ace6363",
+                                "title": "Mr"
+                            },
+                            "policeBailStatus": {
+                                "code": "C",
+                                "description": "Custody",
+                                "id": "12e69486-4d01-3403-a50a-7419ca040635"
+                            }
+                        }
+                    },
+                    "notificationRequired": true,
+                    "summonsRequired": false,
+                    "updatedOn": "2026-09-03"
+                },
+                "type": {
+                    "appealFlag": true,
+                    "applicantAppellantFlag": true,
+                    "applicationWording": "Appeal against conviction by a Magistrates' Court on {1} at {2} to the Crown Court",
+                    "boxworkNotifTemplate": "NOT_APPLICABLE",
+                    "breachType": "NOT_APPLICABLE",
+                    "categoryCode": "CR",
+                    "changeDate": "2022-10-09T14:12:09",
+                    "code": "MC80802",
+                    "commrOfOathFlag": false,
+                    "contestedFeeApplicable": false,
+                    "courtExtractAvlFlag": true,
+                    "courtOfAppealFlag": false,
+                    "exParte": false,
+                    "hearingCode": "APL",
+                    "id": "3fca31f0-7b30-47e8-8f3f-90601ad26b50",
+                    "initialFeeApplicable": false,
+                    "jurisdiction": "CROWN",
+                    "lastModified": "2025-02-24T18:19:04.990Z",
+                    "legislation": "In accordance with section 108 of the Magistrates' Courts Act 1980.",
+                    "legislationWelsh": "adran 108 Deddf Llysoedd Ynadon 1980",
+                    "linkType": "SJP",
+                    "listingNotifTemplate": "POSTAL_NOTIFICATION",
+                    "offenceActiveOrder": "OFFENCE",
+                    "pleaApplicableFlag": false,
+                    "prosecutorThirdPartyFlag": false,
+                    "pssId": 587579,
+                    "sowRef": "APPS",
+                    "spiOutApplicableFlag": true,
+                    "summonsTemplateType": "NOT_APPLICABLE",
+                    "type": "Appeal against conviction by a Magistrates' Court to the Crown Court",
+                    "typeWelsh": "Apelio i Lys y Goron yn erbyn euogfarn gan Lys Ynadon",
+                    "validFrom": "1980-01-01"
+                }
+            }
+        ],
+        "courtCentre": {
+            "address": {
+                "address1": "176A Lavender Hill",
+                "address2": "London",
+                "postcode": "SW11 1JU"
+            },
+            "code": "B01LY00",
+            "id": "f8254db1-1683-483e-afb3-b87fde5a0a26",
+            "lja": {
+                "ljaCode": "2577",
+                "ljaName": "South West London Magistrates' Court"
+            },
+            "name": "Lavender Hill Magistrates' Court"
+        },
+        "defendantAttendance": [
+            {
+                "attendanceDays": [
+                    {
+                        "attendanceType": "IN_PERSON",
+                        "day": "2026-09-03"
+                    }
+                ],
+                "defendantId": "597a91c6-6c4b-461b-803e-326896667fb4"
+            }
+        ],
+        "hasSharedResults": true,
+        "hearingDays": [
+            {
+                "hasSharedResults": true,
+                "listedDurationMinutes": 10,
+                "sittingDay": "2026-09-03T00:00:00.000Z"
+            }
+        ],
+        "id": "3a50a062-3bd7-4c9c-866e-64ab2bd212f9",
+        "isBoxHearing": true,
+        "jurisdictionType": "MAGISTRATES",
+        "type": {
+            "description": "Application",
+            "id": "3449743b-95d6-4836-8941-57f588b52068"
+        }
+    },
+    "sharedTime": "2026-09-03T14:41:08.516Z"
+}

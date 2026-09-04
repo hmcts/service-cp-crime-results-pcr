@@ -10,6 +10,8 @@ import tools.jackson.databind.ObjectMapper;
 import uk.gov.hmcts.cp.clients.HearingResultedCacheClient;
 import uk.gov.hmcts.cp.clients.ResultsClient;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse;
+import uk.gov.hmcts.cp.domain.HearingDetailsResponse.CourtApplication;
+import uk.gov.hmcts.cp.domain.HearingDetailsResponse.CourtApplicationCase;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.CourtCentre;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.Defendant;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.HearingDay;
@@ -113,6 +115,17 @@ class ResultsIngestionServiceTest {
     }
 
     @Test
+    void ingestHearingResultsOnce_should_returnResponse_whenApplicationOnlyHearing_hasNoProsecutionCases() {
+        when(cacheClient.get(HEARING_ID, HEARING_DAY)).thenReturn(Optional.empty());
+        when(resultsClient.getHearingDetails(HEARING_ID)).thenReturn(applicationOnlyResponse());
+
+        final HearingDetailsResponse result = ingestionService.ingestHearingResultsOnce(HEARING_ID, HEARING_DAY);
+
+        assertThat(result.getHearing().getCourtApplications()).hasSize(1);
+        verify(resultsClient, times(1)).getHearingDetails(HEARING_ID);
+    }
+
+    @Test
     void ingestHearingResultsOnce_should_throwImmediately_whenIncomplete_withoutRetrying() {
         when(cacheClient.get(HEARING_ID, HEARING_DAY)).thenReturn(Optional.empty());
         when(resultsClient.getHearingDetails(HEARING_ID)).thenReturn(incompleteResponse());
@@ -137,7 +150,7 @@ class ResultsIngestionServiceTest {
         when(pcrFilter.excludePublishedForNows(any())).thenReturn(List.of());
         when(pcrFilter.fetchPrisonCourtRegisterSubscriptions(any())).thenReturn(List.of());
         when(pcrFilter.isPrisonCourtRegisterRequired(any(), any(), any())).thenReturn(true);
-        when(persistenceService.findOrCreateCaseHearing(any(), any(), eq(HEARING_ID))).thenReturn(CASE_HEARING_ID);
+        when(persistenceService.findOrCreateCaseHearing(any(ProsecutionCase.class), any(), eq(HEARING_ID))).thenReturn(CASE_HEARING_ID);
 
         ingestionService.ingestAndPersistOnce(HEARING_ID, HEARING_DAY);
 
@@ -167,7 +180,7 @@ class ResultsIngestionServiceTest {
 
         ingestionService.ingestAndPersistOnce(HEARING_ID, HEARING_DAY);
 
-        verify(persistenceService, never()).findOrCreateCaseHearing(any(), any(), any());
+        verify(persistenceService, never()).findOrCreateCaseHearing(any(ProsecutionCase.class), any(), any());
         verify(persistenceService, never()).persist(any(), any(), any(), any(), any(), any());
     }
 
@@ -180,11 +193,11 @@ class ResultsIngestionServiceTest {
         when(pcrFilter.excludePublishedForNows(any())).thenReturn(List.of());
         when(pcrFilter.fetchPrisonCourtRegisterSubscriptions(any())).thenReturn(List.of());
         when(pcrFilter.isPrisonCourtRegisterRequired(any(), any(), any())).thenReturn(true);
-        when(persistenceService.findOrCreateCaseHearing(any(), any(), eq(HEARING_ID))).thenReturn(CASE_HEARING_ID);
+        when(persistenceService.findOrCreateCaseHearing(any(ProsecutionCase.class), any(), eq(HEARING_ID))).thenReturn(CASE_HEARING_ID);
 
         ingestionService.ingestAndPersistOnce(HEARING_ID, HEARING_DAY);
 
-        verify(persistenceService, times(1)).findOrCreateCaseHearing(any(), any(), eq(HEARING_ID));
+        verify(persistenceService, times(1)).findOrCreateCaseHearing(any(ProsecutionCase.class), any(), eq(HEARING_ID));
         verify(persistenceService, times(2)).persist(any(), any(), eq(CASE_HEARING_ID), any(), any(), any());
     }
 
@@ -214,6 +227,161 @@ class ResultsIngestionServiceTest {
                         .prosecutionCases(List.of(prosecutionCase))
                         .courtApplications(List.of())
                         .build())
+                .build();
+    }
+
+    private static final UUID APPLICATION_DEFENDANT_ID = UUID.fromString("00000000-0000-0000-0000-000000000055");
+    private static final String MASTER_DEFENDANT_ID = "33333333-3333-3333-3333-333333333333";
+    private static final String APPLICATION_REFERENCE = "APP-REF-1";
+
+    @Test
+    void ingestAndPersist_should_persistApplicationOnlyDefendant_whenRequired() {
+        final CourtApplication application = applicationWithOrderedDate();
+        when(cacheClient.get(HEARING_ID, HEARING_DAY)).thenReturn(Optional.empty());
+        when(resultsClient.getHearingDetails(HEARING_ID)).thenReturn(applicationOnlyHearing(application));
+        final Defendant syntheticDefendant = applicationOnlyDefendant();
+        when(entityMapper.applicationOnlyDefendant(application)).thenReturn(Optional.of(syntheticDefendant));
+        when(vocabularyService.compute(eq(syntheticDefendant), any())).thenReturn(VOCABULARY);
+        when(entityMapper.eligibleResults(eq(syntheticDefendant), any())).thenReturn(List.of());
+        when(pcrFilter.excludePublishedForNows(any())).thenReturn(List.of());
+        when(pcrFilter.fetchPrisonCourtRegisterSubscriptions(any())).thenReturn(List.of());
+        when(pcrFilter.isPrisonCourtRegisterRequired(any(), any(), any())).thenReturn(true);
+        when(persistenceService.findOrCreateCaseHearing(eq(APPLICATION_REFERENCE), any(), eq(HEARING_ID), any())).thenReturn(CASE_HEARING_ID);
+        when(entityMapper.defendantType(application, MASTER_DEFENDANT_ID)).thenReturn("Respondent");
+
+        ingestionService.ingestAndPersistOnce(HEARING_ID, HEARING_DAY);
+
+        verify(persistenceService).findOrCreateCaseHearing(eq(APPLICATION_REFERENCE), any(), eq(HEARING_ID), any());
+        verify(persistenceService).persist(eq(syntheticDefendant), any(), eq(CASE_HEARING_ID), any(), any(), any(), eq("Respondent"));
+    }
+
+    @Test
+    void ingestAndPersist_should_skipApplicationOnlyDefendant_whenPcrNotRequired() {
+        final CourtApplication application = applicationWithOrderedDate();
+        when(cacheClient.get(HEARING_ID, HEARING_DAY)).thenReturn(Optional.empty());
+        when(resultsClient.getHearingDetails(HEARING_ID)).thenReturn(applicationOnlyHearing(application));
+        final Defendant syntheticDefendant = applicationOnlyDefendant();
+        when(entityMapper.applicationOnlyDefendant(application)).thenReturn(Optional.of(syntheticDefendant));
+        when(vocabularyService.compute(eq(syntheticDefendant), any())).thenReturn(VOCABULARY);
+        when(entityMapper.eligibleResults(eq(syntheticDefendant), any())).thenReturn(List.of());
+        when(pcrFilter.excludePublishedForNows(any())).thenReturn(List.of());
+        when(pcrFilter.fetchPrisonCourtRegisterSubscriptions(any())).thenReturn(List.of());
+        when(pcrFilter.isPrisonCourtRegisterRequired(any(), any(), any())).thenReturn(false);
+
+        ingestionService.ingestAndPersistOnce(HEARING_ID, HEARING_DAY);
+
+        verify(persistenceService, never()).findOrCreateCaseHearing(any(String.class), any(), any(), any());
+        verify(persistenceService, never()).persist(any(), any(), any(), any(), any(), any(), any());
+    }
+
+    @Test
+    void ingestAndPersist_should_skipApplicationOnlyProcessing_whenNoDefendantResolved() {
+        final CourtApplication application = applicationWithOrderedDate();
+        when(cacheClient.get(HEARING_ID, HEARING_DAY)).thenReturn(Optional.empty());
+        when(resultsClient.getHearingDetails(HEARING_ID)).thenReturn(applicationOnlyHearing(application));
+        when(entityMapper.applicationOnlyDefendant(application)).thenReturn(Optional.empty());
+
+        ingestionService.ingestAndPersistOnce(HEARING_ID, HEARING_DAY);
+
+        verify(persistenceService, never()).findOrCreateCaseHearing(any(String.class), any(), any(), any());
+        verify(vocabularyService, never()).compute(any(), any());
+    }
+
+    @Test
+    void ingestAndPersist_should_notReprocessApplicationOnlyDefendant_whenAlreadyReachedViaProsecutionCase() {
+        final CourtApplication application = applicationWithOrderedDate();
+        final JudicialResult caseResult = JudicialResult.builder()
+                .cjsCode("1200").orderedDate(LocalDate.of(2026, 7, 15)).judicialResultPrompts(List.of()).build();
+        final Offence offence = Offence.builder().judicialResults(List.of(caseResult)).build();
+        final Defendant prosecutionCaseDefendant = Defendant.builder()
+                .id(APPLICATION_DEFENDANT_ID.toString())
+                .personDefendant(PersonDefendant.builder().build())
+                .offences(List.of(offence))
+                .build();
+        final ProsecutionCase prosecutionCase = ProsecutionCase.builder()
+                .prosecutionCaseIdentifier(ProsecutionCaseIdentifier.builder().caseURN(CASE_URN).build())
+                .caseMarkers(List.of())
+                .defendants(List.of(prosecutionCaseDefendant))
+                .build();
+        final HearingDetailsResponse response = HearingDetailsResponse.builder()
+                .hearing(HearingDetailsResponse.HearingDetail.builder()
+                        .courtCentre(CourtCentre.builder().build())
+                        .hearingDays(List.of(HearingDay.builder().sittingDay("2026-07-23").build()))
+                        .prosecutionCases(List.of(prosecutionCase))
+                        .courtApplications(List.of(application))
+                        .build())
+                .build();
+        when(cacheClient.get(HEARING_ID, HEARING_DAY)).thenReturn(Optional.empty());
+        when(resultsClient.getHearingDetails(HEARING_ID)).thenReturn(response);
+        when(vocabularyService.compute(any(), any())).thenReturn(VOCABULARY);
+        when(entityMapper.eligibleResults(any(), any())).thenReturn(List.of());
+        when(pcrFilter.excludePublishedForNows(any())).thenReturn(List.of());
+        when(pcrFilter.fetchPrisonCourtRegisterSubscriptions(any())).thenReturn(List.of());
+        when(pcrFilter.isPrisonCourtRegisterRequired(any(), any(), any())).thenReturn(true);
+        when(persistenceService.findOrCreateCaseHearing(any(ProsecutionCase.class), any(), eq(HEARING_ID))).thenReturn(CASE_HEARING_ID);
+        when(entityMapper.applicationOnlyDefendant(application)).thenReturn(Optional.of(
+                Defendant.builder().id(APPLICATION_DEFENDANT_ID.toString()).masterDefendantId(MASTER_DEFENDANT_ID)
+                        .personDefendant(PersonDefendant.builder().build()).offences(List.of()).build()));
+
+        ingestionService.ingestAndPersistOnce(HEARING_ID, HEARING_DAY);
+
+        verify(persistenceService, times(1)).persist(any(), any(), any(), any(), any(), any());
+        verify(persistenceService, never()).findOrCreateCaseHearing(any(String.class), any(), any(), any());
+    }
+
+    @Test
+    void ingestAndPersist_should_resolveActiveAt_fromLinkedOffenceOrderedDate_whenApplicationHasNoOwnJudicialResults() {
+        final JudicialResult offenceResult = JudicialResult.builder()
+                .cjsCode("1017").orderedDate(LocalDate.of(2026, 7, 15)).judicialResultPrompts(List.of()).build();
+        final Offence linkedOffence = Offence.builder().judicialResults(List.of(offenceResult)).build();
+        final CourtApplication application = CourtApplication.builder()
+                .id("a9b8c7d6-e5f4-4321-9876-0a1b2c3d4e5f")
+                .applicationReference(APPLICATION_REFERENCE)
+                .judicialResults(List.of())
+                .courtApplicationCases(List.of(CourtApplicationCase.builder().offences(List.of(linkedOffence)).build()))
+                .build();
+        when(cacheClient.get(HEARING_ID, HEARING_DAY)).thenReturn(Optional.empty());
+        when(resultsClient.getHearingDetails(HEARING_ID)).thenReturn(applicationOnlyHearing(application));
+        when(entityMapper.applicationOnlyDefendant(application)).thenReturn(Optional.of(applicationOnlyDefendant()));
+        when(vocabularyService.compute(any(), any())).thenReturn(VOCABULARY);
+        when(entityMapper.eligibleResults(any(), any())).thenReturn(List.of());
+        when(pcrFilter.excludePublishedForNows(any())).thenReturn(List.of());
+        when(pcrFilter.fetchPrisonCourtRegisterSubscriptions(any())).thenReturn(List.of());
+        when(pcrFilter.isPrisonCourtRegisterRequired(any(), any(), any())).thenReturn(true);
+        when(persistenceService.findOrCreateCaseHearing(eq(APPLICATION_REFERENCE), any(), eq(HEARING_ID), any())).thenReturn(CASE_HEARING_ID);
+
+        ingestionService.ingestAndPersistOnce(HEARING_ID, HEARING_DAY);
+
+        verify(pcrFilter).fetchPrisonCourtRegisterSubscriptions(LocalDate.of(2026, 7, 15));
+    }
+
+    private CourtApplication applicationWithOrderedDate() {
+        final JudicialResult applicationResult = JudicialResult.builder()
+                .cjsCode("G").orderedDate(LocalDate.of(2026, 7, 15)).judicialResultPrompts(List.of()).build();
+        return CourtApplication.builder()
+                .id("a9b8c7d6-e5f4-4321-9876-0a1b2c3d4e5f")
+                .applicationReference(APPLICATION_REFERENCE)
+                .judicialResults(List.of(applicationResult))
+                .courtApplicationCases(List.of())
+                .build();
+    }
+
+    private HearingDetailsResponse applicationOnlyHearing(final CourtApplication application) {
+        return HearingDetailsResponse.builder()
+                .hearing(HearingDetailsResponse.HearingDetail.builder()
+                        .courtCentre(CourtCentre.builder().build())
+                        .hearingDays(List.of(HearingDay.builder().sittingDay("2026-07-23").build()))
+                        .courtApplications(List.of(application))
+                        .build())
+                .build();
+    }
+
+    private Defendant applicationOnlyDefendant() {
+        return Defendant.builder()
+                .id(APPLICATION_DEFENDANT_ID.toString())
+                .masterDefendantId(MASTER_DEFENDANT_ID)
+                .personDefendant(PersonDefendant.builder().build())
+                .offences(List.of())
                 .build();
     }
 
@@ -283,6 +451,14 @@ class ResultsIngestionServiceTest {
         return HearingDetailsResponse.builder()
                 .hearing(HearingDetailsResponse.HearingDetail.builder()
                         .prosecutionCases(List.of())
+                        .build())
+                .build();
+    }
+
+    private HearingDetailsResponse applicationOnlyResponse() {
+        return HearingDetailsResponse.builder()
+                .hearing(HearingDetailsResponse.HearingDetail.builder()
+                        .courtApplications(List.of(HearingDetailsResponse.CourtApplication.builder().id("app-1").build()))
                         .build())
                 .build();
     }

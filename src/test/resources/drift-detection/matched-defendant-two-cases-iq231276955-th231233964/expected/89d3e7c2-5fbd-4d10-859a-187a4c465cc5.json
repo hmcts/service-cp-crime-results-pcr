@@ -1,0 +1,124 @@
+[
+  {
+    "courtApplications": [],
+    "defendant": {
+      "address": {
+        "address1": "99 Riverside Drive",
+        "address2": "Riverside Drive",
+        "address3": "Chester-le-Street",
+        "postCode": "NW1 5BR"
+      },
+      "dateOfBirth": "1986-07-30",
+      "firstName": "Maurine",
+      "gender": "MALE",
+      "id": "89d3e7c2-5fbd-4d10-859a-187a4c465cc5",
+      "lastName": "Sipes",
+      "masterDefendantId": "a81dd0b5-ebca-47bb-a3e1-205c40f2c4dc",
+      "postHearingCustodyStatus": "Not Applicable",
+      "results": [],
+      "title": "Mr"
+    },
+    "hearing": {
+      "courtDetails": {
+        "court": {
+          "courtHouseCode": "B01DU00",
+          "courtHouseId": "c133d0de-c989-48b9-bd20-0431943e347e",
+          "courtHouseName": "City of London Magistrates' Court"
+        },
+        "courtAddress": {
+          "address1": "1 Queen Victoria Street",
+          "address2": "London",
+          "address3": "",
+          "address4": "",
+          "address5": "",
+          "postCode": "EC4N 4XY"
+        },
+        "ljaName": "Central London Magistrates' Court"
+      },
+      "hearingDate": "2026-07-31",
+      "hearingType": "First hearing",
+      "id": "5151e511-7989-4ae0-8e38-2e697834edc6",
+      "jurisdiction": "MAGISTRATES",
+      "nextHearing": {
+        "court": {
+          "courtHouseCode": "B01LY00",
+          "courtHouseId": "f8254db1-1683-483e-afb3-b87fde5a0a26",
+          "courtHouseName": "Lavender Hill Magistrates' Court"
+        },
+        "dateTime": "2026-07-31T09:00:00Z",
+        "hearingId": "41a6176a-4304-4986-91b6-588969195c56"
+      }
+    },
+    "offences": [
+      {
+        "code": "TH68001",
+        "listingNumber": 1,
+        "offenceLegislation": "Contrary to section 1(1) and 7 of the Theft Act 1968.",
+        "pleaDate": "2026-07-31",
+        "pleaValue": "NOT_GUILTY",
+        "results": [
+          {
+            "resultDescription": "RI - Remanded in custody\nRemanded in custody until hearing on 31/07/2026 at 10:00 in Courtroom 01, Lavender Hill Magistrates' Court. Basis: Charged with a violent or sexual offence. Adjournment reason: To attend or a warrant to issue. Bail exceptions: Breach of bail. Reason for applying: Broken bail conditions.",
+            "resultTexts": [
+              {
+                "label": "Next hearing in magistrates' court",
+                "value": "Date of hearing:31/07/2026\nTime of hearing:10:00\nCourthouse organisation name:Lavender Hill Magistrates' Court\nCourthouse address line 1:176A Lavender Hill\nCourthouse address line 2:London\nCourthouse post code:SW11 1JU\nCourtroom:Courtroom 01\nHearing type:Appeal\nEstimated duration:30 MINUTES\nBooking reference:41a6176a-4304-4986-91b6-588969195c56"
+              },
+              {
+                "label": "Prison organisation name",
+                "value": "HMP Ashfield"
+              },
+              {
+                "label": "Prison email address 1",
+                "value": "yoiashfield.premiercustody@premier-serco.cjsm.net"
+              },
+              {
+                "label": "Prison email address 2",
+                "value": "yoiashfield.premiercustody@premier-serco.cjsm.net"
+              },
+              {
+                "label": "Conveyor / custodian name organisation name",
+                "value": "Lavender Hill Magistrates' Court: PECS"
+              },
+              {
+                "label": "Conveyor / custodian name email address 1",
+                "value": "periodicwarrants@geoamey.co.uk"
+              },
+              {
+                "label": "Remand basis",
+                "value": "Charged with a violent or sexual offence"
+              },
+              {
+                "label": "Bail exception",
+                "value": "Breach of bail"
+              },
+              {
+                "label": "Bail exception reason",
+                "value": "Broken bail conditions"
+              },
+              {
+                "label": "To attend or a warrant to issue",
+                "value": ""
+              },
+              {
+                "label": "Adjournment reasons",
+                "value": ""
+              }
+            ]
+          }
+        ],
+        "startDate": "2026-05-31",
+        "title": "Theft from the person of another",
+        "wording": "Theft from the person of another",
+        "id": "21eef39f-d3ce-46d4-85b2-a97d03c782b6"
+      }
+    ],
+    "prosecutionCase": {
+      "caseMarkers": [],
+      "caseURN": "TH231233964",
+      "prosecutor": "City of London Police",
+      "results": []
+    },
+    "sharedTime": "2026-07-30T13:50:14.245Z"
+  }
+]

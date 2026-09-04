@@ -1,0 +1,186 @@
+[
+  {
+    "courtApplications": [],
+    "defendant": {
+      "address": {
+        "address1": "99 Riverside Drive",
+        "address2": "Riverside Drive",
+        "address3": "Chester-le-Street",
+        "postCode": "NW1 5BR"
+      },
+      "dateOfBirth": "1975-08-11",
+      "firstName": "Cristal",
+      "gender": "MALE",
+      "id": "beea4cae-7107-46d0-b994-979d02063411",
+      "lastName": "Kutch",
+      "masterDefendantId": "beea4cae-7107-46d0-b994-979d02063411",
+      "nationality": "British",
+      "postHearingCustodyStatus": "Not Applicable",
+      "results": [],
+      "title": "Mr"
+    },
+    "hearing": {
+      "courtDetails": {
+        "court": {
+          "courtHouseCode": "B01DU00",
+          "courtHouseId": "c133d0de-c989-48b9-bd20-0431943e347e",
+          "courtHouseName": "City of London Magistrates' Court"
+        },
+        "courtAddress": {
+          "address1": "1 Queen Victoria Street",
+          "address2": "London",
+          "address3": "",
+          "address4": "",
+          "address5": "",
+          "postCode": "EC4N 4XY"
+        },
+        "ljaName": "Central London Magistrates' Court"
+      },
+      "defendantAppearanceDetails": "By video link",
+      "hearingDate": "2026-08-11",
+      "hearingType": "First hearing",
+      "id": "24b88ffb-4290-4560-9518-d6084c125c54",
+      "jurisdiction": "MAGISTRATES",
+      "nextHearing": {
+        "court": {
+          "courtHouseCode": "B01DU00",
+          "courtHouseId": "c133d0de-c989-48b9-bd20-0431943e347e",
+          "courtHouseName": "City of London Magistrates' Court"
+        },
+        "dateTime": "2026-08-11T09:00:00Z",
+        "hearingId": "69304c69-7264-46b2-ac4c-0c94b26788dc"
+      }
+    },
+    "offences": [
+      {
+        "code": "TH68013A",
+        "convictionDate": "2026-08-11",
+        "indicatedPleaValue": "NO_INDICATION",
+        "listingNumber": 1,
+        "offenceLegislation": "Contrary to section 1(1)    of the Criminal Attempts Act 1981.",
+        "pleaDate": "2026-08-11",
+        "pleaValue": "NOT_GUILTY",
+        "results": [
+          {
+            "resultDescription": "RIB - Remanded in custody with bail direction\nRemanded in custody with bail direction until hearing on 11/08/2026 at 10:00 in Courtroom 02, City of London Magistrates' Court. Basis: Remanded for psychiatric reports by two medical practitioners. To be released on bail until 21/08/2026 at 12:30 upon satisfying the following conditions: Passport - give to the court any passport held. Reasons for imposing conditions: To attend an interview with a legal adviser.",
+            "resultTexts": [
+              {
+                "label": "Remanded for medical reports under Section",
+                "value": "Act 1983"
+              },
+              {
+                "label": "Type of medical report required",
+                "value": "Approved Clinician"
+              },
+              {
+                "label": "Reason for report",
+                "value": "Use in Legal Proceedings"
+              },
+              {
+                "label": "Medical history",
+                "value": "Psychiatric Diagnoses"
+              },
+              {
+                "label": "Offence details",
+                "value": "Attempt theft to vehicle"
+              },
+              {
+                "label": "Criminal record",
+                "value": "Shop Lifting"
+              },
+              {
+                "label": "Home circumstances",
+                "value": "No signs of immediate danger or safety hazards"
+              },
+              {
+                "label": "Officer in case",
+                "value": "Jane Smith"
+              },
+              {
+                "label": "Probation Officer",
+                "value": "true"
+              },
+              {
+                "label": "Next hearing in magistrates' court",
+                "value": "Date of hearing:11/08/2026\nTime of hearing:10:00\nCourthouse organisation name:City of London Magistrates' Court\nCourthouse address line 1:1 Queen Victoria Street\nCourthouse address line 2:London\nCourthouse post code:EC4N 4XY\nCourtroom:Courtroom 02\nHearing type:Plea\nEstimated duration:20 MINUTES\nBooking reference:69304c69-7264-46b2-ac4c-0c94b26788dc"
+              },
+              {
+                "label": "Remand basis",
+                "value": "Remanded for psychiatric reports by two medical practitioners"
+              },
+              {
+                "label": "Prison organisation name",
+                "value": "HMP/YOI High Down"
+              },
+              {
+                "label": "Prison email address 1",
+                "value": "OMU.Highdown@justice.gov.uk"
+              },
+              {
+                "label": "Prison email address 2",
+                "value": "Reception.Highdown@justice.gov.uk"
+              },
+              {
+                "label": "Bail date",
+                "value": "21/08/2026"
+              },
+              {
+                "label": "Bail time",
+                "value": "12:30"
+              },
+              {
+                "label": "Defendant attendance excused at the next hearing",
+                "value": "false"
+              },
+              {
+                "label": "Conveyor / custodian name organisation name",
+                "value": "London Division NPS"
+              },
+              {
+                "label": "Conveyor / custodian name email address 1",
+                "value": "londonnps.court@justice.gov.uk"
+              },
+              {
+                "label": "Bail condition reason",
+                "value": "To attend an interview with a legal adviser"
+              },
+              {
+                "label": "Risk or vulnerability factors",
+                "value": "Risk or vulnerability factors:RiskFactor"
+              },
+              {
+                "label": "Notification of electronic monitoring order (bail)",
+                "value": "Electronic monitoring contractor organisation name:Electronic Monitoring Contractor\nElectronic monitoring contractor email address 1:LPadmin@ems.co.uk\nFirst notification of electronic monitoring:Yes\nDefendant's mobile number:06652439119\nWas an interpreter used?:No\nDoes the offender have any special needs?:No"
+              },
+              {
+                "label": "Pre-release bail condition: Passport - give to the court any passport held",
+                "value": ""
+              }
+            ]
+          }
+        ],
+        "startDate": "2026-06-12",
+        "title": "Attempt theft of motor vehicle",
+        "verdict": "Found guilty",
+        "wording": "Attempt theft to vehicle",
+        "id": "01bb3e04-818f-494c-ac43-2c449d6756c2"
+      }
+    ],
+    "prosecutionCase": {
+      "caseMarkers": [
+        {
+          "description": "Domestic Violence"
+        }
+      ],
+      "caseURN": "TM370142723",
+      "prosecutor": "City of London Police",
+      "results": [
+        {
+          "resultDescription": "Defendant's details changed",
+          "resultTexts": []
+        }
+      ]
+    },
+    "sharedTime": "2026-08-11T13:57:14.435Z"
+  }
+]

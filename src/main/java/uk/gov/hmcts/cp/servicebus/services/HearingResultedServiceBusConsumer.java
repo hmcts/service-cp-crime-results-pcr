@@ -50,6 +50,7 @@ public class HearingResultedServiceBusConsumer {
     private final UUIDService uuidService;
 
     private ServiceBusProcessorClient processorClient;
+    private int maxDeliveryCount;
 
     @PostConstruct
     public void initialise() {
@@ -59,12 +60,14 @@ public class HearingResultedServiceBusConsumer {
         }
         awaitServiceBusReady();
         ensureQueueProvisioned();
+        maxDeliveryCount = provisioningService.maxDeliveryCountOf(ServiceBusProperties.QUEUE_NAME);
         processorClient = clientFactory.processorClientBuilder()
                 .processMessage(this::processMessage)
                 .processError(this::processError)
                 .buildProcessorClient();
         processorClient.start();
-        log.info("HearingResultedServiceBusConsumer started on pcr queue:{}", ServiceBusProperties.QUEUE_NAME);
+        log.info("HearingResultedServiceBusConsumer started on pcr queue:{} maxDeliveryCount:{}",
+                ServiceBusProperties.QUEUE_NAME, maxDeliveryCount);
     }
 
     private void awaitServiceBusReady() {
@@ -89,12 +92,28 @@ public class HearingResultedServiceBusConsumer {
         } catch (IncompleteHearingDetailsException e) {
             handleIncomplete(context, message, attempt);
         } catch (Exception e) {
-            log.error("processMessage unexpected error on attempt {} — abandoning for native redelivery. {}",
-                    attempt, e.getMessage(), e);
-            context.abandon();
+            handleUnexpectedError(context, message, attempt, e);
         } finally {
             MDC.remove(TracingFilter.CORRELATION_ID_KEY);
         }
+    }
+
+    private void handleUnexpectedError(final ServiceBusReceivedMessageContext context, final ServiceBusReceivedMessage message,
+                                        final int attempt, final Exception e) {
+        if (nativeDeliveryLimitReached(message)) {
+            log.error("processMessage unexpected error on attempt {} deliveryCount:{} — native delivery limit reached, dead-lettering. {}",
+                    attempt, message.getDeliveryCount(), e.getMessage(), e);
+            context.deadLetter(new DeadLetterOptions()
+                    .setDeadLetterReason("Unexpected error after native delivery count " + message.getDeliveryCount()));
+            return;
+        }
+        log.error("processMessage unexpected error on attempt {} deliveryCount:{} — abandoning for native redelivery. {}",
+                attempt, message.getDeliveryCount(), e.getMessage(), e);
+        context.abandon();
+    }
+
+    private boolean nativeDeliveryLimitReached(final ServiceBusReceivedMessage message) {
+        return message.getDeliveryCount() >= maxDeliveryCount;
     }
 
     private String correlationIdOf(final ServiceBusReceivedMessage message) {
@@ -108,7 +127,7 @@ public class HearingResultedServiceBusConsumer {
         if (event.isEmpty()) {
             return;
         }
-        processEvent(event.get(), context, attempt);
+        processEvent(event.get(), context, message, attempt);
     }
 
     private Optional<HearingResultedEvent> deserialize(final ServiceBusReceivedMessageContext context,
@@ -125,11 +144,11 @@ public class HearingResultedServiceBusConsumer {
     }
 
     private void processEvent(final HearingResultedEvent event, final ServiceBusReceivedMessageContext context,
-                               final int attempt) {
+                               final ServiceBusReceivedMessage message, final int attempt) {
         final HearingResultedEventData data = event.getData();
-        log.info("HearingResultedServiceBusConsumer received channel:servicebus attempt:{} "
+        log.info("HearingResultedServiceBusConsumer received channel:servicebus attempt:{} deliveryCount:{} "
                         + "hearingId:{} hearingDay:{} userId:{}",
-                attempt, data.getHearingId(), data.getHearingDay(), data.getUserId());
+                attempt, message.getDeliveryCount(), data.getHearingId(), data.getHearingDay(), data.getUserId());
         if (!HEARING_RESULTED_EVENT_TYPE.equals(event.getEventType())) {
             throw new IllegalArgumentException("Unrecognized eventType: " + event.getEventType());
         }
@@ -140,10 +159,12 @@ public class HearingResultedServiceBusConsumer {
     private void handleIncomplete(final ServiceBusReceivedMessageContext context, final ServiceBusReceivedMessage message,
                                    final int attempt) {
         final int maxTries = properties.getMaxTries();
-        if (attempt >= maxTries) {
-            log.warn("handleIncomplete exhausted after {} attempts — dead-lettering", attempt);
+        if (attempt >= maxTries || nativeDeliveryLimitReached(message)) {
+            log.warn("handleIncomplete exhausted after {} attempts deliveryCount:{} — dead-lettering",
+                    attempt, message.getDeliveryCount());
             context.deadLetter(new DeadLetterOptions()
-                    .setDeadLetterReason("IncompleteHearingDetailsException after " + maxTries + " attempts"));
+                    .setDeadLetterReason("IncompleteHearingDetailsException after " + maxTries
+                            + " attempts (deliveryCount:" + message.getDeliveryCount() + ")"));
             return;
         }
         context.complete();

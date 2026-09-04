@@ -31,4 +31,8 @@ public class ServiceBusProvisioningService {
     public boolean queueExists(final String queueName) {
         return adminClient.getQueueExists(queueName);
     }
+
+    public int maxDeliveryCountOf(final String queueName) {
+        return adminClient.getQueue(queueName).getMaxDeliveryCount();
+    }
 }

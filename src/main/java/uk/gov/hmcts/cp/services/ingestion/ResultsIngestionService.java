@@ -9,6 +9,7 @@ import tools.jackson.databind.ObjectMapper;
 import uk.gov.hmcts.cp.clients.HearingResultedCacheClient;
 import uk.gov.hmcts.cp.clients.ResultsClient;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse;
+import uk.gov.hmcts.cp.domain.HearingDetailsResponse.CourtApplication;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.Defendant;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.HearingDetail;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.JudicialResult;
@@ -25,10 +26,14 @@ import uk.gov.hmcts.cp.services.pcrcompute.CPVocabularyService;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Fetches a hearing's results and decides which defendants need a PCR (delegating the actual
@@ -69,7 +74,43 @@ public class ResultsIngestionService {
         final Instant sharedTime = hearingDetails.getSharedTime();
         final LocalDate activeAt = resolveActiveAt(hearing, hearingId);
         final List<CPNowSubscription> subscriptions = pcrFilter.fetchPrisonCourtRegisterSubscriptions(activeAt);
-        hearing.getProsecutionCases().forEach(c -> processProsecutionCase(c, hearing, hearingId, sharedTime, subscriptions));
+        Stream.ofNullable(hearing.getProsecutionCases()).flatMap(List::stream)
+                .forEach(c -> processProsecutionCase(c, hearing, hearingId, sharedTime, subscriptions));
+        processApplicationOnlyDefendants(hearing, hearingId, sharedTime, subscriptions);
+    }
+
+    // alreadyProcessed is seeded with prosecution-case-driven defendantIds and grown per
+    // application, so the same (hearingId, defendantId) is never persisted twice.
+    private void processApplicationOnlyDefendants(final HearingDetail hearing, final UUID hearingId,
+                                                    final Instant sharedTime, final List<CPNowSubscription> subscriptions) {
+        final Set<String> alreadyProcessed = new HashSet<>(prosecutionCaseDefendantIds(hearing));
+        Stream.ofNullable(hearing.getCourtApplications()).flatMap(List::stream)
+                .forEach(application -> processCourtApplication(application, hearing, hearingId, sharedTime, subscriptions, alreadyProcessed));
+    }
+
+    private Set<String> prosecutionCaseDefendantIds(final HearingDetail hearing) {
+        return Stream.ofNullable(hearing.getProsecutionCases()).flatMap(List::stream)
+                .flatMap(c -> c.getDefendants().stream())
+                .map(Defendant::getId)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+    }
+
+    private void processCourtApplication(final CourtApplication application, final HearingDetail hearing, final UUID hearingId,
+                                          final Instant sharedTime, final List<CPNowSubscription> subscriptions,
+                                          final Set<String> alreadyProcessed) {
+        entityMapper.applicationOnlyDefendant(application)
+                .filter(defendant -> alreadyProcessed.add(defendant.getId()))
+                .filter(defendant -> isPcrRequired(defendant, hearing, hearingId, subscriptions))
+                .ifPresent(defendant -> persistApplicationOnlyDefendant(defendant, application, hearing, hearingId, sharedTime));
+    }
+
+    private void persistApplicationOnlyDefendant(final Defendant defendant, final CourtApplication application, final HearingDetail hearing,
+                                                  final UUID hearingId, final Instant sharedTime) {
+        final UUID caseHearingId = persistenceService.findOrCreateCaseHearing(application.getApplicationReference(), hearing, hearingId,
+                entityMapper.prosecutorNameOf(application));
+        final String defendantType = entityMapper.defendantType(application, defendant.getMasterDefendantId());
+        persistCPEntitySet(defendant, hearing, caseHearingId, sharedTime, defendantType);
     }
 
     private void processProsecutionCase(final ProsecutionCase prosecutionCase, final HearingDetail hearing,
@@ -101,15 +142,34 @@ public class ResultsIngestionService {
         persistenceService.persist(defendant, hearing, caseHearingId, sharedTime, createdAt, createdAt.plusDays(30));
     }
 
+    private void persistCPEntitySet(final Defendant defendant, final HearingDetail hearing, final UUID caseHearingId,
+                                     final Instant sharedTime, final String defendantType) {
+        final OffsetDateTime createdAt = clockService.nowOffsetUTC();
+        persistenceService.persist(defendant, hearing, caseHearingId, sharedTime, createdAt, createdAt.plusDays(30), defendantType);
+    }
+
     private LocalDate resolveActiveAt(final HearingDetail hearing, final UUID hearingId) {
-        return hearing.getProsecutionCases().stream()
+        final Stream<LocalDate> fromProsecutionCases = Stream.ofNullable(hearing.getProsecutionCases()).flatMap(List::stream)
                 .flatMap(c -> c.getDefendants().stream())
                 .flatMap(d -> d.getOffences().stream())
                 .flatMap(o -> o.getJudicialResults().stream())
-                .map(JudicialResult::getOrderedDate)
+                .map(JudicialResult::getOrderedDate);
+        final Stream<LocalDate> fromCourtApplications = Stream.ofNullable(hearing.getCourtApplications()).flatMap(List::stream)
+                .flatMap(this::orderedDatesOf);
+        return Stream.concat(fromProsecutionCases, fromCourtApplications)
                 .filter(Objects::nonNull)
                 .findFirst()
                 .orElseThrow(() -> new NoOrderedDateFoundException(hearingId));
+    }
+
+    private Stream<LocalDate> orderedDatesOf(final CourtApplication application) {
+        final Stream<LocalDate> ownResults = Stream.ofNullable(application.getJudicialResults()).flatMap(List::stream)
+                .map(JudicialResult::getOrderedDate);
+        final Stream<LocalDate> linkedOffenceResults = Stream.ofNullable(application.getCourtApplicationCases()).flatMap(List::stream)
+                .flatMap(c -> Stream.ofNullable(c.getOffences()).flatMap(List::stream))
+                .flatMap(o -> Stream.ofNullable(o.getJudicialResults()).flatMap(List::stream))
+                .map(JudicialResult::getOrderedDate);
+        return Stream.concat(ownResults, linkedOffenceResults);
     }
 
     private HearingDetailsResponse deserializeCachedHearingResults(final String cachedJson) {
@@ -121,9 +181,11 @@ public class ResultsIngestionService {
     }
 
     private boolean isComplete(final HearingDetailsResponse response) {
-        return response != null
-                && response.getHearing() != null
-                && response.getHearing().getProsecutionCases() != null
-                && !response.getHearing().getProsecutionCases().isEmpty();
+        final HearingDetail hearing = response == null ? null : response.getHearing();
+        return hearing != null && (isNotEmpty(hearing.getProsecutionCases()) || isNotEmpty(hearing.getCourtApplications()));
+    }
+
+    private boolean isNotEmpty(final List<?> list) {
+        return list != null && !list.isEmpty();
     }
 }

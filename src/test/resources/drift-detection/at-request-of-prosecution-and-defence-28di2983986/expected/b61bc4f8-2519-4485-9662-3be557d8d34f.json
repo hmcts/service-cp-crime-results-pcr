@@ -1,0 +1,158 @@
+[
+  {
+    "courtApplications": [],
+    "defendant": {
+      "address": {
+        "address1": "21",
+        "address2": "Furnburry Park Road",
+        "address3": "London",
+        "postCode": "SW11 3TQ"
+      },
+      "dateOfBirth": "2007-02-18",
+      "firstName": "Quincy",
+      "gender": "MALE",
+      "id": "b61bc4f8-2519-4485-9662-3be557d8d34f",
+      "lastName": "Schneider",
+      "masterDefendantId": "b61bc4f8-2519-4485-9662-3be557d8d34f",
+      "postHearingCustodyStatus": "Not Applicable",
+      "results": [],
+      "title": "MR"
+    },
+    "hearing": {
+      "courtDetails": {
+        "court": {
+          "courtHouseCode": "B01BH00",
+          "courtHouseId": "7e967376-eacf-4fca-9b30-21b0c5aad427",
+          "courtHouseName": "Bexley Magistrates' Court"
+        },
+        "courtAddress": {
+          "address1": "Norwich Place",
+          "address2": "Bexleyheath",
+          "address3": "Kent",
+          "address4": "",
+          "address5": "",
+          "postCode": "DA6 7ND"
+        },
+        "ljaName": "South East London Magistrates' Court"
+      },
+      "defendantAppearanceDetails": "In person",
+      "hearingDate": "2026-09-02",
+      "hearingType": "First hearing",
+      "id": "b5d13312-78aa-49bb-b0d3-f15513be643e",
+      "jurisdiction": "MAGISTRATES"
+    },
+    "offences": [
+      {
+        "allocationDecision": "Summary-only offence",
+        "code": "CA03012",
+        "convictionDate": "2026-09-02",
+        "id": "bf601af4-9224-470c-a327-597fe628273e",
+        "listingNumber": 1,
+        "offenceLegislation": "Contrary to section 363(3)(b) and (4) of the Communications Act 2003.",
+        "pleaDate": "2026-09-02",
+        "pleaValue": "GUILTY",
+        "results": [
+          {
+            "resultDescription": "RI - Remanded in custody\nRemanded in custody until hearing on a Date and time to be fixed, Liverpool Crown Court. Basis: Charged with an offence punishable in the case of an adult with 14 years imprisonment or more. Adjournment reason: To attend or a warrant to issue, At request of the prosecution - Reason: test, At request of the defence - Reason: test. Bail exceptions: Likely to offend - cause injury or fear of injury to an associated person, Offence while on bail. Reason for applying: Failed to surrender, Insufficient time, Made threats, Nature and seriousness of offence.",
+            "resultTexts": [
+              {
+                "label": "Remanded for medical reports under Section",
+                "value": "765 s(a)"
+              },
+              {
+                "label": "Type of medical report required",
+                "value": "test"
+              },
+              {
+                "label": "Reason for report",
+                "value": "test reason"
+              },
+              {
+                "label": "Medical history",
+                "value": "test medical history"
+              },
+              {
+                "label": "Offence details",
+                "value": "test Offence details"
+              },
+              {
+                "label": "Criminal record",
+                "value": "test Criminal record"
+              },
+              {
+                "label": "Home circumstances",
+                "value": "test Home circumstances"
+              },
+              {
+                "label": "Officer in case",
+                "value": "test officer"
+              },
+              {
+                "label": "Probation Officer",
+                "value": "true"
+              },
+              {
+                "label": "Next hearing in Crown Court",
+                "value": "Date and time to be fixed:Yes\nCourthouse organisation name:Liverpool Crown Court\nCourthouse address line 1:QEII Law Courts\nCourthouse address line 2:Derby Square\nCourthouse address line 3:Liverpool\nCourthouse post code:L2 1XA\nHearing type:Trial\nEstimated duration:2 DAYS"
+              },
+              {
+                "label": "Prison organisation name",
+                "value": "HMIRC The Verne"
+              },
+              {
+                "label": "Prison email address 1",
+                "value": "omu.theverne@example-prison.gov.uk"
+              },
+              {
+                "label": "Conveyor / custodian name organisation name",
+                "value": "Bexley Magistrates' Court: PECS"
+              },
+              {
+                "label": "Conveyor / custodian name email address 1",
+                "value": "PECSBexleyheathMags@example-conveyor.co.uk"
+              },
+              {
+                "label": "Remand basis",
+                "value": "Charged with an offence punishable in the case of an adult with 14 years imprisonment or more"
+              },
+              {
+                "label": "Bail exception",
+                "value": "Likely to offend - cause injury or fear of injury to an associated person, Offence while on bail"
+              },
+              {
+                "label": "Bail exception reason",
+                "value": "Failed to surrender, Insufficient time, Made threats, Nature and seriousness of offence"
+              },
+              {
+                "label": "To attend or a warrant to issue",
+                "value": ""
+              },
+              {
+                "label": "At request of the defence",
+                "value": "Reason:test"
+              },
+              {
+                "label": "At request of the prosecution",
+                "value": "Reason:test"
+              },
+              {
+                "label": "Adjournment reasons",
+                "value": ""
+              }
+            ]
+          }
+        ],
+        "startDate": "2022-12-12",
+        "title": "Possess / control TV set with intent another use install without a licence",
+        "wording": "Quincy Schneider have set up a TV cable without a valid license."
+      }
+    ],
+    "prosecutionCase": {
+      "caseMarkers": [],
+      "caseURN": "28DI2983986",
+      "prosecutor": "British Transport Police",
+      "results": []
+    },
+    "sharedTime": "2026-09-02T09:06:17.100Z"
+  }
+]

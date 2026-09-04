@@ -1,0 +1,188 @@
+[
+  {
+    "courtApplications": [
+      {
+        "offences": [
+          {
+            "code": "CJ03522",
+            "convictionDate": "2026-07-30",
+            "listingNumber": 1,
+            "offenceLegislation": "Contrary to section 1(1) and 7 of the Theft Act 1968.",
+            "pleaDate": "2026-07-30",
+            "pleaValue": "GUILTY",
+            "results": [
+              {
+                "resultDescription": "G - Granted",
+                "resultTexts": []
+              },
+              {
+                "resultDescription": "TEXT - Text\nTest TEXT",
+                "resultTexts": [
+                  {
+                    "label": "Text",
+                    "value": "Test TEXT"
+                  }
+                ]
+              }
+            ],
+            "startDate": "2026-05-31",
+            "title": "Theft from the person of another",
+            "wording": "Original CaseURN: GD238239881, Re-sentenced Original code : TH68001, Original details: Theft from the person of another",
+            "id": "c4016ff2-8118-40b4-be0f-dcd51876ce13"
+          }
+        ],
+        "reference": "KL238291232",
+        "results": [
+          {
+            "resultDescription": "BRO - No adjudication - dealt with for original offence",
+            "resultTexts": []
+          },
+          {
+            "resultDescription": "OREV - Order revoked\ncommunity order made by Bristol Magistrates' Court on 29/07/2026 revoked.",
+            "resultTexts": [
+              {
+                "label": "Date original order made",
+                "value": "29/07/2026"
+              },
+              {
+                "label": "Order revoked",
+                "value": "community order"
+              },
+              {
+                "label": "Court that made the original order",
+                "value": "Bristol Magistrates' Court"
+              }
+            ]
+          }
+        ],
+        "type": "Conviction of an offence while a community order is in force",
+        "defendantType": "Defendant"
+      }
+    ],
+    "defendant": {
+      "address": {
+        "address1": "48 Elm Grove",
+        "address2": "Elm Grove",
+        "address3": "Horsham",
+        "postCode": "NW1 5BR"
+      },
+      "dateOfBirth": "1958-07-30",
+      "firstName": "Rodrick",
+      "gender": "MALE",
+      "id": "4cc851c0-e2a3-477d-8168-3b335de7acd3",
+      "lastName": "Roberts",
+      "masterDefendantId": "1bcb7e51-edfe-4e6d-b67a-8033f38fc5af",
+      "postHearingCustodyStatus": "Not Applicable",
+      "results": [],
+      "title": "Mr"
+    },
+    "hearing": {
+      "courtDetails": {
+        "court": {
+          "courtHouseCode": "B01DU00",
+          "courtHouseId": "c133d0de-c989-48b9-bd20-0431943e347e",
+          "courtHouseName": "City of London Magistrates' Court"
+        },
+        "courtAddress": {
+          "address1": "1 Queen Victoria Street",
+          "address2": "London",
+          "address3": "",
+          "address4": "",
+          "address5": "",
+          "postCode": "EC4N 4XY"
+        },
+        "ljaName": "Central London Magistrates' Court"
+      },
+      "defendantAppearanceDetails": "In person",
+      "hearingDate": "2026-07-30",
+      "hearingType": "First hearing",
+      "id": "81c4cdf1-5323-49e8-9a94-598c4f85e6bf",
+      "jurisdiction": "MAGISTRATES"
+    },
+    "offences": [
+      {
+        "allocationDecision": "Indictable-only offence",
+        "code": "TH68023",
+        "convictionDate": "2026-07-30",
+        "listingNumber": 1,
+        "offenceLegislation": "Contrary to section 8(1) of the Theft Act 1968.",
+        "pleaDate": "2026-07-30",
+        "pleaValue": "GUILTY",
+        "results": [
+          {
+            "resultDescription": "IMP - Imprisonment\nCommitted to prison for 15 Days. Reason: the offence(s) are so serious that only a custodial sentence can be justified because of an unprovoked attack of a serious nature. Bail remand days to count (Tagged Days): 0. Total custodial period is life.\n \n ",
+            "resultTexts": [
+              {
+                "label": "Total custodial period is life",
+                "value": "true"
+              },
+              {
+                "label": "Prison organisation name",
+                "value": "HMP/YOI Low Newton"
+              },
+              {
+                "label": "Prison email address 1",
+                "value": "OMU.LowNewton@justice.gov.uk"
+              },
+              {
+                "label": "Prison email address 2",
+                "value": "Reception.LowNewton@justice.gov.uk"
+              },
+              {
+                "label": "Conveyor / custodian name organisation name",
+                "value": "North East Division NPS"
+              },
+              {
+                "label": "Conveyor / custodian name email address 1",
+                "value": "nenps.court@justice.gov.uk"
+              },
+              {
+                "label": "Probation team to be notified organisation name",
+                "value": "South West and Central Division NPS"
+              },
+              {
+                "label": "Probation team to be notified email address 1",
+                "value": "SWSCNPS.Court@justice.gov.uk"
+              },
+              {
+                "label": "Imprisonment Period",
+                "value": "15 Days"
+              },
+              {
+                "label": "Imprisonment reasons",
+                "value": "the offence(s) are so serious that only a custodial sentence can be justified"
+              },
+              {
+                "label": "Reason for custody",
+                "value": "because of an unprovoked attack of a serious nature"
+              },
+              {
+                "label": "Bail remand days to count (tagged days)",
+                "value": "0"
+              },
+              {
+                "label": "This offence is aggravated by the foreign power condition being met in relation to it as defined by section 31 of the National Security Act 2023",
+                "value": "false"
+              },
+              {
+                "label": "Risk or vulnerability factors",
+                "value": "Risk or vulnerability factors:RiskFactor"
+              }
+            ]
+          }
+        ],
+        "startDate": "2026-05-31",
+        "title": "Robbery",
+        "wording": "Robbery",
+        "id": "e43317f2-6e54-4f14-b0f3-9efbaad5ba75"
+      }
+    ],
+    "prosecutionCase": {
+      "caseMarkers": [],
+      "caseURN": "KL238291232",
+      "prosecutor": "City of London Police",
+      "results": []
+    },
+    "sharedTime": "2026-07-30T13:59:28.329Z"
+  }
+]

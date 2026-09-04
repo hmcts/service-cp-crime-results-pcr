@@ -40,7 +40,8 @@ class PcrResultsMapperTest {
 
     @Test
     void toPcrHearingResult_should_mapCaseUrnAndCaseMarkers() {
-        final CPCaseHearingEntity caseHearing = CPCaseHearingEntity.builder().caseUrn("ABCD1234567").hearingId(HEARING_ID).build();
+        final CPCaseHearingEntity caseHearing = CPCaseHearingEntity.builder()
+                .caseUrn("ABCD1234567").prosecutorName("City of London Police").hearingId(HEARING_ID).build();
         final CPVersionEntity version = minimalVersion();
         final List<CPCaseMarkerEntity> markers = List.of(
                 CPCaseMarkerEntity.builder().code("DomesticViolence").description("Domestic Violence").build());
@@ -48,6 +49,7 @@ class PcrResultsMapperTest {
         final PcrHearingResult result = mapper.toPcrHearingResult(caseHearing, version, markers, List.of(), List.of(), List.of(), List.of());
 
         assertThat(result.getProsecutionCase().getCaseURN()).isEqualTo("ABCD1234567");
+        assertThat(result.getProsecutionCase().getProsecutor()).isEqualTo("City of London Police");
         assertThat(result.getProsecutionCase().getCaseMarkers()).extracting("description").containsExactly("Domestic Violence");
     }
 
@@ -266,28 +268,11 @@ class PcrResultsMapperTest {
         assertThat(result.getOffences().get(0).getIndicatedPleaValue()).isEqualTo("GUILTY");
         assertThat(result.getOffences().get(0).getResults()).hasSize(1);
         final var mappedResult = result.getOffences().get(0).getResults().get(0);
-        assertThat(mappedResult.getResultDescription()).isEqualTo("RI - Remanded in custody");
+        assertThat(mappedResult.getResultDescription())
+                .isEqualTo("RI - Remanded in custody\nRemanded in custody until hearing on 12 Jan 2027");
         assertThat(mappedResult.getResultTexts()).hasSize(1);
         assertThat(mappedResult.getResultTexts().get(0).getLabel()).isEqualTo("Prison organisation name");
         assertThat(mappedResult.getResultTexts().get(0).getValue()).isEqualTo("HMP Dovegate");
-    }
-
-    @Test
-    void toPcrHearingResult_should_useResultTextAsIs_whenNoNewlinePresent() {
-        final CPCaseHearingEntity caseHearing = CPCaseHearingEntity.builder().hearingId(HEARING_ID).build();
-        final CPVersionEntity version = minimalVersion();
-        final CPOffenceEntity offence = CPOffenceEntity.builder()
-                .id(UUID.fromString("00000000-0000-0000-0000-000000000046"))
-                .versionPk(version.getCpVersionPk()).code("TH68001").listingNumber(1).build();
-        final CPJudicialResultEntity judicialResult = CPJudicialResultEntity.builder()
-                .id(UUID.fromString("00000000-0000-0000-0000-000000000057"))
-                .offenceId(offence.getId()).resultCode("1200").resultText("Sentenced").build();
-
-        final PcrHearingResult result = mapper.toPcrHearingResult(caseHearing, version, List.of(),
-                List.of(), List.of(offence), List.of(judicialResult), List.of());
-
-        final var mappedResult = result.getOffences().get(0).getResults().get(0);
-        assertThat(mappedResult.getResultDescription()).isEqualTo("Sentenced");
     }
 
     @Test
@@ -330,5 +315,19 @@ class PcrResultsMapperTest {
         assertThat(mappedApplication.getReference()).isEqualTo("REF1");
         assertThat(mappedApplication.getResults()).hasSize(1);
         assertThat(mappedApplication.getOffences()).extracting("code").containsExactly("LINKOFF");
+    }
+
+    @Test
+    void toPcrHearingResult_should_mapDefendantTypeOntoEveryCourtApplication() {
+        final CPCaseHearingEntity caseHearing = CPCaseHearingEntity.builder().hearingId(HEARING_ID).build();
+        final CPVersionEntity version = minimalVersion().toBuilder().defendantType("Respondent").build();
+        final CPCourtApplicationEntity application = CPCourtApplicationEntity.builder()
+                .id(UUID.fromString("00000000-0000-0000-0000-000000000066"))
+                .versionPk(version.getCpVersionPk()).reference("REF1").type("Bail").build();
+
+        final PcrHearingResult result = mapper.toPcrHearingResult(caseHearing, version, List.of(),
+                List.of(application), List.of(), List.of(), List.of());
+
+        assertThat(result.getCourtApplications().get(0).getDefendantType()).isEqualTo("Respondent");
     }
 }

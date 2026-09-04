@@ -1,0 +1,40 @@
+{
+  "nowSubscriptions": [
+    {
+      "id": "30309cb5-dd6b-4e84-b777-19d3fb94cee7",
+      "name": "Prison Court Register Subscription - broad coverage (custody/result-agnostic)",
+      "isNowSubscription": false,
+      "isEDTSubscription": false,
+      "isInformantRegisterSubscription": false,
+      "isCourtRegisterSubscription": false,
+      "isPrisonCourtRegisterSubscription": true,
+      "applySubscriptionRules": true,
+      "recipient": {
+        "nowSubscription": "30309cb5-dd6b-4e84-b777-19d3fb94cee7",
+        "recipientFromCase": true,
+        "recipientFromSubscription": false,
+        "recipientFromResults": false,
+        "isApplyDefenceOrganisationDetails": false,
+        "isApplyParentGuardianDetails": false,
+        "isApplyDefendantDetails": false,
+        "isApplyDefendantCustodyDetails": true,
+        "isApplyProsecutionAuthorityDetails": false,
+        "isApplyApplicantDetails": false,
+        "isApplyRespondentDetails": false,
+        "isApplyThirdPartyDetails": false
+      },
+      "subscriptionVocabulary": {
+        "anyAppearance": true,
+        "ignoreCustody": true,
+        "ignoreResults": true,
+        "adultOrYouthDefendant": true,
+        "anyCourtHearing": true
+      },
+      "firstClassLetterDelivery": false,
+      "secondClassLetterDelivery": false,
+      "emailDelivery": true,
+      "forDistribution": true,
+      "emailTemplateName": "pcr_standard"
+    }
+  ]
+}

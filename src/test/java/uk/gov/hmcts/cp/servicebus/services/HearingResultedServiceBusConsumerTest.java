@@ -15,7 +15,9 @@ import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
+import org.junit.jupiter.api.BeforeEach;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 import tools.jackson.databind.ObjectMapper;
 import uk.gov.hmcts.cp.exceptions.IncompleteHearingDetailsException;
 import uk.gov.hmcts.cp.filters.tracing.UUIDService;
@@ -47,6 +49,7 @@ class HearingResultedServiceBusConsumerTest {
     private static final UUID USER_ID = UUID.fromString("00000000-0000-0000-0000-000000000099");
     private static final String GENERATED_CORRELATION_ID = "00000000-0000-0000-0000-000000000077";
     private static final String EXISTING_CORRELATION_ID = "00000000-0000-0000-0000-000000000088";
+    private static final int MAX_DELIVERY_COUNT = 10;
 
     @Mock
     private ServiceBusProvisioningService provisioningService;
@@ -83,6 +86,11 @@ class HearingResultedServiceBusConsumerTest {
     @InjectMocks
     private HearingResultedServiceBusConsumer consumer;
 
+    @BeforeEach
+    void setUp() {
+        ReflectionTestUtils.setField(consumer, "maxDeliveryCount", MAX_DELIVERY_COUNT);
+    }
+
     @Test
     void initialise_should_skipEntirely_whenAutoStartProcessorsDisabled() {
         when(properties.isAutoStartProcessors()).thenReturn(false);
@@ -105,6 +113,19 @@ class HearingResultedServiceBusConsumerTest {
 
         verify(provisioningService).queueExists(ServiceBusProperties.QUEUE_NAME);
         verify(processorClient).start();
+    }
+
+    @Test
+    void initialise_should_fetchAndStoreNativeMaxDeliveryCount() {
+        when(properties.isAutoStartProcessors()).thenReturn(true);
+        when(provisioningService.isServiceBusReady()).thenReturn(true);
+        when(provisioningService.queueExists(ServiceBusProperties.QUEUE_NAME)).thenReturn(true);
+        when(provisioningService.maxDeliveryCountOf(ServiceBusProperties.QUEUE_NAME)).thenReturn(MAX_DELIVERY_COUNT);
+        givenProcessorBuilder();
+
+        consumer.initialise();
+
+        assertThat(ReflectionTestUtils.getField(consumer, "maxDeliveryCount")).isEqualTo(MAX_DELIVERY_COUNT);
     }
 
     @Test
@@ -246,8 +267,41 @@ class HearingResultedServiceBusConsumerTest {
         verify(context, never()).complete();
         verify(context).deadLetter(deadLetterCaptor.capture());
         assertThat(deadLetterCaptor.getValue().getDeadLetterReason())
-                .isEqualTo("IncompleteHearingDetailsException after 24 attempts");
+                .isEqualTo("IncompleteHearingDetailsException after 24 attempts (deliveryCount:1)");
         verify(clientFactory, never()).senderClient();
+    }
+
+    @Test
+    void processMessage_should_deadLetter_whenIncompleteAndNativeDeliveryLimitReached_evenIfAppAttemptsRemain() {
+        when(properties.getMaxTries()).thenReturn(24);
+        givenMessage(hearingResultedEventJson(), 1, MAX_DELIVERY_COUNT);
+        givenGeneratedCorrelationId();
+        doThrow(new IncompleteHearingDetailsException(HEARING_ID))
+                .when(ingestionService).ingestAndPersistOnce(HEARING_ID, HEARING_DAY);
+
+        consumer.processMessage(context);
+
+        verify(context, never()).complete();
+        verify(context).deadLetter(deadLetterCaptor.capture());
+        assertThat(deadLetterCaptor.getValue().getDeadLetterReason())
+                .isEqualTo("IncompleteHearingDetailsException after 24 attempts (deliveryCount:10)");
+        verify(clientFactory, never()).senderClient();
+    }
+
+    @Test
+    void processMessage_should_deadLetter_whenUnexpectedExceptionAndNativeDeliveryLimitReached() {
+        givenMessage(hearingResultedEventJson(), null, MAX_DELIVERY_COUNT);
+        givenGeneratedCorrelationId();
+        doThrow(new IllegalStateException("malformed cache payload"))
+                .when(ingestionService).ingestAndPersistOnce(HEARING_ID, HEARING_DAY);
+
+        consumer.processMessage(context);
+
+        verify(context, never()).abandon();
+        verify(context, never()).complete();
+        verify(context).deadLetter(deadLetterCaptor.capture());
+        assertThat(deadLetterCaptor.getValue().getDeadLetterReason())
+                .isEqualTo("Unexpected error after native delivery count 10");
     }
 
     @Test
@@ -260,10 +314,15 @@ class HearingResultedServiceBusConsumerTest {
     }
 
     private void givenMessage(final String body, final Integer attempt) {
+        givenMessage(body, attempt, 1L);
+    }
+
+    private void givenMessage(final String body, final Integer attempt, final long deliveryCount) {
         when(context.getMessage()).thenReturn(message);
         when(message.getBody()).thenReturn(BinaryData.fromString(body));
         when(message.getApplicationProperties())
                 .thenReturn(attempt == null ? Map.of() : Map.of("attempt", attempt));
+        when(message.getDeliveryCount()).thenReturn(deliveryCount);
     }
 
     private void givenGeneratedCorrelationId() {

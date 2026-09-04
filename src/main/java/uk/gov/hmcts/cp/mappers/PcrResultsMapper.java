@@ -53,7 +53,7 @@ public class PcrResultsMapper {
                         .map(o -> toOffence(o, judicialResults, prompts))
                         .toList())
                 .courtApplications(courtApplications.stream()
-                        .map(a -> toCourtApplication(a, offences, judicialResults, prompts))
+                        .map(a -> toCourtApplication(a, offences, judicialResults, prompts, version.getDefendantType()))
                         .toList())
                 .build();
     }
@@ -62,6 +62,7 @@ public class PcrResultsMapper {
                                                final List<CPJudicialResultEntity> judicialResults, final List<CPJudicialResultPromptEntity> prompts) {
         return ProsecutionCase.builder()
                 .caseURN(caseHearing.getCaseUrn())
+                .prosecutor(caseHearing.getProsecutorName())
                 .caseMarkers(caseMarkers.stream().map(this::toCaseMarker).toList())
                 .results(judicialResults.stream()
                         .filter(r -> LEVEL_CASE.equals(r.getLevel()))
@@ -202,17 +203,12 @@ public class PcrResultsMapper {
 
     private ResultText toResultText(final CPJudicialResultEntity result, final List<CPJudicialResultPromptEntity> allPrompts) {
         return ResultText.builder()
-                .resultDescription(toResultDescription(result.getResultText()))
+                .resultDescription(result.getResultText())
                 .resultTexts(allPrompts.stream()
                         .filter(p -> result.getId().equals(p.getJudicialResultId()))
                         .map(this::toText)
                         .toList())
                 .build();
-    }
-
-    private String toResultDescription(final String resultText) {
-        final int newlineIndex = resultText == null ? -1 : resultText.indexOf('\n');
-        return newlineIndex == -1 ? resultText : resultText.substring(0, newlineIndex);
     }
 
     private Text toText(final CPJudicialResultPromptEntity prompt) {
@@ -223,10 +219,12 @@ public class PcrResultsMapper {
     }
 
     private CourtApplication toCourtApplication(final CPCourtApplicationEntity application, final List<CPOffenceEntity> allOffences,
-                                                 final List<CPJudicialResultEntity> allResults, final List<CPJudicialResultPromptEntity> allPrompts) {
+                                                 final List<CPJudicialResultEntity> allResults, final List<CPJudicialResultPromptEntity> allPrompts,
+                                                 final String defendantType) {
         return CourtApplication.builder()
                 .reference(application.getReference())
                 .type(application.getType())
+                .defendantType(defendantType)
                 .decision(application.getDecision())
                 .decisionDate(application.getDecisionDate())
                 .response(application.getResponse())

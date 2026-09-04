@@ -1,0 +1,126 @@
+[
+  {
+    "courtApplications": [],
+    "defendant": {
+      "address": {
+        "address1": "99 Riverside Drive",
+        "address2": "Riverside Drive",
+        "address3": "Chester-le-Street",
+        "postCode": "NW1 5BR"
+      },
+      "dateOfBirth": "1954-08-14",
+      "firstName": "Cecil",
+      "gender": "MALE",
+      "id": "a05a07fc-cb0a-450c-9500-02ca29efd2c1",
+      "lastName": "Brakus",
+      "masterDefendantId": "a05a07fc-cb0a-450c-9500-02ca29efd2c1",
+      "postHearingCustodyStatus": "Not Applicable",
+      "results": [],
+      "title": "Mr"
+    },
+    "hearing": {
+      "courtDetails": {
+        "court": {
+          "courtHouseCode": "B01DU00",
+          "courtHouseId": "c133d0de-c989-48b9-bd20-0431943e347e",
+          "courtHouseName": "City of London Magistrates' Court"
+        },
+        "courtAddress": {
+          "address1": "1 Queen Victoria Street",
+          "address2": "London",
+          "address3": "",
+          "address4": "",
+          "address5": "",
+          "postCode": "EC4N 4XY"
+        },
+        "ljaName": "Central London Magistrates' Court"
+      },
+      "defendantAppearanceDetails": "In person",
+      "hearingDate": "2026-08-15",
+      "hearingType": "First hearing",
+      "id": "27cc647d-0818-4a4b-87f3-c8ba15781d80",
+      "jurisdiction": "MAGISTRATES",
+      "nextHearing": {
+        "court": {
+          "courtHouseCode": "B01LY00",
+          "courtHouseId": "f8254db1-1683-483e-afb3-b87fde5a0a26",
+          "courtHouseName": "Lavender Hill Magistrates' Court"
+        },
+        "dateTime": "2026-08-15T09:00:00Z",
+        "hearingId": "e2a6187c-26a0-4862-8041-beeb37e4b83a"
+      }
+    },
+    "sharedTime": "2026-08-14T07:52:19.997Z",
+    "offences": [
+      {
+        "allocationDecision": "Indictable-only offence",
+        "code": "TH68023",
+        "listingNumber": 1,
+        "offenceLegislation": "Contrary to section 8(1) of the Theft Act 1968.",
+        "pleaDate": "2026-08-15",
+        "pleaValue": "NOT_GUILTY",
+        "results": [
+          {
+            "resultDescription": "RI - Remanded in custody\nRemanded in custody until hearing on 15/08/2026 at 10:00 in Courtroom 01, Lavender Hill Magistrates' Court. Basis: Charged with a violent or sexual offence. Adjournment reason: To attend or a warrant to issue. Bail exceptions: Breach of bail. Reason for applying: Broken bail conditions.",
+            "resultTexts": [
+              {
+                "label": "Next hearing in magistrates' court",
+                "value": "Date of hearing:15/08/2026\nTime of hearing:10:00\nCourthouse organisation name:Lavender Hill Magistrates' Court\nCourthouse address line 1:176A Lavender Hill\nCourthouse address line 2:London\nCourthouse post code:SW11 1JU\nCourtroom:Courtroom 01\nHearing type:Appeal\nEstimated duration:30 MINUTES\nBooking reference:7d785fec-656d-4530-9a16-46144919ea88"
+              },
+              {
+                "label": "Prison organisation name",
+                "value": "HMP Birmingham"
+              },
+              {
+                "label": "Prison email address 1",
+                "value": "Custody.Birmingham@example-prison.gov.uk"
+              },
+              {
+                "label": "Prison email address 2",
+                "value": "Reception.Birmingham@example-prison.gov.uk"
+              },
+              {
+                "label": "Conveyor / custodian name organisation name",
+                "value": "Lavender Hill Magistrates' Court: PECS"
+              },
+              {
+                "label": "Conveyor / custodian name email address 1",
+                "value": "periodicwarrants@example-conveyor.co.uk"
+              },
+              {
+                "label": "Remand basis",
+                "value": "Charged with a violent or sexual offence"
+              },
+              {
+                "label": "Bail exception",
+                "value": "Breach of bail"
+              },
+              {
+                "label": "Bail exception reason",
+                "value": "Broken bail conditions"
+              },
+              {
+                "label": "To attend or a warrant to issue",
+                "value": ""
+              },
+              {
+                "label": "Adjournment reasons",
+                "value": ""
+              }
+            ]
+          }
+        ],
+        "startDate": "2026-06-15",
+        "title": "Robbery",
+        "wording": "Robbery",
+        "id": "6a9d3751-5d5e-4cc8-b92b-cd6bd5933b62"
+      }
+    ],
+    "prosecutionCase": {
+      "caseMarkers": [],
+      "caseURN": "MF231295264",
+      "prosecutor": "City of London Police",
+      "results": []
+    }
+  }
+]
