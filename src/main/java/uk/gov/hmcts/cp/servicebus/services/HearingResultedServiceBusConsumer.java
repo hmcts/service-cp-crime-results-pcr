@@ -78,6 +78,8 @@ public class HearingResultedServiceBusConsumer {
 
     private void ensureQueueProvisioned() {
         if (!provisioningService.queueExists(ServiceBusProperties.QUEUE_NAME)) {
+            log.error("ensureQueueProvisioned queue {} does not exist — expected to be provisioned by Terraform",
+                    ServiceBusProperties.QUEUE_NAME);
             throw new IllegalStateException("Queue " + ServiceBusProperties.QUEUE_NAME
                     + " does not exist — expected to be provisioned by Terraform");
         }
