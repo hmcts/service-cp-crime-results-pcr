@@ -223,6 +223,40 @@ class CPHearingResultEntityMapperTest {
     }
 
     @Test
+    void toCaseHearingEntity_should_mapCaseId_whenPresent() {
+        final UUID caseId = UUID.fromString("a1a2a3a4-1111-2222-3333-444455556666");
+        final ProsecutionCase prosecutionCase = ProsecutionCase.builder()
+                .id(caseId.toString())
+                .prosecutionCaseIdentifier(ProsecutionCaseIdentifier.builder().caseURN(CASE_URN).build())
+                .caseMarkers(List.of())
+                .defendants(List.of())
+                .build();
+        final HearingDetail hearing = HearingDetail.builder()
+                .hearingDays(List.of())
+                .courtApplications(List.of())
+                .prosecutionCases(List.of())
+                .build();
+
+        final CPCaseHearingEntity result = mapper.toCaseHearingEntity(prosecutionCase, hearing, HEARING_ID, CREATED_AT);
+
+        assertThat(result.getCaseId()).isEqualTo(caseId);
+    }
+
+    @Test
+    void toCaseHearingEntity_should_leaveCaseIdNull_whenAbsent() {
+        final ProsecutionCase prosecutionCase = minimalProsecutionCase();
+        final HearingDetail hearing = HearingDetail.builder()
+                .hearingDays(List.of())
+                .courtApplications(List.of())
+                .prosecutionCases(List.of())
+                .build();
+
+        final CPCaseHearingEntity result = mapper.toCaseHearingEntity(prosecutionCase, hearing, HEARING_ID, CREATED_AT);
+
+        assertThat(result.getCaseId()).isNull();
+    }
+
+    @Test
     void toCaseHearingEntity_should_leaveHearingDateNull_whenNoHearingDays() {
         final ProsecutionCase prosecutionCase = minimalProsecutionCase();
         final HearingDetail hearing = HearingDetail.builder()
@@ -970,12 +1004,13 @@ class CPHearingResultEntityMapperTest {
                 .prosecutionCases(List.of())
                 .build();
 
-        final CPCaseHearingEntity result = mapper.toCaseHearingEntity("APP-REF-1", hearing, HEARING_ID, CREATED_AT, "City of London Police");
+        final CPCaseHearingEntity result = mapper.toCaseHearingEntity("APP-REF-1", hearing, HEARING_ID, CREATED_AT, "City of London Police", null);
 
         assertThat(result.getCaseUrn()).isEqualTo("APP-REF-1");
         assertThat(result.getProsecutorName()).isEqualTo("City of London Police");
         assertThat(result.getHearingId()).isEqualTo(HEARING_ID);
         assertThat(result.getCourtHouseCode()).isEqualTo("B01LY");
+        assertThat(result.getCaseId()).isNull();
     }
 
     @Test
@@ -1091,6 +1126,25 @@ class CPHearingResultEntityMapperTest {
         final CourtApplication application = CourtApplication.builder().courtApplicationCases(List.of()).build();
 
         assertThat(mapper.prosecutorNameOf(application)).isNull();
+    }
+
+    @Test
+    void caseIdOf_should_returnFirstCourtApplicationCaseProsecutionCaseId() {
+        final UUID caseId = UUID.fromString("b1b2b3b4-1111-2222-3333-444455556666");
+        final CourtApplication application = CourtApplication.builder()
+                .courtApplicationCases(List.of(CourtApplicationCase.builder()
+                        .prosecutionCaseId(caseId.toString())
+                        .build()))
+                .build();
+
+        assertThat(mapper.caseIdOf(application)).isEqualTo(caseId);
+    }
+
+    @Test
+    void caseIdOf_should_returnNull_whenNoCourtApplicationCases() {
+        final CourtApplication application = CourtApplication.builder().courtApplicationCases(List.of()).build();
+
+        assertThat(mapper.caseIdOf(application)).isNull();
     }
 
     // Ports PrisonCourtRegisterHandler.getDefendantType (progression-command-handler/.../PrisonCourtRegisterHandler.java:149-166).

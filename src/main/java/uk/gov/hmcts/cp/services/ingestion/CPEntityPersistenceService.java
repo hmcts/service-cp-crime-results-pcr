@@ -43,11 +43,13 @@ public class CPEntityPersistenceService {
     }
 
     // Overload for a court-application-only case — no case markers, CP has none for these.
+    // caseId is the linked prosecution case's id where the application references one
+    // (see CPHearingResultEntityMapper.caseIdOf) — a standalone application has none.
     public UUID findOrCreateCaseHearing(final String caseUrn, final HearingDetail hearing, final UUID hearingId,
-                                         final String prosecutorName) {
+                                         final String prosecutorName, final UUID caseId) {
         return caseHearingRepository.findByCaseUrnAndHearingId(caseUrn, hearingId)
                 .map(CPCaseHearingEntity::getId)
-                .orElseGet(() -> createCaseHearing(caseUrn, hearing, hearingId, prosecutorName));
+                .orElseGet(() -> createCaseHearing(caseUrn, hearing, hearingId, prosecutorName, caseId));
     }
 
     private UUID createCaseHearing(final ProsecutionCase prosecutionCase, final HearingDetail hearing, final UUID hearingId) {
@@ -58,9 +60,9 @@ public class CPEntityPersistenceService {
     }
 
     private UUID createCaseHearing(final String caseUrn, final HearingDetail hearing, final UUID hearingId,
-                                    final String prosecutorName) {
+                                    final String prosecutorName, final UUID caseId) {
         final CPCaseHearingEntity entity = entityMapper.toCaseHearingEntity(caseUrn, hearing, hearingId,
-                clockService.nowOffsetUTC(), prosecutorName);
+                clockService.nowOffsetUTC(), prosecutorName, caseId);
         caseHearingRepository.save(entity);
         return entity.getId();
     }
