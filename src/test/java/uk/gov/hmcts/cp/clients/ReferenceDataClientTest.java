@@ -8,6 +8,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.web.client.RestClient;
+import org.springframework.web.client.RestClientException;
 import uk.gov.hmcts.cp.config.AppPropertiesBackend;
 import uk.gov.hmcts.cp.domain.pcrcompute.CPNowSubscription;
 
@@ -21,8 +22,10 @@ import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.getRequestedFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.verify;
+import static java.net.HttpURLConnection.HTTP_INTERNAL_ERROR;
 import static java.net.HttpURLConnection.HTTP_OK;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class ReferenceDataClientTest {
 
@@ -84,6 +87,15 @@ class ReferenceDataClientTest {
                 CPNowSubscription.CPResultPrompt::getResultPromptReference).containsExactly("suretyNameAndAddress");
         assertThat(vocabulary.getExcludedPrompts()).extracting(
                 CPNowSubscription.CPResultPrompt::getResultPromptReference).containsExactly("witnessName");
+    }
+
+    @Test
+    void getPrisonCourtRegisterSubscriptions_should_propagateException_whenDownstreamCallFails() {
+        WireMock.stubFor(WireMock.get(WireMock.urlPathEqualTo(ReferenceDataClient.REFERENCE_DATA_PATH))
+                .willReturn(aResponse().withStatus(HTTP_INTERNAL_ERROR)));
+
+        assertThatThrownBy(() -> referenceDataClient.getPrisonCourtRegisterSubscriptions(ON_DATE))
+                .isInstanceOf(RestClientException.class);
     }
 
     private void stubFor(final String body) {

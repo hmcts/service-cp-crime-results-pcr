@@ -5,8 +5,12 @@ services:
       dockerfile: Dockerfile
     environment:
       DATASOURCE_URL: jdbc:postgresql://postgres:5432/pcrdb
-      AZURE_SERVICE_BUS_ADMIN_URI: Endpoint=sb://servicebus:5300;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;
-      AZURE_SERVICE_BUS_URI: Endpoint=sb://servicebus;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;
+      REDIS_HOST: redis
+      # auto-start-processors defaults to true (application.yaml); without these, the consumer's
+      # admin/connection URIs default to sb://localhost, which inside this container is itself,
+      # not the servicebus container — the consumer never connects and app startup times out.
+      AZURE_SERVICE_BUS_URI: "Endpoint=sb://servicebus;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;"
+      AZURE_SERVICE_BUS_ADMIN_URI: "Endpoint=sb://servicebus:5300;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;"
     depends_on:
       - postgres
       - redis
