@@ -15,7 +15,6 @@ import org.slf4j.MDC;
 import org.springframework.stereotype.Service;
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.ObjectMapper;
-import uk.gov.hmcts.cp.exceptions.IncompleteHearingDetailsException;
 import uk.gov.hmcts.cp.filters.tracing.TracingFilter;
 import uk.gov.hmcts.cp.filters.tracing.UUIDService;
 import uk.gov.hmcts.cp.openapi.model.HearingResultedEvent;
@@ -91,27 +90,31 @@ public class HearingResultedServiceBusConsumer {
         MDC.put(TracingFilter.CORRELATION_ID_KEY, correlationIdOf(message));
         try {
             handle(context, message, attempt);
-        } catch (IncompleteHearingDetailsException e) {
-            handleIncomplete(context, message, attempt);
         } catch (Exception e) {
-            handleUnexpectedError(context, message, attempt, e);
+            handleFailure(context, message, attempt, e);
         } finally {
             MDC.remove(TracingFilter.CORRELATION_ID_KEY);
         }
     }
 
-    private void handleUnexpectedError(final ServiceBusReceivedMessageContext context, final ServiceBusReceivedMessage message,
-                                        final int attempt, final Exception e) {
-        if (nativeDeliveryLimitReached(message)) {
-            log.error("processMessage unexpected error on attempt {} deliveryCount:{} — native delivery limit reached, dead-lettering. {}",
+    // Every processing failure — incomplete upstream data, a transient dependency outage, or a genuine
+    // bug — gets the same scheduled-backoff retry via scheduleFollowUp, up to maxTries. Native ASB
+    // redelivery/dead-lettering (nativeDeliveryLimitReached) is only ever the terminal fallback, so a
+    // transient outage no longer burns through the native delivery count with no backoff in between.
+    private void handleFailure(final ServiceBusReceivedMessageContext context, final ServiceBusReceivedMessage message,
+                                final int attempt, final Exception e) {
+        if (attempt >= properties.getMaxTries() || nativeDeliveryLimitReached(message)) {
+            log.error("processMessage exhausted after {} attempts deliveryCount:{} — dead-lettering. {}",
                     attempt, message.getDeliveryCount(), e.getMessage(), e);
             context.deadLetter(new DeadLetterOptions()
-                    .setDeadLetterReason("Unexpected error after native delivery count " + message.getDeliveryCount()));
+                    .setDeadLetterReason(e.getClass().getSimpleName() + " after " + attempt
+                            + " attempts (deliveryCount:" + message.getDeliveryCount() + ")"));
             return;
         }
-        log.error("processMessage unexpected error on attempt {} deliveryCount:{} — abandoning for native redelivery. {}",
+        log.error("processMessage failed on attempt {} deliveryCount:{} — scheduling retry. {}",
                 attempt, message.getDeliveryCount(), e.getMessage(), e);
-        context.abandon();
+        context.complete();
+        scheduleFollowUp(message, attempt);
     }
 
     private boolean nativeDeliveryLimitReached(final ServiceBusReceivedMessage message) {
@@ -156,21 +159,6 @@ public class HearingResultedServiceBusConsumer {
         }
         ingestionService.ingestAndPersistOnce(data.getHearingId(), data.getHearingDay());
         context.complete();
-    }
-
-    private void handleIncomplete(final ServiceBusReceivedMessageContext context, final ServiceBusReceivedMessage message,
-                                   final int attempt) {
-        final int maxTries = properties.getMaxTries();
-        if (attempt >= maxTries || nativeDeliveryLimitReached(message)) {
-            log.warn("handleIncomplete exhausted after {} attempts deliveryCount:{} — dead-lettering",
-                    attempt, message.getDeliveryCount());
-            context.deadLetter(new DeadLetterOptions()
-                    .setDeadLetterReason("IncompleteHearingDetailsException after " + maxTries
-                            + " attempts (deliveryCount:" + message.getDeliveryCount() + ")"));
-            return;
-        }
-        context.complete();
-        scheduleFollowUp(message, attempt);
     }
 
     private void scheduleFollowUp(final ServiceBusReceivedMessage message, final int attempt) {
