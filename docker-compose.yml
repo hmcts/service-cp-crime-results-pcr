@@ -5,9 +5,12 @@ services:
       dockerfile: Dockerfile
     environment:
       DATASOURCE_URL: jdbc:postgresql://postgres:5432/pcrdb
+      AZURE_SERVICE_BUS_ADMIN_URI: Endpoint=sb://servicebus:5300;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;
+      AZURE_SERVICE_BUS_URI: Endpoint=sb://servicebus;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;
     depends_on:
       - postgres
       - redis
+      - servicebus
     ports:
       - "8082:8082"
   postgres:
