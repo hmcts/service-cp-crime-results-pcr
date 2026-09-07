@@ -97,10 +97,8 @@ public class HearingResultedServiceBusConsumer {
         }
     }
 
-    // Every processing failure — incomplete upstream data, a transient dependency outage, or a genuine
-    // bug — gets the same scheduled-backoff retry via scheduleFollowUp, up to maxTries. Native ASB
-    // redelivery/dead-lettering (nativeDeliveryLimitReached) is only ever the terminal fallback, so a
-    // transient outage no longer burns through the native delivery count with no backoff in between.
+    // Every failure gets the same scheduled-backoff retry via scheduleFollowUp, up to maxTries.
+    // Native ASB dead-lettering is only the terminal fallback once that's exhausted.
     private void handleFailure(final ServiceBusReceivedMessageContext context, final ServiceBusReceivedMessage message,
                                 final int attempt, final Exception e) {
         if (attempt >= properties.getMaxTries() || nativeDeliveryLimitReached(message)) {
