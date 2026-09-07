@@ -1,0 +1,97 @@
+[
+  {
+    "courtApplications": [],
+    "defendant": {
+      "address": {
+        "address1": "50 Main Street",
+        "address2": "Main Street",
+        "address3": "Liverpool",
+        "postCode": "NW1 5BR"
+      },
+      "dateOfBirth": "1975-09-04",
+      "firstName": "Kasey",
+      "gender": "MALE",
+      "id": "ac5ba56c-5be4-4e17-9d53-78f7e0d0203c",
+      "lastName": "Schoen",
+      "masterDefendantId": "ac5ba56c-5be4-4e17-9d53-78f7e0d0203c",
+      "postHearingCustodyStatus": "Not Applicable",
+      "results": [],
+      "title": "Mr"
+    },
+    "hearing": {
+      "courtDetails": {
+        "court": {
+          "courtHouseCode": "B01DU00",
+          "courtHouseId": "c133d0de-c989-48b9-bd20-0431943e347e",
+          "courtHouseName": "City of London Magistrates' Court"
+        },
+        "courtAddress": {
+          "address1": "1 Queen Victoria Street",
+          "address2": "London",
+          "address3": "",
+          "address4": "",
+          "address5": "",
+          "postCode": "EC4N 4XY"
+        },
+        "ljaName": "Central London Magistrates' Court"
+      },
+      "defendantAppearanceDetails": "In person",
+      "hearingDate": "2026-09-04",
+      "hearingType": "First hearing",
+      "id": "8b2aad1e-7583-4b7f-b338-1b613126979e",
+      "jurisdiction": "MAGISTRATES"
+    },
+    "offences": [
+      {
+        "code": "TH68013A",
+        "convictionDate": "2026-09-04",
+        "listingNumber": 1,
+        "offenceLegislation": "Contrary to section 1(1)    of the Criminal Attempts Act 1981.",
+        "pleaDate": "2026-09-04",
+        "pleaValue": "GUILTY",
+        "results": [
+          {
+            "resultDescription": "RDET - Return to detention order (breach requirement of DTO)\nFor failing to comply with a requirement imposed upon release from detention under a detention and training order imposed by Stoke-on-Trent Crown Court on 14/09/2026, ordered to be detained for 3 Weeks. ",
+            "resultTexts": [
+              {
+                "label": "Court which imposed the original sentence",
+                "value": "Stoke-on-Trent Crown Court"
+              },
+              {
+                "label": "Imposition Date",
+                "value": "14/09/2026"
+              },
+              {
+                "label": "Returned to detention for",
+                "value": "3 Weeks"
+              },
+              {
+                "label": "Conveyor / custodian name organisation name",
+                "value": "Bradford Crown Court: PECS"
+              },
+              {
+                "label": "Conveyor / custodian name email address 1",
+                "value": "bradfordcc@geoamey.co.uk"
+              },
+              {
+                "label": "Risk or vulnerability factors",
+                "value": "Risk or vulnerability factors:RiskFactor"
+              }
+            ]
+          }
+        ],
+        "startDate": "2026-07-06",
+        "title": "Attempt theft of motor vehicle",
+        "wording": "Attempt theft to vehicle",
+        "id": "5caec43c-8003-4e94-8fe7-863c1965032d"
+      }
+    ],
+    "prosecutionCase": {
+      "caseMarkers": [],
+      "caseURN": "DX368526118",
+      "prosecutor": "City of London Police",
+      "results": []
+    },
+    "sharedTime": "2026-09-04T13:31:02.871Z"
+  }
+]
