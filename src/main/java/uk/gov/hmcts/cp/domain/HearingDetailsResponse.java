@@ -296,6 +296,8 @@ public class HearingDetailsResponse {
     @Getter
     public static class JudicialResult {
         private String cjsCode;
+        // The key includedResults/excludedResults subscription rules match against — not cjsCode.
+        private String judicialResultTypeId;
         private String label;
         private String resultText;
         private String category;
