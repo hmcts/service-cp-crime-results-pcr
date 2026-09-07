@@ -30,9 +30,8 @@ class KqlLogMessageContractTest {
 
     static Stream<Arguments> kqlLogMessageContracts() {
         return Stream.of(
-            kqlContract("native delivery limit reached, dead-lettering", "HearingResultedServiceBusConsumer", 1),
+            kqlContract("processMessage exhausted after",              "HearingResultedServiceBusConsumer", 1),
             kqlContract("dead-lettering, not redelivering",              "HearingResultedServiceBusConsumer", 1),
-            kqlContract("handleIncomplete exhausted after",              "HearingResultedServiceBusConsumer", 1),
             kqlContract("processError unexpected error on pcr queue",    "HearingResultedServiceBusConsumer", 1),
             kqlContract("does not exist — expected to be provisioned by Terraform", "HearingResultedServiceBusConsumer", 1)
         );

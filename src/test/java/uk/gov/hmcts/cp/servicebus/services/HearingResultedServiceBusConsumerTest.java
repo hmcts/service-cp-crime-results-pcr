@@ -191,28 +191,38 @@ class HearingResultedServiceBusConsumerTest {
     }
 
     @Test
-    void processMessage_should_abandon_whenEventTypeUnrecognized() {
+    void processMessage_should_completeAndScheduleFollowUp_whenEventTypeUnrecognizedAndAttemptsRemain() {
+        when(properties.getMaxTries()).thenReturn(24);
         givenMessage(unrecognizedEventTypeJson(), null);
         givenGeneratedCorrelationId();
+        when(retryService.getNextTryTime(1)).thenReturn(OffsetDateTime.parse("2026-07-28T10:00:02Z"));
+        when(clientFactory.senderClient()).thenReturn(senderClient);
 
         consumer.processMessage(context);
 
         verify(ingestionService, never()).ingestAndPersistOnce(any(), any());
-        verify(context).abandon();
-        verify(context, never()).complete();
+        verify(context, never()).abandon();
+        verify(context, never()).deadLetter(any());
+        verify(context).complete();
+        verify(senderClient).sendMessage(any());
     }
 
     @Test
-    void processMessage_should_abandon_whenIngestionThrowsUnexpectedException() {
+    void processMessage_should_completeAndScheduleFollowUp_whenIngestionThrowsUnexpectedExceptionAndAttemptsRemain() {
+        when(properties.getMaxTries()).thenReturn(24);
         givenMessage(hearingResultedEventJson(), null);
         givenGeneratedCorrelationId();
         doThrow(new IllegalStateException("malformed cache payload"))
                 .when(ingestionService).ingestAndPersistOnce(HEARING_ID, HEARING_DAY);
+        when(retryService.getNextTryTime(1)).thenReturn(OffsetDateTime.parse("2026-07-28T10:00:02Z"));
+        when(clientFactory.senderClient()).thenReturn(senderClient);
 
         consumer.processMessage(context);
 
-        verify(context).abandon();
-        verify(context, never()).complete();
+        verify(context, never()).abandon();
+        verify(context, never()).deadLetter(any());
+        verify(context).complete();
+        verify(senderClient).sendMessage(any());
     }
 
     @Test
@@ -284,12 +294,13 @@ class HearingResultedServiceBusConsumerTest {
         verify(context, never()).complete();
         verify(context).deadLetter(deadLetterCaptor.capture());
         assertThat(deadLetterCaptor.getValue().getDeadLetterReason())
-                .isEqualTo("IncompleteHearingDetailsException after 24 attempts (deliveryCount:10)");
+                .isEqualTo("IncompleteHearingDetailsException after 1 attempts (deliveryCount:10)");
         verify(clientFactory, never()).senderClient();
     }
 
     @Test
     void processMessage_should_deadLetter_whenUnexpectedExceptionAndNativeDeliveryLimitReached() {
+        when(properties.getMaxTries()).thenReturn(24);
         givenMessage(hearingResultedEventJson(), null, MAX_DELIVERY_COUNT);
         givenGeneratedCorrelationId();
         doThrow(new IllegalStateException("malformed cache payload"))
@@ -301,7 +312,25 @@ class HearingResultedServiceBusConsumerTest {
         verify(context, never()).complete();
         verify(context).deadLetter(deadLetterCaptor.capture());
         assertThat(deadLetterCaptor.getValue().getDeadLetterReason())
-                .isEqualTo("Unexpected error after native delivery count 10");
+                .isEqualTo("IllegalStateException after 1 attempts (deliveryCount:10)");
+        verify(clientFactory, never()).senderClient();
+    }
+
+    @Test
+    void processMessage_should_deadLetter_whenUnexpectedExceptionAndAttemptsExhausted() {
+        when(properties.getMaxTries()).thenReturn(24);
+        givenMessage(hearingResultedEventJson(), 24);
+        givenGeneratedCorrelationId();
+        doThrow(new IllegalStateException("malformed cache payload"))
+                .when(ingestionService).ingestAndPersistOnce(HEARING_ID, HEARING_DAY);
+
+        consumer.processMessage(context);
+
+        verify(context, never()).complete();
+        verify(context).deadLetter(deadLetterCaptor.capture());
+        assertThat(deadLetterCaptor.getValue().getDeadLetterReason())
+                .isEqualTo("IllegalStateException after 24 attempts (deliveryCount:1)");
+        verify(clientFactory, never()).senderClient();
     }
 
     @Test

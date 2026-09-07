@@ -1,7 +1,0 @@
-ContainerLogV2
-| where PodName startswith "pcr-data"
-| where ContainerName == "springboot-app"
-| where LogMessage contains "native delivery limit reached, dead-lettering"
-| extend LogJson = parse_json(LogMessage)
-| project TimeGenerated, Level = tostring(LogJson.level), CorrId = tostring(split(tostring(LogJson["X-Correlation-Id"]), "-")[-1]), Message = tostring(LogJson.message)
-| order by TimeGenerated asc
