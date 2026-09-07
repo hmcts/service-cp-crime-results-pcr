@@ -1,0 +1,13 @@
+// APIM PCR requests by outcome, last 14 days (one column per day, stacked Success/Throttled/Error).
+// Smoke detector: healthy = mostly Success; a fat Throttled/Error block on a day => drill down.
+// Source: App Insights `requests`.
+requests
+| where timestamp > ago(14d)
+| where name contains "pcr"
+| extend Outcome = case(
+    resultCode == "429", "2 Throttled",
+    toint(resultCode) >= 400, "3 Error",     // 4xx (non-429) + 5xx
+    "1 Success")                             // 2xx/3xx
+// Numeric prefixes force series order so colours are stable: Success=blue, Throttled=orange, Error=teal.
+| summarize Requests = count() by TimeGenerated = bin(timestamp, 1d), Outcome
+| render columnchart kind=stacked
