@@ -1,7 +1,10 @@
 ContainerLogV2
 | where PodName startswith 'pcr-data'
-| where TimeGenerated > ago(7d)
+| where TimeGenerated > ago(14d)
 | where ContainerName == 'springboot-app'
 | where LogMessage contains 'HearingResultedServiceBusConsumer received channel:servicebus'
-| summarize MessageCount = count() by bin(TimeGenerated, 1h)
-| render timechart
+| make-series HearingIds = count() default=0
+    on TimeGenerated
+    from ago(14d) to now()
+    step 1d
+| render columnchart

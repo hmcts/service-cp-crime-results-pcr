@@ -1,0 +1,11 @@
+ContainerLogV2
+| where PodName startswith 'pcr-data'
+| where TimeGenerated > ago(14d)
+| where ContainerName == 'springboot-app'
+| where LogMessage contains 'PCR required for hearingId'
+| parse LogMessage with * "PCR required for hearingId:" HearingId " defendantId:" *
+| make-series ConsumedHearingIds = dcount(HearingId) default=0
+    on TimeGenerated
+    from ago(14d) to now()
+    step 1d
+| render columnchart
