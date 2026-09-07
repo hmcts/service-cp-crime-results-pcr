@@ -126,7 +126,9 @@ public class ResultsIngestionService {
         final CPVocabulary vocabulary = vocabularyService.compute(defendant, hearing);
         final List<JudicialResult> eligibleResults = pcrFilter.excludePublishedForNows(entityMapper.eligibleResults(defendant, hearing));
         final boolean required = pcrFilter.isPrisonCourtRegisterRequired(vocabulary, eligibleResults, subscriptions);
-        if (!required) {
+        if (required) {
+            log.info("PCR required for hearingId:{} defendantId:{} — persisting", hearingId, defendant.getId());
+        } else {
             log.info("PCR not required for hearingId:{} defendantId:{} — skipping", hearingId, defendant.getId());
         }
         return required;
