@@ -99,13 +99,16 @@ jobs:
           docker compose -f docker-compose.yml up -d
           
           echo "Waiting for health endpoint..."
-          for i in {1..30}; do
+          # auto-start-processors defaults to true, and startup now blocks on the Service Bus
+          # consumer's readiness wait (up to 2 minutes) before Tomcat comes up — give this more
+          # room than the old 60s budget so the check doesn't time out before the app is up.
+          for i in {1..60}; do
             if curl -s http://localhost:8082/actuator/health > /dev/null; then
               echo "App is healthy"
               break
             fi
             echo "Waiting for app to be healthy ($i)..."
-            sleep 2
+            sleep 3
           done
 
       - name: Run OWASP ZAP DAST Scan
