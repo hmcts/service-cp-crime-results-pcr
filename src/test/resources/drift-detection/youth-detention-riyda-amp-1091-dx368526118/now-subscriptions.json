@@ -1,0 +1,68 @@
+{
+  "nowSubscriptions": [
+    {
+      "id": "0483ae12-3ac9-4109-9c78-476535a6b251",
+      "name": "YCS PCR Subscription",
+      "isNowSubscription": false,
+      "isEDTSubscription": false,
+      "isInformantRegisterSubscription": false,
+      "isCourtRegisterSubscription": false,
+      "isPrisonCourtRegisterSubscription": true,
+      "applySubscriptionRules": true,
+      "recipient": {
+        "emailAddress1": "ycswarrants@justice.gov.uk",
+        "isApplyDefenceOrganisationDetails": false,
+        "isApplyParentGuardianDetails": false,
+        "isApplyDefendantDetails": false,
+        "isApplyDefendantCustodyDetails": false,
+        "isApplyProsecutionAuthorityDetails": false,
+        "isApplyApplicantDetails": false,
+        "isApplyRespondentDetails": false,
+        "isApplyThirdPartyDetails": false,
+        "nowSubscription": "0483ae12-3ac9-4109-9c78-476535a6b251",
+        "recipientFromCase": false,
+        "recipientFromResults": false,
+        "recipientFromSubscription": true
+      },
+      "subscriptionVocabulary": {
+        "adultDefendant": false,
+        "adultOrYouthDefendant": true,
+        "allNonCustodialResults": false,
+        "anyAppearance": true,
+        "anyCourtHearing": true,
+        "anyMajorCreditor": false,
+        "atleastOneCustodialResult": false,
+        "atleastOneNonCustodialResult": false,
+        "custodyLocationIsPolice": false,
+        "custodyLocationIsPrison": false,
+        "englishCourtHearing": false,
+        "ignoreCustody": true,
+        "ignoreResults": true,
+        "inCustody": false,
+        "includedResults": [
+          "b3666e81-b553-4a15-afa3-ad954fedc1e5",
+          "6c535814-ea88-42da-a347-31fb6da7d851",
+          "035b0eab-7aca-4037-9bf2-02135d128598",
+          "6d65a5b5-46c3-4c79-a217-d338f4c8d223",
+          "5c27e390-2656-4117-8104-a41b15b2f01b",
+          "70c6d432-4f1e-4f09-a50a-52dbffcca819",
+          "892de3ce-1e80-454e-8c72-44e694b06e93",
+          "70fe7114-b511-4d9b-a550-2c040b9a8d34",
+          "1dd2e245-a9af-4d04-84b6-92f64dc312fe",
+          "21277da1-c068-45bc-be6d-f7d93df02439",
+          "22e52dce-1e58-464f-bd48-7e219747f08f",
+          "404de620-d5ce-4eb4-87c4-f7e96271d240",
+          "64e29ff5-bf5c-45a3-adb1-3f6aa2c99449",
+          "d271def7-14a1-4a92-a40b-b6ee5d4654ff"
+        ],
+        "isCpsProsecuted": false,
+        "nonProsecutorMajorCreditor": false,
+        "prosecutorMajorCreditor": false,
+        "welshCourtHearing": false,
+        "youthDefendant": false
+      },
+      "emailTemplateName": "pcr_standard",
+      "isNotificationApi": false
+    }
+  ]
+}

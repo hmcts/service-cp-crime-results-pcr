@@ -96,10 +96,12 @@ public class CPNowSubscriptionMatcher {
         return prompts == null ? List.of() : prompts.stream().map(CPResultPrompt::getResultPromptReference).toList();
     }
 
+    // Legacy CP's checkForMatchedResults matches on judicialResultTypeId, not cjsCode — the reference-data
+    // includedResults/excludedResults lists are populated with judicialResultTypeId UUIDs.
     private boolean resultTypeListsMatch(final SubscriptionVocabulary subVoc, final List<JudicialResult> results) {
-        final List<String> resultCodes = results.stream().map(JudicialResult::getCjsCode).toList();
-        return listMatches(subVoc.getIncludedResults(), resultCodes, true)
-                && listMatches(subVoc.getExcludedResults(), resultCodes, false);
+        final List<String> resultTypeIds = results.stream().map(JudicialResult::getJudicialResultTypeId).toList();
+        return listMatches(subVoc.getIncludedResults(), resultTypeIds, true)
+                && listMatches(subVoc.getExcludedResults(), resultTypeIds, false);
     }
 
     private boolean listMatches(final List<String> configured, final List<String> actual, final boolean isInclude) {

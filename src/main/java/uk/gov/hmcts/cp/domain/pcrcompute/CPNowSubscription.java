@@ -64,7 +64,7 @@ public class CPNowSubscription {
         private Boolean atleastOneCustodialResult;
         private Boolean atleastOneNonCustodialResult;
 
-        // Prompt/result include-exclude lists — matched by exact promptReference/cjsCode value.
+        // Prompt/result include-exclude lists — matched by exact promptReference/judicialResultTypeId value.
         // Prompts are objects on the real API, not bare strings — matched on resultPromptReference.
         private List<CPResultPrompt> includedPrompts;
         private List<CPResultPrompt> excludedPrompts;
