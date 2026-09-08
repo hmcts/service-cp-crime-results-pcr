@@ -566,8 +566,6 @@ class CPHearingResultEntityMapperTest {
         assertThat(offenceEntity.getId()).isNotNull();
         assertThat(offenceEntity.getVersionPk()).isEqualTo(bundle.version().getCpVersionPk());
         assertThat(offenceEntity.getCourtApplicationId()).isNull();
-        // AMP-1101: caseUrn is only for court-application-linked offences — a direct offence's
-        // own case is already unambiguous via the parent cp_case_hearing.
         assertThat(offenceEntity.getCaseUrn()).isNull();
         assertThat(offenceEntity.getCode()).isEqualTo("TH68001");
         assertThat(offenceEntity.getTitle()).isEqualTo("Theft");
@@ -588,9 +586,6 @@ class CPHearingResultEntityMapperTest {
         assertThat(bundle.judicialResultPrompts().get(0).getType()).isEqualTo("NAMEADDRESS");
     }
 
-    // AMP-1101: a court application linking more than one prosecution case (e.g. a linked appeal)
-    // previously flattened every linked case's offences with no attribution — reproduces the real
-    // shape of drift fixture appeal-against-conviction-appellant-ie137532124-xi137534386.
     @Test
     void toWriteBundle_should_attributeCaseUrn_toEachOffence_whenApplicationLinksMultipleCases() {
         final Offence firstCaseOffence = Offence.builder().offenceCode("TH68001").judicialResults(List.of()).build();

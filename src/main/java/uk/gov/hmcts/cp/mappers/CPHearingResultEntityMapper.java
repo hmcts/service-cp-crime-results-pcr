@@ -321,8 +321,6 @@ public class CPHearingResultEntityMapper {
     private void addLinkedApplicationContent(final CourtApplication application, final UUID courtApplicationId,
                                               final List<CPOffenceEntity> offences, final List<CPJudicialResultEntity> judicialResults,
                                               final List<CPJudicialResultPromptEntity> prompts) {
-        // Case-by-case, not flattened — AMP-1101: each offence must carry which of the
-        // application's (possibly several) linked cases it came from.
         Stream.ofNullable(application.getCourtApplicationCases()).flatMap(List::stream)
                 .forEach(c -> Stream.ofNullable(c.getOffences()).flatMap(List::stream)
                         .forEach(o -> addLinkedOffence(o, courtApplicationId, caseUrnOf(c), offences, judicialResults, prompts)));
