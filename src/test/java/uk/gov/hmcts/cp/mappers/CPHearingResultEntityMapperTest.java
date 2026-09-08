@@ -54,6 +54,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -565,6 +566,7 @@ class CPHearingResultEntityMapperTest {
         assertThat(offenceEntity.getId()).isNotNull();
         assertThat(offenceEntity.getVersionPk()).isEqualTo(bundle.version().getCpVersionPk());
         assertThat(offenceEntity.getCourtApplicationId()).isNull();
+        assertThat(offenceEntity.getCaseUrn()).isNull();
         assertThat(offenceEntity.getCode()).isEqualTo("TH68001");
         assertThat(offenceEntity.getTitle()).isEqualTo("Theft");
         assertThat(offenceEntity.getWording()).isEqualTo("Stole a thing");
@@ -582,6 +584,67 @@ class CPHearingResultEntityMapperTest {
         assertThat(bundle.judicialResultPrompts().get(0).getPromptReference()).isEqualTo("prisonOrganisationName");
         assertThat(bundle.judicialResultPrompts().get(0).getLabel()).isEqualTo("Prison organisation name");
         assertThat(bundle.judicialResultPrompts().get(0).getType()).isEqualTo("NAMEADDRESS");
+    }
+
+    @Test
+    void toWriteBundle_should_attributeCaseUrn_toEachOffence_whenApplicationLinksMultipleCases() {
+        final Offence firstCaseOffence = Offence.builder().offenceCode("TH68001").judicialResults(List.of()).build();
+        final Offence secondCaseOffence = Offence.builder().offenceCode("TH68002").judicialResults(List.of()).build();
+        final CourtApplicationCase firstCase = CourtApplicationCase.builder()
+                .prosecutionCaseIdentifier(ProsecutionCaseIdentifier.builder().caseURN("IE137532124").build())
+                .offences(List.of(firstCaseOffence))
+                .build();
+        final CourtApplicationCase secondCase = CourtApplicationCase.builder()
+                .prosecutionCaseIdentifier(ProsecutionCaseIdentifier.builder().caseURN("XI137534386").build())
+                .offences(List.of(secondCaseOffence))
+                .build();
+        final CourtApplication application = CourtApplication.builder()
+                .id(UUID.randomUUID().toString())
+                .subject(ApplicationParty.builder().masterDefendant(MasterDefendant.builder().masterDefendantId(MASTER_DEFENDANT_ID).build()).build())
+                .courtApplicationCases(List.of(firstCase, secondCase))
+                .judicialResults(List.of())
+                .build();
+        final Defendant defendant = Defendant.builder()
+                .id(DEFENDANT_ID.toString())
+                .masterDefendantId(MASTER_DEFENDANT_ID)
+                .personDefendant(PersonDefendant.builder().build())
+                .offences(List.of())
+                .build();
+        final HearingDetail hearing = HearingDetail.builder().courtApplications(List.of(application)).build();
+
+        final CPEntitySet bundle = mapper.toWriteBundle(defendant, hearing, CASE_HEARING_ID, SHARED_TIME, CREATED_AT, EXPIRES_AT);
+
+        assertThat(bundle.offences()).hasSize(2);
+        assertThat(bundle.offences())
+                .extracting(CPOffenceEntity::getCode, CPOffenceEntity::getCaseUrn)
+                .containsExactlyInAnyOrder(
+                        tuple("TH68001", "IE137532124"),
+                        tuple("TH68002", "XI137534386"));
+    }
+
+    @Test
+    void toWriteBundle_should_leaveCaseUrnNull_forCourtOrderOffence() {
+        final Offence courtOrderOffence = Offence.builder().offenceCode("TH68003").judicialResults(List.of()).build();
+        final CourtApplication application = CourtApplication.builder()
+                .id(UUID.randomUUID().toString())
+                .subject(ApplicationParty.builder().masterDefendant(MasterDefendant.builder().masterDefendantId(MASTER_DEFENDANT_ID).build()).build())
+                .courtApplicationCases(List.of())
+                .judicialResults(List.of())
+                .courtOrder(CourtOrder.builder().courtOrderOffences(List.of(CourtOrderOffence.builder().offence(courtOrderOffence).build())).build())
+                .build();
+        final Defendant defendant = Defendant.builder()
+                .id(DEFENDANT_ID.toString())
+                .masterDefendantId(MASTER_DEFENDANT_ID)
+                .personDefendant(PersonDefendant.builder().build())
+                .offences(List.of())
+                .build();
+        final HearingDetail hearing = HearingDetail.builder().courtApplications(List.of(application)).build();
+
+        final CPEntitySet bundle = mapper.toWriteBundle(defendant, hearing, CASE_HEARING_ID, SHARED_TIME, CREATED_AT, EXPIRES_AT);
+
+        assertThat(bundle.offences()).hasSize(1);
+        assertThat(bundle.offences().get(0).getCaseUrn()).isNull();
+        assertThat(bundle.offences().get(0).getCourtApplicationId()).isNotNull();
     }
 
     @Test
