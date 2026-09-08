@@ -119,6 +119,21 @@ that looks arbitrary; it likely isn't.
   `imprisonmentPeriod`, etc.) from `judicialResultPrompts` by `promptReference` string lookup
 - `config/AppPropertiesBackend` — `@Value`-backed config bean for backend URLs
   (results-query-client, reference-data-client)
+- `auth/` — Entra app-only bearer-token validation (see `docs/Authentication.md`):
+  `EntraAuthProperties` (`@Value` config, fails startup if misconfigured in a deployed
+  environment), `EntraTokenValidator` (Nimbus JOSE JWT signature check pinned to `RS256`, then
+  every claim checked manually against `JWTClaimsSet` so each rejection carries an exact
+  `Reason`), `AuthorizationPolicy` (enumerated endpoint exemptions), `TokenValidationException`
+  (RFC 6750 `Reason` enum), `AuthMode` (`OFF`/`OBSERVE`/`ENFORCE`), `ValidatedCaller` (the
+  resolved identity record). No Spring Security — hand-rolled, mirroring the reference
+  implementation in `service-cp-crime-hearing-results-document-subscription`
+- `filters/security/ClientIdResolutionFilter` — the servlet `Filter` wiring `auth/` together;
+  runs after `filters/tracing/TracingFilter` (`@Order(HIGHEST_PRECEDENCE + 10)`); writes
+  rejections itself since it runs before Spring MVC dispatch, so `GlobalExceptionHandler` never
+  sees them
+- `exceptions/ErrorResponseFactory` — builds the generated `ErrorResponse` body
+  (`message`/`error`/`timestamp`/`traceId`); extracted from `GlobalExceptionHandler` so
+  `ClientIdResolutionFilter` can reuse the same shape
 
 ### The `pcrcompute` sub-package (`services/pcrcompute/`, `domain/pcrcompute/`)
 
@@ -203,6 +218,13 @@ run, in production or in tests; discovered the hard way when repository tests fa
 | `CJSCPPUID` | Client identity header sent to the Results Query API and Reference Data | `00000000-0000-0000-0000-000000000000` |
 | `REDIS_HOST` / `REDIS_PORT` | Hearing-result cache (read-only) | `localhost` / `6379` |
 | `rpe.AppInsightsInstrumentationKey` | Azure Application Insights key | `00000000-0000-0000-0000-000000000000` |
+| `AUTH_MODE` | Entra token validation rollout mode (`OFF`/`OBSERVE`/`ENFORCE`) — see `docs/Authentication.md` | `OFF` |
+| `AUTH_TENANT_ID` | Issuing Entra tenant id | blank (required once `AUTH_MODE` isn't `OFF`) |
+| `AUTH_AUDIENCE` | This API's own Entra audience | blank (required once `AUTH_MODE` isn't `OFF`) |
+| `AUTH_ISSUER` | Issuer override | blank → derived from `AUTH_TENANT_ID` |
+| `AUTH_JWKS_URI` | JWKS discovery URL override | blank → derived from `AUTH_TENANT_ID` |
+| `AUTH_CLOCK_SKEW_SECONDS` | `exp`/`nbf` clock skew tolerance, capped at `300` | `60` |
+| `AUTH_JWKS_CACHE_TTL_SECONDS` | JWKS key-set cache TTL | `600` |
 
 ## Repo-Specific Architecture Rules
 

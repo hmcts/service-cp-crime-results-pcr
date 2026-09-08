@@ -1,6 +1,5 @@
 package uk.gov.hmcts.cp.exceptions;
 
-import io.micrometer.tracing.Tracer;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -14,17 +13,13 @@ import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 import uk.gov.hmcts.cp.openapi.model.ErrorResponse;
-import uk.gov.hmcts.cp.services.ClockService;
-
-import java.util.Objects;
 
 @Slf4j
 @AllArgsConstructor
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    private final Tracer tracer;
-    private final ClockService clockService;
+    private final ErrorResponseFactory errorResponseFactory;
 
     @ExceptionHandler(ResponseStatusException.class)
     public ResponseEntity<ErrorResponse> handleResponseStatusException(final ResponseStatusException responseStatusException) {
@@ -107,10 +102,6 @@ public class GlobalExceptionHandler {
     }
 
     private ErrorResponse buildErrorResponse(final String message) {
-        return ErrorResponse.builder()
-                .message(message)
-                .timestamp(clockService.now())
-                .traceId(Objects.requireNonNull(tracer.currentSpan()).context().traceId())
-                .build();
+        return errorResponseFactory.build(message);
     }
 }
