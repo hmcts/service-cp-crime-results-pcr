@@ -440,8 +440,9 @@ public class CPHearingResultEntityMapper {
         builder.addressLine1(address.getAddress1())
                 .addressLine2(address.getAddress2())
                 .addressLine3(address.getAddress3())
+                .addressLine4(address.getAddress4())
+                .addressLine5(address.getAddress5())
                 .postCode(address.getPostcode());
-        // addressLine4/addressLine5: left null — no 4th/5th address line upstream
     }
 
     private CPNextHearingEmbeddable toNextHearingEmbeddable(final HearingDetail hearing) {
