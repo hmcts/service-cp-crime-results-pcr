@@ -398,7 +398,8 @@ class CPHearingResultEntityMapperTest {
                                 .title("Mr").firstName("John").middleName("Q").lastName("Doe")
                                 .dateOfBirth(LocalDate.of(1990, 1, 31))
                                 .address(Address.builder().address1("1 Example Street").address2("Townville")
-                                        .address3("Countyshire").postcode("AB1 2CD").build())
+                                        .address3("Countyshire").address4("Countyshire Region")
+                                        .address5("Countryside").postcode("AB1 2CD").build())
                                 .gender("MALE").nationalityDescription("British")
                                 .build())
                         .build())
@@ -416,7 +417,8 @@ class CPHearingResultEntityMapperTest {
         assertThat(bundle.version().getAddressLine1()).isEqualTo("1 Example Street");
         assertThat(bundle.version().getAddressLine2()).isEqualTo("Townville");
         assertThat(bundle.version().getAddressLine3()).isEqualTo("Countyshire");
-        assertThat(bundle.version().getAddressLine4()).isNull();
+        assertThat(bundle.version().getAddressLine4()).isEqualTo("Countyshire Region");
+        assertThat(bundle.version().getAddressLine5()).isEqualTo("Countryside");
         assertThat(bundle.version().getPostCode()).isEqualTo("AB1 2CD");
         assertThat(bundle.version().getGender()).isEqualTo("MALE");
         assertThat(bundle.version().getNationality()).isEqualTo("British");
