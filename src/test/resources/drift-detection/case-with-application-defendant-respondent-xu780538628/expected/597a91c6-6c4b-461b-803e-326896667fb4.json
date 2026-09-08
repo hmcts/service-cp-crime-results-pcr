@@ -5,6 +5,7 @@
         "defendantType": "Respondent",
         "offences": [
           {
+            "caseURN": "XU780538628",
             "code": "TH68013A",
             "convictionDate": "2026-09-03",
             "id": "89a87320-2fc5-4bc8-8ee9-93692b17631a",

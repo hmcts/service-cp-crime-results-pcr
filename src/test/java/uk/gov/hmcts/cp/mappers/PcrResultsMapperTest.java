@@ -266,6 +266,8 @@ class PcrResultsMapperTest {
                 .isEqualTo("Contrary to section 1(1) and 7 of the Theft Act 1968.");
         assertThat(result.getOffences().get(0).getAllocationDecision()).isEqualTo("Summarily");
         assertThat(result.getOffences().get(0).getIndicatedPleaValue()).isEqualTo("GUILTY");
+        // AMP-1101: a direct offence's own case is already unambiguous via prosecutionCase.caseURN.
+        assertThat(result.getOffences().get(0).getCaseURN()).isNull();
         assertThat(result.getOffences().get(0).getResults()).hasSize(1);
         final var mappedResult = result.getOffences().get(0).getResults().get(0);
         assertThat(mappedResult.getResultDescription())
@@ -302,7 +304,7 @@ class PcrResultsMapperTest {
                 .versionPk(version.getCpVersionPk()).reference("REF1").type("Bail").build();
         final CPOffenceEntity linkedOffence = CPOffenceEntity.builder()
                 .id(UUID.fromString("00000000-0000-0000-0000-000000000067"))
-                .courtApplicationId(application.getId()).code("LINKOFF").build();
+                .courtApplicationId(application.getId()).code("LINKOFF").caseUrn("CX137539232").build();
         final CPJudicialResultEntity applicationResult = CPJudicialResultEntity.builder()
                 .id(UUID.fromString("00000000-0000-0000-0000-000000000068"))
                 .courtApplicationId(application.getId()).resultText("APP1").build();
@@ -315,6 +317,8 @@ class PcrResultsMapperTest {
         assertThat(mappedApplication.getReference()).isEqualTo("REF1");
         assertThat(mappedApplication.getResults()).hasSize(1);
         assertThat(mappedApplication.getOffences()).extracting("code").containsExactly("LINKOFF");
+        // AMP-1101: the linked offence carries which case it belongs to.
+        assertThat(mappedApplication.getOffences().get(0).getCaseURN()).isEqualTo("CX137539232");
     }
 
     @Test

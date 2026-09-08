@@ -32,6 +32,12 @@ public class CPOffenceEntity {
     @Column(name = "court_application_id")
     private UUID courtApplicationId;
 
+    // Which of a linked court application's courtApplicationCases this offence came from — see
+    // AMP-1101. Null for a direct prosecution-case offence, where the parent cp_case_hearing's
+    // own case_urn already identifies the case unambiguously.
+    @Column(name = "case_urn")
+    private String caseUrn;
+
     @Column(name = "source_offence_id")
     private UUID sourceOffenceId;
 

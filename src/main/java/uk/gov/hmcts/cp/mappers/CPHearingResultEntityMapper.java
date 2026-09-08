@@ -158,13 +158,9 @@ public class CPHearingResultEntityMapper {
 
     // courtOrder (breach/resentencing only) carries a separate offence, not part of the case-linked ones.
     private Stream<Offence> linkedOffencesOf(final CourtApplication application) {
-        final Stream<Offence> caseOffences = application.getCourtApplicationCases().stream()
+        final Stream<Offence> caseOffences = Stream.ofNullable(application.getCourtApplicationCases()).flatMap(List::stream)
                 .flatMap(c -> Stream.ofNullable(c.getOffences()).flatMap(List::stream));
-        final Stream<Offence> courtOrderOffences = application.getCourtOrder() == null
-                ? Stream.empty()
-                : Stream.ofNullable(application.getCourtOrder().getCourtOrderOffences()).flatMap(List::stream)
-                        .map(CourtOrderOffence::getOffence);
-        return Stream.concat(caseOffences, courtOrderOffences);
+        return Stream.concat(caseOffences, courtOrderOffencesOf(application));
     }
 
     // `subject` is the only party role used for defendant-linkage (same rule as CPVocabularyService).
@@ -325,10 +321,29 @@ public class CPHearingResultEntityMapper {
     private void addLinkedApplicationContent(final CourtApplication application, final UUID courtApplicationId,
                                               final List<CPOffenceEntity> offences, final List<CPJudicialResultEntity> judicialResults,
                                               final List<CPJudicialResultPromptEntity> prompts) {
-        linkedOffencesOf(application)
-                .forEach(o -> addLinkedOffence(o, courtApplicationId, offences, judicialResults, prompts));
+        // Case-by-case, not flattened — AMP-1101: each offence must carry which of the
+        // application's (possibly several) linked cases it came from.
+        Stream.ofNullable(application.getCourtApplicationCases()).flatMap(List::stream)
+                .forEach(c -> Stream.ofNullable(c.getOffences()).flatMap(List::stream)
+                        .forEach(o -> addLinkedOffence(o, courtApplicationId, caseUrnOf(c), offences, judicialResults, prompts)));
+        // courtOrder offences (breach/resentencing only) aren't part of any linked case.
+        courtOrderOffencesOf(application)
+                .forEach(o -> addLinkedOffence(o, courtApplicationId, null, offences, judicialResults, prompts));
         excludePublishedForNows(application.getJudicialResults().stream())
                 .forEach(r -> addResult(r, null, courtApplicationId, judicialResults, prompts));
+    }
+
+    private String caseUrnOf(final CourtApplicationCase courtApplicationCase) {
+        return courtApplicationCase.getProsecutionCaseIdentifier() == null
+                ? null
+                : courtApplicationCase.getProsecutionCaseIdentifier().getCaseURN();
+    }
+
+    private Stream<Offence> courtOrderOffencesOf(final CourtApplication application) {
+        return application.getCourtOrder() == null
+                ? Stream.empty()
+                : Stream.ofNullable(application.getCourtOrder().getCourtOrderOffences()).flatMap(List::stream)
+                        .map(CourtOrderOffence::getOffence);
     }
 
     private CPVersionEntity toVersionEntity(final Defendant defendant, final HearingDetail hearing, final UUID caseHearingId,
@@ -471,25 +486,27 @@ public class CPHearingResultEntityMapper {
 
     private void addDirectOffence(final Offence offence, final UUID versionPk, final List<CPOffenceEntity> offences,
                                    final List<CPJudicialResultEntity> judicialResults, final List<CPJudicialResultPromptEntity> prompts) {
-        final CPOffenceEntity offenceEntity = toOffenceEntity(offence, versionPk, null);
+        final CPOffenceEntity offenceEntity = toOffenceEntity(offence, versionPk, null, null);
         offences.add(offenceEntity);
         excludePublishedForNows(offence.getJudicialResults().stream())
                 .forEach(r -> addResult(r, offenceEntity.getId(), null, judicialResults, prompts));
     }
 
-    private void addLinkedOffence(final Offence offence, final UUID courtApplicationId, final List<CPOffenceEntity> offences,
+    private void addLinkedOffence(final Offence offence, final UUID courtApplicationId, final String caseUrn,
+                                   final List<CPOffenceEntity> offences,
                                    final List<CPJudicialResultEntity> judicialResults, final List<CPJudicialResultPromptEntity> prompts) {
-        final CPOffenceEntity offenceEntity = toOffenceEntity(offence, null, courtApplicationId);
+        final CPOffenceEntity offenceEntity = toOffenceEntity(offence, null, courtApplicationId, caseUrn);
         offences.add(offenceEntity);
         excludePublishedForNows(offence.getJudicialResults().stream())
                 .forEach(r -> addResult(r, offenceEntity.getId(), null, judicialResults, prompts));
     }
 
-    private CPOffenceEntity toOffenceEntity(final Offence offence, final UUID versionPk, final UUID courtApplicationId) {
+    private CPOffenceEntity toOffenceEntity(final Offence offence, final UUID versionPk, final UUID courtApplicationId, final String caseUrn) {
         return CPOffenceEntity.builder()
                 .id(UUID.randomUUID()) // surrogate — CP's offence id can repeat across versions, kept as sourceOffenceId only
                 .versionPk(versionPk)
                 .courtApplicationId(courtApplicationId)
+                .caseUrn(caseUrn)
                 .sourceOffenceId(offence.getId() == null ? null : UUID.fromString(offence.getId()))
                 .code(offence.getOffenceCode())
                 .title(offence.getOffenceTitle())
