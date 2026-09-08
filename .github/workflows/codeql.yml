@@ -97,19 +97,30 @@ jobs:
       - name: DAST - Build and run containerised app
         run: |
           docker compose -f docker-compose.yml up -d
-          
+
           echo "Waiting for health endpoint..."
-          # auto-start-processors defaults to true, and startup now blocks on the Service Bus
-          # consumer's readiness wait (up to 2 minutes) before Tomcat comes up — give this more
-          # room than the old 60s budget so the check doesn't time out before the app is up.
-          for i in {1..60}; do
+          # auto-start-processors defaults to true, and startup blocks on the Service Bus
+          # consumer's readiness wait (up to 2 minutes) before Tomcat comes up, on top of the
+          # Service Bus emulator's own dependency on sqledge coming up first — give this more
+          # room than the previous 180s budget, which was intermittently too tight and left the
+          # loop exhausting silently, so ZAP then failed on it with a confusing "Connection
+          # refused" instead of a clear startup-timeout error.
+          healthy=false
+          for i in {1..100}; do
             if curl -s http://localhost:8082/actuator/health > /dev/null; then
               echo "App is healthy"
+              healthy=true
               break
             fi
             echo "Waiting for app to be healthy ($i)..."
-            sleep 3
+            sleep 5
           done
+
+          if [ "$healthy" != "true" ]; then
+            echo "::error::App never became healthy within the timeout budget"
+            docker compose -f docker-compose.yml logs
+            exit 1
+          fi
 
       - name: Run OWASP ZAP DAST Scan
         uses: zaproxy/action-baseline@v0.15.0
