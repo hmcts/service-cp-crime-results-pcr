@@ -6,6 +6,7 @@ import uk.gov.hmcts.cp.entities.CPCaseMarkerEntity;
 import uk.gov.hmcts.cp.entities.CPCourtApplicationEntity;
 import uk.gov.hmcts.cp.entities.CPJudicialResultEntity;
 import uk.gov.hmcts.cp.entities.CPJudicialResultPromptEntity;
+import uk.gov.hmcts.cp.entities.CPLinkedCaseEntity;
 import uk.gov.hmcts.cp.entities.CPNextHearingEmbeddable;
 import uk.gov.hmcts.cp.entities.CPOffenceEntity;
 import uk.gov.hmcts.cp.entities.CPVersionEntity;
@@ -17,6 +18,7 @@ import uk.gov.hmcts.cp.openapi.model.CourtDetails;
 import uk.gov.hmcts.cp.openapi.model.CustodyLocation;
 import uk.gov.hmcts.cp.openapi.model.Defendant;
 import uk.gov.hmcts.cp.openapi.model.HearingDetails;
+import uk.gov.hmcts.cp.openapi.model.LinkedCase;
 import uk.gov.hmcts.cp.openapi.model.NextHearing;
 import uk.gov.hmcts.cp.openapi.model.Offence;
 import uk.gov.hmcts.cp.openapi.model.PcrHearingResult;
@@ -42,9 +44,10 @@ public class PcrResultsMapper {
                                                 final List<CPCourtApplicationEntity> courtApplications,
                                                 final List<CPOffenceEntity> offences,
                                                 final List<CPJudicialResultEntity> judicialResults,
-                                                final List<CPJudicialResultPromptEntity> prompts) {
+                                                final List<CPJudicialResultPromptEntity> prompts,
+                                                final List<CPLinkedCaseEntity> linkedCases) {
         return PcrHearingResult.builder()
-                .prosecutionCase(toProsecutionCase(caseHearing, caseMarkers, judicialResults, prompts))
+                .prosecutionCase(toProsecutionCase(caseHearing, caseMarkers, judicialResults, prompts, linkedCases))
                 .defendant(toDefendant(version, judicialResults, prompts))
                 .custodyLocation(toCustodyLocation(version))
                 .hearing(toHearingDetails(caseHearing, version))
@@ -59,7 +62,8 @@ public class PcrResultsMapper {
     }
 
     private ProsecutionCase toProsecutionCase(final CPCaseHearingEntity caseHearing, final List<CPCaseMarkerEntity> caseMarkers,
-                                               final List<CPJudicialResultEntity> judicialResults, final List<CPJudicialResultPromptEntity> prompts) {
+                                               final List<CPJudicialResultEntity> judicialResults, final List<CPJudicialResultPromptEntity> prompts,
+                                               final List<CPLinkedCaseEntity> linkedCases) {
         return ProsecutionCase.builder()
                 .caseURN(caseHearing.getCaseUrn())
                 .prosecutor(caseHearing.getProsecutorName())
@@ -68,11 +72,16 @@ public class PcrResultsMapper {
                         .filter(r -> LEVEL_CASE.equals(r.getLevel()))
                         .map(r -> toResultText(r, prompts))
                         .toList())
+                .linkedCases(linkedCases.isEmpty() ? null : linkedCases.stream().map(this::toLinkedCase).toList())
                 .build();
     }
 
     private CaseMarker toCaseMarker(final CPCaseMarkerEntity marker) {
         return CaseMarker.builder().description(marker.getDescription()).build();
+    }
+
+    private LinkedCase toLinkedCase(final CPLinkedCaseEntity linkedCase) {
+        return LinkedCase.builder().caseURN(linkedCase.getCaseUrn()).build();
     }
 
     private Defendant toDefendant(final CPVersionEntity version, final List<CPJudicialResultEntity> judicialResults,

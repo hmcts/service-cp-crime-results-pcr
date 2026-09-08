@@ -16,6 +16,7 @@ import uk.gov.hmcts.cp.entities.CPCaseHearingEntity;
 import uk.gov.hmcts.cp.entities.CPCourtApplicationEntity;
 import uk.gov.hmcts.cp.entities.CPJudicialResultEntity;
 import uk.gov.hmcts.cp.entities.CPJudicialResultPromptEntity;
+import uk.gov.hmcts.cp.entities.CPLinkedCaseEntity;
 import uk.gov.hmcts.cp.entities.CPOffenceEntity;
 import uk.gov.hmcts.cp.entities.CPVersionEntity;
 import uk.gov.hmcts.cp.mappers.CPEntitySet;
@@ -23,6 +24,7 @@ import uk.gov.hmcts.cp.mappers.CPHearingResultEntityMapper;
 import uk.gov.hmcts.cp.repositories.CPCaseHearingRepository;
 import uk.gov.hmcts.cp.repositories.CPCaseMarkerRepository;
 import uk.gov.hmcts.cp.repositories.CPCourtApplicationRepository;
+import uk.gov.hmcts.cp.repositories.CPLinkedCaseRepository;
 import uk.gov.hmcts.cp.repositories.CPJudicialResultPromptRepository;
 import uk.gov.hmcts.cp.repositories.CPJudicialResultRepository;
 import uk.gov.hmcts.cp.repositories.CPOffenceRepository;
@@ -39,6 +41,7 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -62,6 +65,8 @@ class CPEntityPersistenceServiceTest {
     private CPCaseHearingRepository caseHearingRepository;
     @Mock
     private CPCaseMarkerRepository caseMarkerRepository;
+    @Mock
+    private CPLinkedCaseRepository linkedCaseRepository;
     @Mock
     private CPVersionRepository versionRepository;
     @Mock
@@ -147,11 +152,12 @@ class CPEntityPersistenceServiceTest {
         final CPCaseHearingEntity existing = CPCaseHearingEntity.builder().id(CASE_HEARING_ID).build();
         when(caseHearingRepository.findByCaseUrnAndHearingId("APP-REF-1", HEARING_ID)).thenReturn(Optional.of(existing));
 
-        final UUID result = persistenceService.findOrCreateCaseHearing("APP-REF-1", hearing, HEARING_ID, "City of London Police", null);
+        final UUID result = persistenceService.findOrCreateCaseHearing("APP-REF-1", hearing, HEARING_ID, "City of London Police", null, List.of());
 
         assertThat(result).isEqualTo(CASE_HEARING_ID);
         verify(caseHearingRepository, never()).save(any());
         verify(caseMarkerRepository, never()).saveAll(any());
+        verify(linkedCaseRepository, never()).saveAll(any());
     }
 
     @Test
@@ -162,11 +168,28 @@ class CPEntityPersistenceServiceTest {
         final UUID linkedCaseId = UUID.fromString("c1c2c3c4-1111-2222-3333-444455556666");
         when(entityMapper.toCaseHearingEntity("APP-REF-1", hearing, HEARING_ID, CREATED_AT, "City of London Police", linkedCaseId)).thenReturn(created);
 
-        final UUID result = persistenceService.findOrCreateCaseHearing("APP-REF-1", hearing, HEARING_ID, "City of London Police", linkedCaseId);
+        final UUID result = persistenceService.findOrCreateCaseHearing("APP-REF-1", hearing, HEARING_ID, "City of London Police", linkedCaseId, List.of());
 
         assertThat(result).isEqualTo(CASE_HEARING_ID);
         verify(caseHearingRepository).save(created);
         verify(caseMarkerRepository, never()).saveAll(any());
+        verify(linkedCaseRepository, never()).saveAll(any());
+    }
+
+    @Test
+    void findOrCreateCaseHearing_should_saveLinkedCases_whenApplicationLinksMultipleCases() {
+        final HearingDetail hearing = HearingDetail.builder().courtApplications(List.of()).build();
+        when(caseHearingRepository.findByCaseUrnAndHearingId("IE137532124", HEARING_ID)).thenReturn(Optional.empty());
+        final CPCaseHearingEntity created = CPCaseHearingEntity.builder().id(CASE_HEARING_ID).build();
+        when(entityMapper.toCaseHearingEntity("IE137532124", hearing, HEARING_ID, CREATED_AT, "City of London Police", null)).thenReturn(created);
+
+        final UUID result = persistenceService.findOrCreateCaseHearing("IE137532124", hearing, HEARING_ID, "City of London Police", null,
+                List.of("IE137532124", "XI137534386"));
+
+        assertThat(result).isEqualTo(CASE_HEARING_ID);
+        verify(linkedCaseRepository).saveAll(argThat((List<CPLinkedCaseEntity> saved) ->
+                saved.stream().map(CPLinkedCaseEntity::getCaseUrn).toList().equals(List.of("IE137532124", "XI137534386"))
+                        && saved.stream().allMatch(l -> CASE_HEARING_ID.equals(l.getCaseHearingId()))));
     }
 
     private ProsecutionCase prosecutionCase() {

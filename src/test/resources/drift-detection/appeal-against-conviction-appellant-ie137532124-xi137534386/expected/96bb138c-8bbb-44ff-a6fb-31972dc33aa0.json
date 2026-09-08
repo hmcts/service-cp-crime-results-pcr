@@ -383,7 +383,15 @@
     "offences": [],
     "prosecutionCase": {
       "caseMarkers": [],
-      "caseURN": "IE137532124,XI137534386",
+      "caseURN": "IE137532124",
+      "linkedCases": [
+        {
+          "caseURN": "IE137532124"
+        },
+        {
+          "caseURN": "XI137534386"
+        }
+      ],
       "prosecutor": "City of London Police",
       "results": []
     },

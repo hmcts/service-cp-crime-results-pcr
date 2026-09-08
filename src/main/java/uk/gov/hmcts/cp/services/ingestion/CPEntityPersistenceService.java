@@ -6,6 +6,7 @@ import uk.gov.hmcts.cp.domain.HearingDetailsResponse.Defendant;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.HearingDetail;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.ProsecutionCase;
 import uk.gov.hmcts.cp.entities.CPCaseHearingEntity;
+import uk.gov.hmcts.cp.entities.CPLinkedCaseEntity;
 import uk.gov.hmcts.cp.mappers.CPEntitySet;
 import uk.gov.hmcts.cp.mappers.CPHearingResultEntityMapper;
 import uk.gov.hmcts.cp.repositories.CPCaseHearingRepository;
@@ -13,12 +14,14 @@ import uk.gov.hmcts.cp.repositories.CPCaseMarkerRepository;
 import uk.gov.hmcts.cp.repositories.CPCourtApplicationRepository;
 import uk.gov.hmcts.cp.repositories.CPJudicialResultPromptRepository;
 import uk.gov.hmcts.cp.repositories.CPJudicialResultRepository;
+import uk.gov.hmcts.cp.repositories.CPLinkedCaseRepository;
 import uk.gov.hmcts.cp.repositories.CPOffenceRepository;
 import uk.gov.hmcts.cp.repositories.CPVersionRepository;
 import uk.gov.hmcts.cp.services.ClockService;
 
 import java.time.Instant;
 import java.time.OffsetDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -29,6 +32,7 @@ public class CPEntityPersistenceService {
     private final ClockService clockService;
     private final CPCaseHearingRepository caseHearingRepository;
     private final CPCaseMarkerRepository caseMarkerRepository;
+    private final CPLinkedCaseRepository linkedCaseRepository;
     private final CPVersionRepository versionRepository;
     private final CPCourtApplicationRepository courtApplicationRepository;
     private final CPOffenceRepository offenceRepository;
@@ -45,11 +49,14 @@ public class CPEntityPersistenceService {
     // Overload for a court-application-only case — no case markers, CP has none for these.
     // caseId is the linked prosecution case's id where the application references one
     // (see CPHearingResultEntityMapper.caseIdOf) — a standalone application has none.
+    // linkedCaseUrns is the full set backing caseUrn's choice when the application spans
+    // multiple linked cases (see CPHearingResultEntityMapper.caseUrnOf/linkedCaseUrnsOf) — empty
+    // for a standalone application.
     public UUID findOrCreateCaseHearing(final String caseUrn, final HearingDetail hearing, final UUID hearingId,
-                                         final String prosecutorName, final UUID caseId) {
+                                         final String prosecutorName, final UUID caseId, final List<String> linkedCaseUrns) {
         return caseHearingRepository.findByCaseUrnAndHearingId(caseUrn, hearingId)
                 .map(CPCaseHearingEntity::getId)
-                .orElseGet(() -> createCaseHearing(caseUrn, hearing, hearingId, prosecutorName, caseId));
+                .orElseGet(() -> createCaseHearing(caseUrn, hearing, hearingId, prosecutorName, caseId, linkedCaseUrns));
     }
 
     private UUID createCaseHearing(final ProsecutionCase prosecutionCase, final HearingDetail hearing, final UUID hearingId) {
@@ -60,11 +67,20 @@ public class CPEntityPersistenceService {
     }
 
     private UUID createCaseHearing(final String caseUrn, final HearingDetail hearing, final UUID hearingId,
-                                    final String prosecutorName, final UUID caseId) {
+                                    final String prosecutorName, final UUID caseId, final List<String> linkedCaseUrns) {
         final CPCaseHearingEntity entity = entityMapper.toCaseHearingEntity(caseUrn, hearing, hearingId,
                 clockService.nowOffsetUTC(), prosecutorName, caseId);
         caseHearingRepository.save(entity);
+        if (!linkedCaseUrns.isEmpty()) {
+            linkedCaseRepository.saveAll(toLinkedCaseEntities(linkedCaseUrns, entity.getId()));
+        }
         return entity.getId();
+    }
+
+    private List<CPLinkedCaseEntity> toLinkedCaseEntities(final List<String> linkedCaseUrns, final UUID caseHearingId) {
+        return linkedCaseUrns.stream()
+                .map(urn -> CPLinkedCaseEntity.builder().id(UUID.randomUUID()).caseHearingId(caseHearingId).caseUrn(urn).build())
+                .toList();
     }
 
     public void persist(final Defendant defendant, final HearingDetail hearing, final UUID caseHearingId,

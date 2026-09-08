@@ -8,6 +8,7 @@ import uk.gov.hmcts.cp.entities.CPCaseMarkerEntity;
 import uk.gov.hmcts.cp.entities.CPCourtApplicationEntity;
 import uk.gov.hmcts.cp.entities.CPJudicialResultEntity;
 import uk.gov.hmcts.cp.entities.CPJudicialResultPromptEntity;
+import uk.gov.hmcts.cp.entities.CPLinkedCaseEntity;
 import uk.gov.hmcts.cp.entities.CPOffenceEntity;
 import uk.gov.hmcts.cp.entities.CPVersionEntity;
 import uk.gov.hmcts.cp.mappers.PcrResultsMapper;
@@ -17,6 +18,7 @@ import uk.gov.hmcts.cp.repositories.CPCaseMarkerRepository;
 import uk.gov.hmcts.cp.repositories.CPCourtApplicationRepository;
 import uk.gov.hmcts.cp.repositories.CPJudicialResultPromptRepository;
 import uk.gov.hmcts.cp.repositories.CPJudicialResultRepository;
+import uk.gov.hmcts.cp.repositories.CPLinkedCaseRepository;
 import uk.gov.hmcts.cp.repositories.CPOffenceRepository;
 import uk.gov.hmcts.cp.repositories.CPVersionRepository;
 
@@ -31,6 +33,7 @@ public class PcrResultsService {
     private final CPCaseHearingRepository caseHearingRepository;
     private final CPVersionRepository versionRepository;
     private final CPCaseMarkerRepository caseMarkerRepository;
+    private final CPLinkedCaseRepository linkedCaseRepository;
     private final CPCourtApplicationRepository courtApplicationRepository;
     private final CPOffenceRepository offenceRepository;
     private final CPJudicialResultRepository judicialResultRepository;
@@ -46,13 +49,14 @@ public class PcrResultsService {
 
     private List<PcrHearingResult> toResults(final CPCaseHearingEntity caseHearing, final UUID defendantId) {
         final List<CPCaseMarkerEntity> caseMarkers = caseMarkerRepository.findByCaseHearingId(caseHearing.getId());
+        final List<CPLinkedCaseEntity> linkedCases = linkedCaseRepository.findByCaseHearingId(caseHearing.getId());
         return versionRepository.findByCaseHearingIdAndDefendantIdOrderByCreatedAtAsc(caseHearing.getId(), defendantId).stream()
-                .map(version -> toPcrHearingResult(caseHearing, version, caseMarkers))
+                .map(version -> toPcrHearingResult(caseHearing, version, caseMarkers, linkedCases))
                 .toList();
     }
 
     private PcrHearingResult toPcrHearingResult(final CPCaseHearingEntity caseHearing, final CPVersionEntity version,
-                                                 final List<CPCaseMarkerEntity> caseMarkers) {
+                                                 final List<CPCaseMarkerEntity> caseMarkers, final List<CPLinkedCaseEntity> linkedCases) {
         final List<CPCourtApplicationEntity> courtApplications = courtApplicationRepository.findByVersionPk(version.getCpVersionPk());
         final List<CPOffenceEntity> offences = allOffences(version.getCpVersionPk(), courtApplications);
         final List<CPJudicialResultEntity> judicialResults = allJudicialResults(version.getCpVersionPk(), offences, courtApplications);
@@ -63,7 +67,8 @@ public class PcrResultsService {
                 courtApplications,
                 offences,
                 judicialResults,
-                allPrompts(judicialResults));
+                allPrompts(judicialResults),
+                linkedCases);
     }
 
     private List<CPOffenceEntity> allOffences(final UUID versionPk, final List<CPCourtApplicationEntity> courtApplications) {

@@ -246,6 +246,37 @@ public class CPHearingResultEntityMapper {
                 .orElse(null);
     }
 
+    // CP comma-joins applicationReference when an application spans multiple linked cases
+    // (e.g. "IE137532124,XI137534386") — this is used as this service's own case-hearing
+    // identity (and hence the caseURN URL path segment), so it must resolve to one real case
+    // URN. Falls back to applicationReference for a standalone application (already
+    // single-valued there, so this is a no-op for every non-multi-case application today).
+    public String caseUrnOf(final CourtApplication application) {
+        return Stream.ofNullable(application.getCourtApplicationCases())
+                .flatMap(List::stream)
+                .map(CourtApplicationCase::getProsecutionCaseIdentifier)
+                .filter(Objects::nonNull)
+                .map(HearingDetailsResponse.ProsecutionCaseIdentifier::getCaseURN)
+                .filter(Objects::nonNull)
+                .findFirst()
+                .orElseGet(application::getApplicationReference);
+    }
+
+    // The full set backing caseUrnOf's choice, for ProsecutionCase.linkedCases — empty unless the
+    // application genuinely spans more than one case; a single linked case is already fully
+    // represented by caseUrnOf alone, so there's nothing additional worth listing.
+    public List<String> linkedCaseUrnsOf(final CourtApplication application) {
+        final List<String> caseUrns = Stream.ofNullable(application.getCourtApplicationCases())
+                .flatMap(List::stream)
+                .map(CourtApplicationCase::getProsecutionCaseIdentifier)
+                .filter(Objects::nonNull)
+                .map(HearingDetailsResponse.ProsecutionCaseIdentifier::getCaseURN)
+                .filter(Objects::nonNull)
+                .distinct()
+                .toList();
+        return caseUrns.size() > 1 ? caseUrns : List.of();
+    }
+
     // Ports PrisonCourtRegisterHandler.getDefendantType verbatim, quirks included — the applicant
     // branch never checks whose masterDefendant it is, unlike the respondent branch, which does.
     public String defendantType(final CourtApplication application, final String masterDefendantId) {
