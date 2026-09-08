@@ -28,9 +28,7 @@ apply {
 // Sadly, dependabot does not track dependencies in the apply-from files
 dependencies {
   // Api spec
-  // TODO(AMP-1101): bump to the real published version once api-cp-crime-results-pcr#78 merges
-  // and publishes (adds Offence.caseURN) — 0.0.999 is the local publishToMavenLocal placeholder.
-  implementation('uk.gov.hmcts.cp:api-cp-crime-results-pcr:0.0.999')
+  implementation('uk.gov.hmcts.cp:api-cp-crime-results-pcr:1.1.24')
   implementation 'io.swagger.core.v3:swagger-annotations:2.2.55'
 
   // Java core
