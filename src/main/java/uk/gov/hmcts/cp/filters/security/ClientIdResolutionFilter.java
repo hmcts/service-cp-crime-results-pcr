@@ -113,12 +113,19 @@ public class ClientIdResolutionFilter extends OncePerRequestFilter {
 
     private void writeRejection(final HttpServletRequest request, final HttpServletResponse response, final Reason reason)
             throws IOException {
-        log.warn("ClientIdResolutionFilter rejected request to {}: {}", request.getRequestURI(), reason);
+        log.warn("ClientIdResolutionFilter rejected request to {}: {}", sanitizeForLog(request.getRequestURI()), reason);
         response.setStatus(reason.isAuthenticationFailure()
                 ? HttpStatus.UNAUTHORIZED.value() : HttpStatus.FORBIDDEN.value());
         response.setHeader(HttpHeaders.WWW_AUTHENTICATE, challenge(reason));
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         objectMapper.writeValue(response.getOutputStream(), errorResponseFactory.build(reason.description(), reason.errorCode()));
+    }
+
+    private String sanitizeForLog(final String value) {
+        if (value == null) {
+            return null;
+        }
+        return value.replace('\n', '_').replace('\r', '_');
     }
 
     /** Bare challenge when no usable credential was presented at all; a detailed RFC 6750
