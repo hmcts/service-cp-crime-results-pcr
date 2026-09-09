@@ -13,13 +13,13 @@ import lombok.NoArgsConstructor;
 import java.util.UUID;
 
 @Entity
-@Table(name = "cp_case_hearing_linked_case")
+@Table(name = "cp_case_hearing_related_case")
 @Getter
 @Builder(toBuilder = true)
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode
-public class CPLinkedCaseEntity {
+public class CPRelatedCaseEntity {
 
     @Id
     private UUID id;

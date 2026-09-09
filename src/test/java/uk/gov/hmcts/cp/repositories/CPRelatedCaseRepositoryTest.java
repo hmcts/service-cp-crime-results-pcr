@@ -4,7 +4,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import uk.gov.hmcts.cp.entities.CPCaseHearingEntity;
-import uk.gov.hmcts.cp.entities.CPLinkedCaseEntity;
+import uk.gov.hmcts.cp.entities.CPRelatedCaseEntity;
 
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
@@ -14,7 +14,7 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class CPLinkedCaseRepositoryTest extends RepositoryIntegrationTestBase {
+class CPRelatedCaseRepositoryTest extends RepositoryIntegrationTestBase {
 
     private static final UUID CASE_HEARING_ID = UUID.fromString("00000000-0000-0000-0000-000000000081");
     private static final UUID LINKED_CASE_ID = UUID.fromString("00000000-0000-0000-0000-000000000082");
@@ -23,7 +23,7 @@ class CPLinkedCaseRepositoryTest extends RepositoryIntegrationTestBase {
     private CPCaseHearingRepository cpCaseHearingRepository;
 
     @Autowired
-    private CPLinkedCaseRepository cpLinkedCaseRepository;
+    private CPRelatedCaseRepository cpRelatedCaseRepository;
 
     @Transactional
     @Test
@@ -35,15 +35,15 @@ class CPLinkedCaseRepositoryTest extends RepositoryIntegrationTestBase {
                 .createdAt(OffsetDateTime.now(ZoneOffset.UTC))
                 .build());
 
-        final CPLinkedCaseEntity entity = CPLinkedCaseEntity.builder()
+        final CPRelatedCaseEntity entity = CPRelatedCaseEntity.builder()
                 .id(LINKED_CASE_ID)
                 .caseHearingId(CASE_HEARING_ID)
                 .caseUrn("XI137534386")
                 .build();
 
-        cpLinkedCaseRepository.save(entity);
+        cpRelatedCaseRepository.save(entity);
 
-        final Optional<CPLinkedCaseEntity> found = cpLinkedCaseRepository.findById(LINKED_CASE_ID);
+        final Optional<CPRelatedCaseEntity> found = cpRelatedCaseRepository.findById(LINKED_CASE_ID);
         assertThat(found).isPresent();
         assertThat(found.get().getCaseHearingId()).isEqualTo(CASE_HEARING_ID);
         assertThat(found.get().getCaseUrn()).isEqualTo("XI137534386");
@@ -51,7 +51,7 @@ class CPLinkedCaseRepositoryTest extends RepositoryIntegrationTestBase {
 
     @Transactional
     @Test
-    void findByCaseHearingId_should_returnMatchingLinkedCases() {
+    void findByCaseHearingId_should_returnMatchingRelatedCases() {
         final UUID caseHearingId = UUID.fromString("00000000-0000-0000-0000-000000000084");
         cpCaseHearingRepository.save(CPCaseHearingEntity.builder()
                 .id(caseHearingId)
@@ -59,15 +59,15 @@ class CPLinkedCaseRepositoryTest extends RepositoryIntegrationTestBase {
                 .hearingId(UUID.fromString("00000000-0000-0000-0000-000000000085"))
                 .createdAt(OffsetDateTime.now(ZoneOffset.UTC))
                 .build());
-        cpLinkedCaseRepository.save(CPLinkedCaseEntity.builder()
+        cpRelatedCaseRepository.save(CPRelatedCaseEntity.builder()
                 .id(UUID.fromString("00000000-0000-0000-0000-000000000086"))
                 .caseHearingId(caseHearingId).caseUrn("IE137532124").build());
-        cpLinkedCaseRepository.save(CPLinkedCaseEntity.builder()
+        cpRelatedCaseRepository.save(CPRelatedCaseEntity.builder()
                 .id(UUID.fromString("00000000-0000-0000-0000-000000000087"))
                 .caseHearingId(caseHearingId).caseUrn("XI137534386").build());
 
-        final List<CPLinkedCaseEntity> found = cpLinkedCaseRepository.findByCaseHearingId(caseHearingId);
+        final List<CPRelatedCaseEntity> found = cpRelatedCaseRepository.findByCaseHearingId(caseHearingId);
 
-        assertThat(found).extracting(CPLinkedCaseEntity::getCaseUrn).containsExactlyInAnyOrder("IE137532124", "XI137534386");
+        assertThat(found).extracting(CPRelatedCaseEntity::getCaseUrn).containsExactlyInAnyOrder("IE137532124", "XI137534386");
     }
 }

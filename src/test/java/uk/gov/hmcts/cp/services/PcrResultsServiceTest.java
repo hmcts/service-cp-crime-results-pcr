@@ -17,7 +17,7 @@ import uk.gov.hmcts.cp.repositories.CPCaseMarkerRepository;
 import uk.gov.hmcts.cp.repositories.CPCourtApplicationRepository;
 import uk.gov.hmcts.cp.repositories.CPJudicialResultPromptRepository;
 import uk.gov.hmcts.cp.repositories.CPJudicialResultRepository;
-import uk.gov.hmcts.cp.repositories.CPLinkedCaseRepository;
+import uk.gov.hmcts.cp.repositories.CPRelatedCaseRepository;
 import uk.gov.hmcts.cp.repositories.CPOffenceRepository;
 import uk.gov.hmcts.cp.repositories.CPVersionRepository;
 
@@ -48,7 +48,7 @@ class PcrResultsServiceTest {
     @Mock
     private CPCaseMarkerRepository caseMarkerRepository;
     @Mock
-    private CPLinkedCaseRepository linkedCaseRepository;
+    private CPRelatedCaseRepository relatedCaseRepository;
     @Mock
     private CPCourtApplicationRepository courtApplicationRepository;
     @Mock
@@ -94,7 +94,7 @@ class PcrResultsServiceTest {
         when(versionRepository.findByCaseHearingIdAndDefendantIdOrderByCreatedAtAsc(CASE_HEARING_ID, DEFENDANT_ID))
                 .thenReturn(List.of(version));
         when(caseMarkerRepository.findByCaseHearingId(CASE_HEARING_ID)).thenReturn(List.of());
-        when(linkedCaseRepository.findByCaseHearingId(CASE_HEARING_ID)).thenReturn(List.of());
+        when(relatedCaseRepository.findByCaseHearingId(CASE_HEARING_ID)).thenReturn(List.of());
         when(courtApplicationRepository.findByVersionPk(VERSION_PK)).thenReturn(List.of());
         when(offenceRepository.findByVersionPk(VERSION_PK)).thenReturn(List.of());
         when(mapper.toPcrHearingResult(caseHearing, version, List.of(), List.of(), List.of(), List.of(), List.of(), List.of()))
@@ -125,7 +125,7 @@ class PcrResultsServiceTest {
         when(versionRepository.findByCaseHearingIdAndDefendantIdOrderByCreatedAtAsc(CASE_HEARING_ID, DEFENDANT_ID))
                 .thenReturn(List.of(version));
         when(caseMarkerRepository.findByCaseHearingId(CASE_HEARING_ID)).thenReturn(List.of());
-        when(linkedCaseRepository.findByCaseHearingId(CASE_HEARING_ID)).thenReturn(List.of());
+        when(relatedCaseRepository.findByCaseHearingId(CASE_HEARING_ID)).thenReturn(List.of());
         when(courtApplicationRepository.findByVersionPk(VERSION_PK)).thenReturn(List.of(application));
         when(offenceRepository.findByVersionPk(VERSION_PK)).thenReturn(List.of(directOffence));
         when(offenceRepository.findByCourtApplicationId(applicationId)).thenReturn(List.of(linkedOffence));
@@ -143,6 +143,6 @@ class PcrResultsServiceTest {
         verify(judicialResultPromptRepository, times(1)).findByJudicialResultId(directResultId);
         verify(judicialResultPromptRepository, times(1)).findByJudicialResultId(linkedResultId);
         verify(caseMarkerRepository, times(1)).findByCaseHearingId(CASE_HEARING_ID);
-        verify(linkedCaseRepository, times(1)).findByCaseHearingId(CASE_HEARING_ID);
+        verify(relatedCaseRepository, times(1)).findByCaseHearingId(CASE_HEARING_ID);
     }
 }

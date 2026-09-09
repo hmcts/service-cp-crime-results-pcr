@@ -246,7 +246,7 @@ class ResultsIngestionServiceTest {
         when(pcrFilter.fetchPrisonCourtRegisterSubscriptions(any())).thenReturn(List.of());
         when(pcrFilter.isPrisonCourtRegisterRequired(any(), any(), any())).thenReturn(true);
         when(entityMapper.caseUrnOf(application)).thenReturn(APPLICATION_REFERENCE);
-        when(entityMapper.linkedCaseUrnsOf(application)).thenReturn(List.of());
+        when(entityMapper.relatedCaseUrnsOf(application)).thenReturn(List.of());
         when(persistenceService.findOrCreateCaseHearing(eq(APPLICATION_REFERENCE), any(), eq(HEARING_ID), any(), any(), any())).thenReturn(CASE_HEARING_ID);
         when(entityMapper.defendantType(application, MASTER_DEFENDANT_ID)).thenReturn("Respondent");
 
@@ -350,7 +350,7 @@ class ResultsIngestionServiceTest {
         when(pcrFilter.fetchPrisonCourtRegisterSubscriptions(any())).thenReturn(List.of());
         when(pcrFilter.isPrisonCourtRegisterRequired(any(), any(), any())).thenReturn(true);
         when(entityMapper.caseUrnOf(application)).thenReturn(APPLICATION_REFERENCE);
-        when(entityMapper.linkedCaseUrnsOf(application)).thenReturn(List.of());
+        when(entityMapper.relatedCaseUrnsOf(application)).thenReturn(List.of());
         when(persistenceService.findOrCreateCaseHearing(eq(APPLICATION_REFERENCE), any(), eq(HEARING_ID), any(), any(), any())).thenReturn(CASE_HEARING_ID);
 
         ingestionService.ingestAndPersistOnce(HEARING_ID, HEARING_DAY);

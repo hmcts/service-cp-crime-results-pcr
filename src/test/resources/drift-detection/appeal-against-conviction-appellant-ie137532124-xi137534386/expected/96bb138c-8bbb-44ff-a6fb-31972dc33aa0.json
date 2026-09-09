@@ -384,7 +384,7 @@
     "prosecutionCase": {
       "caseMarkers": [],
       "caseURN": "IE137532124",
-      "linkedCases": [
+      "relatedCases": [
         {
           "caseURN": "IE137532124"
         },

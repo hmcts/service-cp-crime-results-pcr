@@ -259,7 +259,7 @@ public class CPHearingResultEntityMapper {
     }
 
     // Full set backing caseUrnOf's choice — empty unless the application spans more than one case.
-    public List<String> linkedCaseUrnsOf(final CourtApplication application) {
+    public List<String> relatedCaseUrnsOf(final CourtApplication application) {
         final List<String> caseUrns = Stream.ofNullable(application.getCourtApplicationCases())
                 .flatMap(List::stream)
                 .map(CourtApplicationCase::getProsecutionCaseIdentifier)

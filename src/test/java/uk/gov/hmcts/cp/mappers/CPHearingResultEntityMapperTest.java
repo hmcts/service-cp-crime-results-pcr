@@ -1213,7 +1213,7 @@ class CPHearingResultEntityMapperTest {
     }
 
     @Test
-    void caseUrnOf_should_returnFirstLinkedCaseUrn_whenApplicationLinksMultipleCases() {
+    void caseUrnOf_should_returnFirstRelatedCaseUrn_whenApplicationLinksMultipleCases() {
         final CourtApplication application = CourtApplication.builder()
                 .courtApplicationCases(List.of(
                         CourtApplicationCase.builder()
@@ -1229,7 +1229,7 @@ class CPHearingResultEntityMapperTest {
     }
 
     @Test
-    void caseUrnOf_should_fallBackToApplicationReference_whenNoLinkedCases() {
+    void caseUrnOf_should_fallBackToApplicationReference_whenNoRelatedCases() {
         final CourtApplication application = CourtApplication.builder()
                 .courtApplicationCases(List.of())
                 .applicationReference("RA780611523")
@@ -1239,7 +1239,7 @@ class CPHearingResultEntityMapperTest {
     }
 
     @Test
-    void linkedCaseUrnsOf_should_returnEveryDistinctLinkedCaseUrn() {
+    void relatedCaseUrnsOf_should_returnEveryDistinctRelatedCaseUrn() {
         final CourtApplication application = CourtApplication.builder()
                 .courtApplicationCases(List.of(
                         CourtApplicationCase.builder()
@@ -1250,25 +1250,25 @@ class CPHearingResultEntityMapperTest {
                                 .build()))
                 .build();
 
-        assertThat(mapper.linkedCaseUrnsOf(application)).containsExactly("IE137532124", "XI137534386");
+        assertThat(mapper.relatedCaseUrnsOf(application)).containsExactly("IE137532124", "XI137534386");
     }
 
     @Test
-    void linkedCaseUrnsOf_should_returnEmpty_whenNoCourtApplicationCases() {
+    void relatedCaseUrnsOf_should_returnEmpty_whenNoCourtApplicationCases() {
         final CourtApplication application = CourtApplication.builder().courtApplicationCases(List.of()).build();
 
-        assertThat(mapper.linkedCaseUrnsOf(application)).isEmpty();
+        assertThat(mapper.relatedCaseUrnsOf(application)).isEmpty();
     }
 
     @Test
-    void linkedCaseUrnsOf_should_returnEmpty_whenOnlyOneLinkedCase() {
+    void relatedCaseUrnsOf_should_returnEmpty_whenOnlyOneRelatedCase() {
         final CourtApplication application = CourtApplication.builder()
                 .courtApplicationCases(List.of(CourtApplicationCase.builder()
                         .prosecutionCaseIdentifier(ProsecutionCaseIdentifier.builder().caseURN("RA780611523").build())
                         .build()))
                 .build();
 
-        assertThat(mapper.linkedCaseUrnsOf(application)).isEmpty();
+        assertThat(mapper.relatedCaseUrnsOf(application)).isEmpty();
     }
 
     // Ports PrisonCourtRegisterHandler.getDefendantType (progression-command-handler/.../PrisonCourtRegisterHandler.java:149-166).
