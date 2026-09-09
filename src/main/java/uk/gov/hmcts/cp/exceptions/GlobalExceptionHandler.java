@@ -1,5 +1,6 @@
 package uk.gov.hmcts.cp.exceptions;
 
+import io.micrometer.tracing.Tracer;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -24,7 +25,8 @@ import java.util.Objects;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    private final ErrorResponseFactory errorResponseFactory;
+    private final Tracer tracer;
+    private final ClockService clockService;
 
     @ExceptionHandler(ResponseStatusException.class)
     public ResponseEntity<ErrorResponse> handleResponseStatusException(final ResponseStatusException responseStatusException) {
