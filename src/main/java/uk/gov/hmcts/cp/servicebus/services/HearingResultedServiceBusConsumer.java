@@ -11,6 +11,7 @@ import com.azure.messaging.servicebus.models.DeadLetterOptions;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.awaitility.core.ConditionTimeoutException;
 import org.slf4j.MDC;
 import org.springframework.stereotype.Service;
 import tools.jackson.core.JacksonException;
@@ -39,6 +40,12 @@ public class HearingResultedServiceBusConsumer {
     private static final Duration MAX_READINESS_WAIT = Duration.ofMinutes(2);
     private static final Duration READINESS_POLL_INTERVAL = Duration.ofSeconds(2);
     private static final Duration FOLLOW_UP_TIME_TO_LIVE = Duration.ofHours(24);
+    // The Service Bus emulator's admin API can report itself connectable (isServiceBusReady)
+    // slightly before it finishes loading the queues declared in its mounted Config.json, so a
+    // single immediate queueExists check can lose that race in CI even though the queue is
+    // genuinely provisioned — poll briefly rather than failing on the first miss.
+    private static final Duration QUEUE_PROVISIONING_WAIT = Duration.ofSeconds(15);
+    private static final Duration QUEUE_PROVISIONING_POLL_INTERVAL = Duration.ofSeconds(1);
 
     private final ServiceBusProvisioningService provisioningService;
     private final ServiceBusClientFactory clientFactory;
@@ -76,7 +83,11 @@ public class HearingResultedServiceBusConsumer {
     }
 
     private void ensureQueueProvisioned() {
-        if (!provisioningService.queueExists(ServiceBusProperties.QUEUE_NAME)) {
+        try {
+            await().atMost(QUEUE_PROVISIONING_WAIT)
+                    .pollInterval(QUEUE_PROVISIONING_POLL_INTERVAL)
+                    .until(() -> provisioningService.queueExists(ServiceBusProperties.QUEUE_NAME));
+        } catch (ConditionTimeoutException e) {
             log.error("ensureQueueProvisioned queue {} does not exist — expected to be provisioned by Terraform",
                     ServiceBusProperties.QUEUE_NAME);
             throw new IllegalStateException("Queue " + ServiceBusProperties.QUEUE_NAME

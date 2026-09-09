@@ -193,6 +193,7 @@ public class PcrResultsMapper {
                 .offenceLegislation(offence.getOffenceLegislation())
                 .allocationDecision(offence.getAllocationDecision())
                 .indicatedPleaValue(offence.getIndicatedPleaValue())
+                .caseURN(offence.getCaseUrn())
                 .results(allResults.stream()
                         .filter(r -> offence.getId().equals(r.getOffenceId()))
                         .map(r -> toResultText(r, allPrompts))

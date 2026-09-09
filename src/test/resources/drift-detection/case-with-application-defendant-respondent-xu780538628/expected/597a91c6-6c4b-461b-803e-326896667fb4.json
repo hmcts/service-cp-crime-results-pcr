@@ -5,6 +5,7 @@
         "defendantType": "Respondent",
         "offences": [
           {
+            "caseURN": "XU780538628",
             "code": "TH68013A",
             "convictionDate": "2026-09-03",
             "id": "89a87320-2fc5-4bc8-8ee9-93692b17631a",
@@ -42,6 +43,7 @@
         "address1": "14 Willowmead Close",
         "address2": "Willowmead Close",
         "address3": "Coventry",
+        "address4": "West Midlands",
         "postCode": "CV3 2AB"
       },
       "dateOfBirth": "1978-04-22",
