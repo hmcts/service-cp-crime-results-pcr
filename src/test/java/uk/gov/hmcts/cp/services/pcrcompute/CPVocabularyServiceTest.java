@@ -245,6 +245,21 @@ class CPVocabularyServiceTest {
     }
 
     @Test
+    void compute_should_notThrow_whenCourtApplicationCasesIsNull() {
+        final Defendant defendant = defendantWithNoOffences(DEFENDANT_ID, MASTER_DEFENDANT_ID);
+        final CourtApplication application = CourtApplication.builder()
+                .id("a9b8c7d6-e5f4-4321-9876-0a1b2c3d4e5f")
+                .subject(ApplicationParty.builder().masterDefendant(MasterDefendant.builder().masterDefendantId(MASTER_DEFENDANT_ID).build()).build())
+                .judicialResults(List.of(resultWithCustodialPrompt()))
+                .build();
+        final HearingDetail hearing = hearingWith(List.of(caseWith(defendant)), List.of(application));
+
+        final CPVocabulary vocabulary = vocabularyService.compute(defendant, hearing);
+
+        assertThat(vocabulary.atleastOneCustodialResult()).isTrue();
+    }
+
+    @Test
     void compute_should_returnEmptyMajorCreditorLists_always() {
         final Defendant defendant = defendantWithNoOffences(DEFENDANT_ID, MASTER_DEFENDANT_ID);
         final HearingDetail hearing = hearingWith(List.of(caseWith(defendant)), List.of());

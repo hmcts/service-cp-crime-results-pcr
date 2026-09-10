@@ -86,9 +86,8 @@ public class CPVocabularyService {
                 .flatMap(o -> o.getJudicialResults().stream());
         final Stream<JudicialResult> applicationResults = applications.stream()
                 .flatMap(a -> a.getJudicialResults().stream());
-        // courtApplicationCase can omit "offences" entirely, not just an empty list.
         final Stream<JudicialResult> linkedOffenceResults = applications.stream()
-                .flatMap(a -> a.getCourtApplicationCases().stream())
+                .flatMap(a -> Stream.ofNullable(a.getCourtApplicationCases()).flatMap(List::stream))
                 .flatMap(c -> Stream.ofNullable(c.getOffences()).flatMap(List::stream))
                 .flatMap(o -> o.getJudicialResults().stream());
         return Stream.of(caseResults, applicationResults, linkedOffenceResults).flatMap(s -> s).toList();
