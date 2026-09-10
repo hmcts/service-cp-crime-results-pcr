@@ -69,6 +69,16 @@ reference-data-client:
   url: ${CP_BACKEND_URL:http://localhost:8081}
   cjscppuid: ${CJSCPPUID:00000000-0000-0000-0000-000000000000}
 
+# Entra access token validation — see docs/Authentication.md
+auth:
+  mode: ${AUTH_MODE:OFF}
+  tenant-id: ${AUTH_TENANT_ID:}
+  audience: ${AUTH_AUDIENCE:}
+  issuer: ${AUTH_ISSUER:}
+  jwks-uri: ${AUTH_JWKS_URI:}
+  clock-skew-seconds: ${AUTH_CLOCK_SKEW_SECONDS:60}
+  jwks-cache-ttl-seconds: ${AUTH_JWKS_CACHE_TTL_SECONDS:600}
+
 service-bus:
   admin-connection: ${AZURE_SERVICE_BUS_ADMIN_URI:Endpoint=sb://localhost:5300;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;}
   connection: ${AZURE_SERVICE_BUS_URI:Endpoint=sb://localhost;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;}
