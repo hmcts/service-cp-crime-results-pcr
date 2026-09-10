@@ -122,10 +122,7 @@ public class ClientIdResolutionFilter extends OncePerRequestFilter {
     }
 
     private String sanitizeForLog(final String value) {
-        if (value == null) {
-            return null;
-        }
-        return value.replace('\n', '_').replace('\r', '_');
+        return value == null ? null : value.replace('\n', '_').replace('\r', '_');
     }
 
     /** Bare challenge when no usable credential was presented at all; a detailed RFC 6750
