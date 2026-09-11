@@ -1212,6 +1212,65 @@ class CPHearingResultEntityMapperTest {
         assertThat(mapper.caseIdOf(application)).isNull();
     }
 
+    @Test
+    void caseUrnOf_should_returnFirstRelatedCaseUrn_whenApplicationLinksMultipleCases() {
+        final CourtApplication application = CourtApplication.builder()
+                .courtApplicationCases(List.of(
+                        CourtApplicationCase.builder()
+                                .prosecutionCaseIdentifier(ProsecutionCaseIdentifier.builder().caseURN("IE137532124").build())
+                                .build(),
+                        CourtApplicationCase.builder()
+                                .prosecutionCaseIdentifier(ProsecutionCaseIdentifier.builder().caseURN("XI137534386").build())
+                                .build()))
+                .applicationReference("IE137532124,XI137534386")
+                .build();
+
+        assertThat(mapper.caseUrnOf(application)).isEqualTo("IE137532124");
+    }
+
+    @Test
+    void caseUrnOf_should_fallBackToApplicationReference_whenNoRelatedCases() {
+        final CourtApplication application = CourtApplication.builder()
+                .courtApplicationCases(List.of())
+                .applicationReference("RA780611523")
+                .build();
+
+        assertThat(mapper.caseUrnOf(application)).isEqualTo("RA780611523");
+    }
+
+    @Test
+    void relatedCaseUrnsOf_should_returnEveryDistinctRelatedCaseUrn() {
+        final CourtApplication application = CourtApplication.builder()
+                .courtApplicationCases(List.of(
+                        CourtApplicationCase.builder()
+                                .prosecutionCaseIdentifier(ProsecutionCaseIdentifier.builder().caseURN("IE137532124").build())
+                                .build(),
+                        CourtApplicationCase.builder()
+                                .prosecutionCaseIdentifier(ProsecutionCaseIdentifier.builder().caseURN("XI137534386").build())
+                                .build()))
+                .build();
+
+        assertThat(mapper.relatedCaseUrnsOf(application)).containsExactly("IE137532124", "XI137534386");
+    }
+
+    @Test
+    void relatedCaseUrnsOf_should_returnEmpty_whenNoCourtApplicationCases() {
+        final CourtApplication application = CourtApplication.builder().courtApplicationCases(List.of()).build();
+
+        assertThat(mapper.relatedCaseUrnsOf(application)).isEmpty();
+    }
+
+    @Test
+    void relatedCaseUrnsOf_should_returnEmpty_whenOnlyOneRelatedCase() {
+        final CourtApplication application = CourtApplication.builder()
+                .courtApplicationCases(List.of(CourtApplicationCase.builder()
+                        .prosecutionCaseIdentifier(ProsecutionCaseIdentifier.builder().caseURN("RA780611523").build())
+                        .build()))
+                .build();
+
+        assertThat(mapper.relatedCaseUrnsOf(application)).isEmpty();
+    }
+
     // Ports PrisonCourtRegisterHandler.getDefendantType (progression-command-handler/.../PrisonCourtRegisterHandler.java:149-166).
     @Test
     void defendantType_should_returnApplicant_whenApplicantHasMasterDefendant_andNotAnAppeal() {

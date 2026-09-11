@@ -245,12 +245,14 @@ class ResultsIngestionServiceTest {
         when(pcrFilter.excludePublishedForNows(any())).thenReturn(List.of());
         when(pcrFilter.fetchPrisonCourtRegisterSubscriptions(any())).thenReturn(List.of());
         when(pcrFilter.isPrisonCourtRegisterRequired(any(), any(), any())).thenReturn(true);
-        when(persistenceService.findOrCreateCaseHearing(eq(APPLICATION_REFERENCE), any(), eq(HEARING_ID), any(), any())).thenReturn(CASE_HEARING_ID);
+        when(entityMapper.caseUrnOf(application)).thenReturn(APPLICATION_REFERENCE);
+        when(entityMapper.relatedCaseUrnsOf(application)).thenReturn(List.of());
+        when(persistenceService.findOrCreateCaseHearing(eq(APPLICATION_REFERENCE), any(), eq(HEARING_ID), any(), any(), any())).thenReturn(CASE_HEARING_ID);
         when(entityMapper.defendantType(application, MASTER_DEFENDANT_ID)).thenReturn("Respondent");
 
         ingestionService.ingestAndPersistOnce(HEARING_ID, HEARING_DAY);
 
-        verify(persistenceService).findOrCreateCaseHearing(eq(APPLICATION_REFERENCE), any(), eq(HEARING_ID), any(), any());
+        verify(persistenceService).findOrCreateCaseHearing(eq(APPLICATION_REFERENCE), any(), eq(HEARING_ID), any(), any(), any());
         verify(persistenceService).persist(eq(syntheticDefendant), any(), eq(CASE_HEARING_ID), any(), any(), any(), eq("Respondent"));
     }
 
@@ -269,7 +271,7 @@ class ResultsIngestionServiceTest {
 
         ingestionService.ingestAndPersistOnce(HEARING_ID, HEARING_DAY);
 
-        verify(persistenceService, never()).findOrCreateCaseHearing(any(String.class), any(), any(), any(), any());
+        verify(persistenceService, never()).findOrCreateCaseHearing(any(String.class), any(), any(), any(), any(), any());
         verify(persistenceService, never()).persist(any(), any(), any(), any(), any(), any(), any());
     }
 
@@ -282,7 +284,7 @@ class ResultsIngestionServiceTest {
 
         ingestionService.ingestAndPersistOnce(HEARING_ID, HEARING_DAY);
 
-        verify(persistenceService, never()).findOrCreateCaseHearing(any(String.class), any(), any(), any(), any());
+        verify(persistenceService, never()).findOrCreateCaseHearing(any(String.class), any(), any(), any(), any(), any());
         verify(vocabularyService, never()).compute(any(), any());
     }
 
@@ -325,7 +327,7 @@ class ResultsIngestionServiceTest {
         ingestionService.ingestAndPersistOnce(HEARING_ID, HEARING_DAY);
 
         verify(persistenceService, times(1)).persist(any(), any(), any(), any(), any(), any());
-        verify(persistenceService, never()).findOrCreateCaseHearing(any(String.class), any(), any(), any(), any());
+        verify(persistenceService, never()).findOrCreateCaseHearing(any(String.class), any(), any(), any(), any(), any());
     }
 
     @Test
@@ -347,7 +349,9 @@ class ResultsIngestionServiceTest {
         when(pcrFilter.excludePublishedForNows(any())).thenReturn(List.of());
         when(pcrFilter.fetchPrisonCourtRegisterSubscriptions(any())).thenReturn(List.of());
         when(pcrFilter.isPrisonCourtRegisterRequired(any(), any(), any())).thenReturn(true);
-        when(persistenceService.findOrCreateCaseHearing(eq(APPLICATION_REFERENCE), any(), eq(HEARING_ID), any(), any())).thenReturn(CASE_HEARING_ID);
+        when(entityMapper.caseUrnOf(application)).thenReturn(APPLICATION_REFERENCE);
+        when(entityMapper.relatedCaseUrnsOf(application)).thenReturn(List.of());
+        when(persistenceService.findOrCreateCaseHearing(eq(APPLICATION_REFERENCE), any(), eq(HEARING_ID), any(), any(), any())).thenReturn(CASE_HEARING_ID);
 
         ingestionService.ingestAndPersistOnce(HEARING_ID, HEARING_DAY);
 
