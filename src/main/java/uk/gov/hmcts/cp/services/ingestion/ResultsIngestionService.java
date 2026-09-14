@@ -150,7 +150,7 @@ public class ResultsIngestionService {
         final Stream<LocalDate> fromProsecutionCases = Stream.ofNullable(hearing.getProsecutionCases()).flatMap(List::stream)
                 .flatMap(c -> c.getDefendants().stream())
                 .flatMap(d -> d.getOffences().stream())
-                .flatMap(o -> o.getJudicialResults().stream())
+                .flatMap(o -> Stream.ofNullable(o.getJudicialResults()).flatMap(List::stream))
                 .map(JudicialResult::getOrderedDate);
         final Stream<LocalDate> fromCourtApplications = Stream.ofNullable(hearing.getCourtApplications()).flatMap(List::stream)
                 .flatMap(this::orderedDatesOf);
