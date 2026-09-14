@@ -2,6 +2,7 @@ package uk.gov.hmcts.cp.services.pcrcompute;
 
 import org.junit.jupiter.api.Test;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.CourtApplication;
+import uk.gov.hmcts.cp.domain.HearingDetailsResponse.CourtApplicationCase;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.CourtCentre;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.CustodialEstablishment;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.Defendant;
@@ -251,6 +252,26 @@ class CPVocabularyServiceTest {
                 .id("a9b8c7d6-e5f4-4321-9876-0a1b2c3d4e5f")
                 .subject(ApplicationParty.builder().masterDefendant(MasterDefendant.builder().masterDefendantId(MASTER_DEFENDANT_ID).build()).build())
                 .judicialResults(List.of(resultWithCustodialPrompt()))
+                .build();
+        final HearingDetail hearing = hearingWith(List.of(caseWith(defendant)), List.of(application));
+
+        final CPVocabulary vocabulary = vocabularyService.compute(defendant, hearing);
+
+        assertThat(vocabulary.atleastOneCustodialResult()).isTrue();
+    }
+
+    // CP omits judicialResults entirely rather than sending an empty list — on the defendant's own
+    // offences, on the application, and on its linked-case offences.
+    @Test
+    void compute_should_notThrow_whenJudicialResultsIsNull() {
+        final Defendant defendant = defendantWithOffences(DEFENDANT_ID, MASTER_DEFENDANT_ID, List.of(Offence.builder().build()));
+        final CourtApplication application = CourtApplication.builder()
+                .id("a9b8c7d6-e5f4-4321-9876-0a1b2c3d4e5f")
+                .subject(ApplicationParty.builder().masterDefendant(MasterDefendant.builder().masterDefendantId(MASTER_DEFENDANT_ID).build()).build())
+                .courtApplicationCases(List.of(CourtApplicationCase.builder()
+                        .offences(List.of(Offence.builder().build(),
+                                Offence.builder().judicialResults(List.of(resultWithCustodialPrompt())).build()))
+                        .build()))
                 .build();
         final HearingDetail hearing = hearingWith(List.of(caseWith(defendant)), List.of(application));
 

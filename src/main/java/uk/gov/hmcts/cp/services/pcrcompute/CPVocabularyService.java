@@ -83,13 +83,13 @@ public class CPVocabularyService {
     private List<JudicialResult> allJudicialResults(final List<Defendant> defendants, final List<CourtApplication> applications) {
         final Stream<JudicialResult> caseResults = defendants.stream()
                 .flatMap(d -> d.getOffences().stream())
-                .flatMap(o -> o.getJudicialResults().stream());
+                .flatMap(o -> Stream.ofNullable(o.getJudicialResults()).flatMap(List::stream));
         final Stream<JudicialResult> applicationResults = applications.stream()
-                .flatMap(a -> a.getJudicialResults().stream());
+                .flatMap(a -> Stream.ofNullable(a.getJudicialResults()).flatMap(List::stream));
         final Stream<JudicialResult> linkedOffenceResults = applications.stream()
                 .flatMap(a -> Stream.ofNullable(a.getCourtApplicationCases()).flatMap(List::stream))
                 .flatMap(c -> Stream.ofNullable(c.getOffences()).flatMap(List::stream))
-                .flatMap(o -> o.getJudicialResults().stream());
+                .flatMap(o -> Stream.ofNullable(o.getJudicialResults()).flatMap(List::stream));
         return Stream.of(caseResults, applicationResults, linkedOffenceResults).flatMap(s -> s).toList();
     }
 

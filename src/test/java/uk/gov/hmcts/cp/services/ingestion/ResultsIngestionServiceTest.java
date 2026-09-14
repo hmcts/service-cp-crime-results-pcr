@@ -395,6 +395,44 @@ class ResultsIngestionServiceTest {
         verify(vocabularyService, never()).compute(any(), any());
     }
 
+    @Test
+    void ingestAndPersistOnce_should_resolveActiveAt_whenAnOffenceHasNullJudicialResults() {
+        when(cacheClient.get(HEARING_ID, HEARING_DAY)).thenReturn(Optional.empty());
+        when(resultsClient.getHearingDetails(HEARING_ID)).thenReturn(hearingWithNullJudicialResultsOffence());
+        when(vocabularyService.compute(any(), any())).thenReturn(VOCABULARY);
+        when(entityMapper.eligibleResults(any(), any())).thenReturn(List.of());
+        when(pcrFilter.excludePublishedForNows(any())).thenReturn(List.of());
+        when(pcrFilter.fetchPrisonCourtRegisterSubscriptions(any())).thenReturn(List.of());
+        when(pcrFilter.isPrisonCourtRegisterRequired(any(), any(), any())).thenReturn(false);
+
+        ingestionService.ingestAndPersistOnce(HEARING_ID, HEARING_DAY);
+
+        verify(pcrFilter).fetchPrisonCourtRegisterSubscriptions(LocalDate.of(2026, 7, 15));
+    }
+
+    // CP omits judicialResults entirely rather than sending an empty list.
+    private HearingDetailsResponse hearingWithNullJudicialResultsOffence() {
+        final JudicialResult result = JudicialResult.builder()
+                .cjsCode("1200").orderedDate(LocalDate.of(2026, 7, 15)).judicialResultPrompts(List.of()).build();
+        final Defendant defendant = Defendant.builder()
+                .id("11111111-1111-1111-1111-111111111111")
+                .personDefendant(PersonDefendant.builder().build())
+                .offences(List.of(Offence.builder().build(), Offence.builder().judicialResults(List.of(result)).build()))
+                .build();
+        final ProsecutionCase prosecutionCase = ProsecutionCase.builder()
+                .prosecutionCaseIdentifier(ProsecutionCaseIdentifier.builder().caseURN(CASE_URN).build())
+                .caseMarkers(List.of())
+                .defendants(List.of(defendant))
+                .build();
+        return HearingDetailsResponse.builder()
+                .hearing(HearingDetailsResponse.HearingDetail.builder()
+                        .courtCentre(CourtCentre.builder().build())
+                        .hearingDays(List.of(HearingDay.builder().sittingDay("2026-07-23").build()))
+                        .prosecutionCases(List.of(prosecutionCase))
+                        .build())
+                .build();
+    }
+
     private HearingDetailsResponse hearingWithOneDefendant() {
         final JudicialResult result = JudicialResult.builder()
                 .cjsCode("1200").orderedDate(LocalDate.of(2026, 7, 15)).judicialResultPrompts(List.of()).build();

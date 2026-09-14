@@ -143,16 +143,16 @@ public class CPHearingResultEntityMapper {
 
     public List<JudicialResult> eligibleResults(final Defendant defendant, final HearingDetail hearing) {
         final Stream<JudicialResult> direct = defendant.getOffences().stream()
-                .flatMap(o -> o.getJudicialResults().stream());
+                .flatMap(o -> Stream.ofNullable(o.getJudicialResults()).flatMap(List::stream));
         final Stream<JudicialResult> linked = matchingCourtApplications(defendant, hearing).stream()
                 .flatMap(this::allResultsOf);
         return Stream.concat(direct, linked).toList();
     }
 
     private Stream<JudicialResult> allResultsOf(final CourtApplication application) {
-        final Stream<JudicialResult> ownResults = application.getJudicialResults().stream();
+        final Stream<JudicialResult> ownResults = Stream.ofNullable(application.getJudicialResults()).flatMap(List::stream);
         final Stream<JudicialResult> linkedOffenceResults = linkedOffencesOf(application)
-                .flatMap(o -> o.getJudicialResults().stream());
+                .flatMap(o -> Stream.ofNullable(o.getJudicialResults()).flatMap(List::stream));
         return Stream.concat(ownResults, linkedOffenceResults);
     }
 
@@ -327,7 +327,7 @@ public class CPHearingResultEntityMapper {
         // courtOrder offences (breach/resentencing only) aren't part of any linked case.
         courtOrderOffencesOf(application)
                 .forEach(o -> addLinkedOffence(o, courtApplicationId, null, offences, judicialResults, prompts));
-        excludePublishedForNows(application.getJudicialResults().stream())
+        excludePublishedForNows(Stream.ofNullable(application.getJudicialResults()).flatMap(List::stream))
                 .forEach(r -> addResult(r, null, courtApplicationId, judicialResults, prompts));
     }
 
@@ -450,7 +450,7 @@ public class CPHearingResultEntityMapper {
         return Stream.ofNullable(hearing.getProsecutionCases()).flatMap(List::stream)
                 .flatMap(c -> c.getDefendants().stream())
                 .flatMap(d -> d.getOffences().stream())
-                .flatMap(o -> o.getJudicialResults().stream())
+                .flatMap(o -> Stream.ofNullable(o.getJudicialResults()).flatMap(List::stream))
                 .map(JudicialResult::getNextHearing)
                 .filter(Objects::nonNull)
                 .findFirst()
@@ -487,7 +487,7 @@ public class CPHearingResultEntityMapper {
                                    final List<CPJudicialResultEntity> judicialResults, final List<CPJudicialResultPromptEntity> prompts) {
         final CPOffenceEntity offenceEntity = toOffenceEntity(offence, versionPk, null, null);
         offences.add(offenceEntity);
-        excludePublishedForNows(offence.getJudicialResults().stream())
+        excludePublishedForNows(Stream.ofNullable(offence.getJudicialResults()).flatMap(List::stream))
                 .forEach(r -> addResult(r, offenceEntity.getId(), null, judicialResults, prompts));
     }
 
@@ -496,7 +496,7 @@ public class CPHearingResultEntityMapper {
                                    final List<CPJudicialResultEntity> judicialResults, final List<CPJudicialResultPromptEntity> prompts) {
         final CPOffenceEntity offenceEntity = toOffenceEntity(offence, null, courtApplicationId, caseUrn);
         offences.add(offenceEntity);
-        excludePublishedForNows(offence.getJudicialResults().stream())
+        excludePublishedForNows(Stream.ofNullable(offence.getJudicialResults()).flatMap(List::stream))
                 .forEach(r -> addResult(r, offenceEntity.getId(), null, judicialResults, prompts));
     }
 
