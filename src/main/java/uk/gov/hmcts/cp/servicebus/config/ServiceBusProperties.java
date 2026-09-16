@@ -12,27 +12,26 @@ public class ServiceBusProperties {
 
     private static final String HTTPS = "https";
 
-    // Fixed, not environment config — Terraform provisions this queue, so the name must be
-    // identical across every environment or the app looks for a queue that doesn't exist there.
+    // Fixed, not environment config — Terraform provisions this queue with an identical name everywhere.
     public static final String QUEUE_NAME = "pcr.hearing-resulted";
 
     private final String adminConnectionString;
     private final String connectionString;
-    private final boolean ingestionEnabled;
     private final boolean autoStartProcessors;
+    private final int maxTries;
 
     public ServiceBusProperties(
             @Value("${service-bus.admin-connection}") final String adminConnectionString,
             @Value("${service-bus.connection}") final String connectionString,
-            @Value("${service-bus.ingestion-enabled}") final boolean ingestionEnabled,
-            @Value("${service-bus.auto-start-processors}") final boolean autoStartProcessors
+            @Value("${service-bus.auto-start-processors}") final boolean autoStartProcessors,
+            @Value("${service-bus.max-tries}") final int maxTries
     ) {
-        log.info("ServiceBusProperties initialised queueName:{} ingestionEnabled:{} autoStartProcessors:{}",
-                QUEUE_NAME, ingestionEnabled, autoStartProcessors);
+        log.info("ServiceBusProperties initialised queueName:{} autoStartProcessors:{} maxTries:{}",
+                QUEUE_NAME, autoStartProcessors, maxTries);
         this.adminConnectionString = adminConnectionString;
         this.connectionString = connectionString;
-        this.ingestionEnabled = ingestionEnabled;
         this.autoStartProcessors = autoStartProcessors;
+        this.maxTries = maxTries;
     }
 
     public boolean isEmulator() {

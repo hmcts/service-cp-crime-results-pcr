@@ -1,0 +1,125 @@
+[
+  {
+    "courtApplications": [],
+    "defendant": {
+      "address": {
+        "address1": "40 Market Place",
+        "address2": "Market Place",
+        "address3": "Bristol",
+        "postCode": "NW1 5BR"
+      },
+      "dateOfBirth": "2006-09-01",
+      "firstName": "Lazaro",
+      "gender": "MALE",
+      "id": "f1fdca0e-a46d-42a0-bd1c-100c2ddedb11",
+      "lastName": "Hessel",
+      "masterDefendantId": "f1fdca0e-a46d-42a0-bd1c-100c2ddedb11",
+      "postHearingCustodyStatus": "Not Applicable",
+      "results": [],
+      "title": "Mr"
+    },
+    "hearing": {
+      "courtDetails": {
+        "court": {
+          "courtHouseCode": "B01DU00",
+          "courtHouseId": "c133d0de-c989-48b9-bd20-0431943e347e",
+          "courtHouseName": "City of London Magistrates' Court"
+        },
+        "courtAddress": {
+          "address1": "1 Queen Victoria Street",
+          "address2": "London",
+          "address3": "",
+          "address4": "",
+          "address5": "",
+          "postCode": "EC4N 4XY"
+        },
+        "ljaName": "Central London Magistrates' Court"
+      },
+      "defendantAppearanceDetails": "In person",
+      "hearingDate": "2026-09-01",
+      "hearingType": "First hearing",
+      "id": "ae6de428-b738-4dd2-af4a-f8de7e96f942",
+      "jurisdiction": "MAGISTRATES",
+      "nextHearing": {
+        "court": {
+          "courtHouseCode": "B01LY00",
+          "courtHouseId": "f8254db1-1683-483e-afb3-b87fde5a0a26",
+          "courtHouseName": "Lavender Hill Magistrates' Court"
+        },
+        "dateTime": "2026-09-02T09:00:00Z",
+        "hearingId": "ea3284bb-712f-4a5b-8117-cc7cbb30c312"
+      }
+    },
+    "offences": [
+      {
+        "code": "TH68001",
+        "id": "fb33a321-3491-46ba-8326-656e751e8e8d",
+        "listingNumber": 1,
+        "offenceLegislation": "Contrary to section 1(1) and 7 of the Theft Act 1968.",
+        "pleaDate": "2026-09-01",
+        "pleaValue": "NOT_GUILTY",
+        "results": [
+          {
+            "resultDescription": "RI - Remanded in custody\nRemanded in custody until hearing on 02/09/2026 at 10:00 in Courtroom 01, Lavender Hill Magistrates' Court. Basis: Before conviction. Adjournment reason: To attend or a warrant to issue. Bail exceptions: Already in custody. Reason for applying: Offended on bail.",
+            "resultTexts": [
+              {
+                "label": "Next hearing in magistrates' court",
+                "value": "Date of hearing:02/09/2026\nTime of hearing:10:00\nCourthouse organisation name:Lavender Hill Magistrates' Court\nCourthouse address line 1:176A Lavender Hill\nCourthouse address line 2:London\nCourthouse post code:SW11 1JU\nCourtroom:Courtroom 01\nHearing type:Appeal\nEstimated duration:30 MINUTES\nBooking reference:ea3284bb-712f-4a5b-8117-cc7cbb30c312"
+              },
+              {
+                "label": "Prison organisation name",
+                "value": "HMP Ashfield"
+              },
+              {
+                "label": "Prison email address 1",
+                "value": "yoiashfield.premiercustody@example-custody.co.uk"
+              },
+              {
+                "label": "Prison email address 2",
+                "value": "yoiashfield.premiercustody@example-custody.co.uk"
+              },
+              {
+                "label": "Conveyor / custodian name organisation name",
+                "value": "Lavender Hill Magistrates' Court: PECS"
+              },
+              {
+                "label": "Conveyor / custodian name email address 1",
+                "value": "periodicwarrants@example-conveyor.co.uk"
+              },
+              {
+                "label": "Remand basis",
+                "value": "Before conviction"
+              },
+              {
+                "label": "Bail exception",
+                "value": "Already in custody"
+              },
+              {
+                "label": "Bail exception reason",
+                "value": "Offended on bail"
+              },
+              {
+                "label": "To attend or a warrant to issue",
+                "value": ""
+              },
+              {
+                "label": "Adjournment reasons",
+                "value": ""
+              }
+            ]
+          }
+        ],
+        "startDate": "2026-07-03",
+        "title": "Theft from the person of another",
+        "wording": "Theft from the person of another"
+      }
+    ],
+    "prosecutionCase": {
+      "caseMarkers": [],
+      "caseURN": "OA231099847",
+      "prosecutor": "City of London Police",
+      "results": []
+    },
+    "sharedTime": "2026-09-01T10:43:22.755Z"
+  }
+]

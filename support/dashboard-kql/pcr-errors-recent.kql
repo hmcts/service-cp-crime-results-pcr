@@ -1,0 +1,10 @@
+ContainerLogV2
+| where PodName startswith 'pcr-data'
+| where TimeGenerated > ago(7d)
+| where ContainerName == 'springboot-app'
+| where LogLevel == 'error'
+| extend LogJson = parse_json(LogMessage)
+| extend Message = tostring(LogJson.message)
+| order by TimeGenerated desc
+| take 50
+| project TimeGenerated, Message

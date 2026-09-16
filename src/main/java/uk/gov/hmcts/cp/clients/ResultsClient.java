@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.owasp.encoder.Encode;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
+import org.springframework.web.client.RestClientException;
 import uk.gov.hmcts.cp.config.AppPropertiesBackend;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse;
 
@@ -26,12 +27,17 @@ public class ResultsClient {
     public HearingDetailsResponse getHearingDetails(final UUID hearingId) {
         final String url = buildUrl(hearingId);
         log.info("Getting hearing details from {}", Encode.forJava(url));
-        return restClient.get()
-                .uri(url)
-                .header("Accept", ACCEPT_HEARING_DETAILS_INTERNAL)
-                .header("CJSCPPUID", appProperties.getResultsQueryCjscppuid())
-                .retrieve()
-                .body(HearingDetailsResponse.class);
+        try {
+            return restClient.get()
+                    .uri(url)
+                    .header("Accept", ACCEPT_HEARING_DETAILS_INTERNAL)
+                    .header("CJSCPPUID", appProperties.getResultsQueryCjscppuid())
+                    .retrieve()
+                    .body(HearingDetailsResponse.class);
+        } catch (RestClientException e) {
+            log.error("ResultsClient call failed for hearingId:{} — {}", hearingId, e.getMessage(), e);
+            throw e;
+        }
     }
 
     private String buildUrl(final UUID hearingId) {

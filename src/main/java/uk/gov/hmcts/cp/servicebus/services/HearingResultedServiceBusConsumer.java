@@ -11,11 +11,11 @@ import com.azure.messaging.servicebus.models.DeadLetterOptions;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.awaitility.core.ConditionTimeoutException;
 import org.slf4j.MDC;
 import org.springframework.stereotype.Service;
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.ObjectMapper;
-import uk.gov.hmcts.cp.exceptions.IncompleteHearingDetailsException;
 import uk.gov.hmcts.cp.filters.tracing.TracingFilter;
 import uk.gov.hmcts.cp.filters.tracing.UUIDService;
 import uk.gov.hmcts.cp.openapi.model.HearingResultedEvent;
@@ -28,7 +28,6 @@ import java.time.OffsetDateTime;
 import java.util.Optional;
 
 import static org.awaitility.Awaitility.await;
-import static uk.gov.hmcts.cp.services.ingestion.ResultsIngestionService.MAX_COMPLETENESS_RETRIES;
 
 @Slf4j
 @Service
@@ -37,11 +36,16 @@ public class HearingResultedServiceBusConsumer {
 
     private static final String HEARING_RESULTED_EVENT_TYPE = "Hearing_Resulted";
     private static final String ATTEMPT_PROPERTY = "attempt";
-    private static final String DEAD_LETTER_REASON = "IncompleteHearingDetailsException after "
-            + MAX_COMPLETENESS_RETRIES + " attempts";
     private static final String MALFORMED_PAYLOAD_REASON = "Malformed HearingResultedEvent payload";
     private static final Duration MAX_READINESS_WAIT = Duration.ofMinutes(2);
     private static final Duration READINESS_POLL_INTERVAL = Duration.ofSeconds(2);
+    private static final Duration FOLLOW_UP_TIME_TO_LIVE = Duration.ofHours(24);
+    // The Service Bus emulator's admin API can report itself connectable (isServiceBusReady)
+    // slightly before it finishes loading the queues declared in its mounted Config.json, so a
+    // single immediate queueExists check can lose that race in CI even though the queue is
+    // genuinely provisioned — poll briefly rather than failing on the first miss.
+    private static final Duration QUEUE_PROVISIONING_WAIT = Duration.ofSeconds(15);
+    private static final Duration QUEUE_PROVISIONING_POLL_INTERVAL = Duration.ofSeconds(1);
 
     private final ServiceBusProvisioningService provisioningService;
     private final ServiceBusClientFactory clientFactory;
@@ -52,22 +56,24 @@ public class HearingResultedServiceBusConsumer {
     private final UUIDService uuidService;
 
     private ServiceBusProcessorClient processorClient;
+    private int maxDeliveryCount;
 
     @PostConstruct
     public void initialise() {
-        if (!properties.isAutoStartProcessors() && !properties.isIngestionEnabled()) {
-            log.info("service-bus.auto-start-processors=false and ingestion-enabled=false — skipping Service Bus initialisation");
+        if (!properties.isAutoStartProcessors()) {
+            log.info("service-bus.auto-start-processors=false — skipping Service Bus initialisation");
             return;
         }
         awaitServiceBusReady();
         ensureQueueProvisioned();
+        maxDeliveryCount = provisioningService.maxDeliveryCountOf(ServiceBusProperties.QUEUE_NAME);
         processorClient = clientFactory.processorClientBuilder()
                 .processMessage(this::processMessage)
                 .processError(this::processError)
                 .buildProcessorClient();
         processorClient.start();
-        log.info("HearingResultedServiceBusConsumer started on pcr queue:{} ingestionEnabled:{}",
-                ServiceBusProperties.QUEUE_NAME, properties.isIngestionEnabled());
+        log.info("HearingResultedServiceBusConsumer started on pcr queue:{} maxDeliveryCount:{}",
+                ServiceBusProperties.QUEUE_NAME, maxDeliveryCount);
     }
 
     private void awaitServiceBusReady() {
@@ -77,7 +83,13 @@ public class HearingResultedServiceBusConsumer {
     }
 
     private void ensureQueueProvisioned() {
-        if (!provisioningService.queueExists(ServiceBusProperties.QUEUE_NAME)) {
+        try {
+            await().atMost(QUEUE_PROVISIONING_WAIT)
+                    .pollInterval(QUEUE_PROVISIONING_POLL_INTERVAL)
+                    .until(() -> provisioningService.queueExists(ServiceBusProperties.QUEUE_NAME));
+        } catch (ConditionTimeoutException e) {
+            log.error("ensureQueueProvisioned queue {} does not exist — expected to be provisioned by Terraform",
+                    ServiceBusProperties.QUEUE_NAME);
             throw new IllegalStateException("Queue " + ServiceBusProperties.QUEUE_NAME
                     + " does not exist — expected to be provisioned by Terraform");
         }
@@ -89,15 +101,33 @@ public class HearingResultedServiceBusConsumer {
         MDC.put(TracingFilter.CORRELATION_ID_KEY, correlationIdOf(message));
         try {
             handle(context, message, attempt);
-        } catch (IncompleteHearingDetailsException e) {
-            handleIncomplete(context, message, attempt);
         } catch (Exception e) {
-            log.error("processMessage unexpected error on attempt {} — abandoning for native redelivery. {}",
-                    attempt, e.getMessage(), e);
-            context.abandon();
+            handleFailure(context, message, attempt, e);
         } finally {
             MDC.remove(TracingFilter.CORRELATION_ID_KEY);
         }
+    }
+
+    // Every failure gets the same scheduled-backoff retry via scheduleFollowUp, up to maxTries.
+    // Native ASB dead-lettering is only the terminal fallback once that's exhausted.
+    private void handleFailure(final ServiceBusReceivedMessageContext context, final ServiceBusReceivedMessage message,
+                                final int attempt, final Exception e) {
+        if (attempt >= properties.getMaxTries() || nativeDeliveryLimitReached(message)) {
+            log.error("processMessage exhausted after {} attempts deliveryCount:{} — dead-lettering. {}",
+                    attempt, message.getDeliveryCount(), e.getMessage(), e);
+            context.deadLetter(new DeadLetterOptions()
+                    .setDeadLetterReason(e.getClass().getSimpleName() + " after " + attempt
+                            + " attempts (deliveryCount:" + message.getDeliveryCount() + ")"));
+            return;
+        }
+        log.error("processMessage failed on attempt {} deliveryCount:{} — scheduling retry. {}",
+                attempt, message.getDeliveryCount(), e.getMessage(), e);
+        context.complete();
+        scheduleFollowUp(message, attempt);
+    }
+
+    private boolean nativeDeliveryLimitReached(final ServiceBusReceivedMessage message) {
+        return message.getDeliveryCount() >= maxDeliveryCount;
     }
 
     private String correlationIdOf(final ServiceBusReceivedMessage message) {
@@ -111,7 +141,7 @@ public class HearingResultedServiceBusConsumer {
         if (event.isEmpty()) {
             return;
         }
-        processEvent(event.get(), context, attempt);
+        processEvent(event.get(), context, message, attempt);
     }
 
     private Optional<HearingResultedEvent> deserialize(final ServiceBusReceivedMessageContext context,
@@ -128,15 +158,11 @@ public class HearingResultedServiceBusConsumer {
     }
 
     private void processEvent(final HearingResultedEvent event, final ServiceBusReceivedMessageContext context,
-                               final int attempt) {
+                               final ServiceBusReceivedMessage message, final int attempt) {
         final HearingResultedEventData data = event.getData();
-        log.info("HearingResultedServiceBusConsumer received channel:servicebus active:{} attempt:{} "
+        log.info("HearingResultedServiceBusConsumer received channel:servicebus attempt:{} deliveryCount:{} "
                         + "hearingId:{} hearingDay:{} userId:{}",
-                properties.isIngestionEnabled(), attempt, data.getHearingId(), data.getHearingDay(), data.getUserId());
-        if (!properties.isIngestionEnabled()) {
-            context.complete();
-            return;
-        }
+                attempt, message.getDeliveryCount(), data.getHearingId(), data.getHearingDay(), data.getUserId());
         if (!HEARING_RESULTED_EVENT_TYPE.equals(event.getEventType())) {
             throw new IllegalArgumentException("Unrecognized eventType: " + event.getEventType());
         }
@@ -144,21 +170,11 @@ public class HearingResultedServiceBusConsumer {
         context.complete();
     }
 
-    private void handleIncomplete(final ServiceBusReceivedMessageContext context, final ServiceBusReceivedMessage message,
-                                   final int attempt) {
-        if (attempt >= MAX_COMPLETENESS_RETRIES) {
-            log.warn("handleIncomplete exhausted after {} attempts — dead-lettering", attempt);
-            context.deadLetter(new DeadLetterOptions().setDeadLetterReason(DEAD_LETTER_REASON));
-            return;
-        }
-        context.complete();
-        scheduleFollowUp(message, attempt);
-    }
-
     private void scheduleFollowUp(final ServiceBusReceivedMessage message, final int attempt) {
         final ServiceBusMessage followUp = new ServiceBusMessage(BinaryData.fromBytes(message.getBody().toBytes()));
         followUp.getApplicationProperties().put(ATTEMPT_PROPERTY, attempt + 1);
         followUp.setCorrelationId(MDC.get(TracingFilter.CORRELATION_ID_KEY));
+        followUp.setTimeToLive(FOLLOW_UP_TIME_TO_LIVE);
         final OffsetDateTime nextTryTime = retryService.getNextTryTime(attempt);
         followUp.setScheduledEnqueueTime(nextTryTime);
         try (ServiceBusSenderClient sender = clientFactory.senderClient()) {

@@ -8,6 +8,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.web.client.RestClient;
+import org.springframework.web.client.RestClientException;
 import uk.gov.hmcts.cp.config.AppPropertiesBackend;
 
 import java.net.URL;
@@ -20,7 +21,9 @@ import static com.github.tomakehurst.wiremock.client.WireMock.getRequestedFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.verify;
+import static java.net.HttpURLConnection.HTTP_INTERNAL_ERROR;
 import static java.net.HttpURLConnection.HTTP_OK;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class ResultsClientTest {
 
@@ -61,6 +64,15 @@ class ResultsClientTest {
         verify(getRequestedFor(urlEqualTo(url))
                 .withHeader("Accept", WireMock.equalTo("application/vnd.results.hearing-details-internal+json"))
                 .withHeader("CJSCPPUID", WireMock.equalTo("00000000-0000-0000-0000-000000000000")));
+    }
+
+    @Test
+    void getHearingDetails_should_propagateException_whenDownstreamCallFails() {
+        final String url = String.format("%s/%s", ResultsClient.RESULTS_QUERY_PATH, HEARING_ID);
+        stubFor(WireMock.get(urlEqualTo(url)).willReturn(aResponse().withStatus(HTTP_INTERNAL_ERROR)));
+
+        assertThatThrownBy(() -> resultsClient.getHearingDetails(HEARING_ID))
+                .isInstanceOf(RestClientException.class);
     }
 
     @SneakyThrows

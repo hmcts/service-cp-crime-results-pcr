@@ -2,6 +2,7 @@ package uk.gov.hmcts.cp.clients;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataAccessException;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 
@@ -18,7 +19,13 @@ public class HearingResultedCacheClient {
 
     public Optional<String> get(final UUID hearingId, final LocalDate hearingDay) {
         final String key = cacheKey(hearingId, hearingDay);
-        final String value = redisTemplate.opsForValue().get(key);
+        final String value;
+        try {
+            value = redisTemplate.opsForValue().get(key);
+        } catch (DataAccessException e) {
+            log.error("HearingResultedCacheClient call failed for hearingId:{} — {}", hearingId, e.getMessage(), e);
+            throw e;
+        }
         if (value == null) {
             log.info("Redis miss for hearingId:{} — falling back to REST", hearingId);
         }

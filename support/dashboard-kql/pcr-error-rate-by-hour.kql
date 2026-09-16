@@ -1,0 +1,8 @@
+ContainerLogV2
+| where PodName startswith 'pcr-data'
+| where TimeGenerated > ago(7d)
+| where ContainerName == 'springboot-app'
+| where LogLevel == 'error'
+| where LogMessage contains 'GlobalExceptionHandler handleResponseStatusException'
+| summarize ErrorCount = count() by bin(TimeGenerated, 1h)
+| render timechart

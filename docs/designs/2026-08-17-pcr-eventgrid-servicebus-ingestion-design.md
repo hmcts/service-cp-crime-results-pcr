@@ -8,9 +8,10 @@
 directly to a Service Bus **Queue** owned solely by this service, `pcr.hearing-resulted`, via its
 own independent Event Grid event subscription.
 
-**Cutover is staged, not immediate** — `pcr-eventgrid-relay-function` stays live in production
-through the coming release; the Service Bus path is built and proven in parallel, behind a switch,
-before either environment cuts over.
+**Cutover is complete.** The synchronous POST path (`HearingResultedEventController`,
+`HearingResultedEventService`, `POST /internal/hearing-results`) and the coexistence switch
+(`service-bus.ingestion-enabled`) have been removed — the queue is the only ingestion path.
+Retiring `pcr-eventgrid-relay-function` itself is separate, cross-repo follow-up (AMP-1053).
 
 **Headline decisions:**
 
@@ -89,19 +90,22 @@ only the queue itself belongs solely to PCR, not the namespace.
 | Property | Value for `pcr.hearing-resulted` | Why |
 | --- | --- | --- |
 | Receive mode | Peek-lock (client-side, not a queue property) | Required for at-least-once delivery and for `maxDeliveryCount`/dead-lettering to apply |
-| `LockDuration` | `PT1M` (capped `PT5M`) | Only needs to cover one completeness check |
-| `MaxDeliveryCount` | Explicit, no deliberate delayed first retry (immediate-until-exhausted) | Bounds the outright-failure tier — further retry-timing tuning is separate follow-up work |
-| `DefaultMessageTimeToLive` | Explicit, generously longer than ~14s + processing time | Avoids a message silently expiring before completion |
+| `LockDuration` | `1 minute` | Only needs to cover one completeness check |
+| `MaxDeliveryCount` | `10` | Native redelivery for outright failures — separate from `service-bus.max-tries` below |
+| `DefaultMessageTimeToLive` | `10 minutes` | Fine for a first-attempt message, too short for the retry tail — see below |
 | `DeadLetteringOnMessageExpiration` | `true` | Without it an expired message is deleted with no trace |
 
-**Completeness retry mechanism** — relocates `ResultsIngestionService`'s existing 2s/4s/8s schedule
-off the consumer thread, unchanged in shape:
+**Completeness retry** — a non-blocking schedule, separate from `ResultsIngestionService`'s own
+2s/4s/8s in-process retry (that one only governs the synchronous POST path, ~14s total).
+On an incomplete result the consumer completes the message and sends one scheduled follow-up
+(`ScheduledEnqueueTimeUtc`), carrying the attempt count. `service-bus.retry-durations`
+(`0s,1s,2s,5s,10s,30s,1m,2m,5m,5m,5m,10m,10m,30m,30m,1h`) sets each delay; `service-bus.max-tries`
+(24) sets when to give up and dead-letter explicitly. Sized for PCR's own failure mode — viewstore
+replication lag, minutes not days. Worst case here is ~10.6 hours.
 
-- On an incomplete result: `complete()` the message, then publish one scheduled follow-up
-  (`ScheduledEnqueueTimeUtc`), carrying the attempt count as an application property.
-- After the 3rd attempt: dead-letter explicitly via `deadLetterMessage(reason, description)` — e.g.
-  `"IncompleteHearingDetailsException after 3 attempts"` — clearly flagged, not an unexplained
-  generic dead-letter.
+Follow-up messages set their own 24-hour TTL rather than inheriting the queue's 10-minute default —
+otherwise a longer-delayed retry could auto-expire into the DLQ before `max-tries` ever gets to
+decide.
 
 ### 2.3 Local dev / test story
 
@@ -179,12 +183,13 @@ sequenceDiagram
     Q->>C: deliver follow-up, attempt 2
     C->>RQ: GET hearing details
     RQ-->>C: still incomplete
-    C->>Q: complete() + schedule next follow-up (4s)
-    Q->>C: deliver follow-up, attempt 3
+    C->>Q: complete() + schedule next follow-up
+    Note over Q: ... repeats per service-bus.retry-durations ...
+    Q->>C: deliver follow-up, attempt 24
     C->>RQ: GET hearing details
     RQ-->>C: still incomplete
-    Note over Q: attempt 3 still incomplete - budget exhausted (~14s elapsed)
-    C->>Q: deadLetterMessage(reason: "IncompleteHearingDetailsException after 3 attempts")
+    Note over Q: max-tries reached (~10.6h elapsed)
+    C->>Q: deadLetterMessage(reason: "IncompleteHearingDetailsException after 24 attempts")
     Q->>DLQ: move message
 ```
 
@@ -223,15 +228,13 @@ tracking mechanism.
 
 ---
 
-## 4. Migration outline
+## 4. Migration (completed)
 
-1. Provision PCR's own queue and its own Event Grid event subscription (§2.2) — both channels now
-   receive events in parallel. NOW provisions its own queue and event subscription independently,
-   on its own timeline — no coordination with PCR needed.
-2. Deploy the Service Bus consumer behind a switch, off by default in every environment.
-3. Enable the switch in lower environments only to validate end-to-end — never both channels active
-   in the same environment.
-4. Once proven, flip the switch in all env's, disabling the relay function at the same
-   time.
-5. Decommission `pcr-eventgrid-relay-function` and its Event Grid webhook subscription;
-   `/internal/hearing-results` retires with it.
+1. Provisioned PCR's own queue and its own Event Grid event subscription (§2.2). NOW provisions
+   its own queue and event subscription independently, on its own timeline.
+2. Deployed the Service Bus consumer behind a switch, validated in lower environments first.
+3. Cutover: the switch and the synchronous POST path (`HearingResultedEventController`,
+   `HearingResultedEventService`, `/internal/hearing-results`) were removed from the codebase —
+   the queue is now the only ingestion path.
+4. `pcr-eventgrid-relay-function` itself is not yet decommissioned — nothing calls it any more,
+   but retiring the Function App is a separate, cross-repo action, tracked as AMP-1053.

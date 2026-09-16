@@ -1,0 +1,12 @@
+// APIM PCR requests by outcome, last 24h (one column per hour, stacked Success/Throttled/Error).
+// Same smoke detector as the by-day tile, at hourly resolution for the current picture.
+// Source: App Insights `requests`.
+requests
+| where timestamp > ago(1d)
+| where name contains "pcr"
+| extend Outcome = case(
+    resultCode == "429", "2 Throttled",
+    toint(resultCode) >= 400, "3 Error",     // 4xx (non-429) + 5xx
+    "1 Success")                             // 2xx/3xx
+| summarize Requests = count() by TimeGenerated = bin(timestamp, 1h), Outcome
+| render columnchart kind=stacked

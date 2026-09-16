@@ -15,7 +15,9 @@ import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
+import org.junit.jupiter.api.BeforeEach;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 import tools.jackson.databind.ObjectMapper;
 import uk.gov.hmcts.cp.exceptions.IncompleteHearingDetailsException;
 import uk.gov.hmcts.cp.filters.tracing.UUIDService;
@@ -24,6 +26,7 @@ import uk.gov.hmcts.cp.openapi.model.HearingResultedEventData;
 import uk.gov.hmcts.cp.servicebus.config.ServiceBusProperties;
 import uk.gov.hmcts.cp.services.ingestion.ResultsIngestionService;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.Map;
@@ -46,6 +49,7 @@ class HearingResultedServiceBusConsumerTest {
     private static final UUID USER_ID = UUID.fromString("00000000-0000-0000-0000-000000000099");
     private static final String GENERATED_CORRELATION_ID = "00000000-0000-0000-0000-000000000077";
     private static final String EXISTING_CORRELATION_ID = "00000000-0000-0000-0000-000000000088";
+    private static final int MAX_DELIVERY_COUNT = 10;
 
     @Mock
     private ServiceBusProvisioningService provisioningService;
@@ -82,30 +86,20 @@ class HearingResultedServiceBusConsumerTest {
     @InjectMocks
     private HearingResultedServiceBusConsumer consumer;
 
+    @BeforeEach
+    void setUp() {
+        ReflectionTestUtils.setField(consumer, "maxDeliveryCount", MAX_DELIVERY_COUNT);
+    }
+
     @Test
-    void initialise_should_skipEntirely_whenAutoStartProcessorsAndIngestionBothDisabled() {
+    void initialise_should_skipEntirely_whenAutoStartProcessorsDisabled() {
         when(properties.isAutoStartProcessors()).thenReturn(false);
-        when(properties.isIngestionEnabled()).thenReturn(false);
 
         consumer.initialise();
 
         verify(provisioningService, never()).isServiceBusReady();
         verify(provisioningService, never()).queueExists(any());
         verify(clientFactory, never()).processorClientBuilder();
-    }
-
-    @Test
-    void initialise_should_start_whenIngestionEnabled_evenIfAutoStartProcessorsDisabled() {
-        when(properties.isAutoStartProcessors()).thenReturn(false);
-        when(properties.isIngestionEnabled()).thenReturn(true);
-        when(provisioningService.isServiceBusReady()).thenReturn(true);
-        when(provisioningService.queueExists(ServiceBusProperties.QUEUE_NAME)).thenReturn(true);
-        givenProcessorBuilder();
-
-        consumer.initialise();
-
-        verify(provisioningService).queueExists(ServiceBusProperties.QUEUE_NAME);
-        verify(processorClient).start();
     }
 
     @Test
@@ -119,6 +113,19 @@ class HearingResultedServiceBusConsumerTest {
 
         verify(provisioningService).queueExists(ServiceBusProperties.QUEUE_NAME);
         verify(processorClient).start();
+    }
+
+    @Test
+    void initialise_should_fetchAndStoreNativeMaxDeliveryCount() {
+        when(properties.isAutoStartProcessors()).thenReturn(true);
+        when(provisioningService.isServiceBusReady()).thenReturn(true);
+        when(provisioningService.queueExists(ServiceBusProperties.QUEUE_NAME)).thenReturn(true);
+        when(provisioningService.maxDeliveryCountOf(ServiceBusProperties.QUEUE_NAME)).thenReturn(MAX_DELIVERY_COUNT);
+        givenProcessorBuilder();
+
+        consumer.initialise();
+
+        assertThat(ReflectionTestUtils.getField(consumer, "maxDeliveryCount")).isEqualTo(MAX_DELIVERY_COUNT);
     }
 
     @Test
@@ -171,8 +178,7 @@ class HearingResultedServiceBusConsumerTest {
     }
 
     @Test
-    void processMessage_should_ingestAndComplete_whenIngestionEnabledAndComplete() {
-        when(properties.isIngestionEnabled()).thenReturn(true);
+    void processMessage_should_ingestAndComplete_whenComplete() {
         givenMessage(hearingResultedEventJson(), null);
         givenGeneratedCorrelationId();
 
@@ -185,47 +191,43 @@ class HearingResultedServiceBusConsumerTest {
     }
 
     @Test
-    void processMessage_should_completeWithoutIngesting_whenSwitchOff() {
-        when(properties.isIngestionEnabled()).thenReturn(false);
-        givenMessage(hearingResultedEventJson(), null);
-        givenGeneratedCorrelationId();
-
-        consumer.processMessage(context);
-
-        verify(ingestionService, never()).ingestAndPersistOnce(any(), any());
-        verify(context).complete();
-    }
-
-    @Test
-    void processMessage_should_abandon_whenEventTypeUnrecognized() {
-        when(properties.isIngestionEnabled()).thenReturn(true);
+    void processMessage_should_completeAndScheduleFollowUp_whenEventTypeUnrecognizedAndAttemptsRemain() {
+        when(properties.getMaxTries()).thenReturn(24);
         givenMessage(unrecognizedEventTypeJson(), null);
         givenGeneratedCorrelationId();
+        when(retryService.getNextTryTime(1)).thenReturn(OffsetDateTime.parse("2026-07-28T10:00:02Z"));
+        when(clientFactory.senderClient()).thenReturn(senderClient);
 
         consumer.processMessage(context);
 
         verify(ingestionService, never()).ingestAndPersistOnce(any(), any());
-        verify(context).abandon();
-        verify(context, never()).complete();
+        verify(context, never()).abandon();
+        verify(context, never()).deadLetter(any());
+        verify(context).complete();
+        verify(senderClient).sendMessage(any());
     }
 
     @Test
-    void processMessage_should_abandon_whenIngestionThrowsUnexpectedException() {
-        when(properties.isIngestionEnabled()).thenReturn(true);
+    void processMessage_should_completeAndScheduleFollowUp_whenIngestionThrowsUnexpectedExceptionAndAttemptsRemain() {
+        when(properties.getMaxTries()).thenReturn(24);
         givenMessage(hearingResultedEventJson(), null);
         givenGeneratedCorrelationId();
         doThrow(new IllegalStateException("malformed cache payload"))
                 .when(ingestionService).ingestAndPersistOnce(HEARING_ID, HEARING_DAY);
+        when(retryService.getNextTryTime(1)).thenReturn(OffsetDateTime.parse("2026-07-28T10:00:02Z"));
+        when(clientFactory.senderClient()).thenReturn(senderClient);
 
         consumer.processMessage(context);
 
-        verify(context).abandon();
-        verify(context, never()).complete();
+        verify(context, never()).abandon();
+        verify(context, never()).deadLetter(any());
+        verify(context).complete();
+        verify(senderClient).sendMessage(any());
     }
 
     @Test
     void processMessage_should_completeAndScheduleFollowUp_whenIncompleteAndAttemptsRemain() {
-        when(properties.isIngestionEnabled()).thenReturn(true);
+        when(properties.getMaxTries()).thenReturn(24);
         givenMessage(hearingResultedEventJson(), 1);
         givenGeneratedCorrelationId();
         doThrow(new IncompleteHearingDetailsException(HEARING_ID))
@@ -243,11 +245,12 @@ class HearingResultedServiceBusConsumerTest {
         assertThat(followUp.getApplicationProperties().get("attempt")).isEqualTo(2);
         assertThat(followUp.getScheduledEnqueueTime()).isEqualTo(nextTryTime);
         assertThat(followUp.getCorrelationId()).isEqualTo(GENERATED_CORRELATION_ID);
+        assertThat(followUp.getTimeToLive()).isEqualTo(Duration.ofHours(24));
     }
 
     @Test
     void processMessage_should_reuseExistingCorrelationId_whenMessageAlreadyHasOne() {
-        when(properties.isIngestionEnabled()).thenReturn(true);
+        when(properties.getMaxTries()).thenReturn(24);
         givenMessage(hearingResultedEventJson(), 1);
         when(message.getCorrelationId()).thenReturn(EXISTING_CORRELATION_ID);
         doThrow(new IncompleteHearingDetailsException(HEARING_ID))
@@ -263,8 +266,8 @@ class HearingResultedServiceBusConsumerTest {
 
     @Test
     void processMessage_should_deadLetter_whenIncompleteAndAttemptsExhausted() {
-        when(properties.isIngestionEnabled()).thenReturn(true);
-        givenMessage(hearingResultedEventJson(), ResultsIngestionService.MAX_COMPLETENESS_RETRIES);
+        when(properties.getMaxTries()).thenReturn(24);
+        givenMessage(hearingResultedEventJson(), 24);
         givenGeneratedCorrelationId();
         doThrow(new IncompleteHearingDetailsException(HEARING_ID))
                 .when(ingestionService).ingestAndPersistOnce(HEARING_ID, HEARING_DAY);
@@ -274,7 +277,59 @@ class HearingResultedServiceBusConsumerTest {
         verify(context, never()).complete();
         verify(context).deadLetter(deadLetterCaptor.capture());
         assertThat(deadLetterCaptor.getValue().getDeadLetterReason())
-                .isEqualTo("IncompleteHearingDetailsException after 3 attempts");
+                .isEqualTo("IncompleteHearingDetailsException after 24 attempts (deliveryCount:1)");
+        verify(clientFactory, never()).senderClient();
+    }
+
+    @Test
+    void processMessage_should_deadLetter_whenIncompleteAndNativeDeliveryLimitReached_evenIfAppAttemptsRemain() {
+        when(properties.getMaxTries()).thenReturn(24);
+        givenMessage(hearingResultedEventJson(), 1, MAX_DELIVERY_COUNT);
+        givenGeneratedCorrelationId();
+        doThrow(new IncompleteHearingDetailsException(HEARING_ID))
+                .when(ingestionService).ingestAndPersistOnce(HEARING_ID, HEARING_DAY);
+
+        consumer.processMessage(context);
+
+        verify(context, never()).complete();
+        verify(context).deadLetter(deadLetterCaptor.capture());
+        assertThat(deadLetterCaptor.getValue().getDeadLetterReason())
+                .isEqualTo("IncompleteHearingDetailsException after 1 attempts (deliveryCount:10)");
+        verify(clientFactory, never()).senderClient();
+    }
+
+    @Test
+    void processMessage_should_deadLetter_whenUnexpectedExceptionAndNativeDeliveryLimitReached() {
+        when(properties.getMaxTries()).thenReturn(24);
+        givenMessage(hearingResultedEventJson(), null, MAX_DELIVERY_COUNT);
+        givenGeneratedCorrelationId();
+        doThrow(new IllegalStateException("malformed cache payload"))
+                .when(ingestionService).ingestAndPersistOnce(HEARING_ID, HEARING_DAY);
+
+        consumer.processMessage(context);
+
+        verify(context, never()).abandon();
+        verify(context, never()).complete();
+        verify(context).deadLetter(deadLetterCaptor.capture());
+        assertThat(deadLetterCaptor.getValue().getDeadLetterReason())
+                .isEqualTo("IllegalStateException after 1 attempts (deliveryCount:10)");
+        verify(clientFactory, never()).senderClient();
+    }
+
+    @Test
+    void processMessage_should_deadLetter_whenUnexpectedExceptionAndAttemptsExhausted() {
+        when(properties.getMaxTries()).thenReturn(24);
+        givenMessage(hearingResultedEventJson(), 24);
+        givenGeneratedCorrelationId();
+        doThrow(new IllegalStateException("malformed cache payload"))
+                .when(ingestionService).ingestAndPersistOnce(HEARING_ID, HEARING_DAY);
+
+        consumer.processMessage(context);
+
+        verify(context, never()).complete();
+        verify(context).deadLetter(deadLetterCaptor.capture());
+        assertThat(deadLetterCaptor.getValue().getDeadLetterReason())
+                .isEqualTo("IllegalStateException after 24 attempts (deliveryCount:1)");
         verify(clientFactory, never()).senderClient();
     }
 
@@ -288,10 +343,15 @@ class HearingResultedServiceBusConsumerTest {
     }
 
     private void givenMessage(final String body, final Integer attempt) {
+        givenMessage(body, attempt, 1L);
+    }
+
+    private void givenMessage(final String body, final Integer attempt, final long deliveryCount) {
         when(context.getMessage()).thenReturn(message);
         when(message.getBody()).thenReturn(BinaryData.fromString(body));
         when(message.getApplicationProperties())
                 .thenReturn(attempt == null ? Map.of() : Map.of("attempt", attempt));
+        when(message.getDeliveryCount()).thenReturn(deliveryCount);
     }
 
     private void givenGeneratedCorrelationId() {

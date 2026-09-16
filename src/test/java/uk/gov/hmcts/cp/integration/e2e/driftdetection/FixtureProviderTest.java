@@ -20,7 +20,7 @@ class FixtureProviderTest {
 
         assertThat(fixtures)
                 .extracting(DriftFixture::name)
-                .contains("multiple-defendants-multiple-offences");
+                .contains("multiple-defendants-multiple-offences-as231157673");
     }
 
     @Test
@@ -30,7 +30,7 @@ class FixtureProviderTest {
         final DriftFixture fixture = provider.provideArguments(null, null)
                 .map(Arguments::get)
                 .map(args -> (DriftFixture) args[0])
-                .filter(f -> "multiple-defendants-multiple-offences".equals(f.name()))
+                .filter(f -> "multiple-defendants-multiple-offences-as231157673".equals(f.name()))
                 .findFirst()
                 .orElseThrow();
 

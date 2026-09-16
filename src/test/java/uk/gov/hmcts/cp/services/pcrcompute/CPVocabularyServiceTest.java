@@ -2,6 +2,7 @@ package uk.gov.hmcts.cp.services.pcrcompute;
 
 import org.junit.jupiter.api.Test;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.CourtApplication;
+import uk.gov.hmcts.cp.domain.HearingDetailsResponse.CourtApplicationCase;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.CourtCentre;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.CustodialEstablishment;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.Defendant;
@@ -75,8 +76,7 @@ class CPVocabularyServiceTest {
 
     @Test
     void compute_should_mergeCustodyAcrossProsecutionCases_whenSameMasterDefendantIdOnSameHearing() {
-        // Same physical person (masterDefendantId), two separate case URNs on the same hearing —
-        // a valid CP scenario. Custody is only recorded against the OTHER case's defendant record.
+        // Same masterDefendantId, two case URNs on the same hearing — custody recorded against the other case's record.
         final Defendant ownCaseDefendant = defendantWithNoOffences(DEFENDANT_ID, MASTER_DEFENDANT_ID);
         final Defendant otherCaseDefendant = defendantWithEstablishment(OTHER_DEFENDANT_ID, MASTER_DEFENDANT_ID, "Prison");
         final HearingDetail hearing = hearingWith(List.of(caseWith(ownCaseDefendant), caseWith(otherCaseDefendant)), List.of());
@@ -169,8 +169,7 @@ class CPVocabularyServiceTest {
 
     @Test
     void compute_should_setCpsProsecutedTrue_whenAnyProsecutionCaseOnHearingIsCps() {
-        // Scans ALL prosecutionCases on the hearing, not scoped to the defendant's own case —
-        // replicates legacy CPVocabularyService.js behaviour exactly (design doc §2).
+        // Scans all prosecutionCases on the hearing, not scoped to the defendant's own case.
         final Defendant ownCaseDefendant = defendantWithNoOffences(DEFENDANT_ID, MASTER_DEFENDANT_ID);
         final Defendant otherCaseDefendant = defendantWithNoOffences(OTHER_DEFENDANT_ID, OTHER_MASTER_DEFENDANT_ID);
         final ProsecutionCase ownCase = caseWith(ownCaseDefendant);
@@ -228,6 +227,57 @@ class CPVocabularyServiceTest {
 
         assertThat(vocabulary.welshCourtHearing()).isTrue();
         assertThat(vocabulary.englishCourtHearing()).isFalse();
+    }
+
+    // A court-application-only hearing has no prosecutionCases — must not NPE, still pick up own custody.
+    @Test
+    void compute_should_useDefendantsOwnCustody_whenHearingHasNoProsecutionCasesAtAll() {
+        final Defendant defendant = defendantWithEstablishment(DEFENDANT_ID, MASTER_DEFENDANT_ID, "Prison");
+        final HearingDetail hearing = HearingDetail.builder()
+                .courtCentre(CourtCentre.builder().build())
+                .hearingDays(List.of())
+                .courtApplications(List.of())
+                .build();
+
+        final CPVocabulary vocabulary = vocabularyService.compute(defendant, hearing);
+
+        assertThat(vocabulary.custodyLocationIsPrison()).isTrue();
+        assertThat(vocabulary.cpsProsecuted()).isFalse();
+    }
+
+    @Test
+    void compute_should_notThrow_whenCourtApplicationCasesIsNull() {
+        final Defendant defendant = defendantWithNoOffences(DEFENDANT_ID, MASTER_DEFENDANT_ID);
+        final CourtApplication application = CourtApplication.builder()
+                .id("a9b8c7d6-e5f4-4321-9876-0a1b2c3d4e5f")
+                .subject(ApplicationParty.builder().masterDefendant(MasterDefendant.builder().masterDefendantId(MASTER_DEFENDANT_ID).build()).build())
+                .judicialResults(List.of(resultWithCustodialPrompt()))
+                .build();
+        final HearingDetail hearing = hearingWith(List.of(caseWith(defendant)), List.of(application));
+
+        final CPVocabulary vocabulary = vocabularyService.compute(defendant, hearing);
+
+        assertThat(vocabulary.atleastOneCustodialResult()).isTrue();
+    }
+
+    // CP omits judicialResults entirely rather than sending an empty list — on the defendant's own
+    // offences, on the application, and on its linked-case offences.
+    @Test
+    void compute_should_notThrow_whenJudicialResultsIsNull() {
+        final Defendant defendant = defendantWithOffences(DEFENDANT_ID, MASTER_DEFENDANT_ID, List.of(Offence.builder().build()));
+        final CourtApplication application = CourtApplication.builder()
+                .id("a9b8c7d6-e5f4-4321-9876-0a1b2c3d4e5f")
+                .subject(ApplicationParty.builder().masterDefendant(MasterDefendant.builder().masterDefendantId(MASTER_DEFENDANT_ID).build()).build())
+                .courtApplicationCases(List.of(CourtApplicationCase.builder()
+                        .offences(List.of(Offence.builder().build(),
+                                Offence.builder().judicialResults(List.of(resultWithCustodialPrompt())).build()))
+                        .build()))
+                .build();
+        final HearingDetail hearing = hearingWith(List.of(caseWith(defendant)), List.of(application));
+
+        final CPVocabulary vocabulary = vocabularyService.compute(defendant, hearing);
+
+        assertThat(vocabulary.atleastOneCustodialResult()).isTrue();
     }
 
     @Test

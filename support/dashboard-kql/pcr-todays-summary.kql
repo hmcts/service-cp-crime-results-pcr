@@ -1,0 +1,25 @@
+union
+(ContainerLogV2
+    | where PodName startswith 'pcr-data'
+    | where ContainerName == 'springboot-app'
+    | where TimeGenerated >= startofday(now())
+    | where LogMessage contains 'HearingResultedServiceBusConsumer received channel:servicebus'
+    | summarize Count = count()
+    | extend Metric = 'HearingIds Received'),
+(ContainerLogV2
+    | where PodName startswith 'pcr-data'
+    | where ContainerName == 'springboot-app'
+    | where TimeGenerated >= startofday(now())
+    | where LogLevel == 'error'
+    | summarize Count = count()
+    | extend Metric = 'Errors'),
+(ContainerLogV2
+    | where PodName startswith 'pcr-data'
+    | where ContainerName == 'springboot-app'
+    | where TimeGenerated >= startofday(now())
+    | where LogLevel == 'error'
+    | where LogMessage contains 'GlobalExceptionHandler handleResponseStatusException'
+    | summarize Count = count()
+    | extend Metric = 'Response Exceptions')
+| project Metric, Count
+| order by Metric asc

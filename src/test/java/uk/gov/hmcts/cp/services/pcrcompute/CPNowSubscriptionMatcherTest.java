@@ -239,9 +239,11 @@ class CPNowSubscriptionMatcherTest {
     @Test
     void matches_should_returnTrue_whenIncludedResultPresent() {
         final CPNowSubscription subscription = subscriptionWith(fullyPermissiveVocabulary().toBuilder()
-                .includedResults(List.of("1200"))
+                .includedResults(List.of("22e52dce-1e58-464f-bd48-7e219747f08f"))
                 .build());
-        final JudicialResult result = JudicialResult.builder().cjsCode("1200").build();
+        final JudicialResult result = JudicialResult.builder()
+                .judicialResultTypeId("22e52dce-1e58-464f-bd48-7e219747f08f")
+                .build();
 
         assertThat(matcher.matches(subscription, vocabulary(), List.of(result))).isTrue();
     }
@@ -249,9 +251,11 @@ class CPNowSubscriptionMatcherTest {
     @Test
     void matches_should_returnFalse_whenIncludedResultAbsent() {
         final CPNowSubscription subscription = subscriptionWith(fullyPermissiveVocabulary().toBuilder()
-                .includedResults(List.of("1200"))
+                .includedResults(List.of("22e52dce-1e58-464f-bd48-7e219747f08f"))
                 .build());
-        final JudicialResult result = JudicialResult.builder().cjsCode("9999").build();
+        final JudicialResult result = JudicialResult.builder()
+                .judicialResultTypeId("9999999-1e58-464f-bd48-7e219747f08f")
+                .build();
 
         assertThat(matcher.matches(subscription, vocabulary(), List.of(result))).isFalse();
     }
@@ -259,11 +263,71 @@ class CPNowSubscriptionMatcherTest {
     @Test
     void matches_should_returnFalse_whenExcludedResultPresent() {
         final CPNowSubscription subscription = subscriptionWith(fullyPermissiveVocabulary().toBuilder()
-                .excludedResults(List.of("1200"))
+                .excludedResults(List.of("22e52dce-1e58-464f-bd48-7e219747f08f"))
                 .build());
-        final JudicialResult result = JudicialResult.builder().cjsCode("1200").build();
+        final JudicialResult result = JudicialResult.builder()
+                .judicialResultTypeId("22e52dce-1e58-464f-bd48-7e219747f08f")
+                .build();
 
         assertThat(matcher.matches(subscription, vocabulary(), List.of(result))).isFalse();
+    }
+
+    // AMP-1091: reference data's "YCS PCR Subscription" gates youth-detention custodial outcomes
+    // (RDET/RDETO/RIYDA) via ignoreResults + includedResults keyed on judicialResultTypeId, since
+    // those results never carry the prisonOrganisationName prompt atleastOneCustodialResult relies on.
+    @Test
+    void matches_should_returnTrue_whenIncludedResultMatchesByJudicialResultTypeId_withNoCustodialPromptAtAll() {
+        final String riydaJudicialResultTypeId = "22e52dce-1e58-464f-bd48-7e219747f08f";
+        final CPVocabulary noCustodialPromptVocabulary = new CPVocabulary(
+                false, false, false,
+                false, true, true,
+                false,
+                true, false,
+                false, true,
+                List.of(), List.of());
+        final CPNowSubscription ycsPcrSubscription = subscriptionWith(SubscriptionVocabulary.builder()
+                .anyAppearance(true)
+                .anyCourtHearing(true)
+                .adultOrYouthDefendant(true)
+                .ignoreCustody(true)
+                .ignoreResults(true)
+                .includedResults(List.of(riydaJudicialResultTypeId, "6c535814-ea88-42da-a347-31fb6da7d851"))
+                .build());
+        final JudicialResult riydaResult = JudicialResult.builder()
+                .judicialResultTypeId(riydaJudicialResultTypeId)
+                .label("Remand in Youth Detention Accommodation")
+                .judicialResultPrompts(List.of(
+                        JudicialResultPrompt.builder().promptReference("remandBasis").build(),
+                        JudicialResultPrompt.builder()
+                                .promptReference("toBeKeptInYouthDetentionAccommodationOnTheGroundsThat")
+                                .build()))
+                .build();
+
+        assertThat(matcher.matches(ycsPcrSubscription, noCustodialPromptVocabulary, List.of(riydaResult))).isTrue();
+    }
+
+    @Test
+    void matches_should_returnFalse_whenNoResultMatchesYcsIncludedResultsByJudicialResultTypeId() {
+        final CPVocabulary noCustodialPromptVocabulary = new CPVocabulary(
+                false, false, false,
+                false, true, true,
+                false,
+                true, false,
+                false, true,
+                List.of(), List.of());
+        final CPNowSubscription ycsPcrSubscription = subscriptionWith(SubscriptionVocabulary.builder()
+                .anyAppearance(true)
+                .anyCourtHearing(true)
+                .adultOrYouthDefendant(true)
+                .ignoreCustody(true)
+                .ignoreResults(true)
+                .includedResults(List.of("22e52dce-1e58-464f-bd48-7e219747f08f"))
+                .build());
+        final JudicialResult unrelatedResult = JudicialResult.builder()
+                .judicialResultTypeId("11111111-1111-1111-1111-111111111111")
+                .build();
+
+        assertThat(matcher.matches(ycsPcrSubscription, noCustodialPromptVocabulary, List.of(unrelatedResult))).isFalse();
     }
 
     @Test

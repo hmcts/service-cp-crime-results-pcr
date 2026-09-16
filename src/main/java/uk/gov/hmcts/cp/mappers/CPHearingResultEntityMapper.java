@@ -7,13 +7,16 @@ import uk.gov.hmcts.cp.domain.HearingDetailsResponse.Address;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.AttendanceDay;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.CaseMarker;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.CourtApplication;
+import uk.gov.hmcts.cp.domain.HearingDetailsResponse.CourtApplicationCase;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.CourtCentre;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.CourtOrderOffence;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.CustodialEstablishment;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.Defendant;
+import uk.gov.hmcts.cp.domain.HearingDetailsResponse.DefendantCase;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.DefendantJudicialResult;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.HearingDetail;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.JudicialResult;
+import uk.gov.hmcts.cp.domain.HearingDetailsResponse.MasterDefendant;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.Offence;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.PersonDetails;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.ProsecutionCase;
@@ -36,7 +39,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Component
@@ -44,17 +49,36 @@ import java.util.stream.Stream;
 public class CPHearingResultEntityMapper {
 
     private static final String NOT_APPLICABLE = "Not Applicable";
-    // Matches legacy's own LevelTypeEnum literally: {DEFENDANT:'D', CASE:'C', OFFENCE:'O', APPLICATION:'A'}.
+    // Matches CP Azure Legal Aid Agency's LevelTypeEnum: DEFENDANT='D', CASE='C', OFFENCE='O', APPLICATION='A'.
     private static final String LEVEL_DEFENDANT = "D";
     private static final String LEVEL_CASE = "C";
+    // Ported from cpp-context-progression's PrisonCourtRegisterHandler.getDefendantType.
+    private static final String DEFENDANT_TYPE_DEFENDANT = "Defendant";
+    private static final String DEFENDANT_TYPE_APPLICANT = "Applicant";
+    private static final String DEFENDANT_TYPE_APPELLANT = "Appellant";
+    private static final String DEFENDANT_TYPE_RESPONDENT = "Respondent";
+    private static final int SINGLE_DEFENDANT_CASE = 1;
 
     private final CPJudicialResultPromptParser promptParser;
 
     public CPCaseHearingEntity toCaseHearingEntity(final ProsecutionCase prosecutionCase, final HearingDetail hearing,
                                                     final UUID hearingId, final OffsetDateTime createdAt) {
+        return toCaseHearingEntity(prosecutionCase.getProsecutionCaseIdentifier().getCaseURN(), hearing, hearingId, createdAt,
+                prosecutionCase.getProsecutionCaseIdentifier().getProsecutionAuthorityName(),
+                prosecutionCase.getId() == null ? null : UUID.fromString(prosecutionCase.getId()));
+    }
+
+    // Overload for an application-only case, which has no ProsecutionCase to read a caseURN, case
+    // id, or prosecutor name off — the caller resolves prosecutorName via prosecutorNameOf(CourtApplication)
+    // and passes a null caseId, since there is no internal CP case identifier for it to carry.
+    public CPCaseHearingEntity toCaseHearingEntity(final String caseUrn, final HearingDetail hearing,
+                                                    final UUID hearingId, final OffsetDateTime createdAt,
+                                                    final String prosecutorName, final UUID caseId) {
         final CPCaseHearingEntity.CPCaseHearingEntityBuilder builder = CPCaseHearingEntity.builder()
                 .id(UUID.randomUUID())
-                .caseUrn(prosecutionCase.getProsecutionCaseIdentifier().getCaseURN())
+                .caseUrn(caseUrn)
+                .caseId(caseId)
+                .prosecutorName(prosecutorName)
                 .hearingId(hearingId)
                 .courtHouseId(hearing.getCourtCentre() == null || hearing.getCourtCentre().getId() == null
                         ? null : UUID.fromString(hearing.getCourtCentre().getId()))
@@ -66,7 +90,7 @@ public class CPHearingResultEntityMapper {
                 .jurisdiction(hearing.getJurisdictionType())
                 .ljaName(toLjaName(hearing))
                 .createdAt(createdAt);
-        // hearingOutcome: left unset (null) — no confirmed CP source, data-store design doc §3
+        // hearingOutcome: left unset — no confirmed CP source.
         applyCourtAddress(builder, hearing);
         return builder.build();
     }
@@ -90,9 +114,7 @@ public class CPHearingResultEntityMapper {
                 .courtPostCode(address.getPostcode());
     }
 
-    // Real CP payload sends a full ISO-8601 datetime with offset (e.g.
-    // "2026-07-23T09:00:00.000Z"), not the plain date "2026-07-23" the field's own type once
-    // assumed — DateTimeParseException on every real hearing until this fallback was added.
+    // CP sends either a plain date or a full datetime — try both.
     private LocalDate toSittingDay(final String sittingDay) {
         LocalDate parsed;
         try {
@@ -104,8 +126,7 @@ public class CPHearingResultEntityMapper {
     }
 
     public List<CPCaseMarkerEntity> toCaseMarkerEntities(final ProsecutionCase prosecutionCase, final UUID caseHearingId) {
-        // caseMarkers absent entirely on a real CP payload that has none (confirmed against a
-        // real hearing fixture) — not always an empty list.
+        // caseMarkers can be absent entirely, not just an empty list.
         return Stream.ofNullable(prosecutionCase.getCaseMarkers()).flatMap(List::stream)
                 .map(m -> toCaseMarkerEntity(m, caseHearingId))
                 .toList();
@@ -122,41 +143,30 @@ public class CPHearingResultEntityMapper {
 
     public List<JudicialResult> eligibleResults(final Defendant defendant, final HearingDetail hearing) {
         final Stream<JudicialResult> direct = defendant.getOffences().stream()
-                .flatMap(o -> o.getJudicialResults().stream());
+                .flatMap(o -> Stream.ofNullable(o.getJudicialResults()).flatMap(List::stream));
         final Stream<JudicialResult> linked = matchingCourtApplications(defendant, hearing).stream()
                 .flatMap(this::allResultsOf);
         return Stream.concat(direct, linked).toList();
     }
 
     private Stream<JudicialResult> allResultsOf(final CourtApplication application) {
-        final Stream<JudicialResult> ownResults = application.getJudicialResults().stream();
+        final Stream<JudicialResult> ownResults = Stream.ofNullable(application.getJudicialResults()).flatMap(List::stream);
         final Stream<JudicialResult> linkedOffenceResults = linkedOffencesOf(application)
-                .flatMap(o -> o.getJudicialResults().stream());
+                .flatMap(o -> Stream.ofNullable(o.getJudicialResults()).flatMap(List::stream));
         return Stream.concat(ownResults, linkedOffenceResults);
     }
 
-    // A real courtApplicationCase can omit "offences" entirely (confirmed against a real hearing
-    // fixture) — not always an empty list. courtOrder is only present on breach/resentencing
-    // applications and carries the original order's own offence, a sibling concept to the
-    // case-linked offences above, not a member of them.
+    // courtOrder (breach/resentencing only) carries a separate offence, not part of the case-linked ones.
     private Stream<Offence> linkedOffencesOf(final CourtApplication application) {
-        final Stream<Offence> caseOffences = application.getCourtApplicationCases().stream()
+        final Stream<Offence> caseOffences = Stream.ofNullable(application.getCourtApplicationCases()).flatMap(List::stream)
                 .flatMap(c -> Stream.ofNullable(c.getOffences()).flatMap(List::stream));
-        final Stream<Offence> courtOrderOffences = application.getCourtOrder() == null
-                ? Stream.empty()
-                : Stream.ofNullable(application.getCourtOrder().getCourtOrderOffences()).flatMap(List::stream)
-                        .map(CourtOrderOffence::getOffence);
-        return Stream.concat(caseOffences, courtOrderOffences);
+        return Stream.concat(caseOffences, courtOrderOffencesOf(application));
     }
 
-    // `subject` is the only party role used for defendant-linkage — confirmed against
-    // cpp-context-azure-legalaidagency's DefendantContextBaseService.js, which reads only
-    // `subject.masterDefendant.masterDefendantId` for this same hearing-wide merge (same rule
-    // as CPVocabularyService).
+    // `subject` is the only party role used for defendant-linkage (same rule as CPVocabularyService).
     private List<CourtApplication> matchingCourtApplications(final Defendant defendant, final HearingDetail hearing) {
         final String masterDefendantId = defendant.getMasterDefendantId();
-        // courtApplications absent entirely on a real hearing that has none (confirmed against
-        // a real hearing fixture) — not always an empty list.
+        // courtApplications can be absent entirely, not just an empty list.
         return masterDefendantId == null
                 ? List.of()
                 : Stream.ofNullable(hearing.getCourtApplications()).flatMap(List::stream)
@@ -170,9 +180,106 @@ public class CPHearingResultEntityMapper {
                 : application.getSubject().getMasterDefendant().getMasterDefendantId();
     }
 
+    // For a defendant only reached via courtApplications. Empty when no defendant is named or
+    // defendantId can't be resolved unambiguously.
+    public Optional<Defendant> applicationOnlyDefendant(final CourtApplication application) {
+        final MasterDefendant masterDefendant = application.getSubject() == null
+                ? null : application.getSubject().getMasterDefendant();
+        return masterDefendant == null
+                ? Optional.empty()
+                : resolveDefendantId(masterDefendant, application)
+                        .map(defendantId -> buildApplicationOnlyDefendant(defendantId, masterDefendant));
+    }
+
+    private Defendant buildApplicationOnlyDefendant(final String defendantId, final MasterDefendant masterDefendant) {
+        return Defendant.builder()
+                .id(defendantId)
+                .masterDefendantId(masterDefendant.getMasterDefendantId())
+                .isYouth(masterDefendant.getIsYouth())
+                .personDefendant(masterDefendant.getPersonDefendant())
+                .offences(List.of())
+                .build();
+    }
+
+    // Falls back to the sole defendantCase entry, else matches by prosecutionCaseId.
+    private Optional<String> resolveDefendantId(final MasterDefendant masterDefendant, final CourtApplication application) {
+        final List<DefendantCase> defendantCases = Stream.ofNullable(masterDefendant.getDefendantCase())
+                .flatMap(List::stream).toList();
+        return defendantCases.size() == SINGLE_DEFENDANT_CASE
+                ? Optional.ofNullable(defendantCases.get(0).getDefendantId())
+                : matchingDefendantId(defendantCases, application);
+    }
+
+    private Optional<String> matchingDefendantId(final List<DefendantCase> defendantCases, final CourtApplication application) {
+        final Set<String> applicationCaseIds = Stream.ofNullable(application.getCourtApplicationCases())
+                .flatMap(List::stream)
+                .map(CourtApplicationCase::getProsecutionCaseId)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+        return defendantCases.stream()
+                .filter(dc -> applicationCaseIds.contains(dc.getCaseId()))
+                .map(DefendantCase::getDefendantId)
+                .findFirst();
+    }
+
+    // Sourced from the linked case's own identifier, not the applicant/respondent parties.
+    public String prosecutorNameOf(final CourtApplication application) {
+        return Stream.ofNullable(application.getCourtApplicationCases())
+                .flatMap(List::stream)
+                .map(CourtApplicationCase::getProsecutionCaseIdentifier)
+                .filter(Objects::nonNull)
+                .map(HearingDetailsResponse.ProsecutionCaseIdentifier::getProsecutionAuthorityName)
+                .filter(Objects::nonNull)
+                .findFirst()
+                .orElse(null);
+    }
+
+    // Sourced the same way as prosecutorNameOf — a court application not linked to any
+    // prosecution case has no id to carry; one linked via courtApplicationCases does.
+    public UUID caseIdOf(final CourtApplication application) {
+        return Stream.ofNullable(application.getCourtApplicationCases())
+                .flatMap(List::stream)
+                .map(CourtApplicationCase::getProsecutionCaseId)
+                .filter(Objects::nonNull)
+                .findFirst()
+                .map(UUID::fromString)
+                .orElse(null);
+    }
+
+    // Ports PrisonCourtRegisterHandler.getDefendantType verbatim, quirks included — the applicant
+    // branch never checks whose masterDefendant it is, unlike the respondent branch, which does.
+    public String defendantType(final CourtApplication application, final String masterDefendantId) {
+        final MasterDefendant applicantMasterDefendant = application.getApplicant() == null
+                ? null : application.getApplicant().getMasterDefendant();
+        return applicantMasterDefendant != null
+                ? applicantDefendantType(application)
+                : respondentDefendantType(application, masterDefendantId);
+    }
+
+    private String applicantDefendantType(final CourtApplication application) {
+        final boolean isAppeal = application.getType() != null
+                && Boolean.TRUE.equals(application.getType().getAppealFlag())
+                && Boolean.TRUE.equals(application.getType().getApplicantAppellantFlag());
+        return isAppeal ? DEFENDANT_TYPE_APPELLANT : DEFENDANT_TYPE_APPLICANT;
+    }
+
+    private String respondentDefendantType(final CourtApplication application, final String masterDefendantId) {
+        final boolean isRespondent = Stream.ofNullable(application.getRespondents()).flatMap(List::stream)
+                .filter(respondent -> respondent.getMasterDefendant() != null)
+                .anyMatch(respondent -> masterDefendantId.equals(respondent.getMasterDefendant().getMasterDefendantId()));
+        return isRespondent ? DEFENDANT_TYPE_RESPONDENT : DEFENDANT_TYPE_APPLICANT;
+    }
+
     public CPEntitySet toWriteBundle(final Defendant defendant, final HearingDetail hearing, final UUID caseHearingId,
                                                final Instant sharedTime, final OffsetDateTime createdAt, final OffsetDateTime expiresAt) {
-        final CPVersionEntity version = toVersionEntity(defendant, hearing, caseHearingId, sharedTime, createdAt, expiresAt);
+        return toWriteBundle(defendant, hearing, caseHearingId, sharedTime, createdAt, expiresAt, DEFENDANT_TYPE_DEFENDANT);
+    }
+
+    // Overload for a court-application-only defendant, whose computed label the caller passes in.
+    public CPEntitySet toWriteBundle(final Defendant defendant, final HearingDetail hearing, final UUID caseHearingId,
+                                               final Instant sharedTime, final OffsetDateTime createdAt, final OffsetDateTime expiresAt,
+                                               final String defendantType) {
+        final CPVersionEntity version = toVersionEntity(defendant, hearing, caseHearingId, sharedTime, createdAt, expiresAt, defendantType);
         final List<CourtApplication> linkedApplications = matchingCourtApplications(defendant, hearing);
         final List<CPCourtApplicationEntity> courtApplications = linkedApplications.stream()
                 .map(a -> toCourtApplicationEntity(a, version.getCpVersionPk()))
@@ -188,12 +295,7 @@ public class CPHearingResultEntityMapper {
         return new CPEntitySet(version, courtApplications, offences, judicialResults, prompts);
     }
 
-    // defendantResults (level DEFENDANT, hearing-wide, matched by masterDefendantId) and
-    // caseResults (level CASE — the same defendantCaseJudicialResults already read for
-    // populatePostHearingCustodyStatus, now also persisted as their own content) — the two
-    // remaining PDF content collections, confirmed via
-    // PrisonCourtRegisterPdfPayloadGenerator.buildDefendantResults/buildCaseResults.
-    // excludePublishedForNows applies here (see its own comment for why it applies uniformly).
+    // Hearing-wide defendant results (level DEFENDANT) and case-level results (level CASE).
     private void addDefendantAndCaseLevelResults(final Defendant defendant, final HearingDetail hearing, final UUID versionPk,
                                                   final List<CPJudicialResultEntity> judicialResults, final List<CPJudicialResultPromptEntity> prompts) {
         excludePublishedForNows(matchingDefendantJudicialResults(defendant, hearing))
@@ -202,14 +304,7 @@ public class CPHearingResultEntityMapper {
                 .forEach(r -> addResult(r, null, null, versionPk, LEVEL_CASE, judicialResults, prompts));
     }
 
-    // Mirrors RegisterFragmentService.js's filterJudicialResultsApplicableForRegisters — same
-    // rule as CPResultsPcrFilter.excludePublishedForNows, kept local here rather than injecting
-    // that service's heavier ReferenceDataClient/subscription-matcher dependencies into this
-    // mapper for one field check. Confirmed against DefendantContextBaseService.js that OFFENCE
-    // and APPLICATION level results are pushed into the exact same defendantBase.results array
-    // as DEFENDANT/CASE level ones, and the filter runs on that single combined array before any
-    // level-specific mapper reads from it — so this applies to every level's content, not just
-    // defendantResults/caseResults.
+    // Same rule as CPResultsPcrFilter.excludePublishedForNows — kept local to avoid a heavier dependency for one field check.
     private Stream<JudicialResult> excludePublishedForNows(final Stream<JudicialResult> results) {
         return results.filter(r -> !Boolean.TRUE.equals(r.getPublishedForNows()));
     }
@@ -226,14 +321,32 @@ public class CPHearingResultEntityMapper {
     private void addLinkedApplicationContent(final CourtApplication application, final UUID courtApplicationId,
                                               final List<CPOffenceEntity> offences, final List<CPJudicialResultEntity> judicialResults,
                                               final List<CPJudicialResultPromptEntity> prompts) {
-        linkedOffencesOf(application)
-                .forEach(o -> addLinkedOffence(o, courtApplicationId, offences, judicialResults, prompts));
-        excludePublishedForNows(application.getJudicialResults().stream())
+        Stream.ofNullable(application.getCourtApplicationCases()).flatMap(List::stream)
+                .forEach(c -> Stream.ofNullable(c.getOffences()).flatMap(List::stream)
+                        .forEach(o -> addLinkedOffence(o, courtApplicationId, caseUrnOf(c), offences, judicialResults, prompts)));
+        // courtOrder offences (breach/resentencing only) aren't part of any linked case.
+        courtOrderOffencesOf(application)
+                .forEach(o -> addLinkedOffence(o, courtApplicationId, null, offences, judicialResults, prompts));
+        excludePublishedForNows(Stream.ofNullable(application.getJudicialResults()).flatMap(List::stream))
                 .forEach(r -> addResult(r, null, courtApplicationId, judicialResults, prompts));
     }
 
+    private String caseUrnOf(final CourtApplicationCase courtApplicationCase) {
+        return courtApplicationCase.getProsecutionCaseIdentifier() == null
+                ? null
+                : courtApplicationCase.getProsecutionCaseIdentifier().getCaseURN();
+    }
+
+    private Stream<Offence> courtOrderOffencesOf(final CourtApplication application) {
+        return application.getCourtOrder() == null
+                ? Stream.empty()
+                : Stream.ofNullable(application.getCourtOrder().getCourtOrderOffences()).flatMap(List::stream)
+                        .map(CourtOrderOffence::getOffence);
+    }
+
     private CPVersionEntity toVersionEntity(final Defendant defendant, final HearingDetail hearing, final UUID caseHearingId,
-                                             final Instant sharedTime, final OffsetDateTime createdAt, final OffsetDateTime expiresAt) {
+                                             final Instant sharedTime, final OffsetDateTime createdAt, final OffsetDateTime expiresAt,
+                                             final String defendantType) {
         final CPVersionEntity.CPVersionEntityBuilder builder = CPVersionEntity.builder()
                 .cpVersionPk(UUID.randomUUID())
                 .eventId(null) // no event-correlation pipeline yet — data-store design doc §3
@@ -242,6 +355,7 @@ public class CPHearingResultEntityMapper {
                 .custodyLocation(toCustodyLocation(defendant))
                 .custodyType(toCustodyType(defendant))
                 .masterDefendantId(masterDefendantId(defendant))
+                .defendantType(defendantType)
                 .nextHearing(toNextHearingEmbeddable(hearing))
                 .sharedTime(sharedTime == null ? null : sharedTime.atOffset(ZoneOffset.UTC))
                 .postHearingCustodyStatus(populatePostHearingCustodyStatus(defendant))
@@ -252,11 +366,8 @@ public class CPHearingResultEntityMapper {
         return builder.build();
     }
 
-    // Ports the legacy PCR pipeline's own DefendantMapper.js:populatePostHearingCustodyStatus
-    // exactly: the first case-level result (not tied to any specific offence) whose status
-    // isn't already "Not Applicable", defaulting to "Not Applicable" otherwise. A real
-    // judicial result can omit judicialResultPrompts/defendantCaseJudicialResults entirely —
-    // not always an empty list.
+    // Ports CP Azure Legal Aid Agency's populatePostHearingCustodyStatus: first case-level result
+    // whose status isn't already "Not Applicable", defaulting to "Not Applicable".
     private String populatePostHearingCustodyStatus(final Defendant defendant) {
         return Stream.ofNullable(defendant.getDefendantCaseJudicialResults()).flatMap(List::stream)
                 .map(JudicialResult::getPostHearingCustodyStatus)
@@ -265,9 +376,8 @@ public class CPHearingResultEntityMapper {
                 .orElse(NOT_APPLICABLE);
     }
 
-    // Ports legacy's HearingMapper.js:getDefendantAppearanceDetails, with its `=` (assignment,
-    // always matches the first attendance entry) corrected to `equals` — the intent is "this
-    // defendant's own attendance record", not "whichever defendant happens to be first".
+    // Ports CP Azure Legal Aid Agency's getDefendantAppearanceDetails, fixing its `=` bug that
+    // always matched the first attendance entry instead of this defendant's own.
     private String toDefendantAppearanceDetails(final Defendant defendant, final HearingDetail hearing) {
         return hearing.getDefendantAttendance() == null || hearing.getHearingDays().isEmpty()
                 ? null
@@ -285,9 +395,7 @@ public class CPHearingResultEntityMapper {
                 .findFirst();
     }
 
-    // Matches HearingMapper.js's own translation table verbatim; any other/unrecognised raw
-    // attendanceType value falls through to null, same as the legacy mapper's implicit
-    // "no matching branch" undefined.
+    // Matches CP Azure Legal Aid Agency's translation table; unrecognised values fall through to null.
     private String toAppearanceDisplay(final String attendanceType) {
         return switch (attendanceType) {
             case "IN_PERSON" -> "In person";
@@ -332,18 +440,17 @@ public class CPHearingResultEntityMapper {
         builder.addressLine1(address.getAddress1())
                 .addressLine2(address.getAddress2())
                 .addressLine3(address.getAddress3())
+                .addressLine4(address.getAddress4())
+                .addressLine5(address.getAddress5())
                 .postCode(address.getPostcode());
-        // addressLine4/addressLine5: left null — no 4th/5th address line upstream
     }
 
     private CPNextHearingEmbeddable toNextHearingEmbeddable(final HearingDetail hearing) {
-        // Same provisional, hearing-wide "first non-null nextHearing found" scan as
-        // PcrVersionMapper.findNextHearing — kept consistent with phase-1's read path,
-        // not re-scoped per-defendant (design doc §4.5/§10 still calls this unconfirmed).
+        // Provisional hearing-wide "first non-null nextHearing found" scan, not re-scoped per-defendant.
         return Stream.ofNullable(hearing.getProsecutionCases()).flatMap(List::stream)
                 .flatMap(c -> c.getDefendants().stream())
                 .flatMap(d -> d.getOffences().stream())
-                .flatMap(o -> o.getJudicialResults().stream())
+                .flatMap(o -> Stream.ofNullable(o.getJudicialResults()).flatMap(List::stream))
                 .map(JudicialResult::getNextHearing)
                 .filter(Objects::nonNull)
                 .findFirst()
@@ -367,7 +474,7 @@ public class CPHearingResultEntityMapper {
 
     private CPCourtApplicationEntity toCourtApplicationEntity(final CourtApplication application, final UUID versionPk) {
         return CPCourtApplicationEntity.builder()
-                .id(UUID.randomUUID()) // surrogate — one row per version, CP's real application id can repeat across versions (design doc §4.3) so can't be the PK
+                .id(UUID.randomUUID()) // surrogate — CP's application id can repeat across versions, can't be the PK (design doc §4.3)
                 .versionPk(versionPk)
                 .sourceApplicationId(UUID.fromString(application.getId()))
                 .reference(application.getApplicationReference())
@@ -378,25 +485,27 @@ public class CPHearingResultEntityMapper {
 
     private void addDirectOffence(final Offence offence, final UUID versionPk, final List<CPOffenceEntity> offences,
                                    final List<CPJudicialResultEntity> judicialResults, final List<CPJudicialResultPromptEntity> prompts) {
-        final CPOffenceEntity offenceEntity = toOffenceEntity(offence, versionPk, null);
+        final CPOffenceEntity offenceEntity = toOffenceEntity(offence, versionPk, null, null);
         offences.add(offenceEntity);
-        excludePublishedForNows(offence.getJudicialResults().stream())
+        excludePublishedForNows(Stream.ofNullable(offence.getJudicialResults()).flatMap(List::stream))
                 .forEach(r -> addResult(r, offenceEntity.getId(), null, judicialResults, prompts));
     }
 
-    private void addLinkedOffence(final Offence offence, final UUID courtApplicationId, final List<CPOffenceEntity> offences,
+    private void addLinkedOffence(final Offence offence, final UUID courtApplicationId, final String caseUrn,
+                                   final List<CPOffenceEntity> offences,
                                    final List<CPJudicialResultEntity> judicialResults, final List<CPJudicialResultPromptEntity> prompts) {
-        final CPOffenceEntity offenceEntity = toOffenceEntity(offence, null, courtApplicationId);
+        final CPOffenceEntity offenceEntity = toOffenceEntity(offence, null, courtApplicationId, caseUrn);
         offences.add(offenceEntity);
-        excludePublishedForNows(offence.getJudicialResults().stream())
+        excludePublishedForNows(Stream.ofNullable(offence.getJudicialResults()).flatMap(List::stream))
                 .forEach(r -> addResult(r, offenceEntity.getId(), null, judicialResults, prompts));
     }
 
-    private CPOffenceEntity toOffenceEntity(final Offence offence, final UUID versionPk, final UUID courtApplicationId) {
+    private CPOffenceEntity toOffenceEntity(final Offence offence, final UUID versionPk, final UUID courtApplicationId, final String caseUrn) {
         return CPOffenceEntity.builder()
-                .id(UUID.randomUUID()) // surrogate — CP's real offence id can repeat across versions, kept as sourceOffenceId only
+                .id(UUID.randomUUID()) // surrogate — CP's offence id can repeat across versions, kept as sourceOffenceId only
                 .versionPk(versionPk)
                 .courtApplicationId(courtApplicationId)
+                .caseUrn(caseUrn)
                 .sourceOffenceId(offence.getId() == null ? null : UUID.fromString(offence.getId()))
                 .code(offence.getOffenceCode())
                 .title(offence.getOffenceTitle())
@@ -414,9 +523,7 @@ public class CPHearingResultEntityMapper {
                 .build();
     }
 
-    // Legacy's OffenceMapper.js sources its "verdictCode" output from verdictType.description, a
-    // human-readable value (e.g. "Found guilty"), not CP's own verdict code — matches the api-cp
-    // contract's Offence.verdict, sourced the same way.
+    // Uses verdictType.description, not the verdict code.
     private String toVerdict(final Offence offence) {
         return offence.getVerdict() == null || offence.getVerdict().getVerdictType() == null
                 ? null
@@ -460,8 +567,7 @@ public class CPHearingResultEntityMapper {
     }
 
     private List<CPJudicialResultPromptEntity> toPromptEntities(final JudicialResult result, final UUID judicialResultId) {
-        // judicialResultPrompts absent entirely on a real judicial result that has none
-        // (confirmed against a real hearing fixture) — not always an empty list.
+        // judicialResultPrompts can be absent entirely, not just an empty list.
         return Stream.ofNullable(result.getJudicialResultPrompts()).flatMap(List::stream)
                 .map(p -> CPJudicialResultPromptEntity.builder()
                         .id(UUID.randomUUID())

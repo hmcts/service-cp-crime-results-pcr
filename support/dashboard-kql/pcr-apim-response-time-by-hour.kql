@@ -1,0 +1,7 @@
+// APIM PCR average response time, last 24h (one point per hour).
+// Source: App Insights `requests`.
+requests
+| where timestamp > ago(1d)
+| where name contains "pcr"
+| summarize AvgDurationMs = round(avg(duration), 1) by TimeGenerated = bin(timestamp, 1h)
+| render timechart

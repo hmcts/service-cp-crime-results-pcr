@@ -1,0 +1,14 @@
+ContainerLogV2
+| where PodName startswith 'pcr-data'
+| where TimeGenerated > ago(12h)
+| where ContainerName == 'springboot-app'
+| extend LogJson = parse_json(LogMessage)
+| extend Message = tostring(LogJson.message)
+| extend Level   = tostring(LogJson.level)
+| extend LocalTime = datetime_utc_to_local(TimeGenerated, 'Europe/London')
+| order by LocalTime desc
+| take 500
+| project
+    ['LocalTime'] = format_datetime(LocalTime, 'yyyy-MM-dd HH:mm:ss'),
+    Level,
+    Message

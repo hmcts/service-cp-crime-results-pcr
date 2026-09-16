@@ -8,8 +8,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
-// Same pattern as service-cp-crime-hearing-results-document-subscription's PostgresInitialise —
-// a real, manually-started Postgres, not Testcontainers.
+// Real, manually-started Postgres, not Testcontainers — matches PostgresInitialise elsewhere.
 public class PostgresInitialise implements ApplicationContextInitializer<ConfigurableApplicationContext> {
 
     @Override
@@ -19,9 +18,7 @@ public class PostgresInitialise implements ApplicationContextInitializer<Configu
                 "spring.datasource.url=jdbc:postgresql://localhost:5432/pcrdb",
                 "spring.datasource.username=postgres",
                 "spring.datasource.password=postgres",
-                // Each cached Spring test context keeps its own Hikari pool open; with the default
-                // size of 8 the many integration-test contexts exhaust PostgreSQL max_connections
-                // ("too many clients already"). Cap it small for tests.
+                // Cached test contexts each keep their own Hikari pool; default size exhausts max_connections.
                 "spring.datasource.hikari.maximum-pool-size=4"
         ).applyTo(ctx.getEnvironment());
     }

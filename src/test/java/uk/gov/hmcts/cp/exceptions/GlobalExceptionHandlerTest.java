@@ -9,8 +9,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.core.MethodParameter;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import uk.gov.hmcts.cp.openapi.model.ErrorResponse;
 import uk.gov.hmcts.cp.services.ClockService;
 
@@ -31,6 +33,8 @@ class GlobalExceptionHandlerTest {
     private Span span;
     @Mock
     private TraceContext traceContext;
+    @Mock
+    private MethodParameter methodParameter;
     @Spy
     private ClockService clockService =
             new ClockService(Clock.fixed(Instant.parse("2026-07-28T10:00:00Z"), ZoneOffset.UTC));
@@ -59,6 +63,32 @@ class GlobalExceptionHandlerTest {
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
         assertThat(response.getBody().getMessage()).isEqualTo(exception.getMessage());
+    }
+
+    @Test
+    void handleMethodArgumentTypeMismatchException_should_return400_withParameterAndTypeInMessage() {
+        stubTracer();
+        final MethodArgumentTypeMismatchException exception = new MethodArgumentTypeMismatchException(
+                "not-a-uuid", UUID.class, "hearingId", methodParameter, null);
+
+        final ResponseEntity<ErrorResponse> response = handler.handleMethodArgumentTypeMismatchException(exception);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(response.getBody().getError()).isEqualTo("BAD_REQUEST");
+        assertThat(response.getBody().getMessage()).isEqualTo("The supplied hearingId is not a valid UUID");
+        assertThat(response.getBody().getDetails().getParameter()).isEqualTo("hearingId");
+    }
+
+    @Test
+    void handleMethodArgumentTypeMismatchException_should_useGenericValue_whenRequiredTypeUnknown() {
+        stubTracer();
+        final MethodArgumentTypeMismatchException exception = new MethodArgumentTypeMismatchException(
+                "not-a-uuid", null, "hearingId", methodParameter, null);
+
+        final ResponseEntity<ErrorResponse> response = handler.handleMethodArgumentTypeMismatchException(exception);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(response.getBody().getMessage()).isEqualTo("The supplied hearingId is not a valid value");
     }
 
     private void stubTracer() {

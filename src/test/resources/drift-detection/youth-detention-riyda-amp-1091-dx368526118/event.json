@@ -1,0 +1,374 @@
+{
+  "hearing": {
+    "courtCentre": {
+      "address": {
+        "address1": "1 Queen Victoria Street",
+        "address2": "London",
+        "address3": "",
+        "address4": "",
+        "address5": "",
+        "postcode": "EC4N 4XY"
+      },
+      "code": "B01DU00",
+      "courtHearingLocation": "B01DU02",
+      "id": "c133d0de-c989-48b9-bd20-0431943e347e",
+      "lja": {
+        "ljaCode": "2570",
+        "ljaName": "Central London Magistrates' Court"
+      },
+      "name": "City of London Magistrates' Court",
+      "roomId": "6d335b1f-769f-3120-bcda-c5d7c0725d3a",
+      "roomName": "Courtroom 02"
+    },
+    "defendantAttendance": [
+      {
+        "attendanceDays": [
+          {
+            "attendanceType": "IN_PERSON",
+            "day": "2026-09-04"
+          }
+        ],
+        "defendantId": "ac5ba56c-5be4-4e17-9d53-78f7e0d0203c"
+      }
+    ],
+    "defendantJudicialResults": [
+      {
+        "defendantId": "ac5ba56c-5be4-4e17-9d53-78f7e0d0203c",
+        "judicialResult": {
+          "alwaysPublished": false,
+          "canBeSubjectOfBreach": false,
+          "canBeSubjectOfVariation": false,
+          "canExtendActiveOrder": false,
+          "category": "ANCILLARY",
+          "committedToCC": false,
+          "courtClerk": {
+            "firstName": "Erica",
+            "lastName": "Wilson",
+            "userId": "a085e359-6069-4694-8820-7810e7dfe762"
+          },
+          "d20": false,
+          "excludedFromResults": false,
+          "isAdjournmentResult": false,
+          "isAvailableForCourtExtract": false,
+          "isConvictedResult": false,
+          "isDeleted": false,
+          "isFinancialResult": false,
+          "isNewAmendment": true,
+          "isUnscheduled": false,
+          "judicialResultId": "22d50183-fbe9-48b0-9a84-2cee1da7954a",
+          "judicialResultPrompts": [
+            {
+              "courtExtract": "N",
+              "isFinancialImposition": false,
+              "judicialResultPromptTypeId": "6b8c8f13-b8d1-4f72-85e8-cc9128e5ec71",
+              "label": "Risk or vulnerability factors",
+              "promptReference": "riskOrVulnerabilityFactors",
+              "promptSequence": 100,
+              "type": "TXT",
+              "usergroups": [],
+              "value": "RiskFactor",
+              "welshLabel": "Ffactorau risg neu fregusrwydd",
+              "welshValue": "RiskFactor"
+            }
+          ],
+          "judicialResultTypeId": "66105417-41c8-420d-820f-40b61b507442",
+          "label": "Risk or vulnerability factors",
+          "lastSharedDateTime": "2026-09-04",
+          "level": "D",
+          "lifeDuration": false,
+          "offenceId": "5caec43c-8003-4e94-8fe7-863c1965032d",
+          "orderedDate": "2026-09-04",
+          "orderedHearingId": "8b2aad1e-7583-4b7f-b338-1b613126979e",
+          "parentJudicialResultId": "8b1bad10-f08c-45b4-9565-ed8ba0ceca83",
+          "parentJudicialResultTypeId": "b3666e81-b553-4a15-afa3-ad954fedc1e5",
+          "postHearingCustodyStatus": "A",
+          "preserveActiveOrder": false,
+          "publishedAsAPrompt": true,
+          "publishedForNows": true,
+          "rank": 800,
+          "resultText": "vulnerability - Risk or vulnerability factors",
+          "rollUpPrompts": false,
+          "rootJudicialResultId": "8b1bad10-f08c-45b4-9565-ed8ba0ceca83",
+          "rootJudicialResultTypeId": "b3666e81-b553-4a15-afa3-ad954fedc1e5",
+          "sentToCC": false,
+          "terminatesOffenceProceedings": false,
+          "urgent": false,
+          "usergroups": [],
+          "welshLabel": "Ffactorau risg neu fregusrwydd"
+        },
+        "masterDefendantId": "ac5ba56c-5be4-4e17-9d53-78f7e0d0203c"
+      }
+    ],
+    "hasSharedResults": true,
+    "hearingDays": [
+      {
+        "courtCentreId": "c133d0de-c989-48b9-bd20-0431943e347e",
+        "courtRoomId": "6d335b1f-769f-3120-bcda-c5d7c0725d3a",
+        "hasSharedResults": true,
+        "isCancelled": false,
+        "listedDurationMinutes": 20,
+        "listingSequence": 0,
+        "sittingDay": "2026-09-04T10:30:00.000Z"
+      }
+    ],
+    "hearingLanguage": "ENGLISH",
+    "id": "8b2aad1e-7583-4b7f-b338-1b613126979e",
+    "isGroupProceedings": false,
+    "jurisdictionType": "MAGISTRATES",
+    "prosecutionCases": [
+      {
+        "caseStatus": "ACTIVE",
+        "cpsOrganisation": "A30AB00",
+        "defendants": [
+          {
+            "courtProceedingsInitiated": "2026-09-04T13:29:45.571Z",
+            "id": "ac5ba56c-5be4-4e17-9d53-78f7e0d0203c",
+            "isYouth": false,
+            "masterDefendantId": "ac5ba56c-5be4-4e17-9d53-78f7e0d0203c",
+            "offences": [
+              {
+                "arrestDate": "2026-08-20",
+                "chargeDate": "2026-08-25",
+                "convictingCourt": {
+                  "code": "B01DU00",
+                  "id": "c133d0de-c989-48b9-bd20-0431943e347e",
+                  "lja": {
+                    "ljaCode": "2570",
+                    "ljaName": "Central London Magistrates' Court"
+                  },
+                  "name": "City of London Magistrates' Court",
+                  "roomId": "6d335b1f-769f-3120-bcda-c5d7c0725d3a"
+                },
+                "convictionDate": "2026-09-04",
+                "count": 0,
+                "dvlaOffenceCode": "NE99",
+                "endorsableFlag": false,
+                "id": "5caec43c-8003-4e94-8fe7-863c1965032d",
+                "isDisposed": true,
+                "judicialResults": [
+                  {
+                    "alwaysPublished": false,
+                    "canBeSubjectOfBreach": false,
+                    "canBeSubjectOfVariation": false,
+                    "canExtendActiveOrder": false,
+                    "category": "FINAL",
+                    "cjsCode": "1110",
+                    "committedToCC": false,
+                    "courtClerk": {
+                      "firstName": "Erica",
+                      "lastName": "Wilson",
+                      "userId": "a085e359-6069-4694-8820-7810e7dfe762"
+                    },
+                    "d20": false,
+                    "durationElement": {
+                      "primaryDurationUnit": "W",
+                      "primaryDurationValue": 3
+                    },
+                    "excludedFromResults": false,
+                    "isAdjournmentResult": false,
+                    "isAvailableForCourtExtract": true,
+                    "isConvictedResult": false,
+                    "isDeleted": false,
+                    "isFinancialResult": false,
+                    "isNewAmendment": true,
+                    "isUnscheduled": false,
+                    "judicialResultId": "8b1bad10-f08c-45b4-9565-ed8ba0ceca83",
+                    "judicialResultPrompts": [
+                      {
+                        "courtExtract": "Y",
+                        "isFinancialImposition": false,
+                        "judicialResultPromptTypeId": "efdd5356-8165-4576-a084-0ec217202f39",
+                        "label": "Court which imposed the original sentence",
+                        "promptReference": "courtWhichImposedTheOriginalSentence",
+                        "promptSequence": 100,
+                        "type": "FIXL",
+                        "usergroups": [],
+                        "value": "Stoke-on-Trent Crown Court",
+                        "welshValue": "Stoke-on-Trent Crown Court"
+                      },
+                      {
+                        "courtExtract": "Y",
+                        "isFinancialImposition": false,
+                        "judicialResultPromptTypeId": "0d4d6ebc-f08c-40e1-a827-cea2c507f556",
+                        "label": "Imposition Date",
+                        "promptReference": "impositionDate",
+                        "promptSequence": 200,
+                        "type": "DATE",
+                        "usergroups": [],
+                        "value": "14/09/2026",
+                        "welshValue": "14/09/2026"
+                      },
+                      {
+                        "courtExtract": "Y",
+                        "durationSequence": 1,
+                        "isFinancialImposition": false,
+                        "judicialResultPromptTypeId": "e2c7ff23-0123-44d0-b607-13c4f92e7c52",
+                        "label": "Returned to detention for",
+                        "promptReference": "durationValueForReturnToDetentionPeriod",
+                        "promptSequence": 300,
+                        "type": "INTM",
+                        "usergroups": [],
+                        "value": "3 Weeks",
+                        "welshValue": "3 Weeks"
+                      },
+                      {
+                        "courtExtract": "N",
+                        "isFinancialImposition": false,
+                        "judicialResultPromptTypeId": "6927b6ac-4c85-4532-838d-88ac00ea83f9",
+                        "label": "Conveyor / custodian name organisation name",
+                        "promptReference": "conveyorcustodiannameOrganisationName",
+                        "promptSequence": 600,
+                        "type": "NAMEADDRESS",
+                        "usergroups": [],
+                        "value": "Bradford Crown Court: PECS",
+                        "welshValue": "Bradford Crown Court: PECS"
+                      },
+                      {
+                        "courtExtract": "N",
+                        "isFinancialImposition": false,
+                        "judicialResultPromptTypeId": "6927b6ac-4c85-4532-838d-88ac00ea83f9",
+                        "label": "Conveyor / custodian name email address 1",
+                        "promptReference": "conveyorcustodiannameEmailAddress1",
+                        "promptSequence": 600,
+                        "type": "NAMEADDRESS",
+                        "usergroups": [],
+                        "value": "bradfordcc@geoamey.co.uk",
+                        "welshValue": "bradfordcc@geoamey.co.uk"
+                      },
+                      {
+                        "courtExtract": "N",
+                        "judicialResultPromptTypeId": "66105417-41c8-420d-820f-40b61b507442",
+                        "label": "Risk or vulnerability factors",
+                        "promptReference": "22d50183-fbe9-48b0-9a84-2cee1da7954a",
+                        "promptSequence": 700,
+                        "usergroups": [],
+                        "value": "Risk or vulnerability factors:RiskFactor",
+                        "welshLabel": "Ffactorau risg neu fregusrwydd"
+                      }
+                    ],
+                    "judicialResultTypeId": "b3666e81-b553-4a15-afa3-ad954fedc1e5",
+                    "label": "Return to detention order (breach requirement of DTO)",
+                    "lastSharedDateTime": "2026-09-04",
+                    "level": "O",
+                    "lifeDuration": false,
+                    "orderedDate": "2026-09-04",
+                    "orderedHearingId": "8b2aad1e-7583-4b7f-b338-1b613126979e",
+                    "policeSubjectLineTitle": "Final Sentence",
+                    "postHearingCustodyStatus": "A",
+                    "preserveActiveOrder": false,
+                    "publishedAsAPrompt": false,
+                    "publishedForNows": false,
+                    "rank": 123900,
+                    "resultText": "RDET - Return to detention order (breach requirement of DTO)\nFor failing to comply with a requirement imposed upon release from detention under a detention and training order imposed by Stoke-on-Trent Crown Court on 14/09/2026, ordered to be detained for 3 Weeks. ",
+                    "rollUpPrompts": true,
+                    "rootJudicialResultId": "8b1bad10-f08c-45b4-9565-ed8ba0ceca83",
+                    "rootJudicialResultTypeId": "b3666e81-b553-4a15-afa3-ad954fedc1e5",
+                    "sentToCC": false,
+                    "terminatesOffenceProceedings": false,
+                    "urgent": false,
+                    "usergroups": []
+                  }
+                ],
+                "listingNumber": 1,
+                "maxPenalty": "EW:6M &/or Ultd Fine",
+                "modeOfTrial": "Either Way",
+                "offenceCode": "TH68013A",
+                "offenceDateCode": 1,
+                "offenceDefinitionId": "ce94a77f-182e-3dcd-91e2-fdde31b74844",
+                "offenceFacts": {
+                  "alcoholReadingAmount": 500,
+                  "alcoholReadingMethodCode": "A",
+                  "alcoholReadingMethodDescription": "Blood"
+                },
+                "offenceLegislation": "Contrary to section 1(1)    of the Criminal Attempts Act 1981.",
+                "offenceLegislationWelsh": "Yn groes i adran 1(1) Deddf Ymgeisiau i Droseddu 1981.",
+                "offenceTitle": "Attempt theft of motor vehicle",
+                "offenceTitleWelsh": "Ymgais i ddwyn cerbyd modur",
+                "orderIndex": 1,
+                "plea": {
+                  "offenceId": "5caec43c-8003-4e94-8fe7-863c1965032d",
+                  "originatingHearingId": "8b2aad1e-7583-4b7f-b338-1b613126979e",
+                  "pleaDate": "2026-09-04",
+                  "pleaValue": "GUILTY"
+                },
+                "startDate": "2026-07-06",
+                "wording": "Attempt theft to vehicle"
+              }
+            ],
+            "personDefendant": {
+              "arrestSummonsNumber": "2391NX0000115237344D",
+              "bailConditions": "",
+              "bailStatus": {
+                "code": "A",
+                "description": "Not applicable",
+                "id": "86009c70-759d-3308-8de4-194886ff9a77"
+              },
+              "driverNumber": "VANFL002222OW9PH",
+              "personDetails": {
+                "address": {
+                  "address1": "50 Main Street",
+                  "address2": "Main Street",
+                  "address3": "Liverpool",
+                  "address4": "Merseyside",
+                  "postcode": "NW1 5BR"
+                },
+                "contact": {
+                  "home": "0216419154",
+                  "mobile": "06183543459",
+                  "primaryEmail": "kasey.schoen@example.com"
+                },
+                "dateOfBirth": "1975-09-04",
+                "documentationLanguageNeeds": "ENGLISH",
+                "ethnicity": {
+                  "observedEthnicityCode": "1",
+                  "observedEthnicityDescription": "White",
+                  "observedEthnicityId": "c4ca4238-a0b9-3382-8dcc-509a6f75849b",
+                  "selfDefinedEthnicityCode": "W1",
+                  "selfDefinedEthnicityDescription": "British",
+                  "selfDefinedEthnicityId": "c4ca4238-a0b9-3382-8dcc-509a6f75849b"
+                },
+                "firstName": "Kasey",
+                "gender": "MALE",
+                "hearingLanguageNeeds": "ENGLISH",
+                "lastName": "Schoen",
+                "title": "Mr"
+              },
+              "policeBailStatus": {
+                "code": "C",
+                "description": "Custody",
+                "id": "12e69486-4d01-3403-a50a-7419ca040635"
+              }
+            },
+            "prosecutionAuthorityReference": "2391NX0000115237344D",
+            "prosecutionCaseId": "ff18281f-78b7-4687-98f4-85bb69333b14"
+          }
+        ],
+        "id": "ff18281f-78b7-4687-98f4-85bb69333b14",
+        "initiationCode": "C",
+        "originatingOrganisation": "0480000",
+        "prosecutionCaseIdentifier": {
+          "address": {
+            "address1": "Bishopsgate police station",
+            "address2": "182, Bishopsgate",
+            "address5": "London",
+            "postcode": "EC2M 4NP"
+          },
+          "contact": {
+            "primaryEmail": "casebuilderscpsmemos@cityoflondon.police.uk"
+          },
+          "majorCreditorCode": "COLP",
+          "prosecutionAuthorityCode": "CITYPF",
+          "prosecutionAuthorityId": "baa2ec52-296b-3f38-922a-9e641c1f94d3",
+          "prosecutionAuthorityName": "City of London Police",
+          "prosecutionAuthorityOUCode": "0480000",
+          "caseURN": "DX368526118"
+        }
+      }
+    ],
+    "type": {
+      "description": "First hearing",
+      "id": "4a0e892d-c0c5-3c51-95b8-704d8c781776"
+    }
+  },
+  "sharedTime": "2026-09-04T13:31:02.871Z"
+}

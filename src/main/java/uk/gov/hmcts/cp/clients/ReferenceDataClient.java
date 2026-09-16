@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.owasp.encoder.Encode;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.util.UriComponentsBuilder;
 import uk.gov.hmcts.cp.config.AppPropertiesBackend;
 import uk.gov.hmcts.cp.domain.pcrcompute.CPNowSubscription;
@@ -29,12 +30,18 @@ public class ReferenceDataClient {
     public List<CPNowSubscription> getPrisonCourtRegisterSubscriptions(final LocalDate activeAt) {
         final String url = buildUrl(activeAt);
         log.info("Getting now-subscriptions from {}", Encode.forJava(url));
-        final CPNowSubscriptionsResponse response = restClient.get()
-                .uri(url)
-                .header("Accept", ACCEPT_NOW_SUBSCRIPTIONS)
-                .header("CJSCPPUID", appProperties.getReferenceDataCjscppuid())
-                .retrieve()
-                .body(CPNowSubscriptionsResponse.class);
+        final CPNowSubscriptionsResponse response;
+        try {
+            response = restClient.get()
+                    .uri(url)
+                    .header("Accept", ACCEPT_NOW_SUBSCRIPTIONS)
+                    .header("CJSCPPUID", appProperties.getReferenceDataCjscppuid())
+                    .retrieve()
+                    .body(CPNowSubscriptionsResponse.class);
+        } catch (RestClientException e) {
+            log.error("ReferenceDataClient call failed for activeAt:{} — {}", activeAt, e.getMessage(), e);
+            throw e;
+        }
         return response == null || response.getNowSubscriptions() == null
                 ? List.of()
                 : response.getNowSubscriptions();

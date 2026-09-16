@@ -49,11 +49,7 @@ public class CPJudicialResultPromptParser {
         return findPrompt(result, IMPRISONMENT_PERIOD_PROMPT).orElse(null);
     }
 
-    // "Life" takes priority over any duration prompt — a life sentence can still carry an
-    // imprisonmentPeriod/totalCustodialPeriod value (e.g. a minimum term), but the overall
-    // period is life regardless. Otherwise falls back from the specific totalCustodialPeriod
-    // prompt to imprisonmentPeriod, since a single-offence result carries duration under
-    // imprisonmentPeriod rather than a separate totalCustodialPeriod prompt.
+    // "Life" wins even if a duration prompt is also present. Otherwise falls back to imprisonmentPeriod.
     public String totalCustodialPeriod(final JudicialResult result) {
         return isLife(result)
                 ? LIFE
@@ -69,8 +65,7 @@ public class CPJudicialResultPromptParser {
     }
 
     private Optional<String> findPrompt(final JudicialResult result, final String promptReference) {
-        // judicialResultPrompts absent entirely on a real judicial result that has none
-        // (confirmed against a real hearing fixture) — not always an empty list.
+        // judicialResultPrompts can be absent entirely, not just an empty list.
         return Stream.ofNullable(result.getJudicialResultPrompts()).flatMap(List::stream)
                 .filter(p -> promptReference.equals(p.getPromptReference()))
                 .map(JudicialResultPrompt::getValue)

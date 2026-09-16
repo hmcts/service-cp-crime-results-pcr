@@ -25,6 +25,9 @@ class ServiceBusProvisioningServiceTest {
     @Mock
     private PagedIterable<QueueProperties> queues;
 
+    @Mock
+    private QueueProperties queueProperties;
+
     @InjectMocks
     private ServiceBusProvisioningService provisioningService;
 
@@ -55,5 +58,13 @@ class ServiceBusProvisioningServiceTest {
         when(adminClient.getQueueExists(QUEUE_NAME)).thenReturn(false);
 
         assertThat(provisioningService.queueExists(QUEUE_NAME)).isFalse();
+    }
+
+    @Test
+    void maxDeliveryCountOf_should_returnConfiguredValue() {
+        when(adminClient.getQueue(QUEUE_NAME)).thenReturn(queueProperties);
+        when(queueProperties.getMaxDeliveryCount()).thenReturn(10);
+
+        assertThat(provisioningService.maxDeliveryCountOf(QUEUE_NAME)).isEqualTo(10);
     }
 }

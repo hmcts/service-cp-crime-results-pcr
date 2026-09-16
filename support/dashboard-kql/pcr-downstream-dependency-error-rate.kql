@@ -1,0 +1,13 @@
+ContainerLogV2
+| where PodName startswith 'pcr-data'
+| where TimeGenerated > ago(7d)
+| where ContainerName == 'springboot-app'
+| where LogLevel == 'error'
+| where LogMessage has_any ('ResultsClient call failed', 'ReferenceDataClient call failed', 'HearingResultedCacheClient call failed')
+| extend Dependency = case(
+    LogMessage contains 'ResultsClient call failed', 'ResultsClient',
+    LogMessage contains 'ReferenceDataClient call failed', 'ReferenceDataClient',
+    LogMessage contains 'HearingResultedCacheClient call failed', 'HearingResultedCacheClient',
+    'unknown')
+| summarize ErrorCount = count() by bin(TimeGenerated, 1h), Dependency
+| render timechart

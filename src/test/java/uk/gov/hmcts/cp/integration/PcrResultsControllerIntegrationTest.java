@@ -100,6 +100,16 @@ class PcrResultsControllerIntegrationTest extends ControllerRepositoryIntegratio
                 .andExpect(status().isBadRequest());
     }
 
+    @Test
+    void getPcrHearingResults_should_returnOk_whenCaseUrnIsCommaJoinedMultiCaseApplicationReference() throws Exception {
+        mockMvc.perform(get("/cases/{caseURN}/hearings/{hearingId}/defendants/{defendantId}",
+                        "IE137532124,XI137534386", HEARING_ID, DEFENDANT_ID))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$").isEmpty());
+    }
+
     private void seedOneVersion() {
         final ProsecutionCase prosecutionCase = ProsecutionCase.builder()
                 .prosecutionCaseIdentifier(ProsecutionCaseIdentifier.builder().caseURN(CASE_URN).build())
