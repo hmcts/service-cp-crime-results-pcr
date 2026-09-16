@@ -6,6 +6,9 @@ services:
     environment:
       DATASOURCE_URL: jdbc:postgresql://postgres:5432/pcrdb
       REDIS_HOST: redis
+      # auth.mode already defaults to OFF (application.yaml); explicit here so this compose
+      # stack's intent doesn't depend on that default staying unchanged.
+      AUTH_MODE: "OFF"
       # auto-start-processors defaults to true (application.yaml); without these, the consumer's
       # admin/connection URIs default to sb://localhost, which inside this container is itself,
       # not the servicebus container — the consumer never connects and app startup times out.
