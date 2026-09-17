@@ -234,9 +234,25 @@ class PcrDriftDetectionIntegrationTest extends IngestionE2ETestBase {
             }
             final String defendantId = resolveDefendantId(masterDefendant, application);
             if (defendantId != null) {
-                caseUrnByDefendantId.putIfAbsent(defendantId, application.get("applicationReference").asString());
+                caseUrnByDefendantId.putIfAbsent(defendantId, caseUrnOf(application));
             }
         }
+    }
+
+    // Mirrors CPHearingResultEntityMapper.caseUrnOf — the first linked case's real caseURN,
+    // falling back to applicationReference (a standalone application has no linked cases).
+    private String caseUrnOf(final JsonNode application) {
+        final JsonNode courtApplicationCases = application.get("courtApplicationCases");
+        if (courtApplicationCases != null) {
+            for (final JsonNode cac : courtApplicationCases) {
+                final JsonNode identifier = cac.get("prosecutionCaseIdentifier");
+                final JsonNode caseUrn = identifier == null ? null : identifier.get("caseURN");
+                if (caseUrn != null) {
+                    return caseUrn.asString();
+                }
+            }
+        }
+        return application.get("applicationReference").asString();
     }
 
     private String resolveDefendantId(final JsonNode masterDefendant, final JsonNode application) {
