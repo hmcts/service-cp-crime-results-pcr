@@ -22,13 +22,19 @@ apply {
   from("$rootDir/gradle/test.gradle")
   from("$rootDir/gradle/jar.gradle")
   from("$rootDir/gradle/docker-test.gradle")
+  from("$rootDir/gradle/apispec-validation.gradle")
+}
+
+configurations {
+  apiSpec
+  implementation.extendsFrom apiSpec
 }
 
 // We MUST keep all dependencies in the build.gradle to allow dependabot to provide version updates
 // Sadly, dependabot does not track dependencies in the apply-from files
 dependencies {
   // Api spec
-  implementation('uk.gov.hmcts.cp:api-cp-crime-results-pcr:1.1.24')
+  apiSpec 'uk.gov.hmcts.cp:api-cp-crime-results-pcr:1.1.24'
   implementation 'io.swagger.core.v3:swagger-annotations:2.2.55'
 
   // Java core
