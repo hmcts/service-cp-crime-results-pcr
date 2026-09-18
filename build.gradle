@@ -68,5 +68,5 @@ dependencies {
   implementation 'com.azure:azure-identity:1.18.6'
   implementation 'org.awaitility:awaitility:4.3.0'
 
-  implementation 'com.nimbusds:nimbus-jose-jwt:10.9.1' // Entra access token validation
+  implementation 'com.nimbusds:nimbus-jose-jwt:10.10' // Entra access token validation
 }
