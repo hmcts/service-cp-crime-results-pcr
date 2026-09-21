@@ -46,12 +46,7 @@ public class CPEntityPersistenceService {
                 .orElseGet(() -> createCaseHearing(prosecutionCase, hearing, hearingId));
     }
 
-    // Overload for a court-application-only case — no case markers, CP has none for these.
-    // caseId is the linked prosecution case's id where the application references one
-    // (see CPHearingResultEntityMapper.caseIdOf) — a standalone application has none.
-    // relatedCaseUrns is the full set backing caseUrn's choice when the application spans
-    // multiple linked cases (see CPHearingResultEntityMapper.caseUrnOf/relatedCaseUrnsOf) — empty
-    // for a standalone application.
+    // Court-application-only overload — no case markers (CP has none for applications); caseId/relatedCaseUrns are null/empty for a standalone application (see CPHearingResultEntityMapper.caseIdOf/caseUrnOf/relatedCaseUrnsOf).
     public UUID findOrCreateCaseHearing(final String caseUrn, final HearingDetail hearing, final UUID hearingId,
                                          final String prosecutorName, final UUID caseId, final List<String> relatedCaseUrns) {
         return caseHearingRepository.findByCaseUrnAndHearingId(caseUrn, hearingId)
