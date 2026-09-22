@@ -11,6 +11,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.slf4j.MDC;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import tools.jackson.databind.ObjectMapper;
@@ -26,9 +27,11 @@ import uk.gov.hmcts.cp.openapi.model.ErrorResponse;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -78,6 +81,28 @@ class ClientIdResolutionFilterTest {
 
         verify(filterChain).doFilter(request, response);
         assertThat(request.getAttribute(ClientIdResolutionFilter.CALLER_ATTRIBUTE)).isEqualTo(VERIFIED_CALLER);
+    }
+
+    @Test
+    void doFilterInternal_should_populateMdc_duringChainExecution_andClearItAfter() throws Exception {
+        lenient().when(properties.getMode()).thenReturn(AuthMode.ENFORCE);
+        when(tokenValidator.validate("a-valid-token")).thenReturn(VERIFIED_CALLER);
+        final MockHttpServletRequest request = protectedRequest("Bearer a-valid-token");
+        final MockHttpServletResponse response = new MockHttpServletResponse();
+        final AtomicReference<String> clientIdDuringChain = new AtomicReference<>();
+        final AtomicReference<String> clientVerifiedDuringChain = new AtomicReference<>();
+        doAnswer(invocation -> {
+            clientIdDuringChain.set(MDC.get("clientId"));
+            clientVerifiedDuringChain.set(MDC.get("clientVerified"));
+            return null;
+        }).when(filterChain).doFilter(request, response);
+
+        filter.doFilterInternal(request, response, filterChain);
+
+        assertThat(clientIdDuringChain.get()).isEqualTo(VERIFIED_CALLER.clientId().toString());
+        assertThat(clientVerifiedDuringChain.get()).isEqualTo("true");
+        assertThat(MDC.get("clientId")).isNull();
+        assertThat(MDC.get("clientVerified")).isNull();
     }
 
     @Test
@@ -179,7 +204,7 @@ class ClientIdResolutionFilterTest {
         filter.doFilterInternal(request, response, filterChain);
 
         verify(filterChain).doFilter(request, response);
-        assertThat(meterRegistry.get("cp.auth.observed.failure").tag("reason", "EXPIRED").counter().count())
+        assertThat(meterRegistry.get("auth.token.validation.observed").tag("reason", "EXPIRED").counter().count())
                 .isEqualTo(1.0);
         final ValidatedCaller caller = (ValidatedCaller) request.getAttribute(ClientIdResolutionFilter.CALLER_ATTRIBUTE);
         assertThat(caller.verified()).isFalse();

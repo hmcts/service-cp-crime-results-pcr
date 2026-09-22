@@ -50,7 +50,7 @@ class EntraTokenValidatorTest {
         signingKey = new RSAKeyGenerator(2048).keyID(KEY_ID).generate();
         final JWKSource<SecurityContext> jwkSource = new ImmutableJWKSet<>(new JWKSet(signingKey.toPublicJWK()));
         final EntraAuthProperties properties =
-                new EntraAuthProperties(AuthMode.ENFORCE, TENANT_ID, AUDIENCE, ISSUER, "", 60, 600, "PRD");
+                new EntraAuthProperties(AuthMode.ENFORCE, TENANT_ID, AUDIENCE, "app.read", ISSUER, "", 60, 600, "PRD");
         validator = new EntraTokenValidator(properties, jwkSource, new SimpleMeterRegistry());
     }
 
@@ -67,7 +67,7 @@ class EntraTokenValidatorTest {
                 .claim("ver", "2.0")
                 .claim("oid", OID)
                 .claim("azp", AZP)
-                .claim("roles", List.of("PcrReader"));
+                .claim("roles", List.of("app.read"));
     }
 
     private static String mint(final Consumer<JWTClaimsSet.Builder> customizer) throws JOSEException {
@@ -98,7 +98,7 @@ class EntraTokenValidatorTest {
 
         assertThat(caller.clientId()).isEqualTo(UUID.fromString(AZP));
         assertThat(caller.verified()).isTrue();
-        assertThat(caller.roles()).containsExactly("PcrReader");
+        assertThat(caller.roles()).containsExactly("app.read");
     }
 
     @Test
@@ -215,6 +215,13 @@ class EntraTokenValidatorTest {
     }
 
     @Test
+        // A multi-valued aud containing ours alongside another resource must still be rejected —
+        // exact single-value match only, never "contains".
+    void validate_should_reject_multiValuedAudience_evenWhenOursIsIncluded() throws Exception {
+        assertReason(mint(b -> b.audience(List.of(AUDIENCE, SIBLING_AUDIENCE))), Reason.UNTRUSTED_AUDIENCE);
+    }
+
+    @Test
     void validate_should_reject_wrongIssuer() throws Exception {
         assertReason(mint(b -> b.issuer("https://login.microsoftonline.com/" + OTHER_TENANT_ID + "/v2.0")),
                 Reason.UNTRUSTED_ISSUER);
@@ -282,6 +289,13 @@ class EntraTokenValidatorTest {
     @Test
     void validate_should_reject_tokenWithEmptyRolesArray() throws Exception {
         assertReason(mint(b -> b.claim("roles", List.of())), Reason.MISSING_ROLES);
+    }
+
+    @Test
+        // Roles present but none configured — distinct from the empty-roles case: proves the
+        // check is a configured allowlist intersection, not merely "any role present".
+    void validate_should_reject_tokenWithRoles_whenNoneMatchTheConfiguredAllowlist() throws Exception {
+        assertReason(mint(b -> b.claim("roles", List.of("some.other.role"))), Reason.MISSING_ROLES);
     }
 
     // --- Leakage -------------------------------------------------------------

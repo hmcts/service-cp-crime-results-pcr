@@ -47,7 +47,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
         "service-bus.auto-start-processors=false",
         "auth.mode=ENFORCE",
         "auth.tenant-id=11111111-1111-1111-1111-111111111111",
-        "auth.audience=22222222-2222-2222-2222-222222222222"
+        "auth.audience=22222222-2222-2222-2222-222222222222",
+        "auth.roles=app.read"
 })
 class EntraAuthIntegrationTest {
 
@@ -135,7 +136,7 @@ class EntraAuthIntegrationTest {
                 .claim("ver", "2.0")
                 .claim("oid", OID)
                 .claim("azp", AZP)
-                .claim("roles", List.of("PcrReader"));
+                .claim("roles", List.of("app.read"));
         customizer.accept(builder);
         final SignedJWT jwt = new SignedJWT(new JWSHeader.Builder(JWSAlgorithm.RS256).keyID(KEY_ID).build(), builder.build());
         jwt.sign(new RSASSASigner(signingKey));
