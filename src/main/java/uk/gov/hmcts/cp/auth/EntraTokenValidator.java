@@ -27,8 +27,8 @@ import java.util.UUID;
 @Service
 public class EntraTokenValidator {
 
-    private static final String SUCCESS_METRIC = "cp.auth.success";
-    private static final String FAILURE_METRIC = "cp.auth.failure";
+    private static final String SUCCESS_METRIC = "auth.token.validation.success";
+    private static final String FAILURE_METRIC = "auth.token.validation.failure";
 
     private final EntraAuthProperties properties;
     private final MeterRegistry meterRegistry;
@@ -86,7 +86,7 @@ public class EntraTokenValidator {
             throw new TokenValidationException(Reason.SCOPE_PRESENT);
         }
         final List<String> roles = rolesClaim(claims);
-        if (roles.isEmpty()) {
+        if (roles.stream().noneMatch(properties.getRoles()::contains)) {
             throw new TokenValidationException(Reason.MISSING_ROLES);
         }
         // App-only is proven by sub == oid, never by idtyp — Entra omits idtyp unless explicitly
@@ -110,7 +110,8 @@ public class EntraTokenValidator {
     }
 
     private void requireAudience(final JWTClaimsSet claims) throws TokenValidationException {
-        if (!claims.getAudience().contains(properties.getAudience())) {
+        final List<String> audience = claims.getAudience();
+        if (audience.size() != 1 || !audience.get(0).equals(properties.getAudience())) {
             throw new TokenValidationException(Reason.UNTRUSTED_AUDIENCE);
         }
     }

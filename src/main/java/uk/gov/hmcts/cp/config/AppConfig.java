@@ -12,9 +12,15 @@ import uk.gov.hmcts.cp.services.ClockService;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.time.Clock;
+import java.time.Duration;
 
 @Configuration
 public class AppConfig {
+
+    // Max time one JWKS refresh attempt may take — not a refresh interval. A small fixed
+    // value, not derived from the cache TTL.
+    private static final long JWKS_REFRESH_TIMEOUT_MILLIS = Duration.ofSeconds(15).toMillis();
+    private static final long JWKS_MIN_REFRESH_INTERVAL_MILLIS = Duration.ofSeconds(30).toMillis();
 
     @Bean
     public RestClient restClient(final OutboundTracingInterceptor outboundTracingInterceptor) {
@@ -33,12 +39,11 @@ public class AppConfig {
     // auth.mode is OFF, so a blank/local jwks-uri is harmless until validation actually runs.
     @Bean
     public JWKSource<SecurityContext> jwkSource(final EntraAuthProperties properties) throws MalformedURLException {
-        final long timeToLiveMillis = properties.getJwksCacheTtlSeconds() * 1000L;
-        // refresh-time must leave room for the builder's own refresh-ahead buffer, so it can't
-        // equal time-to-live — refreshing at the halfway point is a sane, simple choice.
-        final long refreshTimeMillis = timeToLiveMillis / 2;
+        final long timeToLiveMillis = Duration.ofSeconds(properties.getJwksCacheTtlSeconds()).toMillis();
         return JWKSourceBuilder.<SecurityContext>create(URI.create(properties.getJwksUri()).toURL())
-                .cache(timeToLiveMillis, refreshTimeMillis)
+                .cache(timeToLiveMillis, JWKS_REFRESH_TIMEOUT_MILLIS)
+                .rateLimited(JWKS_MIN_REFRESH_INTERVAL_MILLIS)
+                .retrying(true)
                 .build();
     }
 }

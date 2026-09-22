@@ -74,6 +74,7 @@ auth:
   mode: ${AUTH_MODE:OFF}
   tenant-id: ${AUTH_TENANT_ID:}
   audience: ${AUTH_AUDIENCE:}
+  roles: ${AUTH_ROLES:}
   issuer: ${AUTH_ISSUER:}
   jwks-uri: ${AUTH_JWKS_URI:}
   clock-skew-seconds: ${AUTH_CLOCK_SKEW_SECONDS:60}

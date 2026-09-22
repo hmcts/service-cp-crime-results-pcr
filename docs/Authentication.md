@@ -17,18 +17,21 @@ Implementation: `auth/` (`EntraAuthProperties`, `EntraTokenValidator`, `Authoriz
 | `auth.mode` | `AUTH_MODE` | `OFF` | `OFF` / `OBSERVE` / `ENFORCE` — see below |
 | `auth.tenant-id` | `AUTH_TENANT_ID` | blank | The **issuing** Entra tenant |
 | `auth.audience` | `AUTH_AUDIENCE` | blank | This API's own audience |
+| `auth.roles` | `AUTH_ROLES` | blank | Comma-separated app-role allowlist — the token's `roles` claim must intersect this set |
 | `auth.issuer` | `AUTH_ISSUER` | blank → derived from tenant id | Override |
 | `auth.jwks-uri` | `AUTH_JWKS_URI` | blank → derived from tenant id | Override |
-| `auth.clock-skew-seconds` | `AUTH_CLOCK_SKEW_SECONDS` | `60` (capped at `300`) | `exp`/`nbf` tolerance |
+| `auth.clock-skew-seconds` | `AUTH_CLOCK_SKEW_SECONDS` | `60` (must be `0`-`300`) | `exp`/`nbf` tolerance |
 | `auth.jwks-cache-ttl-seconds` | `AUTH_JWKS_CACHE_TTL_SECONDS` | `600` | JWKS cache lifetime |
 
-`tenant-id`/`audience` are required once `mode` is not `OFF`; startup fails otherwise.
+`tenant-id`/`audience`/`roles` are all required once `mode` is not `OFF`; startup fails
+otherwise — including for `roles`, so deploying a mode change without also setting `AUTH_ROLES`
+crash-loops the pod, not merely rejects tokens.
 
 ### Modes
 
 - `OFF` — no validation, identity unverified. Only mode permitted locally/in tests.
-- `OBSERVE` — validated, every failure logged and counted (`cp.auth.observed.failure`), but
-  nothing is rejected. Diagnostic only — **provides no protection**.
+- `OBSERVE` — validated, every failure logged and counted (`auth.token.validation.observed`),
+  but nothing is rejected. Diagnostic only — **provides no protection**.
 - `ENFORCE` — validated, invalid requests rejected.
 
 `OFF`/`OBSERVE` fail startup in any deployed environment (`environment.name` in
@@ -38,14 +41,14 @@ Implementation: `auth/` (`EntraAuthProperties`, `EntraTokenValidator`, `Authoriz
 
 | Claim | Requirement |
 |---|---|
-| `aud` | Exact match against `auth.audience` |
+| `aud` | Exact single-value match against `auth.audience` — a multi-valued `aud` containing it is still rejected |
 | `iss` | Exact match — never prefix/contains |
 | `exp` | Required, within clock skew |
 | `nbf` | Within clock skew, when present |
 | `tid` | Exact match against `auth.tenant-id` |
 | `ver` | Must be `2.0` |
 | `azp` | The caller identity — a UUID. **Never `oid`/`sub`** |
-| `roles` | Required, non-empty |
+| `roles` | Required, must intersect the configured `auth.roles` allowlist |
 | `scp` | Must be absent (its presence means a delegated, not app-only, token) |
 
 App-only is proven by `sub == oid` + non-empty `roles` + absent `scp` — **never by `idtyp`**,
@@ -63,7 +66,9 @@ validated bearer token once `auth.mode` is not `OFF`.
 
 - App registration exposing this API's own `aud`.
 - App roles **declared and assigned, with admin consent** — a declared role that isn't assigned
-  produces a token that looks correct but silently carries no `roles`.
+  produces a token that looks correct but silently carries no `roles`. The assigned role's
+  value must also be listed in `auth.roles`/`AUTH_ROLES` for this service, or a token that
+  genuinely carries roles still gets rejected as `MISSING_ROLES`.
 - `requestedAccessTokenVersion` pinned to `2`.
 - Per-environment tenant id (the **issuing** tenant, which may differ from the hosting tenant)
   and audience values.
@@ -72,6 +77,7 @@ validated bearer token once `auth.mode` is not `OFF`.
 
 `auth.mode` defaults to `OFF`, so `GET /cases/{caseURN}/hearings/{hearingId}/defendants/{defendantId}`
 works with no `Authorization` header out of the box. To exercise `ENFORCE` against a real
-tenant, set `AUTH_MODE=ENFORCE`, `AUTH_TENANT_ID`, and `AUTH_AUDIENCE` and supply a real bearer
-token. See `EntraTokenValidatorTest` for the conformance suite and `EntraAuthIntegrationTest`
-for the same behaviour proven through the real Spring filter chain against an in-process JWKS.
+tenant, set `AUTH_MODE=ENFORCE`, `AUTH_TENANT_ID`, `AUTH_AUDIENCE`, and `AUTH_ROLES`, and
+supply a real bearer token. See `EntraTokenValidatorTest` for the conformance suite and
+`EntraAuthIntegrationTest` for the same behaviour proven through the real Spring filter chain
+against an in-process JWKS.
