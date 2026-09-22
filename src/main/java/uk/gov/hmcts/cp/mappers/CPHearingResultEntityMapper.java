@@ -246,6 +246,31 @@ public class CPHearingResultEntityMapper {
                 .orElse(null);
     }
 
+    // CP comma-joins applicationReference for a multi-case-linked application; caseUrn must stay single-valued since it's this service's URL routing key.
+    public String caseUrnOf(final CourtApplication application) {
+        return Stream.ofNullable(application.getCourtApplicationCases())
+                .flatMap(List::stream)
+                .map(CourtApplicationCase::getProsecutionCaseIdentifier)
+                .filter(Objects::nonNull)
+                .map(HearingDetailsResponse.ProsecutionCaseIdentifier::getCaseURN)
+                .filter(Objects::nonNull)
+                .findFirst()
+                .orElseGet(application::getApplicationReference);
+    }
+
+    // Full set backing caseUrnOf's choice — empty unless the application spans more than one case.
+    public List<String> relatedCaseUrnsOf(final CourtApplication application) {
+        final List<String> caseUrns = Stream.ofNullable(application.getCourtApplicationCases())
+                .flatMap(List::stream)
+                .map(CourtApplicationCase::getProsecutionCaseIdentifier)
+                .filter(Objects::nonNull)
+                .map(HearingDetailsResponse.ProsecutionCaseIdentifier::getCaseURN)
+                .filter(Objects::nonNull)
+                .distinct()
+                .toList();
+        return caseUrns.size() > 1 ? caseUrns : List.of();
+    }
+
     // Ports PrisonCourtRegisterHandler.getDefendantType verbatim, quirks included — the applicant
     // branch never checks whose masterDefendant it is, unlike the respondent branch, which does.
     public String defendantType(final CourtApplication application, final String masterDefendantId) {
