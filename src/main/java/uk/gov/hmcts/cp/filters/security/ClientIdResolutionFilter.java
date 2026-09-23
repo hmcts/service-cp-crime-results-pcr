@@ -9,6 +9,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.MDC;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpHeaders;
@@ -45,7 +46,9 @@ import java.util.List;
 public class ClientIdResolutionFilter extends OncePerRequestFilter {
 
     public static final String CALLER_ATTRIBUTE = "uk.gov.hmcts.cp.auth.CALLER";
-    private static final String OBSERVED_FAILURE_METRIC = "cp.auth.observed.failure";
+    private static final String CLIENT_ID_MDC_KEY = "clientId";
+    private static final String CLIENT_VERIFIED_MDC_KEY = "clientVerified";
+    private static final String OBSERVED_FAILURE_METRIC = "auth.token.validation.observed";
     private static final ValidatedCaller UNVERIFIED_CALLER = new ValidatedCaller(null, List.of(), false);
 
     private final EntraAuthProperties properties;
@@ -66,12 +69,23 @@ public class ClientIdResolutionFilter extends OncePerRequestFilter {
                                      @Nonnull final HttpServletResponse response,
                                      @Nonnull final FilterChain filterChain) throws ServletException, IOException {
         try {
-            request.setAttribute(CALLER_ATTRIBUTE, resolveCaller(request));
+            final ValidatedCaller caller = resolveCaller(request);
+            request.setAttribute(CALLER_ATTRIBUTE, caller);
+            putCallerInMdc(caller);
+            filterChain.doFilter(request, response);
         } catch (TokenValidationException e) {
             writeRejection(request, response, e.getReason());
-            return;
+        } finally {
+            MDC.remove(CLIENT_ID_MDC_KEY);
+            MDC.remove(CLIENT_VERIFIED_MDC_KEY);
         }
-        filterChain.doFilter(request, response);
+    }
+
+    private void putCallerInMdc(final ValidatedCaller caller) {
+        if (caller.clientId() != null) {
+            MDC.put(CLIENT_ID_MDC_KEY, caller.clientId().toString());
+        }
+        MDC.put(CLIENT_VERIFIED_MDC_KEY, String.valueOf(caller.verified()));
     }
 
     private ValidatedCaller resolveCaller(final HttpServletRequest request) throws TokenValidationException {

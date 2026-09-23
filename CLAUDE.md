@@ -121,12 +121,16 @@ that looks arbitrary; it likely isn't.
   (results-query-client, reference-data-client)
 - `auth/` — Entra app-only bearer-token validation (see `docs/Authentication.md`):
   `EntraAuthProperties` (`@Value` config, fails startup if misconfigured in a deployed
-  environment), `EntraTokenValidator` (Nimbus JOSE JWT signature check pinned to `RS256`, then
-  every claim checked manually against `JWTClaimsSet` so each rejection carries an exact
-  `Reason`), `AuthorizationPolicy` (enumerated endpoint exemptions), `TokenValidationException`
-  (RFC 6750 `Reason` enum), `AuthMode` (`OFF`/`OBSERVE`/`ENFORCE`), `ValidatedCaller` (the
-  resolved identity record). No Spring Security — hand-rolled, mirroring the reference
-  implementation in `service-cp-crime-hearing-results-document-subscription`
+  environment — including a blank `auth.roles` allowlist once mode isn't `OFF`),
+  `EntraTokenValidator` (Nimbus JOSE JWT signature check pinned to `RS256`, then every claim
+  checked manually against `JWTClaimsSet` so each rejection carries an exact `Reason`; `aud` is
+  an exact single-value match, `roles` must intersect the configured allowlist),
+  `AuthorizationPolicy` (enumerated endpoint exemptions), `TokenValidationException` (RFC 6750
+  `Reason` enum), `AuthMode` (`OFF`/`OBSERVE`/`ENFORCE`), `ValidatedCaller` (the resolved
+  identity record). No Spring Security — hand-rolled, aligned with the pattern established by
+  `service-cp-refdata-courthearing-courthouses`/`service-cp-crime-prosecution-case-details`
+  (class/package names intentionally kept distinct — no shared library exists across these
+  repos by design)
 - `filters/security/ClientIdResolutionFilter` — the servlet `Filter` wiring `auth/` together;
   runs after `filters/tracing/TracingFilter` (`@Order(HIGHEST_PRECEDENCE + 10)`); writes
   rejections itself since it runs before Spring MVC dispatch, so `GlobalExceptionHandler` never
@@ -221,6 +225,7 @@ run, in production or in tests; discovered the hard way when repository tests fa
 | `AUTH_MODE` | Entra token validation rollout mode (`OFF`/`OBSERVE`/`ENFORCE`) — see `docs/Authentication.md` | `OFF` |
 | `AUTH_TENANT_ID` | Issuing Entra tenant id | blank (required once `AUTH_MODE` isn't `OFF`) |
 | `AUTH_AUDIENCE` | This API's own Entra audience | blank (required once `AUTH_MODE` isn't `OFF`) |
+| `AUTH_ROLES` | Comma-separated app-role allowlist; token's `roles` must intersect it | blank (required once `AUTH_MODE` isn't `OFF`) |
 | `AUTH_ISSUER` | Issuer override | blank → derived from `AUTH_TENANT_ID` |
 | `AUTH_JWKS_URI` | JWKS discovery URL override | blank → derived from `AUTH_TENANT_ID` |
 | `AUTH_CLOCK_SKEW_SECONDS` | `exp`/`nbf` clock skew tolerance, capped at `300` | `60` |
