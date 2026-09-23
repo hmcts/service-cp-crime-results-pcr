@@ -73,12 +73,12 @@ class EntraAuthPropertiesTest {
     }
 
     @Test
-    void getJwksUri_should_derive_fromIssuer_whenBlank() {
+    void getJwksUri_should_derive_fromTenantId_whenBlank() {
         final EntraAuthProperties properties =
                 new EntraAuthProperties(AuthMode.OFF, "my-tenant", "", "", "", "", 60, 600, "UNKNOWN");
 
         assertThat(properties.getJwksUri())
-                .isEqualTo("https://login.microsoftonline.com/my-tenant/v2.0/discovery/v2.0/keys");
+                .isEqualTo("https://login.microsoftonline.com/my-tenant/discovery/v2.0/keys");
     }
 
     @Test

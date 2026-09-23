@@ -50,8 +50,8 @@ public class EntraAuthProperties {
         this.tenantId = tenantId;
         this.audience = audience;
         this.issuer = StringUtils.hasText(issuer) ? issuer : deriveIssuer(tenantId);
-        this.jwksUri = StringUtils.hasText(jwksUri) ? jwksUri : deriveJwksUri(this.issuer);
-        this.clockSkewSeconds = clockSkewSeconds;
+        this.jwksUri = StringUtils.hasText(jwksUri) ? jwksUri : deriveJwksUri(tenantId);
+        this.clockSkewSeconds = Math.min(clockSkewSeconds, MAX_CLOCK_SKEW_SECONDS);
         this.jwksCacheTtlSeconds = jwksCacheTtlSeconds;
     }
 
@@ -66,7 +66,7 @@ public class EntraAuthProperties {
         return "https://login.microsoftonline.com/" + tenantId + "/v2.0";
     }
 
-    private static String deriveJwksUri(final String issuer) {
-        return issuer + "/discovery/v2.0/keys";
+    private static String deriveJwksUri(final String tenantId) {
+        return "https://login.microsoftonline.com/" + tenantId + "/discovery/v2.0/keys";
     }
 }
