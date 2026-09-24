@@ -105,6 +105,9 @@ class PcrDriftDetectionIntegrationTest extends IngestionE2ETestBase {
                 final String defendantId = expectedFile.getFileName().toString().replace(".json", "");
                 final String caseUrn = identity.caseUrnByDefendantId().get(defendantId);
                 assertMatchesExpected(identity.hearingId(), caseUrn, defendantId, expectedFile);
+                for (final String relatedCaseUrn : relatedCaseUrns(expectedFile)) {
+                    assertMatchesExpected(identity.hearingId(), relatedCaseUrn, defendantId, expectedFile);
+                }
             }
         }
     }
@@ -195,6 +198,14 @@ class PcrDriftDetectionIntegrationTest extends IngestionE2ETestBase {
 
                     JSONAssert.assertEquals(expectedJson, actualJson, JSONCompareMode.NON_EXTENSIBLE);
                 });
+    }
+
+    private Set<String> relatedCaseUrns(final Path expectedFile) throws Exception {
+        final Set<String> caseUrns = new HashSet<>();
+        for (final JsonNode result : OBJECT_MAPPER.readTree(Files.readString(expectedFile))) {
+            result.path("prosecutionCase").path("relatedCases").forEach(r -> caseUrns.add(r.path("caseURN").asString()));
+        }
+        return caseUrns;
     }
 
     private HearingIdentity parseIdentity(final Path fixtureRoot) throws Exception {

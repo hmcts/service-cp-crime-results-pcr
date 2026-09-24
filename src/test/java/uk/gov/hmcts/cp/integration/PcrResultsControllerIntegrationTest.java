@@ -13,6 +13,7 @@ import uk.gov.hmcts.cp.domain.HearingDetailsResponse.Offence;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.PersonDefendant;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.ProsecutionCase;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.ProsecutionCaseIdentifier;
+import uk.gov.hmcts.cp.entities.CPRelatedCaseEntity;
 import uk.gov.hmcts.cp.mappers.CPHearingResultEntityMapper;
 import uk.gov.hmcts.cp.mappers.CPEntitySet;
 import uk.gov.hmcts.cp.repositories.CPCaseHearingRepository;
@@ -20,6 +21,7 @@ import uk.gov.hmcts.cp.repositories.CPCaseMarkerRepository;
 import uk.gov.hmcts.cp.repositories.CPJudicialResultPromptRepository;
 import uk.gov.hmcts.cp.repositories.CPJudicialResultRepository;
 import uk.gov.hmcts.cp.repositories.CPOffenceRepository;
+import uk.gov.hmcts.cp.repositories.CPRelatedCaseRepository;
 import uk.gov.hmcts.cp.repositories.CPVersionRepository;
 
 import java.time.OffsetDateTime;
@@ -40,6 +42,7 @@ class PcrResultsControllerIntegrationTest extends ControllerRepositoryIntegratio
     private static final String MASTER_DEFENDANT_ID = "33333333-3333-3333-3333-333333333333";
     private static final UUID UNKNOWN_DEFENDANT_ID = UUID.fromString("00000000-0000-0000-0000-000000000099");
     private static final String UNKNOWN_CASE_URN = "ZZZZ9999999";
+    private static final String RELATED_CASE_URN = "EFGH7654321";
 
     @Autowired
     private CPHearingResultEntityMapper mapper;
@@ -55,6 +58,8 @@ class PcrResultsControllerIntegrationTest extends ControllerRepositoryIntegratio
     private CPJudicialResultRepository judicialResultRepository;
     @Autowired
     private CPJudicialResultPromptRepository judicialResultPromptRepository;
+    @Autowired
+    private CPRelatedCaseRepository relatedCaseRepository;
 
     @Transactional
     @Test
@@ -69,6 +74,25 @@ class PcrResultsControllerIntegrationTest extends ControllerRepositoryIntegratio
                 .andExpect(jsonPath("$[0].prosecutionCase.caseMarkers[0].description").value("Domestic Violence"))
                 .andExpect(jsonPath("$[0].offences[0].code").value("TH68001"))
                 .andExpect(jsonPath("$[0].offences[0].results.length()").value(1));
+    }
+
+    @Transactional
+    @Test
+    void getPcrHearingResults_should_returnSameRecord_whenQueriedByNonPrimaryLinkedCaseUrn() throws Exception {
+        final UUID caseHearingId = seedOneVersion();
+        relatedCaseRepository.saveAll(List.of(
+                CPRelatedCaseEntity.builder().id(UUID.fromString("00000000-0000-0000-0000-000000000101"))
+                        .caseHearingId(caseHearingId).caseUrn(CASE_URN).build(),
+                CPRelatedCaseEntity.builder().id(UUID.fromString("00000000-0000-0000-0000-000000000102"))
+                        .caseHearingId(caseHearingId).caseUrn(RELATED_CASE_URN).build()));
+
+        mockMvc.perform(get("/cases/{caseURN}/hearings/{hearingId}/defendants/{defendantId}", RELATED_CASE_URN, HEARING_ID, DEFENDANT_ID))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(1))
+                .andExpect(jsonPath("$[0].prosecutionCase.caseURN").value(CASE_URN))
+                .andExpect(jsonPath("$[0].prosecutionCase.relatedCases.length()").value(2))
+                .andExpect(jsonPath("$[0].offences[0].code").value("TH68001"));
     }
 
     @Transactional
@@ -110,7 +134,7 @@ class PcrResultsControllerIntegrationTest extends ControllerRepositoryIntegratio
                 .andExpect(jsonPath("$").isEmpty());
     }
 
-    private void seedOneVersion() {
+    private UUID seedOneVersion() {
         final ProsecutionCase prosecutionCase = ProsecutionCase.builder()
                 .prosecutionCaseIdentifier(ProsecutionCaseIdentifier.builder().caseURN(CASE_URN).build())
                 .caseMarkers(List.of(CaseMarker.builder().markerTypeCode("DomesticViolence").markerTypeDescription("Domestic Violence").build()))
@@ -139,6 +163,7 @@ class PcrResultsControllerIntegrationTest extends ControllerRepositoryIntegratio
         offenceRepository.saveAll(bundle.offences());
         judicialResultRepository.saveAll(bundle.judicialResults());
         judicialResultPromptRepository.saveAll(bundle.judicialResultPrompts());
+        return caseHearing.getId();
     }
 
     private Offence offenceWithResult() {
