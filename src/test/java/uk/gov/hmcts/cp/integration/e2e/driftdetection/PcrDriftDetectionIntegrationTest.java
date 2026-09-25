@@ -33,6 +33,7 @@ import uk.gov.hmcts.cp.servicebus.services.ServiceBusClientFactory;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -105,6 +106,9 @@ class PcrDriftDetectionIntegrationTest extends IngestionE2ETestBase {
                 final String defendantId = expectedFile.getFileName().toString().replace(".json", "");
                 final String caseUrn = identity.caseUrnByDefendantId().get(defendantId);
                 assertMatchesExpected(identity.hearingId(), caseUrn, defendantId, expectedFile);
+                for (final String secondaryCaseUrn : identity.secondaryCaseUrnsByDefendantId().getOrDefault(defendantId, List.of())) {
+                    assertMatchesExpected(identity.hearingId(), secondaryCaseUrn, defendantId, expectedFile);
+                }
             }
         }
     }
@@ -202,9 +206,10 @@ class PcrDriftDetectionIntegrationTest extends IngestionE2ETestBase {
         final String hearingId = hearing.get("id").asString();
         final String hearingDay = hearing.get("hearingDays").get(0).get("sittingDay").asString().substring(0, 10);
         final Map<String, String> caseUrnByDefendantId = new HashMap<>();
+        final Map<String, List<String>> secondaryCaseUrnsByDefendantId = new HashMap<>();
         addProsecutionCaseDefendants(hearing, caseUrnByDefendantId);
-        addApplicationOnlyDefendants(hearing, caseUrnByDefendantId);
-        return new HearingIdentity(hearingId, hearingDay, caseUrnByDefendantId);
+        addApplicationOnlyDefendants(hearing, caseUrnByDefendantId, secondaryCaseUrnsByDefendantId);
+        return new HearingIdentity(hearingId, hearingDay, caseUrnByDefendantId, secondaryCaseUrnsByDefendantId);
     }
 
     private void addProsecutionCaseDefendants(final JsonNode hearing, final Map<String, String> caseUrnByDefendantId) {
@@ -221,7 +226,8 @@ class PcrDriftDetectionIntegrationTest extends IngestionE2ETestBase {
     }
 
     // Mirrors CPHearingResultEntityMapper.applicationOnlyDefendant/resolveDefendantId.
-    private void addApplicationOnlyDefendants(final JsonNode hearing, final Map<String, String> caseUrnByDefendantId) {
+    private void addApplicationOnlyDefendants(final JsonNode hearing, final Map<String, String> caseUrnByDefendantId,
+                                               final Map<String, List<String>> secondaryCaseUrnsByDefendantId) {
         final JsonNode courtApplications = hearing.get("courtApplications");
         if (courtApplications == null) {
             return;
@@ -233,8 +239,8 @@ class PcrDriftDetectionIntegrationTest extends IngestionE2ETestBase {
                 continue;
             }
             final String defendantId = resolveDefendantId(masterDefendant, application);
-            if (defendantId != null) {
-                caseUrnByDefendantId.putIfAbsent(defendantId, caseUrnOf(application));
+            if (defendantId != null && caseUrnByDefendantId.putIfAbsent(defendantId, caseUrnOf(application)) == null) {
+                secondaryCaseUrnsByDefendantId.put(defendantId, secondaryCaseUrnsOf(application));
             }
         }
     }
@@ -253,6 +259,18 @@ class PcrDriftDetectionIntegrationTest extends IngestionE2ETestBase {
             }
         }
         return application.get("applicationReference").asString();
+    }
+
+    // Every linked case URN after the first, which caseUrnOf keys the record on — GET /pcr must resolve the same record by each.
+    private List<String> secondaryCaseUrnsOf(final JsonNode application) {
+        final List<String> caseUrns = new ArrayList<>();
+        for (final JsonNode cac : application.path("courtApplicationCases")) {
+            final JsonNode caseUrn = cac.path("prosecutionCaseIdentifier").get("caseURN");
+            if (caseUrn != null && !caseUrns.contains(caseUrn.asString())) {
+                caseUrns.add(caseUrn.asString());
+            }
+        }
+        return caseUrns.size() > 1 ? caseUrns.subList(1, caseUrns.size()) : List.of();
     }
 
     private String resolveDefendantId(final JsonNode masterDefendant, final JsonNode application) {
@@ -281,6 +299,7 @@ class PcrDriftDetectionIntegrationTest extends IngestionE2ETestBase {
         return null;
     }
 
-    private record HearingIdentity(String hearingId, String hearingDay, Map<String, String> caseUrnByDefendantId) {
+    private record HearingIdentity(String hearingId, String hearingDay, Map<String, String> caseUrnByDefendantId,
+                                   Map<String, List<String>> secondaryCaseUrnsByDefendantId) {
     }
 }

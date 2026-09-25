@@ -42,9 +42,17 @@ public class PcrResultsService {
 
     @Transactional(readOnly = true)
     public List<PcrHearingResult> getPcrHearingResults(final String caseURN, final UUID hearingId, final UUID defendantId) {
-        return caseHearingRepository.findByCaseUrnAndHearingId(caseURN, hearingId)
+        final List<PcrHearingResult> primaryResults = caseHearingRepository.findByCaseUrnAndHearingId(caseURN, hearingId)
                 .map(caseHearing -> toResults(caseHearing, defendantId))
                 .orElseGet(List::of);
+        return primaryResults.isEmpty() ? relatedCaseResults(caseURN, hearingId, defendantId) : primaryResults;
+    }
+
+    // A multi-case application is keyed on its first linked case URN only; any other linked URN resolves via cp_case_hearing_related_case.
+    private List<PcrHearingResult> relatedCaseResults(final String caseURN, final UUID hearingId, final UUID defendantId) {
+        return caseHearingRepository.findByRelatedCaseUrnAndHearingId(caseURN, hearingId).stream()
+                .flatMap(caseHearing -> toResults(caseHearing, defendantId).stream())
+                .toList();
     }
 
     private List<PcrHearingResult> toResults(final CPCaseHearingEntity caseHearing, final UUID defendantId) {

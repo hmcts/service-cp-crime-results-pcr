@@ -1,0 +1,265 @@
+[
+  {
+    "courtApplications": [
+      {
+        "defendantType": "Appellant",
+        "offences": [
+          {
+            "caseURN": "CP137534172",
+            "code": "PT00018",
+            "id": "65e7d7fd-9533-4215-a0e4-2e3257cdc01b",
+            "listingNumber": 1,
+            "offenceLegislation": "Contrary to sections 15(3) and 22 of the Terrorism Act 2000.",
+            "results": [
+              {
+                "resultDescription": "BOWI - Bind over witness to keep the peace and Imprison\nWitness, Testwitfn Testwitln, bound over in the sum of £345.00 for 5 Weeks to keep the peace. Committed to prison for 5 Weeks or until recognisance entered into if earlier. Basis for committal: To await surety. Total custodial period: 6 Months.",
+                "resultTexts": [
+                  {
+                    "label": "Total custodial period",
+                    "value": "6 Months"
+                  },
+                  {
+                    "label": "Prison organisation name",
+                    "value": "HMP Ashfield"
+                  },
+                  {
+                    "label": "Prison email address 1",
+                    "value": "user2@example-prison.gov.uk"
+                  },
+                  {
+                    "label": "Prison email address 2",
+                    "value": "user2@example-prison.gov.uk"
+                  },
+                  {
+                    "label": "Conveyor / custodian name organisation name",
+                    "value": "Liverpool Crown Court: PECS"
+                  },
+                  {
+                    "label": "Conveyor / custodian name email address 1",
+                    "value": "user3@example-prison.gov.uk"
+                  },
+                  {
+                    "label": "Probation team to be notified organisation name",
+                    "value": "London Division NPS"
+                  },
+                  {
+                    "label": "Probation team to be notified email address 1",
+                    "value": "user4@example-prison.gov.uk"
+                  },
+                  {
+                    "label": "Witness name",
+                    "value": "Testwitfn Testwitln"
+                  },
+                  {
+                    "label": "Bound over in the sum of",
+                    "value": "£345.00"
+                  },
+                  {
+                    "label": "Duration of bind over",
+                    "value": "5 Weeks"
+                  },
+                  {
+                    "label": "Committed to prison for",
+                    "value": "5 Weeks"
+                  },
+                  {
+                    "label": "Basis of committal",
+                    "value": "To await surety"
+                  }
+                ]
+              }
+            ],
+            "startDate": "2026-06-25",
+            "title": "Provide money / property for use in acts of terrorism",
+            "wording": "Provide money / property for use in acts of terrorism"
+          },
+          {
+            "caseURN": "CP137534172",
+            "code": "BA76004",
+            "id": "356460a7-f383-4d4b-ad53-758bded16caf",
+            "listingNumber": 1,
+            "offenceLegislation": "Pursuant to section 7(3)(a), (4) and (5) of the Bail Act 1976.",
+            "results": [
+              {
+                "resultDescription": "BOWI - Bind over witness to keep the peace and Imprison\nWitness, Testwitfn Testwitln, bound over in the sum of £345.00 for 5 Weeks to keep the peace. Committed to prison for 5 Weeks or until recognisance entered into if earlier. Basis for committal: To await surety. ",
+                "resultTexts": [
+                  {
+                    "label": "Witness name",
+                    "value": "Testwitfn Testwitln"
+                  },
+                  {
+                    "label": "Bound over in the sum of",
+                    "value": "£345.00"
+                  },
+                  {
+                    "label": "Duration of bind over",
+                    "value": "5 Weeks"
+                  },
+                  {
+                    "label": "Committed to prison for",
+                    "value": "5 Weeks"
+                  },
+                  {
+                    "label": "Basis of committal",
+                    "value": "To await surety"
+                  }
+                ]
+              }
+            ],
+            "startDate": "2026-06-25",
+            "title": "Arrest by a constable as unlikely to surrender to custody",
+            "wording": "Provide money / property for use in acts of terrorism"
+          },
+          {
+            "caseURN": "WO137531276",
+            "code": "PT00018",
+            "id": "245f32d8-d99e-4908-8f20-46afbb47d794",
+            "listingNumber": 1,
+            "offenceLegislation": "Contrary to sections 15(3) and 22 of the Terrorism Act 2000.",
+            "results": [
+              {
+                "resultDescription": "BOWI - Bind over witness to keep the peace and Imprison\nWitness, Testwitfn Testwitln, bound over in the sum of £345.00 for 5 Weeks to keep the peace. Committed to prison for 5 Weeks or until recognisance entered into if earlier. Basis for committal: To await surety. ",
+                "resultTexts": [
+                  {
+                    "label": "Witness name",
+                    "value": "Testwitfn Testwitln"
+                  },
+                  {
+                    "label": "Bound over in the sum of",
+                    "value": "£345.00"
+                  },
+                  {
+                    "label": "Duration of bind over",
+                    "value": "5 Weeks"
+                  },
+                  {
+                    "label": "Committed to prison for",
+                    "value": "5 Weeks"
+                  },
+                  {
+                    "label": "Basis of committal",
+                    "value": "To await surety"
+                  }
+                ]
+              }
+            ],
+            "startDate": "2026-06-25",
+            "title": "Provide money / property for use in acts of terrorism",
+            "wording": "Provide money / property for use in acts of terrorism"
+          },
+          {
+            "caseURN": "WO137531276",
+            "code": "BA76004",
+            "id": "020b39d5-415c-49a9-aa63-c7ea80760f5c",
+            "listingNumber": 1,
+            "offenceLegislation": "Pursuant to section 7(3)(a), (4) and (5) of the Bail Act 1976.",
+            "results": [
+              {
+                "resultDescription": "BOWI - Bind over witness to keep the peace and Imprison\nWitness, Testwitfn Testwitln, bound over in the sum of £345.00 for 5 Weeks to keep the peace. Committed to prison for 5 Weeks or until recognisance entered into if earlier. Basis for committal: To await surety. ",
+                "resultTexts": [
+                  {
+                    "label": "Witness name",
+                    "value": "Testwitfn Testwitln"
+                  },
+                  {
+                    "label": "Bound over in the sum of",
+                    "value": "£345.00"
+                  },
+                  {
+                    "label": "Duration of bind over",
+                    "value": "5 Weeks"
+                  },
+                  {
+                    "label": "Committed to prison for",
+                    "value": "5 Weeks"
+                  },
+                  {
+                    "label": "Basis of committal",
+                    "value": "To await surety"
+                  }
+                ]
+              }
+            ],
+            "startDate": "2026-06-25",
+            "title": "Arrest by a constable as unlikely to surrender to custody",
+            "wording": "Provide money / property for use in acts of terrorism"
+          }
+        ],
+        "reference": "CP137534172,WO137531276",
+        "results": [
+          {
+            "resultDescription": "AACA - Appeal against conviction allowed \nDate of Conviction 22/08/2026. ",
+            "resultTexts": [
+              {
+                "label": "Reasons",
+                "value": "Test reasons"
+              },
+              {
+                "label": "Date of conviction",
+                "value": "22/08/2026"
+              }
+            ]
+          }
+        ],
+        "type": "Appeal against conviction by a Magistrates' Court to the Crown Court"
+      }
+    ],
+    "defendant": {
+      "address": {
+        "address1": "7 Orchard Row",
+        "address2": "Millbrook",
+        "address3": "Sheffield",
+        "address4": "South Yorkshire",
+        "postCode": "S1 2AB"
+      },
+      "dateOfBirth": "1990-04-12",
+      "firstName": "Daniel",
+      "gender": "MALE",
+      "id": "d6b66a08-0c32-4b93-846d-f047c72a80b6",
+      "lastName": "Hartley",
+      "masterDefendantId": "d6b66a08-0c32-4b93-846d-f047c72a80b6",
+      "postHearingCustodyStatus": "Not Applicable",
+      "results": [],
+      "title": "Mr"
+    },
+    "hearing": {
+      "courtDetails": {
+        "court": {
+          "courtHouseCode": "C05LV00",
+          "courtHouseId": "9b583616-049b-30f9-a14f-028a53b7cfe8",
+          "courtHouseName": "Liverpool Crown Court"
+        },
+        "courtAddress": {
+          "address1": "QEII Law Courts",
+          "address2": "Derby Square",
+          "address3": "Liverpool",
+          "address4": "",
+          "address5": "",
+          "postCode": "L2 1XA"
+        },
+        "ljaName": "Merseyside Magistrates' Court"
+      },
+      "defendantAppearanceDetails": "In person",
+      "hearingDate": "2026-09-23",
+      "hearingType": "Appeal against Conviction",
+      "id": "691c676a-f60e-48a2-8984-f5b1a3d51364",
+      "jurisdiction": "CROWN"
+    },
+    "offences": [],
+    "prosecutionCase": {
+      "caseMarkers": [],
+      "caseURN": "CP137534172",
+      "prosecutor": "City of London Police",
+      "relatedCases": [
+        {
+          "caseURN": "CP137534172"
+        },
+        {
+          "caseURN": "WO137531276"
+        }
+      ],
+      "results": []
+    },
+    "sharedTime": "2026-09-23T20:48:28.195Z"
+  }
+]

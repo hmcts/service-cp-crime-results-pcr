@@ -18,6 +18,7 @@ class CPRelatedCaseRepositoryTest extends RepositoryIntegrationTestBase {
 
     private static final UUID CASE_HEARING_ID = UUID.fromString("00000000-0000-0000-0000-000000000081");
     private static final UUID LINKED_CASE_ID = UUID.fromString("00000000-0000-0000-0000-000000000082");
+    private static final UUID HEARING_ID_UNRELATED = UUID.fromString("00000000-0000-0000-0000-000000000091");
 
     @Autowired
     private CPCaseHearingRepository cpCaseHearingRepository;
@@ -69,5 +70,25 @@ class CPRelatedCaseRepositoryTest extends RepositoryIntegrationTestBase {
         final List<CPRelatedCaseEntity> found = cpRelatedCaseRepository.findByCaseHearingId(caseHearingId);
 
         assertThat(found).extracting(CPRelatedCaseEntity::getCaseUrn).containsExactlyInAnyOrder("IE137532124", "XI137534386");
+    }
+
+    @Transactional
+    @Test
+    void findByRelatedCaseUrnAndHearingId_should_returnParentCaseHearing_onlyForMatchingHearing() {
+        final UUID caseHearingId = UUID.fromString("00000000-0000-0000-0000-000000000088");
+        final UUID hearingId = UUID.fromString("00000000-0000-0000-0000-000000000089");
+        cpCaseHearingRepository.save(CPCaseHearingEntity.builder()
+                .id(caseHearingId)
+                .caseUrn("IE137532124")
+                .hearingId(hearingId)
+                .createdAt(OffsetDateTime.now(ZoneOffset.UTC))
+                .build());
+        cpRelatedCaseRepository.save(CPRelatedCaseEntity.builder()
+                .id(UUID.fromString("00000000-0000-0000-0000-000000000090"))
+                .caseHearingId(caseHearingId).caseUrn("XI137534386").build());
+
+        assertThat(cpCaseHearingRepository.findByRelatedCaseUrnAndHearingId("XI137534386", hearingId))
+                .extracting(CPCaseHearingEntity::getId).containsExactly(caseHearingId);
+        assertThat(cpCaseHearingRepository.findByRelatedCaseUrnAndHearingId("XI137534386", HEARING_ID_UNRELATED)).isEmpty();
     }
 }
