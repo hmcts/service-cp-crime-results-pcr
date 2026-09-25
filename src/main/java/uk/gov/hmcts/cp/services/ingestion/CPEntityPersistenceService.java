@@ -22,7 +22,9 @@ import uk.gov.hmcts.cp.services.ClockService;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -50,8 +52,26 @@ public class CPEntityPersistenceService {
     public UUID findOrCreateCaseHearing(final String caseUrn, final HearingDetail hearing, final UUID hearingId,
                                          final String prosecutorName, final UUID caseId, final List<String> relatedCaseUrns) {
         return caseHearingRepository.findByCaseUrnAndHearingId(caseUrn, hearingId)
-                .map(CPCaseHearingEntity::getId)
+                .map(entity -> upsertRelatedCaseUrns(entity.getId(), relatedCaseUrns))
                 .orElseGet(() -> createCaseHearing(caseUrn, hearing, hearingId, prosecutorName, caseId, relatedCaseUrns));
+    }
+
+    // A linked case's own resolved caseUrn can already have a cp_case_hearing row (e.g. created
+    // first via a genuine ProsecutionCase) — this backfills any related-case links onto it that
+    // creation-time linking never gets a chance to write.
+    private UUID upsertRelatedCaseUrns(final UUID caseHearingId, final List<String> relatedCaseUrns) {
+        final List<String> missingUrns = missingRelatedCaseUrns(caseHearingId, relatedCaseUrns);
+        if (!missingUrns.isEmpty()) {
+            relatedCaseRepository.saveAll(toRelatedCaseEntities(missingUrns, caseHearingId));
+        }
+        return caseHearingId;
+    }
+
+    private List<String> missingRelatedCaseUrns(final UUID caseHearingId, final List<String> relatedCaseUrns) {
+        final Set<String> existingUrns = relatedCaseRepository.findByCaseHearingId(caseHearingId).stream()
+                .map(CPRelatedCaseEntity::getCaseUrn)
+                .collect(Collectors.toSet());
+        return relatedCaseUrns.stream().filter(urn -> !existingUrns.contains(urn)).toList();
     }
 
     private UUID createCaseHearing(final ProsecutionCase prosecutionCase, final HearingDetail hearing, final UUID hearingId) {

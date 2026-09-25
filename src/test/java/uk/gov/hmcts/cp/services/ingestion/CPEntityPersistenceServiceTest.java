@@ -192,6 +192,39 @@ class CPEntityPersistenceServiceTest {
                         && saved.stream().allMatch(l -> CASE_HEARING_ID.equals(l.getCaseHearingId()))));
     }
 
+    @Test
+    void findOrCreateCaseHearing_should_backfillMissingRelatedCases_whenRowAlreadyExists() {
+        final HearingDetail hearing = HearingDetail.builder().courtApplications(List.of()).build();
+        final CPCaseHearingEntity existing = CPCaseHearingEntity.builder().id(CASE_HEARING_ID).build();
+        when(caseHearingRepository.findByCaseUrnAndHearingId("XP137536342", HEARING_ID)).thenReturn(Optional.of(existing));
+        when(relatedCaseRepository.findByCaseHearingId(CASE_HEARING_ID)).thenReturn(List.of());
+
+        final UUID result = persistenceService.findOrCreateCaseHearing("XP137536342", hearing, HEARING_ID, "City of London Police", null,
+                List.of("XP137536342", "ER137535629"));
+
+        assertThat(result).isEqualTo(CASE_HEARING_ID);
+        verify(caseHearingRepository, never()).save(any());
+        verify(relatedCaseRepository).saveAll(argThat((List<CPRelatedCaseEntity> saved) ->
+                saved.stream().map(CPRelatedCaseEntity::getCaseUrn).toList().equals(List.of("XP137536342", "ER137535629"))
+                        && saved.stream().allMatch(l -> CASE_HEARING_ID.equals(l.getCaseHearingId()))));
+    }
+
+    @Test
+    void findOrCreateCaseHearing_should_skipAlreadyLinkedRelatedCases_whenRowAlreadyExists() {
+        final HearingDetail hearing = HearingDetail.builder().courtApplications(List.of()).build();
+        final CPCaseHearingEntity existing = CPCaseHearingEntity.builder().id(CASE_HEARING_ID).build();
+        when(caseHearingRepository.findByCaseUrnAndHearingId("XP137536342", HEARING_ID)).thenReturn(Optional.of(existing));
+        when(relatedCaseRepository.findByCaseHearingId(CASE_HEARING_ID)).thenReturn(
+                List.of(CPRelatedCaseEntity.builder().id(UUID.randomUUID()).caseHearingId(CASE_HEARING_ID).caseUrn("XP137536342").build(),
+                        CPRelatedCaseEntity.builder().id(UUID.randomUUID()).caseHearingId(CASE_HEARING_ID).caseUrn("ER137535629").build()));
+
+        final UUID result = persistenceService.findOrCreateCaseHearing("XP137536342", hearing, HEARING_ID, "City of London Police", null,
+                List.of("XP137536342", "ER137535629"));
+
+        assertThat(result).isEqualTo(CASE_HEARING_ID);
+        verify(relatedCaseRepository, never()).saveAll(any());
+    }
+
     private ProsecutionCase prosecutionCase() {
         return ProsecutionCase.builder()
                 .prosecutionCaseIdentifier(ProsecutionCaseIdentifier.builder().caseURN(CASE_URN).build())
