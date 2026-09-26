@@ -26,6 +26,7 @@ jobs:
         run: ./gradlew validateApiSpecVersions
 
   ci-release:
+    needs: validate-api-spec-version
     uses: ./.github/workflows/ci-build-publish.yml
     secrets:
       AZURE_DEVOPS_ARTIFACT_USERNAME: ${{ secrets.AZURE_DEVOPS_ARTIFACT_USERNAME }}
