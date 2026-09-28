@@ -50,7 +50,6 @@ import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -677,6 +676,56 @@ class CPHearingResultEntityMapperTest {
     }
 
     @Test
+    void toWriteBundle_should_scopeLinkedOffences_toOwnCaseOnly_whenApplicationLinksTwoDistinctDefendants() {
+        final Offence firstCaseOffence = Offence.builder().offenceCode("TH68001").judicialResults(List.of()).build();
+        final Offence secondCaseOffence = Offence.builder().offenceCode("TH68002").judicialResults(List.of()).build();
+        final CourtApplicationCase firstCase = CourtApplicationCase.builder()
+                .prosecutionCaseId("case-A")
+                .prosecutionCaseIdentifier(ProsecutionCaseIdentifier.builder().caseURN("IE137532124").build())
+                .offences(List.of(firstCaseOffence))
+                .build();
+        final CourtApplicationCase secondCase = CourtApplicationCase.builder()
+                .prosecutionCaseId("case-B")
+                .prosecutionCaseIdentifier(ProsecutionCaseIdentifier.builder().caseURN("XI137534386").build())
+                .offences(List.of(secondCaseOffence))
+                .build();
+        final CourtApplication application = CourtApplication.builder()
+                .id(UUID.randomUUID().toString())
+                .subject(ApplicationParty.builder()
+                        .masterDefendant(MasterDefendant.builder()
+                                .masterDefendantId(MASTER_DEFENDANT_ID)
+                                .defendantCase(List.of(
+                                        DefendantCase.builder().caseId("case-A").defendantId(DEFENDANT_ID.toString()).build(),
+                                        DefendantCase.builder().caseId("case-B").defendantId("44444444-4444-4444-4444-444444444444").build()))
+                                .build())
+                        .build())
+                .courtApplicationCases(List.of(firstCase, secondCase))
+                .judicialResults(List.of())
+                .build();
+        final Defendant defendantA = Defendant.builder()
+                .id(DEFENDANT_ID.toString())
+                .masterDefendantId(MASTER_DEFENDANT_ID)
+                .personDefendant(PersonDefendant.builder().build())
+                .offences(List.of())
+                .build();
+        final Defendant defendantB = Defendant.builder()
+                .id("44444444-4444-4444-4444-444444444444")
+                .masterDefendantId(MASTER_DEFENDANT_ID)
+                .personDefendant(PersonDefendant.builder().build())
+                .offences(List.of())
+                .build();
+        final HearingDetail hearing = HearingDetail.builder().courtApplications(List.of(application)).build();
+
+        final CPEntitySet bundleA = mapper.toWriteBundle(defendantA, hearing, CASE_HEARING_ID, SHARED_TIME, CREATED_AT, EXPIRES_AT);
+        final CPEntitySet bundleB = mapper.toWriteBundle(defendantB, hearing, CASE_HEARING_ID, SHARED_TIME, CREATED_AT, EXPIRES_AT);
+
+        assertThat(bundleA.offences()).extracting(CPOffenceEntity::getCode, CPOffenceEntity::getCaseUrn)
+                .containsExactly(tuple("TH68001", "IE137532124"));
+        assertThat(bundleB.offences()).extracting(CPOffenceEntity::getCode, CPOffenceEntity::getCaseUrn)
+                .containsExactly(tuple("TH68002", "XI137534386"));
+    }
+
+    @Test
     void toWriteBundle_should_leaveCaseUrnNull_forCourtOrderOffence() {
         final Offence courtOrderOffence = Offence.builder().offenceCode("TH68003").judicialResults(List.of()).build();
         final CourtApplication application = CourtApplication.builder()
@@ -1165,28 +1214,28 @@ class CPHearingResultEntityMapperTest {
                 .courtApplicationCases(List.of())
                 .build();
 
-        final Optional<Defendant> result = mapper.applicationOnlyDefendant(application);
+        final List<Defendant> result = mapper.applicationOnlyDefendants(application);
 
-        assertThat(result).isPresent();
-        assertThat(result.get().getId()).isEqualTo(DEFENDANT_ID.toString());
-        assertThat(result.get().getMasterDefendantId()).isEqualTo(MASTER_DEFENDANT_ID);
-        assertThat(result.get().getIsYouth()).isFalse();
-        assertThat(result.get().getPersonDefendant().getPersonDetails().getFirstName()).isEqualTo("Chase");
-        assertThat(result.get().getOffences()).isEmpty();
+        assertThat(result).hasSize(1);
+        assertThat(result.get(0).getId()).isEqualTo(DEFENDANT_ID.toString());
+        assertThat(result.get(0).getMasterDefendantId()).isEqualTo(MASTER_DEFENDANT_ID);
+        assertThat(result.get(0).getIsYouth()).isFalse();
+        assertThat(result.get(0).getPersonDefendant().getPersonDetails().getFirstName()).isEqualTo("Chase");
+        assertThat(result.get(0).getOffences()).isEmpty();
     }
 
     @Test
-    void applicationOnlyDefendant_should_returnEmpty_whenNoSubjectMasterDefendant() {
+    void applicationOnlyDefendants_should_returnEmpty_whenNoSubjectMasterDefendant() {
         final CourtApplication application = CourtApplication.builder()
                 .id("a9b8c7d6-e5f4-4321-9876-0a1b2c3d4e5f")
                 .subject(ApplicationParty.builder().build())
                 .build();
 
-        assertThat(mapper.applicationOnlyDefendant(application)).isEmpty();
+        assertThat(mapper.applicationOnlyDefendants(application)).isEmpty();
     }
 
     @Test
-    void applicationOnlyDefendant_should_resolveDefendantId_byMatchingProsecutionCaseId_whenMultipleDefendantCases() {
+    void applicationOnlyDefendants_should_resolveDefendantId_byMatchingProsecutionCaseId_whenMultipleDefendantCases() {
         final CourtApplication application = CourtApplication.builder()
                 .id("a9b8c7d6-e5f4-4321-9876-0a1b2c3d4e5f")
                 .subject(ApplicationParty.builder()
@@ -1201,14 +1250,38 @@ class CPHearingResultEntityMapperTest {
                 .courtApplicationCases(List.of(CourtApplicationCase.builder().prosecutionCaseId("case-B").build()))
                 .build();
 
-        final Optional<Defendant> result = mapper.applicationOnlyDefendant(application);
+        final List<Defendant> result = mapper.applicationOnlyDefendants(application);
 
-        assertThat(result).isPresent();
-        assertThat(result.get().getId()).isEqualTo("22222222-2222-2222-2222-222222222222");
+        assertThat(result).hasSize(1);
+        assertThat(result.get(0).getId()).isEqualTo("22222222-2222-2222-2222-222222222222");
     }
 
     @Test
-    void applicationOnlyDefendant_should_returnEmpty_whenMultipleDefendantCasesAndNoMatchingProsecutionCaseId() {
+    void applicationOnlyDefendants_should_resolveBothDefendantIds_whenApplicationLinksTwoCasesWithDistinctDefendants() {
+        final CourtApplication application = CourtApplication.builder()
+                .id("a9b8c7d6-e5f4-4321-9876-0a1b2c3d4e5f")
+                .subject(ApplicationParty.builder()
+                        .masterDefendant(MasterDefendant.builder()
+                                .masterDefendantId(MASTER_DEFENDANT_ID)
+                                .personDefendant(PersonDefendant.builder().build())
+                                .defendantCase(List.of(
+                                        DefendantCase.builder().caseId("case-A").defendantId("11111111-1111-1111-1111-111111111111").build(),
+                                        DefendantCase.builder().caseId("case-B").defendantId("22222222-2222-2222-2222-222222222222").build()))
+                                .build())
+                        .build())
+                .courtApplicationCases(List.of(
+                        CourtApplicationCase.builder().prosecutionCaseId("case-A").build(),
+                        CourtApplicationCase.builder().prosecutionCaseId("case-B").build()))
+                .build();
+
+        final List<Defendant> result = mapper.applicationOnlyDefendants(application);
+
+        assertThat(result).extracting(Defendant::getId)
+                .containsExactlyInAnyOrder("11111111-1111-1111-1111-111111111111", "22222222-2222-2222-2222-222222222222");
+    }
+
+    @Test
+    void applicationOnlyDefendants_should_returnEmpty_whenMultipleDefendantCasesAndNoMatchingProsecutionCaseId() {
         final CourtApplication application = CourtApplication.builder()
                 .id("a9b8c7d6-e5f4-4321-9876-0a1b2c3d4e5f")
                 .subject(ApplicationParty.builder()
@@ -1223,7 +1296,7 @@ class CPHearingResultEntityMapperTest {
                 .courtApplicationCases(List.of(CourtApplicationCase.builder().prosecutionCaseId("case-C").build()))
                 .build();
 
-        assertThat(mapper.applicationOnlyDefendant(application)).isEmpty();
+        assertThat(mapper.applicationOnlyDefendants(application)).isEmpty();
     }
 
     @Test

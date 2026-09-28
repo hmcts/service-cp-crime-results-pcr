@@ -1,0 +1,96 @@
+[
+  {
+    "courtApplications": [
+      {
+        "defendantType": "Defendant",
+        "offences": [],
+        "reference": "TEST1234567",
+        "results": [
+          {
+            "resultDescription": "G - Granted",
+            "resultTexts": []
+          }
+        ],
+        "type": "Application within criminal proceedings"
+      }
+    ],
+    "custodyLocation": {
+      "custodyType": "Prison",
+      "name": "HMP/YOI Eastwood Park"
+    },
+    "defendant": {
+      "address": {
+        "address1": "30 Church Street",
+        "address2": "Church Street",
+        "address3": "Edinburgh",
+        "address4": "City of Edinburgh",
+        "postCode": "NW1 5BR"
+      },
+      "dateOfBirth": "2006-07-23",
+      "firstName": "Sophie",
+      "gender": "MALE",
+      "id": "ea6b2d84-e99a-47ff-b031-a036e093f627",
+      "lastName": "Reichel",
+      "masterDefendantId": "ea6b2d84-e99a-47ff-b031-a036e093f627",
+      "postHearingCustodyStatus": "Not Applicable",
+      "results": [],
+      "title": "Mr"
+    },
+    "hearing": {
+      "courtDetails": {
+        "court": {
+          "courtHouseCode": "B52CM00",
+          "courtHouseId": "1a359d44-6b52-3919-b052-065413e4a801",
+          "courtHouseName": "Bristol Magistrates' Court"
+        },
+        "courtAddress": {
+          "address1": "Marlborough St",
+          "address2": "Bristol",
+          "address3": "",
+          "address4": "",
+          "address5": "",
+          "postCode": "BS1 3NU"
+        },
+        "ljaName": "Avon & Somerset Magistrates' Court"
+      },
+      "defendantAppearanceDetails": "In person",
+      "hearingDate": "2026-07-23",
+      "hearingType": "Application",
+      "id": "5f75863f-270a-482a-9e67-eaccb2fd3199",
+      "jurisdiction": "MAGISTRATES"
+    },
+    "offences": [
+      {
+        "code": "TH68013A",
+        "convictionDate": "2026-07-23",
+        "id": "aac5259f-93ac-4abc-85df-6610b8d52cb7",
+        "listingNumber": 2,
+        "offenceLegislation": "Contrary to section 1(1)    of the Criminal Attempts Act 1981.",
+        "results": [
+          {
+            "resultDescription": "IMP - Imprisonment. Committed to prison for 6 Months.",
+            "resultTexts": []
+          }
+        ],
+        "startDate": "2026-04-24",
+        "title": "Attempt theft of motor vehicle",
+        "wording": "Attempt theft to vehicle"
+      }
+    ],
+    "prosecutionCase": {
+      "caseMarkers": [],
+      "caseURN": "TEST1234567",
+      "prosecutor": "Derbyshire Police",
+      "relatedCases": [
+        {
+          "caseURN": "TEST1234567"
+        },
+        {
+          "caseURN": "TEST7654321"
+        }
+      ],
+      "results": []
+    },
+    "sharedTime": "2026-07-24T09:40:34.745Z"
+  }
+]

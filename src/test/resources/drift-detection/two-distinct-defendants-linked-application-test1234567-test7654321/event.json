@@ -1,0 +1,517 @@
+{
+  "hearing": {
+    "courtApplications": [
+      {
+        "applicant": {
+          "id": "14b06418-2f4b-4196-8d56-ebd4693cadfb",
+          "masterDefendant": {
+            "defendantCase": [
+              {
+                "caseId": "cd9b956e-085c-4f89-80c1-0192fd956694",
+                "caseReference": "TEST1234567",
+                "defendantId": "ea6b2d84-e99a-47ff-b031-a036e093f627"
+              },
+              {
+                "caseId": "cd9b956e-085c-4f89-80c1-0192fd956699",
+                "caseReference": "TEST7654321",
+                "defendantId": "ea6b2d84-e99a-47ff-b031-a036e093f699"
+              }
+            ],
+            "masterDefendantId": "ea6b2d84-e99a-47ff-b031-a036e093f627",
+            "personDefendant": {
+              "arrestSummonsNumber": "2391NX0000524538814D",
+              "bailStatus": {
+                "code": "C",
+                "description": "Custody",
+                "id": "12e69486-4d01-3403-a50a-7419ca040635"
+              },
+              "driverNumber": "VANFL002222OW9PH",
+              "personDetails": {
+                "address": {
+                  "address1": "30 Church Street",
+                  "address2": "Church Street",
+                  "address3": "Edinburgh",
+                  "address4": "City of Edinburgh",
+                  "postcode": "NW1 5BR"
+                },
+                "contact": {
+                  "home": "0789311676",
+                  "mobile": "05479951369",
+                  "primaryEmail": "sophie.reichel@example.com"
+                },
+                "dateOfBirth": "2006-07-23",
+                "documentationLanguageNeeds": "ENGLISH",
+                "ethnicity": {
+                  "observedEthnicityCode": "1",
+                  "observedEthnicityDescription": "White",
+                  "observedEthnicityId": "c4ca4238-a0b9-3382-8dcc-509a6f75849b",
+                  "selfDefinedEthnicityCode": "W1",
+                  "selfDefinedEthnicityDescription": "British",
+                  "selfDefinedEthnicityId": "c4ca4238-a0b9-3382-8dcc-509a6f75849b"
+                },
+                "firstName": "Sophie",
+                "gender": "MALE",
+                "hearingLanguageNeeds": "ENGLISH",
+                "lastName": "Reichel",
+                "title": "Mr"
+              },
+              "policeBailStatus": {
+                "code": "C",
+                "description": "Custody",
+                "id": "12e69486-4d01-3403-a50a-7419ca040635"
+              }
+            }
+          },
+          "notificationRequired": true,
+          "summonsRequired": false
+        },
+        "applicationParticulars": "The application is being made for reason XYZ.",
+        "applicationReceivedDate": "2026-07-13",
+        "applicationReference": "TEST1234567",
+        "applicationStatus": "FINALISED",
+        "commissionerOfOath": false,
+        "convictionDate": "2026-07-23",
+        "courtApplicationCases": [
+          {
+            "caseStatus": "ACTIVE",
+            "isSJP": false,
+            "prosecutionCaseId": "cd9b956e-085c-4f89-80c1-0192fd956694",
+            "prosecutionCaseIdentifier": {
+              "address": {
+                "address1": "Criminal Justice Department",
+                "address2": "Derbyshire Constabulary",
+                "address3": "Butterley Hall",
+                "address4": "Ripley",
+                "address5": "Derby",
+                "postcode": "DE5 3RS"
+              },
+              "contact": {
+                "primaryEmail": "criminaldataderbyshire@derbyshire.police.uk"
+              },
+              "majorCreditorCode": "PO30",
+              "prosecutionAuthorityCode": "DERPF",
+              "prosecutionAuthorityId": "bdc190e7-c939-37ca-be4b-9f615d6ef40e",
+              "prosecutionAuthorityName": "Derbyshire Police",
+              "prosecutionAuthorityOUCode": "0300000",
+              "caseURN": "TEST1234567"
+            }
+          },
+          {
+            "caseStatus": "ACTIVE",
+            "isSJP": false,
+            "prosecutionCaseId": "cd9b956e-085c-4f89-80c1-0192fd956699",
+            "prosecutionCaseIdentifier": {
+              "prosecutionAuthorityName": "Derbyshire Police",
+              "caseURN": "TEST7654321"
+            },
+            "offences": [
+              {
+                "id": "aac5259f-93ac-4abc-85df-6610b8d52c99",
+                "offenceCode": "TH99001",
+                "offenceTitle": "Second linked case offence",
+                "judicialResults": []
+              }
+            ]
+          }
+        ],
+        "courtApplicationPayment": {
+          "feeStatus": "NOT_APPLICABLE"
+        },
+        "courtCivilApplication": {
+          "isCivil": false
+        },
+        "id": "08efcf9b-c3d6-439e-bdbc-509ee4126921",
+        "judicialResults": [
+          {
+            "alwaysPublished": false,
+            "canBeSubjectOfBreach": false,
+            "canBeSubjectOfVariation": false,
+            "canExtendActiveOrder": false,
+            "category": "FINAL",
+            "committedToCC": false,
+            "courtClerk": {
+              "firstName": "Erica",
+              "lastName": "Wilson",
+              "userId": "a085e359-6069-4694-8820-7810e7dfe762"
+            },
+            "d20": false,
+            "excludedFromResults": false,
+            "isAdjournmentResult": false,
+            "isAvailableForCourtExtract": true,
+            "isConvictedResult": false,
+            "isDeleted": false,
+            "isFinancialResult": false,
+            "isNewAmendment": true,
+            "isUnscheduled": false,
+            "judicialResultId": "2cc370c0-e387-4901-939d-61be2e638f24",
+            "judicialResultTypeId": "2b3f7c20-8fc1-4fad-9076-df196c24b27e",
+            "label": "Granted",
+            "lastSharedDateTime": "2026-07-24",
+            "level": "O",
+            "lifeDuration": false,
+            "orderedDate": "2026-07-23",
+            "orderedHearingId": "5f75863f-270a-482a-9e67-eaccb2fd3199",
+            "postHearingCustodyStatus": "A",
+            "preserveActiveOrder": false,
+            "publishedAsAPrompt": false,
+            "publishedForNows": false,
+            "rank": 98500,
+            "resultText": "G - Granted",
+            "rollUpPrompts": true,
+            "rootJudicialResultId": "2cc370c0-e387-4901-939d-61be2e638f24",
+            "rootJudicialResultTypeId": "2b3f7c20-8fc1-4fad-9076-df196c24b27e",
+            "sentToCC": false,
+            "terminatesOffenceProceedings": false,
+            "urgent": false,
+            "usergroups": []
+          }
+        ],
+        "plea": {
+          "applicationId": "08efcf9b-c3d6-439e-bdbc-509ee4126921",
+          "offenceId": "08efcf9b-c3d6-439e-bdbc-509ee4126921",
+          "originatingHearingId": "5f75863f-270a-482a-9e67-eaccb2fd3199",
+          "pleaDate": "2026-07-23",
+          "pleaValue": "GUILTY"
+        },
+        "subject": {
+          "id": "14b06418-2f4b-4196-8d56-ebd4693cadfb",
+          "masterDefendant": {
+            "defendantCase": [
+              {
+                "caseId": "cd9b956e-085c-4f89-80c1-0192fd956694",
+                "caseReference": "TEST1234567",
+                "defendantId": "ea6b2d84-e99a-47ff-b031-a036e093f627"
+              },
+              {
+                "caseId": "cd9b956e-085c-4f89-80c1-0192fd956699",
+                "caseReference": "TEST7654321",
+                "defendantId": "ea6b2d84-e99a-47ff-b031-a036e093f699"
+              }
+            ],
+            "masterDefendantId": "ea6b2d84-e99a-47ff-b031-a036e093f627",
+            "personDefendant": {
+              "arrestSummonsNumber": "2391NX0000524538814D",
+              "bailConditions": "",
+              "bailStatus": {
+                "code": "C",
+                "description": "Custody",
+                "id": "12e69486-4d01-3403-a50a-7419ca040635"
+              },
+              "driverNumber": "VANFL002222OW9PH",
+              "personDetails": {
+                "address": {
+                  "address1": "30 Church Street",
+                  "address2": "Church Street",
+                  "address3": "Edinburgh",
+                  "address4": "City of Edinburgh",
+                  "postcode": "NW1 5BR"
+                },
+                "contact": {
+                  "home": "0789311676",
+                  "mobile": "05479951369",
+                  "primaryEmail": "sophie.reichel@example.com"
+                },
+                "dateOfBirth": "2006-07-23",
+                "documentationLanguageNeeds": "ENGLISH",
+                "ethnicity": {
+                  "observedEthnicityCode": "1",
+                  "observedEthnicityDescription": "White",
+                  "observedEthnicityId": "c4ca4238-a0b9-3382-8dcc-509a6f75849b",
+                  "selfDefinedEthnicityCode": "W1",
+                  "selfDefinedEthnicityDescription": "British",
+                  "selfDefinedEthnicityId": "c4ca4238-a0b9-3382-8dcc-509a6f75849b"
+                },
+                "firstName": "Sophie",
+                "gender": "MALE",
+                "hearingLanguageNeeds": "ENGLISH",
+                "lastName": "Reichel",
+                "title": "Mr"
+              },
+              "policeBailStatus": {
+                "code": "C",
+                "description": "Custody",
+                "id": "12e69486-4d01-3403-a50a-7419ca040635"
+              }
+            }
+          },
+          "notificationRequired": true,
+          "summonsRequired": false
+        },
+        "type": {
+          "appealFlag": false,
+          "applicantAppellantFlag": false,
+          "applicationWording": "Application within criminal proceedings for case number {1}. Nature of application: {2}",
+          "applicationWordingWelsh": "Cais mewn achos troseddol am rif achos <Case number>. Natur y cais: <Nature of application>",
+          "boxworkNotifTemplate": "NOT_APPLICABLE",
+          "breachType": "NOT_APPLICABLE",
+          "categoryCode": "CR",
+          "changeDate": "2025-03-17T09:12:13",
+          "code": "AP00501",
+          "commrOfOathFlag": false,
+          "contestedFeeApplicable": false,
+          "courtExtractAvlFlag": true,
+          "courtOfAppealFlag": false,
+          "exParte": false,
+          "hearingCode": "APN",
+          "id": "fde5dd50-fb49-4100-8c46-4c10096fb136",
+          "initialFeeApplicable": false,
+          "jurisdiction": "EITHER",
+          "lastModified": "2025-03-17T14:00:39.862Z",
+          "legislation": "Refer to nature of application.",
+          "legislationWelsh": "Cyfeiriwch at natur y cais.",
+          "linkType": "LINKED",
+          "listingNotifTemplate": "POSTAL_NOTIFICATION",
+          "offenceActiveOrder": "OFFENCE",
+          "pleaApplicableFlag": true,
+          "prosecutorThirdPartyFlag": false,
+          "pssId": 601781,
+          "sowRef": "APPS",
+          "spiOutApplicableFlag": true,
+          "summonsTemplateType": "NOT_APPLICABLE",
+          "type": "Application within criminal proceedings",
+          "typeWelsh": "Cais o fewn achos troseddol",
+          "validFrom": "2007-01-07"
+        },
+        "verdict": {
+          "applicationId": "08efcf9b-c3d6-439e-bdbc-509ee4126921",
+          "isDeleted": false,
+          "jurors": {
+            "numberOfJurors": 12,
+            "numberOfSplitJurors": 0,
+            "unanimous": true
+          },
+          "lesserOrAlternativeOffence": {
+            "offenceCode": "AP00501",
+            "offenceDefinitionId": "fde5dd50-fb49-4100-8c46-4c10096fb136",
+            "offenceLegislation": "Refer to nature of application.",
+            "offenceTitle": "Application within criminal proceedings"
+          },
+          "originatingHearingId": "5f75863f-270a-482a-9e67-eaccb2fd3199",
+          "verdictDate": "2026-07-23",
+          "verdictType": {
+            "category": "Guilty",
+            "categoryType": "GUILTY",
+            "id": "c4ca4238-a0b9-3382-8dcc-509a6f75849b"
+          }
+        }
+      }
+    ],
+    "courtCentre": {
+      "address": {
+        "address1": "Marlborough St",
+        "address2": "Bristol",
+        "address3": "",
+        "address4": "",
+        "address5": "",
+        "postcode": "BS1 3NU"
+      },
+      "code": "B52CM00",
+      "courtHearingLocation": "B52CM02",
+      "id": "1a359d44-6b52-3919-b052-065413e4a801",
+      "lja": {
+        "ljaCode": "1450",
+        "ljaName": "Avon & Somerset Magistrates' Court"
+      },
+      "name": "Bristol Magistrates' Court",
+      "roomId": "c99ccd3e-3402-30d9-af14-21e6ca3a2c02",
+      "roomName": "Courtroom 02"
+    },
+    "defendantAttendance": [
+      {
+        "attendanceDays": [
+          {
+            "attendanceType": "IN_PERSON",
+            "day": "2026-07-23"
+          }
+        ],
+        "defendantId": "ea6b2d84-e99a-47ff-b031-a036e093f627"
+      }
+    ],
+    "hasSharedResults": true,
+    "hearingDays": [
+      {
+        "courtCentreId": "1a359d44-6b52-3919-b052-065413e4a801",
+        "courtRoomId": "c99ccd3e-3402-30d9-af14-21e6ca3a2c02",
+        "hasSharedResults": true,
+        "isCancelled": false,
+        "listedDurationMinutes": 20,
+        "listingSequence": 0,
+        "sittingDay": "2026-07-23T09:00:00.000Z"
+      }
+    ],
+    "hearingLanguage": "ENGLISH",
+    "id": "5f75863f-270a-482a-9e67-eaccb2fd3199",
+    "jurisdictionType": "MAGISTRATES",
+    "prosecutionCases": [
+      {
+        "caseStatus": "ACTIVE",
+        "cpsOrganisation": "A30AB00",
+        "defendants": [
+          {
+            "courtProceedingsInitiated": "2026-07-23T15:14:42.810Z",
+            "id": "ea6b2d84-e99a-47ff-b031-a036e093f627",
+            "isYouth": false,
+            "masterDefendantId": "ea6b2d84-e99a-47ff-b031-a036e093f627",
+            "offences": [
+              {
+                "arrestDate": "2026-07-08",
+                "chargeDate": "2026-07-13",
+                "convictingCourt": {
+                  "code": "B52CM00",
+                  "id": "1a359d44-6b52-3919-b052-065413e4a801",
+                  "lja": {
+                    "ljaCode": "1450",
+                    "ljaName": "Avon & Somerset Magistrates' Court"
+                  },
+                  "name": "Bristol Magistrates' Court",
+                  "roomId": "c99ccd3e-3402-30d9-af14-21e6ca3a2c02"
+                },
+                "convictionDate": "2026-07-23",
+                "count": 0,
+                "dvlaOffenceCode": "NE99",
+                "endorsableFlag": false,
+                "id": "aac5259f-93ac-4abc-85df-6610b8d52cb7",
+                "isDisposed": true,
+                "judicialResults": [
+                  {
+                    "alwaysPublished": false,
+                    "canBeSubjectOfBreach": false,
+                    "canBeSubjectOfVariation": false,
+                    "canExtendActiveOrder": false,
+                    "category": "FINAL",
+                    "cjsCode": "1002",
+                    "committedToCC": false,
+                    "d20": false,
+                    "excludedFromResults": false,
+                    "isAdjournmentResult": false,
+                    "isAvailableForCourtExtract": true,
+                    "isConvictedResult": true,
+                    "isDeemedServed": false,
+                    "isDeleted": false,
+                    "isFinancialResult": false,
+                    "isNewAmendment": true,
+                    "isUnscheduled": false,
+                    "judicialResultId": "3c902f09-b84b-45d4-92e9-7d41851ca2f0",
+                    "judicialResultPrompts": [],
+                    "judicialResultTypeId": "abb95a52-2a75-40c3-8d3f-a1d75a199c47",
+                    "label": "Imprisonment",
+                    "lastSharedDateTime": "2026-07-24",
+                    "level": "O",
+                    "lifeDuration": false,
+                    "orderedDate": "2026-07-23",
+                    "orderedHearingId": "5f75863f-270a-482a-9e67-eaccb2fd3199",
+                    "postHearingCustodyStatus": "A",
+                    "preserveActiveOrder": false,
+                    "publishedAsAPrompt": false,
+                    "publishedForNows": false,
+                    "rank": 61000,
+                    "resultText": "IMP - Imprisonment. Committed to prison for 6 Months.",
+                    "rollUpPrompts": true,
+                    "rootJudicialResultId": "3c902f09-b84b-45d4-92e9-7d41851ca2f0",
+                    "rootJudicialResultTypeId": "abb95a52-2a75-40c3-8d3f-a1d75a199c47",
+                    "sentToCC": false,
+                    "terminatesOffenceProceedings": false,
+                    "urgent": false,
+                    "usergroups": []
+                  }
+                ],
+                "listingNumber": 2,
+                "maxPenalty": "EW:6M &/or Ultd Fine",
+                "modeOfTrial": "Either Way",
+                "offenceCode": "TH68013A",
+                "offenceDateCode": 1,
+                "offenceDefinitionId": "ce94a77f-182e-3dcd-91e2-fdde31b74844",
+                "offenceLegislation": "Contrary to section 1(1)    of the Criminal Attempts Act 1981.",
+                "offenceTitle": "Attempt theft of motor vehicle",
+                "orderIndex": 1,
+                "startDate": "2026-04-24",
+                "wording": "Attempt theft to vehicle"
+              }
+            ],
+            "personDefendant": {
+              "arrestSummonsNumber": "2391NX0000524538814D",
+              "bailConditions": "",
+              "bailReasons": "Offended on bail",
+              "bailStatus": {
+                "code": "A",
+                "description": "Not applicable",
+                "id": "86009c70-759d-3308-8de4-194886ff9a77"
+              },
+              "custodialEstablishment": {
+                "custody": "Prison",
+                "id": "66385a79-bb58-30cf-8ee4-c16981fd7a4a",
+                "name": "HMP/YOI Eastwood Park"
+              },
+              "driverNumber": "VANFL002222OW9PH",
+              "personDetails": {
+                "address": {
+                  "address1": "30 Church Street",
+                  "address2": "Church Street",
+                  "address3": "Edinburgh",
+                  "address4": "City of Edinburgh",
+                  "postcode": "NW1 5BR"
+                },
+                "contact": {
+                  "home": "0789311676",
+                  "mobile": "05479951369",
+                  "primaryEmail": "sophie.reichel@example.com"
+                },
+                "dateOfBirth": "2006-07-23",
+                "documentationLanguageNeeds": "ENGLISH",
+                "ethnicity": {
+                  "observedEthnicityCode": "1",
+                  "observedEthnicityDescription": "White",
+                  "observedEthnicityId": "c4ca4238-a0b9-3382-8dcc-509a6f75849b",
+                  "selfDefinedEthnicityCode": "W1",
+                  "selfDefinedEthnicityDescription": "British",
+                  "selfDefinedEthnicityId": "c4ca4238-a0b9-3382-8dcc-509a6f75849b"
+                },
+                "firstName": "Sophie",
+                "gender": "MALE",
+                "hearingLanguageNeeds": "ENGLISH",
+                "lastName": "Reichel",
+                "title": "Mr"
+              },
+              "policeBailStatus": {
+                "code": "C",
+                "description": "Custody",
+                "id": "12e69486-4d01-3403-a50a-7419ca040635"
+              }
+            },
+            "proceedingsConcluded": false,
+            "prosecutionAuthorityReference": "2391NX0000524538814D",
+            "prosecutionCaseId": "cd9b956e-085c-4f89-80c1-0192fd956694"
+          }
+        ],
+        "id": "cd9b956e-085c-4f89-80c1-0192fd956694",
+        "initiationCode": "C",
+        "originatingOrganisation": "130SU01",
+        "prosecutionCaseIdentifier": {
+          "address": {
+            "address1": "Criminal Justice Department",
+            "address2": "Derbyshire Constabulary",
+            "address3": "Butterley Hall",
+            "address4": "Ripley",
+            "address5": "Derby",
+            "postcode": "DE5 3RS"
+          },
+          "contact": {
+            "primaryEmail": "criminaldataderbyshire@derbyshire.police.uk"
+          },
+          "majorCreditorCode": "PO30",
+          "prosecutionAuthorityCode": "DERPF",
+          "prosecutionAuthorityId": "bdc190e7-c939-37ca-be4b-9f615d6ef40e",
+          "prosecutionAuthorityName": "Derbyshire Police",
+          "prosecutionAuthorityOUCode": "0300000",
+          "caseURN": "TEST1234567"
+        }
+      }
+    ],
+    "shadowListedOffences": [],
+    "type": {
+      "description": "Application",
+      "id": "3449743b-95d6-4836-8941-57f588b52068"
+    }
+  },
+  "sharedTime": "2026-07-24T09:40:34.745Z"
+}
