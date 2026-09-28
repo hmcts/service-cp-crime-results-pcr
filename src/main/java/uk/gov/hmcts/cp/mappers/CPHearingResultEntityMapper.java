@@ -180,7 +180,7 @@ public class CPHearingResultEntityMapper {
                 : application.getSubject().getMasterDefendant().getMasterDefendantId();
     }
 
-    // One physical defendant can have multiple per-case defendantIds (CLAUDE.md) — resolves every one linked to this application, not just the first.
+    // One physical defendant can have multiple per-case defendantIds — resolves every one, not just the first.
     public List<Defendant> applicationOnlyDefendants(final CourtApplication application) {
         final MasterDefendant masterDefendant = application.getSubject() == null
                 ? null : application.getSubject().getMasterDefendant();
