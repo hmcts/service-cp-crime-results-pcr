@@ -95,10 +95,10 @@ public class ResultsIngestionService {
     private void processCourtApplication(final CourtApplication application, final HearingDetail hearing, final UUID hearingId,
                                           final Instant sharedTime, final List<CPNowSubscription> subscriptions,
                                           final Set<String> alreadyProcessed) {
-        entityMapper.applicationOnlyDefendant(application)
+        entityMapper.applicationOnlyDefendants(application).stream()
                 .filter(defendant -> alreadyProcessed.add(defendant.getId()))
                 .filter(defendant -> isPcrRequired(defendant, hearing, hearingId, subscriptions))
-                .ifPresent(defendant -> persistApplicationOnlyDefendant(defendant, application, hearing, hearingId, sharedTime));
+                .forEach(defendant -> persistApplicationOnlyDefendant(defendant, application, hearing, hearingId, sharedTime));
     }
 
     private void persistApplicationOnlyDefendant(final Defendant defendant, final CourtApplication application, final HearingDetail hearing,

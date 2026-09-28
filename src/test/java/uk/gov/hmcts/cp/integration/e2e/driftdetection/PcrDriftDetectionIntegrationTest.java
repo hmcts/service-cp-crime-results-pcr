@@ -225,7 +225,7 @@ class PcrDriftDetectionIntegrationTest extends IngestionE2ETestBase {
         }
     }
 
-    // Mirrors CPHearingResultEntityMapper.applicationOnlyDefendant/resolveDefendantId.
+    // Mirrors CPHearingResultEntityMapper.applicationOnlyDefendants/resolveDefendantIds.
     private void addApplicationOnlyDefendants(final JsonNode hearing, final Map<String, String> caseUrnByDefendantId,
                                                final Map<String, List<String>> secondaryCaseUrnsByDefendantId) {
         final JsonNode courtApplications = hearing.get("courtApplications");
@@ -238,11 +238,43 @@ class PcrDriftDetectionIntegrationTest extends IngestionE2ETestBase {
             if (masterDefendant == null) {
                 continue;
             }
-            final String defendantId = resolveDefendantId(masterDefendant, application);
-            if (defendantId != null && caseUrnByDefendantId.putIfAbsent(defendantId, caseUrnOf(application)) == null) {
-                secondaryCaseUrnsByDefendantId.put(defendantId, secondaryCaseUrnsOf(application));
+            addApplicationOnlyDefendants(application, masterDefendant, caseUrnByDefendantId, secondaryCaseUrnsByDefendantId);
+        }
+    }
+
+    // Multiple distinct per-case defendants: each is queried by their OWN case URN, with no shared secondary URNs (mirrors linkedCasesFor/ownCaseIdsFor).
+    private void addApplicationOnlyDefendants(final JsonNode application, final JsonNode masterDefendant,
+                                               final Map<String, String> caseUrnByDefendantId,
+                                               final Map<String, List<String>> secondaryCaseUrnsByDefendantId) {
+        final List<String> defendantIds = resolveDefendantIds(masterDefendant, application);
+        final boolean ambiguous = defendantIds.size() > 1;
+        for (final String defendantId : defendantIds) {
+            final String caseUrn = ambiguous ? ownCaseUrnOf(defendantId, masterDefendant, application) : caseUrnOf(application);
+            if (caseUrn != null && caseUrnByDefendantId.putIfAbsent(defendantId, caseUrn) == null) {
+                secondaryCaseUrnsByDefendantId.put(defendantId, ambiguous ? List.of() : secondaryCaseUrnsOf(application));
             }
         }
+    }
+
+    private String ownCaseUrnOf(final String defendantId, final JsonNode masterDefendant, final JsonNode application) {
+        String ownCaseId = null;
+        for (final JsonNode dc : masterDefendant.get("defendantCase")) {
+            if (defendantId.equals(dc.get("defendantId").asString())) {
+                ownCaseId = dc.get("caseId").asString();
+                break;
+            }
+        }
+        final JsonNode courtApplicationCases = ownCaseId == null ? null : application.get("courtApplicationCases");
+        if (courtApplicationCases != null) {
+            for (final JsonNode cac : courtApplicationCases) {
+                final JsonNode prosecutionCaseId = cac.get("prosecutionCaseId");
+                if (prosecutionCaseId != null && ownCaseId.equals(prosecutionCaseId.asString())) {
+                    final JsonNode identifier = cac.get("prosecutionCaseIdentifier");
+                    return identifier == null || identifier.get("caseURN") == null ? null : identifier.get("caseURN").asString();
+                }
+            }
+        }
+        return null;
     }
 
     // Mirrors CPHearingResultEntityMapper.caseUrnOf — the first linked case's real caseURN,
@@ -273,13 +305,14 @@ class PcrDriftDetectionIntegrationTest extends IngestionE2ETestBase {
         return caseUrns.size() > 1 ? caseUrns.subList(1, caseUrns.size()) : List.of();
     }
 
-    private String resolveDefendantId(final JsonNode masterDefendant, final JsonNode application) {
+    private List<String> resolveDefendantIds(final JsonNode masterDefendant, final JsonNode application) {
         final JsonNode defendantCase = masterDefendant.get("defendantCase");
         if (defendantCase == null || defendantCase.size() == 0) {
-            return null;
+            return List.of();
         }
         if (defendantCase.size() == 1) {
-            return defendantCase.get(0).get("defendantId").asString();
+            final String defendantId = defendantCase.get(0).get("defendantId").asString();
+            return defendantId == null ? List.of() : List.of(defendantId);
         }
         final Set<String> applicationCaseIds = new HashSet<>();
         final JsonNode courtApplicationCases = application.get("courtApplicationCases");
@@ -291,12 +324,16 @@ class PcrDriftDetectionIntegrationTest extends IngestionE2ETestBase {
                 }
             }
         }
+        final List<String> defendantIds = new ArrayList<>();
         for (final JsonNode dc : defendantCase) {
             if (applicationCaseIds.contains(dc.get("caseId").asString())) {
-                return dc.get("defendantId").asString();
+                final String defendantId = dc.get("defendantId").asString();
+                if (!defendantIds.contains(defendantId)) {
+                    defendantIds.add(defendantId);
+                }
             }
         }
-        return null;
+        return defendantIds;
     }
 
     private record HearingIdentity(String hearingId, String hearingDay, Map<String, String> caseUrnByDefendantId,
