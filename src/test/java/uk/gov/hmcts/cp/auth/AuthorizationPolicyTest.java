@@ -12,7 +12,8 @@ class AuthorizationPolicyTest {
     @ParameterizedTest
     @ValueSource(strings = {
             "/", "/actuator", "/actuator/health", "/actuator/health/liveness",
-            "/actuator/health/readiness", "/actuator/info", "/actuator/prometheus"
+            "/actuator/health/readiness", "/actuator/info", "/actuator/prometheus",
+            "/actuator/health/", "/actuator/health/liveness/", "/actuator/health/readiness/"
     })
     void isExempt_should_returnTrue_forEnumeratedInfrastructurePaths(final String path) {
         assertThat(policy.isExempt(path)).isTrue();
@@ -20,7 +21,7 @@ class AuthorizationPolicyTest {
 
     @ParameterizedTest
     @ValueSource(strings = {
-            "/actuator/healthx", "/actuatorx", "/actuator/health/",
+            "/actuator/healthx", "/actuatorx", "/actuator/health//",
             "/cases/URN123/hearings/00000000-0000-0000-0000-000000000001/defendants/00000000-0000-0000-0000-000000000002"
     })
     void isExempt_should_returnFalse_forNonExemptOrNearMissPaths(final String path) {
