@@ -22,6 +22,11 @@ public class AuthorizationPolicy {
             "/actuator/prometheus");
 
     public boolean isExempt(final String path) {
-        return EXEMPT_PATHS.contains(path);
+        return EXEMPT_PATHS.contains(stripTrailingSlash(path));
+    }
+
+    /** Spring serves health at {@code /actuator/health/} as well, so a trailing slash must not defeat the match. */
+    private static String stripTrailingSlash(final String path) {
+        return path.length() > 1 && path.endsWith("/") ? path.substring(0, path.length() - 1) : path;
     }
 }
