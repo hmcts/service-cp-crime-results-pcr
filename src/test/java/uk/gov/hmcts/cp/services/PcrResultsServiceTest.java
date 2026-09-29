@@ -17,6 +17,7 @@ import uk.gov.hmcts.cp.repositories.CPCaseMarkerRepository;
 import uk.gov.hmcts.cp.repositories.CPCourtApplicationRepository;
 import uk.gov.hmcts.cp.repositories.CPJudicialResultPromptRepository;
 import uk.gov.hmcts.cp.repositories.CPJudicialResultRepository;
+import uk.gov.hmcts.cp.repositories.CPRelatedCaseRepository;
 import uk.gov.hmcts.cp.repositories.CPOffenceRepository;
 import uk.gov.hmcts.cp.repositories.CPVersionRepository;
 
@@ -35,6 +36,7 @@ import static org.mockito.Mockito.when;
 class PcrResultsServiceTest {
 
     private static final String CASE_URN = "ABCD1234567";
+    private static final String RELATED_CASE_URN = "EFGH7654321";
     private static final UUID HEARING_ID = UUID.fromString("00000000-0000-0000-0000-000000000011");
     private static final UUID DEFENDANT_ID = UUID.fromString("00000000-0000-0000-0000-000000000022");
     private static final UUID CASE_HEARING_ID = UUID.fromString("00000000-0000-0000-0000-000000000033");
@@ -46,6 +48,8 @@ class PcrResultsServiceTest {
     private CPVersionRepository versionRepository;
     @Mock
     private CPCaseMarkerRepository caseMarkerRepository;
+    @Mock
+    private CPRelatedCaseRepository relatedCaseRepository;
     @Mock
     private CPCourtApplicationRepository courtApplicationRepository;
     @Mock
@@ -91,12 +95,47 @@ class PcrResultsServiceTest {
         when(versionRepository.findByCaseHearingIdAndDefendantIdOrderByCreatedAtAsc(CASE_HEARING_ID, DEFENDANT_ID))
                 .thenReturn(List.of(version));
         when(caseMarkerRepository.findByCaseHearingId(CASE_HEARING_ID)).thenReturn(List.of());
+        when(relatedCaseRepository.findByCaseHearingId(CASE_HEARING_ID)).thenReturn(List.of());
         when(courtApplicationRepository.findByVersionPk(VERSION_PK)).thenReturn(List.of());
         when(offenceRepository.findByVersionPk(VERSION_PK)).thenReturn(List.of());
-        when(mapper.toPcrHearingResult(caseHearing, version, List.of(), List.of(), List.of(), List.of(), List.of()))
+        when(mapper.toPcrHearingResult(caseHearing, version, List.of(), List.of(), List.of(), List.of(), List.of(), List.of()))
                 .thenReturn(mapped);
 
         final List<PcrHearingResult> result = pcrResultsService.getPcrHearingResults(CASE_URN, HEARING_ID, DEFENDANT_ID);
+
+        assertThat(result).containsExactly(mapped);
+        verify(caseHearingRepository, never()).findByRelatedCaseUrnAndHearingId(any(), any());
+    }
+
+    @Test
+    void getPcrHearingResults_should_resolveViaRelatedCase_whenCaseUrnIsNonPrimaryLinkedCase() {
+        final CPCaseHearingEntity caseHearing = CPCaseHearingEntity.builder().id(CASE_HEARING_ID).build();
+        final CPVersionEntity version = CPVersionEntity.builder().cpVersionPk(VERSION_PK).build();
+        final PcrHearingResult mapped = PcrHearingResult.builder().build();
+        when(caseHearingRepository.findByCaseUrnAndHearingId(RELATED_CASE_URN, HEARING_ID)).thenReturn(Optional.empty());
+        when(caseHearingRepository.findByRelatedCaseUrnAndHearingId(RELATED_CASE_URN, HEARING_ID)).thenReturn(List.of(caseHearing));
+        stubSingleVersion(caseHearing, version, mapped);
+
+        final List<PcrHearingResult> result = pcrResultsService.getPcrHearingResults(RELATED_CASE_URN, HEARING_ID, DEFENDANT_ID);
+
+        assertThat(result).containsExactly(mapped);
+    }
+
+    @Test
+    void getPcrHearingResults_should_resolveViaRelatedCase_whenPrimaryMatchHasNoVersionsForDefendant() {
+        final UUID otherCaseHearingId = UUID.fromString("00000000-0000-0000-0000-000000000034");
+        final CPCaseHearingEntity prosecutionCaseHearing = CPCaseHearingEntity.builder().id(otherCaseHearingId).build();
+        final CPCaseHearingEntity applicationCaseHearing = CPCaseHearingEntity.builder().id(CASE_HEARING_ID).build();
+        final CPVersionEntity version = CPVersionEntity.builder().cpVersionPk(VERSION_PK).build();
+        final PcrHearingResult mapped = PcrHearingResult.builder().build();
+        when(caseHearingRepository.findByCaseUrnAndHearingId(RELATED_CASE_URN, HEARING_ID)).thenReturn(Optional.of(prosecutionCaseHearing));
+        when(versionRepository.findByCaseHearingIdAndDefendantIdOrderByCreatedAtAsc(otherCaseHearingId, DEFENDANT_ID)).thenReturn(List.of());
+        when(caseMarkerRepository.findByCaseHearingId(otherCaseHearingId)).thenReturn(List.of());
+        when(relatedCaseRepository.findByCaseHearingId(otherCaseHearingId)).thenReturn(List.of());
+        when(caseHearingRepository.findByRelatedCaseUrnAndHearingId(RELATED_CASE_URN, HEARING_ID)).thenReturn(List.of(applicationCaseHearing));
+        stubSingleVersion(applicationCaseHearing, version, mapped);
+
+        final List<PcrHearingResult> result = pcrResultsService.getPcrHearingResults(RELATED_CASE_URN, HEARING_ID, DEFENDANT_ID);
 
         assertThat(result).containsExactly(mapped);
     }
@@ -121,6 +160,7 @@ class PcrResultsServiceTest {
         when(versionRepository.findByCaseHearingIdAndDefendantIdOrderByCreatedAtAsc(CASE_HEARING_ID, DEFENDANT_ID))
                 .thenReturn(List.of(version));
         when(caseMarkerRepository.findByCaseHearingId(CASE_HEARING_ID)).thenReturn(List.of());
+        when(relatedCaseRepository.findByCaseHearingId(CASE_HEARING_ID)).thenReturn(List.of());
         when(courtApplicationRepository.findByVersionPk(VERSION_PK)).thenReturn(List.of(application));
         when(offenceRepository.findByVersionPk(VERSION_PK)).thenReturn(List.of(directOffence));
         when(offenceRepository.findByCourtApplicationId(applicationId)).thenReturn(List.of(linkedOffence));
@@ -138,5 +178,17 @@ class PcrResultsServiceTest {
         verify(judicialResultPromptRepository, times(1)).findByJudicialResultId(directResultId);
         verify(judicialResultPromptRepository, times(1)).findByJudicialResultId(linkedResultId);
         verify(caseMarkerRepository, times(1)).findByCaseHearingId(CASE_HEARING_ID);
+        verify(relatedCaseRepository, times(1)).findByCaseHearingId(CASE_HEARING_ID);
+    }
+
+    private void stubSingleVersion(final CPCaseHearingEntity caseHearing, final CPVersionEntity version, final PcrHearingResult mapped) {
+        when(versionRepository.findByCaseHearingIdAndDefendantIdOrderByCreatedAtAsc(caseHearing.getId(), DEFENDANT_ID))
+                .thenReturn(List.of(version));
+        when(caseMarkerRepository.findByCaseHearingId(caseHearing.getId())).thenReturn(List.of());
+        when(relatedCaseRepository.findByCaseHearingId(caseHearing.getId())).thenReturn(List.of());
+        when(courtApplicationRepository.findByVersionPk(VERSION_PK)).thenReturn(List.of());
+        when(offenceRepository.findByVersionPk(VERSION_PK)).thenReturn(List.of());
+        when(mapper.toPcrHearingResult(caseHearing, version, List.of(), List.of(), List.of(), List.of(), List.of(), List.of()))
+                .thenReturn(mapped);
     }
 }

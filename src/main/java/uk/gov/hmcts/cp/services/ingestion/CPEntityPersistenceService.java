@@ -6,6 +6,7 @@ import uk.gov.hmcts.cp.domain.HearingDetailsResponse.Defendant;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.HearingDetail;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.ProsecutionCase;
 import uk.gov.hmcts.cp.entities.CPCaseHearingEntity;
+import uk.gov.hmcts.cp.entities.CPRelatedCaseEntity;
 import uk.gov.hmcts.cp.mappers.CPEntitySet;
 import uk.gov.hmcts.cp.mappers.CPHearingResultEntityMapper;
 import uk.gov.hmcts.cp.repositories.CPCaseHearingRepository;
@@ -13,13 +14,17 @@ import uk.gov.hmcts.cp.repositories.CPCaseMarkerRepository;
 import uk.gov.hmcts.cp.repositories.CPCourtApplicationRepository;
 import uk.gov.hmcts.cp.repositories.CPJudicialResultPromptRepository;
 import uk.gov.hmcts.cp.repositories.CPJudicialResultRepository;
+import uk.gov.hmcts.cp.repositories.CPRelatedCaseRepository;
 import uk.gov.hmcts.cp.repositories.CPOffenceRepository;
 import uk.gov.hmcts.cp.repositories.CPVersionRepository;
 import uk.gov.hmcts.cp.services.ClockService;
 
 import java.time.Instant;
 import java.time.OffsetDateTime;
+import java.util.List;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -29,6 +34,7 @@ public class CPEntityPersistenceService {
     private final ClockService clockService;
     private final CPCaseHearingRepository caseHearingRepository;
     private final CPCaseMarkerRepository caseMarkerRepository;
+    private final CPRelatedCaseRepository relatedCaseRepository;
     private final CPVersionRepository versionRepository;
     private final CPCourtApplicationRepository courtApplicationRepository;
     private final CPOffenceRepository offenceRepository;
@@ -42,14 +48,30 @@ public class CPEntityPersistenceService {
                 .orElseGet(() -> createCaseHearing(prosecutionCase, hearing, hearingId));
     }
 
-    // Overload for a court-application-only case — no case markers, CP has none for these.
-    // caseId is the linked prosecution case's id where the application references one
-    // (see CPHearingResultEntityMapper.caseIdOf) — a standalone application has none.
+    // Court-application-only overload — no case markers (CP has none for applications); caseId/relatedCaseUrns are null/empty for a standalone application (see CPHearingResultEntityMapper.caseIdOf/caseUrnOf/relatedCaseUrnsOf).
     public UUID findOrCreateCaseHearing(final String caseUrn, final HearingDetail hearing, final UUID hearingId,
-                                         final String prosecutorName, final UUID caseId) {
+                                         final String prosecutorName, final UUID caseId, final List<String> relatedCaseUrns) {
         return caseHearingRepository.findByCaseUrnAndHearingId(caseUrn, hearingId)
-                .map(CPCaseHearingEntity::getId)
-                .orElseGet(() -> createCaseHearing(caseUrn, hearing, hearingId, prosecutorName, caseId));
+                .map(entity -> upsertRelatedCaseUrns(entity.getId(), relatedCaseUrns))
+                .orElseGet(() -> createCaseHearing(caseUrn, hearing, hearingId, prosecutorName, caseId, relatedCaseUrns));
+    }
+
+    // A linked case's own resolved caseUrn can already have a cp_case_hearing row (e.g. created
+    // first via a genuine ProsecutionCase) — this backfills any related-case links onto it that
+    // creation-time linking never gets a chance to write.
+    private UUID upsertRelatedCaseUrns(final UUID caseHearingId, final List<String> relatedCaseUrns) {
+        final List<String> missingUrns = missingRelatedCaseUrns(caseHearingId, relatedCaseUrns);
+        if (!missingUrns.isEmpty()) {
+            relatedCaseRepository.saveAll(toRelatedCaseEntities(missingUrns, caseHearingId));
+        }
+        return caseHearingId;
+    }
+
+    private List<String> missingRelatedCaseUrns(final UUID caseHearingId, final List<String> relatedCaseUrns) {
+        final Set<String> existingUrns = relatedCaseRepository.findByCaseHearingId(caseHearingId).stream()
+                .map(CPRelatedCaseEntity::getCaseUrn)
+                .collect(Collectors.toSet());
+        return relatedCaseUrns.stream().filter(urn -> !existingUrns.contains(urn)).toList();
     }
 
     private UUID createCaseHearing(final ProsecutionCase prosecutionCase, final HearingDetail hearing, final UUID hearingId) {
@@ -60,11 +82,20 @@ public class CPEntityPersistenceService {
     }
 
     private UUID createCaseHearing(final String caseUrn, final HearingDetail hearing, final UUID hearingId,
-                                    final String prosecutorName, final UUID caseId) {
+                                    final String prosecutorName, final UUID caseId, final List<String> relatedCaseUrns) {
         final CPCaseHearingEntity entity = entityMapper.toCaseHearingEntity(caseUrn, hearing, hearingId,
                 clockService.nowOffsetUTC(), prosecutorName, caseId);
         caseHearingRepository.save(entity);
+        if (!relatedCaseUrns.isEmpty()) {
+            relatedCaseRepository.saveAll(toRelatedCaseEntities(relatedCaseUrns, entity.getId()));
+        }
         return entity.getId();
+    }
+
+    private List<CPRelatedCaseEntity> toRelatedCaseEntities(final List<String> relatedCaseUrns, final UUID caseHearingId) {
+        return relatedCaseUrns.stream()
+                .map(urn -> CPRelatedCaseEntity.builder().id(UUID.randomUUID()).caseHearingId(caseHearingId).caseUrn(urn).build())
+                .toList();
     }
 
     public void persist(final Defendant defendant, final HearingDetail hearing, final UUID caseHearingId,

@@ -1,0 +1,1184 @@
+{
+  "hearing": {
+    "courtApplications": [
+      {
+        "applicant": {
+          "id": "0ad11989-8d2c-48fe-85f8-fe9fc1029d33",
+          "masterDefendant": {
+            "defendantCase": [
+              {
+                "caseId": "de573113-4de5-47b3-b0f0-98c0ad4d0145",
+                "caseReference": "CP137534172",
+                "defendantId": "d6b66a08-0c32-4b93-846d-f047c72a80b6"
+              }
+            ],
+            "isYouth": false,
+            "masterDefendantId": "d6b66a08-0c32-4b93-846d-f047c72a80b6",
+            "personDefendant": {
+              "arrestSummonsNumber": "2391NX0000998877665B",
+              "bailStatus": {
+                "code": "A",
+                "description": "Not applicable",
+                "id": "86009c70-759d-3308-8de4-194886ff9a77"
+              },
+              "driverNumber": "VANFL002222OW9PH",
+              "personDetails": {
+                "address": {
+                  "address1": "7 Orchard Row",
+                  "address2": "Millbrook",
+                  "address3": "Sheffield",
+                  "address4": "South Yorkshire",
+                  "postcode": "S1 2AB"
+                },
+                "contact": {
+                  "home": "01140000000",
+                  "mobile": "07700900000",
+                  "primaryEmail": "user1@example-prison.gov.uk"
+                },
+                "dateOfBirth": "1990-04-12",
+                "documentationLanguageNeeds": "ENGLISH",
+                "ethnicity": {
+                  "observedEthnicityCode": "1",
+                  "observedEthnicityDescription": "1",
+                  "observedEthnicityId": "c4ca4238-a0b9-3382-8dcc-509a6f75849b",
+                  "selfDefinedEthnicityCode": "W1",
+                  "selfDefinedEthnicityDescription": "British",
+                  "selfDefinedEthnicityId": "c4ca4238-a0b9-3382-8dcc-509a6f75849b"
+                },
+                "firstName": "Daniel",
+                "gender": "MALE",
+                "hearingLanguageNeeds": "ENGLISH",
+                "lastName": "Hartley",
+                "title": "Mr"
+              },
+              "policeBailStatus": {
+                "code": "C",
+                "description": "Custody",
+                "id": "12e69486-4d01-3403-a50a-7419ca040635"
+              }
+            }
+          },
+          "notificationRequired": true,
+          "summonsRequired": false
+        },
+        "applicationReceivedDate": "2026-09-23",
+        "applicationReference": "CP137534172,WO137531276",
+        "applicationStatus": "FINALISED",
+        "commissionerOfOath": false,
+        "courtApplicationCases": [
+          {
+            "caseStatus": "INACTIVE",
+            "isSJP": false,
+            "offences": [
+              {
+                "arrestDate": "2026-09-08",
+                "bailStatus": {
+                  "code": "A",
+                  "description": "Not applicable",
+                  "id": "86009c70-759d-3308-8de4-194886ff9a77"
+                },
+                "chargeDate": "2026-09-13",
+                "count": 0,
+                "endorsableFlag": false,
+                "id": "65e7d7fd-9533-4215-a0e4-2e3257cdc01b",
+                "isDisposed": true,
+                "judicialResults": [
+                  {
+                    "alwaysPublished": false,
+                    "canBeSubjectOfBreach": false,
+                    "canBeSubjectOfVariation": false,
+                    "canExtendActiveOrder": false,
+                    "category": "FINAL",
+                    "cjsCode": "1016",
+                    "committedToCC": false,
+                    "courtClerk": {
+                      "firstName": "Priya",
+                      "lastName": "Clerkson",
+                      "userId": "a085e359-6069-4694-8820-7810e7dfe762"
+                    },
+                    "d20": false,
+                    "durationElement": {
+                      "primaryDurationUnit": "W",
+                      "primaryDurationValue": 5,
+                      "secondaryDurationUnit": "W",
+                      "secondaryDurationValue": 5
+                    },
+                    "excludedFromResults": false,
+                    "isAdjournmentResult": false,
+                    "isAvailableForCourtExtract": true,
+                    "isConvictedResult": false,
+                    "isDeleted": false,
+                    "isFinancialResult": false,
+                    "isNewAmendment": true,
+                    "isUnscheduled": false,
+                    "judicialResultId": "a7aa71df-798d-41b3-a2d1-84206e814143",
+                    "judicialResultPrompts": [
+                      {
+                        "courtExtract": "Y",
+                        "isFinancialImposition": false,
+                        "judicialResultPromptTypeId": "b2cf5a1e-8539-45a1-a287-4be5094a0e73",
+                        "label": "Total custodial period",
+                        "promptReference": "totalCustodialPeriod",
+                        "promptSequence": 100,
+                        "type": "INTM",
+                        "usergroups": [],
+                        "value": "6 Months",
+                        "welshValue": "6 Months"
+                      },
+                      {
+                        "courtExtract": "N",
+                        "isFinancialImposition": false,
+                        "judicialResultPromptTypeId": "2d6330a2-1f12-45fb-bb72-65f4c1215e9c",
+                        "label": "Prison organisation name",
+                        "promptReference": "prisonOrganisationName",
+                        "promptSequence": 900,
+                        "type": "NAMEADDRESS",
+                        "usergroups": [],
+                        "value": "HMP Ashfield",
+                        "welshValue": "HMP Ashfield"
+                      },
+                      {
+                        "courtExtract": "N",
+                        "isFinancialImposition": false,
+                        "judicialResultPromptTypeId": "2d6330a2-1f12-45fb-bb72-65f4c1215e9c",
+                        "label": "Prison email address 1",
+                        "promptReference": "prisonEmailAddress1",
+                        "promptSequence": 900,
+                        "type": "NAMEADDRESS",
+                        "usergroups": [],
+                        "value": "user2@example-prison.gov.uk",
+                        "welshValue": "user2@example-prison.gov.uk"
+                      },
+                      {
+                        "courtExtract": "N",
+                        "isFinancialImposition": false,
+                        "judicialResultPromptTypeId": "2d6330a2-1f12-45fb-bb72-65f4c1215e9c",
+                        "label": "Prison email address 2",
+                        "promptReference": "prisonEmailAddress2",
+                        "promptSequence": 900,
+                        "type": "NAMEADDRESS",
+                        "usergroups": [],
+                        "value": "user2@example-prison.gov.uk",
+                        "welshValue": "user2@example-prison.gov.uk"
+                      },
+                      {
+                        "courtExtract": "N",
+                        "isFinancialImposition": false,
+                        "judicialResultPromptTypeId": "6927b6ac-4c85-4532-838d-88ac00ea83f9",
+                        "label": "Conveyor / custodian name organisation name",
+                        "promptReference": "conveyorcustodiannameOrganisationName",
+                        "promptSequence": 1000,
+                        "type": "NAMEADDRESS",
+                        "usergroups": [],
+                        "value": "Liverpool Crown Court: PECS",
+                        "welshValue": "Liverpool Crown Court: PECS"
+                      },
+                      {
+                        "courtExtract": "N",
+                        "isFinancialImposition": false,
+                        "judicialResultPromptTypeId": "6927b6ac-4c85-4532-838d-88ac00ea83f9",
+                        "label": "Conveyor / custodian name email address 1",
+                        "promptReference": "conveyorcustodiannameEmailAddress1",
+                        "promptSequence": 1000,
+                        "type": "NAMEADDRESS",
+                        "usergroups": [],
+                        "value": "user3@example-prison.gov.uk",
+                        "welshValue": "user3@example-prison.gov.uk"
+                      },
+                      {
+                        "courtExtract": "N",
+                        "isFinancialImposition": false,
+                        "judicialResultPromptTypeId": "68c92035-27fd-4ee6-b03c-fe18ea6dbcb0",
+                        "label": "Probation team to be notified organisation name",
+                        "promptReference": "probationteamtobenotifiedOrganisationName",
+                        "promptSequence": 1200,
+                        "type": "NAMEADDRESS",
+                        "usergroups": [],
+                        "value": "London Division NPS",
+                        "welshValue": "London Division NPS"
+                      },
+                      {
+                        "courtExtract": "N",
+                        "isFinancialImposition": false,
+                        "judicialResultPromptTypeId": "68c92035-27fd-4ee6-b03c-fe18ea6dbcb0",
+                        "label": "Probation team to be notified email address 1",
+                        "promptReference": "probationteamtobenotifiedEmailAddress1",
+                        "promptSequence": 1200,
+                        "type": "NAMEADDRESS",
+                        "usergroups": [],
+                        "value": "user4@example-prison.gov.uk",
+                        "welshValue": "user4@example-prison.gov.uk"
+                      },
+                      {
+                        "courtExtract": "Y",
+                        "isFinancialImposition": false,
+                        "judicialResultPromptTypeId": "c39f2ea4-f53a-48a0-b842-ee89a2c3d86b",
+                        "label": "Witness name",
+                        "promptReference": "witnessName",
+                        "promptSequence": 100,
+                        "type": "TXT",
+                        "usergroups": [],
+                        "value": "Testwitfn Testwitln",
+                        "welshValue": "Testwitfn Testwitln"
+                      },
+                      {
+                        "courtExtract": "Y",
+                        "isFinancialImposition": false,
+                        "judicialResultPromptTypeId": "69a4e7f0-866f-4c31-846a-dd909666ef85",
+                        "label": "Bound over in the sum of",
+                        "promptReference": "boundOverInTheSumOf",
+                        "promptSequence": 200,
+                        "type": "CURR",
+                        "usergroups": [],
+                        "value": "£345.00",
+                        "welshValue": "£345.00"
+                      },
+                      {
+                        "courtExtract": "Y",
+                        "durationSequence": 1,
+                        "isFinancialImposition": false,
+                        "judicialResultPromptTypeId": "30916e4c-8224-4a1f-a542-6f1bf1d47a46",
+                        "label": "Duration of bind over",
+                        "promptReference": "durationOfBindOver",
+                        "promptSequence": 300,
+                        "type": "INTM",
+                        "usergroups": [],
+                        "value": "5 Weeks",
+                        "welshValue": "5 Weeks"
+                      },
+                      {
+                        "courtExtract": "Y",
+                        "durationSequence": 2,
+                        "isFinancialImposition": false,
+                        "judicialResultPromptTypeId": "88953d80-e17d-46ce-8bae-27bca402eb99",
+                        "label": "Committed to prison for",
+                        "promptReference": "committedToPrisonFor",
+                        "promptSequence": 800,
+                        "type": "INTM",
+                        "usergroups": [],
+                        "value": "5 Weeks",
+                        "welshValue": "5 Weeks"
+                      },
+                      {
+                        "courtExtract": "Y",
+                        "isFinancialImposition": false,
+                        "judicialResultPromptTypeId": "7f204ae3-cd30-4e0c-8ac8-9071de4c1e05",
+                        "label": "Basis of committal",
+                        "promptReference": "basisOfCommittal",
+                        "promptSequence": 900,
+                        "type": "FIXL",
+                        "usergroups": [],
+                        "value": "To await surety",
+                        "welshValue": "i aros am feichiau"
+                      }
+                    ],
+                    "judicialResultTypeId": "c0924745-4afd-4cc6-b26b-d130915714c1",
+                    "label": "Bind over witness to keep the peace and Imprison",
+                    "lastSharedDateTime": "2026-09-23",
+                    "level": "O",
+                    "lifeDuration": false,
+                    "orderedDate": "2026-09-23",
+                    "orderedHearingId": "691c676a-f60e-48a2-8984-f5b1a3d51364",
+                    "policeSubjectLineTitle": "Final Sentence",
+                    "postHearingCustodyStatus": "A",
+                    "preserveActiveOrder": false,
+                    "publishedAsAPrompt": false,
+                    "publishedForNows": false,
+                    "qualifier": "W",
+                    "rank": 100300,
+                    "resultText": "BOWI - Bind over witness to keep the peace and Imprison\nWitness, Testwitfn Testwitln, bound over in the sum of £345.00 for 5 Weeks to keep the peace. Committed to prison for 5 Weeks or until recognisance entered into if earlier. Basis for committal: To await surety. Total custodial period: 6 Months.",
+                    "rollUpPrompts": true,
+                    "rootJudicialResultId": "a7aa71df-798d-41b3-a2d1-84206e814143",
+                    "rootJudicialResultTypeId": "c0924745-4afd-4cc6-b26b-d130915714c1",
+                    "sentToCC": false,
+                    "terminatesOffenceProceedings": false,
+                    "urgent": false,
+                    "usergroups": []
+                  },
+                  {
+                    "alwaysPublished": false,
+                    "canBeSubjectOfBreach": false,
+                    "canBeSubjectOfVariation": false,
+                    "canExtendActiveOrder": false,
+                    "category": "ANCILLARY",
+                    "committedToCC": false,
+                    "courtClerk": {
+                      "firstName": "Priya",
+                      "lastName": "Clerkson",
+                      "userId": "a085e359-6069-4694-8820-7810e7dfe762"
+                    },
+                    "d20": false,
+                    "excludedFromResults": false,
+                    "isAdjournmentResult": false,
+                    "isAvailableForCourtExtract": true,
+                    "isConvictedResult": false,
+                    "isDeleted": false,
+                    "isFinancialResult": false,
+                    "isNewAmendment": true,
+                    "isUnscheduled": false,
+                    "judicialResultId": "25e08b2a-2c4d-47ed-93c1-d26b43c8a69d",
+                    "judicialResultPrompts": [
+                      {
+                        "courtExtract": "Y",
+                        "isFinancialImposition": false,
+                        "judicialResultPromptTypeId": "b2cf5a1e-8539-45a1-a287-4be5094a0e73",
+                        "label": "Total custodial period",
+                        "promptReference": "totalCustodialPeriod",
+                        "promptSequence": 100,
+                        "type": "INTM",
+                        "usergroups": [],
+                        "value": "6 Months",
+                        "welshValue": "6 Months"
+                      },
+                      {
+                        "courtExtract": "N",
+                        "isFinancialImposition": false,
+                        "judicialResultPromptTypeId": "2d6330a2-1f12-45fb-bb72-65f4c1215e9c",
+                        "label": "Prison organisation name",
+                        "promptReference": "prisonOrganisationName",
+                        "promptSequence": 900,
+                        "type": "NAMEADDRESS",
+                        "usergroups": [],
+                        "value": "HMP Ashfield",
+                        "welshValue": "HMP Ashfield"
+                      },
+                      {
+                        "courtExtract": "N",
+                        "isFinancialImposition": false,
+                        "judicialResultPromptTypeId": "2d6330a2-1f12-45fb-bb72-65f4c1215e9c",
+                        "label": "Prison email address 1",
+                        "promptReference": "prisonEmailAddress1",
+                        "promptSequence": 900,
+                        "type": "NAMEADDRESS",
+                        "usergroups": [],
+                        "value": "user2@example-prison.gov.uk",
+                        "welshValue": "user2@example-prison.gov.uk"
+                      },
+                      {
+                        "courtExtract": "N",
+                        "isFinancialImposition": false,
+                        "judicialResultPromptTypeId": "2d6330a2-1f12-45fb-bb72-65f4c1215e9c",
+                        "label": "Prison email address 2",
+                        "promptReference": "prisonEmailAddress2",
+                        "promptSequence": 900,
+                        "type": "NAMEADDRESS",
+                        "usergroups": [],
+                        "value": "user2@example-prison.gov.uk",
+                        "welshValue": "user2@example-prison.gov.uk"
+                      },
+                      {
+                        "courtExtract": "N",
+                        "isFinancialImposition": false,
+                        "judicialResultPromptTypeId": "6927b6ac-4c85-4532-838d-88ac00ea83f9",
+                        "label": "Conveyor / custodian name organisation name",
+                        "promptReference": "conveyorcustodiannameOrganisationName",
+                        "promptSequence": 1000,
+                        "type": "NAMEADDRESS",
+                        "usergroups": [],
+                        "value": "Liverpool Crown Court: PECS",
+                        "welshValue": "Liverpool Crown Court: PECS"
+                      },
+                      {
+                        "courtExtract": "N",
+                        "isFinancialImposition": false,
+                        "judicialResultPromptTypeId": "6927b6ac-4c85-4532-838d-88ac00ea83f9",
+                        "label": "Conveyor / custodian name email address 1",
+                        "promptReference": "conveyorcustodiannameEmailAddress1",
+                        "promptSequence": 1000,
+                        "type": "NAMEADDRESS",
+                        "usergroups": [],
+                        "value": "user3@example-prison.gov.uk",
+                        "welshValue": "user3@example-prison.gov.uk"
+                      },
+                      {
+                        "courtExtract": "N",
+                        "isFinancialImposition": false,
+                        "judicialResultPromptTypeId": "68c92035-27fd-4ee6-b03c-fe18ea6dbcb0",
+                        "label": "Probation team to be notified organisation name",
+                        "promptReference": "probationteamtobenotifiedOrganisationName",
+                        "promptSequence": 1200,
+                        "type": "NAMEADDRESS",
+                        "usergroups": [],
+                        "value": "London Division NPS",
+                        "welshValue": "London Division NPS"
+                      },
+                      {
+                        "courtExtract": "N",
+                        "isFinancialImposition": false,
+                        "judicialResultPromptTypeId": "68c92035-27fd-4ee6-b03c-fe18ea6dbcb0",
+                        "label": "Probation team to be notified email address 1",
+                        "promptReference": "probationteamtobenotifiedEmailAddress1",
+                        "promptSequence": 1200,
+                        "type": "NAMEADDRESS",
+                        "usergroups": [],
+                        "value": "user4@example-prison.gov.uk",
+                        "welshValue": "user4@example-prison.gov.uk"
+                      }
+                    ],
+                    "judicialResultTypeId": "6cb15971-c945-4398-b7c9-3f8b743a4de3",
+                    "label": "Total custodial period",
+                    "lastSharedDateTime": "2026-09-23",
+                    "level": "D",
+                    "lifeDuration": false,
+                    "orderedDate": "2026-09-23",
+                    "orderedHearingId": "691c676a-f60e-48a2-8984-f5b1a3d51364",
+                    "parentJudicialResultId": "a7aa71df-798d-41b3-a2d1-84206e814143",
+                    "parentJudicialResultTypeId": "c0924745-4afd-4cc6-b26b-d130915714c1",
+                    "postHearingCustodyStatus": "A",
+                    "preserveActiveOrder": false,
+                    "publishedAsAPrompt": false,
+                    "publishedForNows": true,
+                    "rank": 400,
+                    "resultText": "Total custodial period: 6 Months.",
+                    "rollUpPrompts": true,
+                    "rootJudicialResultId": "a7aa71df-798d-41b3-a2d1-84206e814143",
+                    "rootJudicialResultTypeId": "c0924745-4afd-4cc6-b26b-d130915714c1",
+                    "sentToCC": false,
+                    "terminatesOffenceProceedings": false,
+                    "urgent": false,
+                    "usergroups": []
+                  }
+                ],
+                "listingNumber": 1,
+                "maxPenalty": "EW:6M &/or Ultd Fine",
+                "modeOfTrial": "Either Way",
+                "offenceCode": "PT00018",
+                "offenceDateCode": 1,
+                "offenceDefinitionId": "2f23c989-8a77-3bc6-adae-2d205bc1956d",
+                "offenceLegislation": "Contrary to sections 15(3) and 22 of the Terrorism Act 2000.",
+                "offenceTitle": "Provide money / property for use in acts of terrorism",
+                "orderIndex": 1,
+                "proceedingsConcluded": true,
+                "startDate": "2026-06-25",
+                "wording": "Provide money / property for use in acts of terrorism"
+              },
+              {
+                "arrestDate": "2026-09-08",
+                "bailStatus": {
+                  "code": "A",
+                  "description": "Not applicable",
+                  "id": "86009c70-759d-3308-8de4-194886ff9a77"
+                },
+                "chargeDate": "2026-09-13",
+                "count": 0,
+                "endorsableFlag": false,
+                "id": "356460a7-f383-4d4b-ad53-758bded16caf",
+                "isDisposed": true,
+                "judicialResults": [
+                  {
+                    "alwaysPublished": false,
+                    "canBeSubjectOfBreach": false,
+                    "canBeSubjectOfVariation": false,
+                    "canExtendActiveOrder": false,
+                    "category": "FINAL",
+                    "cjsCode": "1016",
+                    "committedToCC": false,
+                    "courtClerk": {
+                      "firstName": "Priya",
+                      "lastName": "Clerkson",
+                      "userId": "a085e359-6069-4694-8820-7810e7dfe762"
+                    },
+                    "d20": false,
+                    "durationElement": {
+                      "primaryDurationUnit": "W",
+                      "primaryDurationValue": 5,
+                      "secondaryDurationUnit": "W",
+                      "secondaryDurationValue": 5
+                    },
+                    "excludedFromResults": false,
+                    "isAdjournmentResult": false,
+                    "isAvailableForCourtExtract": true,
+                    "isConvictedResult": false,
+                    "isDeleted": false,
+                    "isFinancialResult": false,
+                    "isNewAmendment": true,
+                    "isUnscheduled": false,
+                    "judicialResultId": "812bf074-0936-447f-988a-826a8a547762",
+                    "judicialResultPrompts": [
+                      {
+                        "courtExtract": "Y",
+                        "isFinancialImposition": false,
+                        "judicialResultPromptTypeId": "c39f2ea4-f53a-48a0-b842-ee89a2c3d86b",
+                        "label": "Witness name",
+                        "promptReference": "witnessName",
+                        "promptSequence": 100,
+                        "type": "TXT",
+                        "usergroups": [],
+                        "value": "Testwitfn Testwitln",
+                        "welshValue": "Testwitfn Testwitln"
+                      },
+                      {
+                        "courtExtract": "Y",
+                        "isFinancialImposition": false,
+                        "judicialResultPromptTypeId": "69a4e7f0-866f-4c31-846a-dd909666ef85",
+                        "label": "Bound over in the sum of",
+                        "promptReference": "boundOverInTheSumOf",
+                        "promptSequence": 200,
+                        "type": "CURR",
+                        "usergroups": [],
+                        "value": "£345.00",
+                        "welshValue": "£345.00"
+                      },
+                      {
+                        "courtExtract": "Y",
+                        "durationSequence": 1,
+                        "isFinancialImposition": false,
+                        "judicialResultPromptTypeId": "30916e4c-8224-4a1f-a542-6f1bf1d47a46",
+                        "label": "Duration of bind over",
+                        "promptReference": "durationOfBindOver",
+                        "promptSequence": 300,
+                        "type": "INTM",
+                        "usergroups": [],
+                        "value": "5 Weeks",
+                        "welshValue": "5 Weeks"
+                      },
+                      {
+                        "courtExtract": "Y",
+                        "durationSequence": 2,
+                        "isFinancialImposition": false,
+                        "judicialResultPromptTypeId": "88953d80-e17d-46ce-8bae-27bca402eb99",
+                        "label": "Committed to prison for",
+                        "promptReference": "committedToPrisonFor",
+                        "promptSequence": 800,
+                        "type": "INTM",
+                        "usergroups": [],
+                        "value": "5 Weeks",
+                        "welshValue": "5 Weeks"
+                      },
+                      {
+                        "courtExtract": "Y",
+                        "isFinancialImposition": false,
+                        "judicialResultPromptTypeId": "7f204ae3-cd30-4e0c-8ac8-9071de4c1e05",
+                        "label": "Basis of committal",
+                        "promptReference": "basisOfCommittal",
+                        "promptSequence": 900,
+                        "type": "FIXL",
+                        "usergroups": [],
+                        "value": "To await surety",
+                        "welshValue": "i aros am feichiau"
+                      }
+                    ],
+                    "judicialResultTypeId": "c0924745-4afd-4cc6-b26b-d130915714c1",
+                    "label": "Bind over witness to keep the peace and Imprison",
+                    "lastSharedDateTime": "2026-09-23",
+                    "level": "O",
+                    "lifeDuration": false,
+                    "orderedDate": "2026-09-23",
+                    "orderedHearingId": "691c676a-f60e-48a2-8984-f5b1a3d51364",
+                    "policeSubjectLineTitle": "Final Sentence",
+                    "postHearingCustodyStatus": "A",
+                    "preserveActiveOrder": false,
+                    "publishedAsAPrompt": false,
+                    "publishedForNows": false,
+                    "qualifier": "W",
+                    "rank": 100300,
+                    "resultText": "BOWI - Bind over witness to keep the peace and Imprison\nWitness, Testwitfn Testwitln, bound over in the sum of £345.00 for 5 Weeks to keep the peace. Committed to prison for 5 Weeks or until recognisance entered into if earlier. Basis for committal: To await surety. ",
+                    "rollUpPrompts": true,
+                    "rootJudicialResultId": "812bf074-0936-447f-988a-826a8a547762",
+                    "rootJudicialResultTypeId": "c0924745-4afd-4cc6-b26b-d130915714c1",
+                    "sentToCC": false,
+                    "terminatesOffenceProceedings": false,
+                    "urgent": false,
+                    "usergroups": []
+                  }
+                ],
+                "listingNumber": 1,
+                "offenceCode": "BA76004",
+                "offenceDateCode": 1,
+                "offenceDefinitionId": "ba984104-036f-3c33-b837-e03187be056e",
+                "offenceLegislation": "Pursuant to section 7(3)(a), (4) and (5) of the Bail Act 1976.",
+                "offenceTitle": "Arrest by a constable as unlikely to surrender to custody",
+                "orderIndex": 2,
+                "proceedingsConcluded": true,
+                "startDate": "2026-06-25",
+                "wording": "Provide money / property for use in acts of terrorism"
+              }
+            ],
+            "prosecutionCaseId": "de573113-4de5-47b3-b0f0-98c0ad4d0145",
+            "prosecutionCaseIdentifier": {
+              "address": {
+                "address1": "Bishopsgate police station",
+                "address2": "182, Bishopsgate",
+                "address5": "London",
+                "postcode": "EC2M 4NP"
+              },
+              "contact": {
+                "primaryEmail": "user5@example-prison.gov.uk"
+              },
+              "majorCreditorCode": "COLP",
+              "prosecutionAuthorityCode": "CITYPF",
+              "prosecutionAuthorityId": "baa2ec52-296b-3f38-922a-9e641c1f94d3",
+              "prosecutionAuthorityName": "City of London Police",
+              "prosecutionAuthorityOUCode": "0480000",
+              "caseURN": "CP137534172"
+            }
+          },
+          {
+            "caseStatus": "INACTIVE",
+            "isSJP": false,
+            "offences": [
+              {
+                "arrestDate": "2026-09-08",
+                "bailStatus": {
+                  "code": "A",
+                  "description": "Not applicable",
+                  "id": "86009c70-759d-3308-8de4-194886ff9a77"
+                },
+                "chargeDate": "2026-09-13",
+                "count": 0,
+                "endorsableFlag": false,
+                "id": "245f32d8-d99e-4908-8f20-46afbb47d794",
+                "isDisposed": true,
+                "judicialResults": [
+                  {
+                    "alwaysPublished": false,
+                    "canBeSubjectOfBreach": false,
+                    "canBeSubjectOfVariation": false,
+                    "canExtendActiveOrder": false,
+                    "category": "FINAL",
+                    "cjsCode": "1016",
+                    "committedToCC": false,
+                    "courtClerk": {
+                      "firstName": "Priya",
+                      "lastName": "Clerkson",
+                      "userId": "a085e359-6069-4694-8820-7810e7dfe762"
+                    },
+                    "d20": false,
+                    "durationElement": {
+                      "primaryDurationUnit": "W",
+                      "primaryDurationValue": 5,
+                      "secondaryDurationUnit": "W",
+                      "secondaryDurationValue": 5
+                    },
+                    "excludedFromResults": false,
+                    "isAdjournmentResult": false,
+                    "isAvailableForCourtExtract": true,
+                    "isConvictedResult": false,
+                    "isDeleted": false,
+                    "isFinancialResult": false,
+                    "isNewAmendment": true,
+                    "isUnscheduled": false,
+                    "judicialResultId": "d6a02476-e450-4b8e-a86e-23cbd7f9d892",
+                    "judicialResultPrompts": [
+                      {
+                        "courtExtract": "Y",
+                        "isFinancialImposition": false,
+                        "judicialResultPromptTypeId": "c39f2ea4-f53a-48a0-b842-ee89a2c3d86b",
+                        "label": "Witness name",
+                        "promptReference": "witnessName",
+                        "promptSequence": 100,
+                        "type": "TXT",
+                        "usergroups": [],
+                        "value": "Testwitfn Testwitln",
+                        "welshValue": "Testwitfn Testwitln"
+                      },
+                      {
+                        "courtExtract": "Y",
+                        "isFinancialImposition": false,
+                        "judicialResultPromptTypeId": "69a4e7f0-866f-4c31-846a-dd909666ef85",
+                        "label": "Bound over in the sum of",
+                        "promptReference": "boundOverInTheSumOf",
+                        "promptSequence": 200,
+                        "type": "CURR",
+                        "usergroups": [],
+                        "value": "£345.00",
+                        "welshValue": "£345.00"
+                      },
+                      {
+                        "courtExtract": "Y",
+                        "durationSequence": 1,
+                        "isFinancialImposition": false,
+                        "judicialResultPromptTypeId": "30916e4c-8224-4a1f-a542-6f1bf1d47a46",
+                        "label": "Duration of bind over",
+                        "promptReference": "durationOfBindOver",
+                        "promptSequence": 300,
+                        "type": "INTM",
+                        "usergroups": [],
+                        "value": "5 Weeks",
+                        "welshValue": "5 Weeks"
+                      },
+                      {
+                        "courtExtract": "Y",
+                        "durationSequence": 2,
+                        "isFinancialImposition": false,
+                        "judicialResultPromptTypeId": "88953d80-e17d-46ce-8bae-27bca402eb99",
+                        "label": "Committed to prison for",
+                        "promptReference": "committedToPrisonFor",
+                        "promptSequence": 800,
+                        "type": "INTM",
+                        "usergroups": [],
+                        "value": "5 Weeks",
+                        "welshValue": "5 Weeks"
+                      },
+                      {
+                        "courtExtract": "Y",
+                        "isFinancialImposition": false,
+                        "judicialResultPromptTypeId": "7f204ae3-cd30-4e0c-8ac8-9071de4c1e05",
+                        "label": "Basis of committal",
+                        "promptReference": "basisOfCommittal",
+                        "promptSequence": 900,
+                        "type": "FIXL",
+                        "usergroups": [],
+                        "value": "To await surety",
+                        "welshValue": "i aros am feichiau"
+                      }
+                    ],
+                    "judicialResultTypeId": "c0924745-4afd-4cc6-b26b-d130915714c1",
+                    "label": "Bind over witness to keep the peace and Imprison",
+                    "lastSharedDateTime": "2026-09-23",
+                    "level": "O",
+                    "lifeDuration": false,
+                    "orderedDate": "2026-09-23",
+                    "orderedHearingId": "691c676a-f60e-48a2-8984-f5b1a3d51364",
+                    "policeSubjectLineTitle": "Final Sentence",
+                    "postHearingCustodyStatus": "A",
+                    "preserveActiveOrder": false,
+                    "publishedAsAPrompt": false,
+                    "publishedForNows": false,
+                    "qualifier": "W",
+                    "rank": 100300,
+                    "resultText": "BOWI - Bind over witness to keep the peace and Imprison\nWitness, Testwitfn Testwitln, bound over in the sum of £345.00 for 5 Weeks to keep the peace. Committed to prison for 5 Weeks or until recognisance entered into if earlier. Basis for committal: To await surety. ",
+                    "rollUpPrompts": true,
+                    "rootJudicialResultId": "d6a02476-e450-4b8e-a86e-23cbd7f9d892",
+                    "rootJudicialResultTypeId": "c0924745-4afd-4cc6-b26b-d130915714c1",
+                    "sentToCC": false,
+                    "terminatesOffenceProceedings": false,
+                    "urgent": false,
+                    "usergroups": []
+                  }
+                ],
+                "listingNumber": 1,
+                "maxPenalty": "EW:6M &/or Ultd Fine",
+                "modeOfTrial": "Either Way",
+                "offenceCode": "PT00018",
+                "offenceDateCode": 1,
+                "offenceDefinitionId": "2f23c989-8a77-3bc6-adae-2d205bc1956d",
+                "offenceLegislation": "Contrary to sections 15(3) and 22 of the Terrorism Act 2000.",
+                "offenceTitle": "Provide money / property for use in acts of terrorism",
+                "orderIndex": 1,
+                "proceedingsConcluded": true,
+                "startDate": "2026-06-25",
+                "wording": "Provide money / property for use in acts of terrorism"
+              },
+              {
+                "arrestDate": "2026-09-08",
+                "bailStatus": {
+                  "code": "A",
+                  "description": "Not applicable",
+                  "id": "86009c70-759d-3308-8de4-194886ff9a77"
+                },
+                "chargeDate": "2026-09-13",
+                "count": 0,
+                "endorsableFlag": false,
+                "id": "020b39d5-415c-49a9-aa63-c7ea80760f5c",
+                "isDisposed": true,
+                "judicialResults": [
+                  {
+                    "alwaysPublished": false,
+                    "canBeSubjectOfBreach": false,
+                    "canBeSubjectOfVariation": false,
+                    "canExtendActiveOrder": false,
+                    "category": "FINAL",
+                    "cjsCode": "1016",
+                    "committedToCC": false,
+                    "courtClerk": {
+                      "firstName": "Priya",
+                      "lastName": "Clerkson",
+                      "userId": "a085e359-6069-4694-8820-7810e7dfe762"
+                    },
+                    "d20": false,
+                    "durationElement": {
+                      "primaryDurationUnit": "W",
+                      "primaryDurationValue": 5,
+                      "secondaryDurationUnit": "W",
+                      "secondaryDurationValue": 5
+                    },
+                    "excludedFromResults": false,
+                    "isAdjournmentResult": false,
+                    "isAvailableForCourtExtract": true,
+                    "isConvictedResult": false,
+                    "isDeleted": false,
+                    "isFinancialResult": false,
+                    "isNewAmendment": true,
+                    "isUnscheduled": false,
+                    "judicialResultId": "c7cae15a-cb39-473b-b1fd-bfa67b22bbd8",
+                    "judicialResultPrompts": [
+                      {
+                        "courtExtract": "Y",
+                        "isFinancialImposition": false,
+                        "judicialResultPromptTypeId": "c39f2ea4-f53a-48a0-b842-ee89a2c3d86b",
+                        "label": "Witness name",
+                        "promptReference": "witnessName",
+                        "promptSequence": 100,
+                        "type": "TXT",
+                        "usergroups": [],
+                        "value": "Testwitfn Testwitln",
+                        "welshValue": "Testwitfn Testwitln"
+                      },
+                      {
+                        "courtExtract": "Y",
+                        "isFinancialImposition": false,
+                        "judicialResultPromptTypeId": "69a4e7f0-866f-4c31-846a-dd909666ef85",
+                        "label": "Bound over in the sum of",
+                        "promptReference": "boundOverInTheSumOf",
+                        "promptSequence": 200,
+                        "type": "CURR",
+                        "usergroups": [],
+                        "value": "£345.00",
+                        "welshValue": "£345.00"
+                      },
+                      {
+                        "courtExtract": "Y",
+                        "durationSequence": 1,
+                        "isFinancialImposition": false,
+                        "judicialResultPromptTypeId": "30916e4c-8224-4a1f-a542-6f1bf1d47a46",
+                        "label": "Duration of bind over",
+                        "promptReference": "durationOfBindOver",
+                        "promptSequence": 300,
+                        "type": "INTM",
+                        "usergroups": [],
+                        "value": "5 Weeks",
+                        "welshValue": "5 Weeks"
+                      },
+                      {
+                        "courtExtract": "Y",
+                        "durationSequence": 2,
+                        "isFinancialImposition": false,
+                        "judicialResultPromptTypeId": "88953d80-e17d-46ce-8bae-27bca402eb99",
+                        "label": "Committed to prison for",
+                        "promptReference": "committedToPrisonFor",
+                        "promptSequence": 800,
+                        "type": "INTM",
+                        "usergroups": [],
+                        "value": "5 Weeks",
+                        "welshValue": "5 Weeks"
+                      },
+                      {
+                        "courtExtract": "Y",
+                        "isFinancialImposition": false,
+                        "judicialResultPromptTypeId": "7f204ae3-cd30-4e0c-8ac8-9071de4c1e05",
+                        "label": "Basis of committal",
+                        "promptReference": "basisOfCommittal",
+                        "promptSequence": 900,
+                        "type": "FIXL",
+                        "usergroups": [],
+                        "value": "To await surety",
+                        "welshValue": "i aros am feichiau"
+                      }
+                    ],
+                    "judicialResultTypeId": "c0924745-4afd-4cc6-b26b-d130915714c1",
+                    "label": "Bind over witness to keep the peace and Imprison",
+                    "lastSharedDateTime": "2026-09-23",
+                    "level": "O",
+                    "lifeDuration": false,
+                    "orderedDate": "2026-09-23",
+                    "orderedHearingId": "691c676a-f60e-48a2-8984-f5b1a3d51364",
+                    "policeSubjectLineTitle": "Final Sentence",
+                    "postHearingCustodyStatus": "A",
+                    "preserveActiveOrder": false,
+                    "publishedAsAPrompt": false,
+                    "publishedForNows": false,
+                    "qualifier": "W",
+                    "rank": 100300,
+                    "resultText": "BOWI - Bind over witness to keep the peace and Imprison\nWitness, Testwitfn Testwitln, bound over in the sum of £345.00 for 5 Weeks to keep the peace. Committed to prison for 5 Weeks or until recognisance entered into if earlier. Basis for committal: To await surety. ",
+                    "rollUpPrompts": true,
+                    "rootJudicialResultId": "c7cae15a-cb39-473b-b1fd-bfa67b22bbd8",
+                    "rootJudicialResultTypeId": "c0924745-4afd-4cc6-b26b-d130915714c1",
+                    "sentToCC": false,
+                    "terminatesOffenceProceedings": false,
+                    "urgent": false,
+                    "usergroups": []
+                  }
+                ],
+                "listingNumber": 1,
+                "offenceCode": "BA76004",
+                "offenceDateCode": 1,
+                "offenceDefinitionId": "ba984104-036f-3c33-b837-e03187be056e",
+                "offenceLegislation": "Pursuant to section 7(3)(a), (4) and (5) of the Bail Act 1976.",
+                "offenceTitle": "Arrest by a constable as unlikely to surrender to custody",
+                "orderIndex": 2,
+                "proceedingsConcluded": true,
+                "startDate": "2026-06-25",
+                "wording": "Provide money / property for use in acts of terrorism"
+              }
+            ],
+            "prosecutionCaseId": "cc63f267-d6f4-4ad1-8502-d7a26d8c57ca",
+            "prosecutionCaseIdentifier": {
+              "address": {
+                "address1": "Bishopsgate police station",
+                "address2": "182, Bishopsgate",
+                "address5": "London",
+                "postcode": "EC2M 4NP"
+              },
+              "majorCreditorCode": "COLP",
+              "prosecutionAuthorityCode": "CITYPF",
+              "prosecutionAuthorityId": "baa2ec52-296b-3f38-922a-9e641c1f94d3",
+              "prosecutionAuthorityName": "City of London Police",
+              "prosecutionAuthorityOUCode": "0480000",
+              "caseURN": "WO137531276"
+            }
+          }
+        ],
+        "courtApplicationPayment": {
+          "feeStatus": "NOT_APPLICABLE"
+        },
+        "courtCivilApplication": {
+          "isCivil": false
+        },
+        "id": "23e51f3c-536e-4595-b9c8-3a98224d7365",
+        "judicialResults": [
+          {
+            "alwaysPublished": false,
+            "canBeSubjectOfBreach": false,
+            "canBeSubjectOfVariation": false,
+            "canExtendActiveOrder": false,
+            "category": "FINAL",
+            "committedToCC": false,
+            "courtClerk": {
+              "firstName": "Priya",
+              "lastName": "Clerkson",
+              "userId": "a085e359-6069-4694-8820-7810e7dfe762"
+            },
+            "d20": false,
+            "excludedFromResults": false,
+            "isAdjournmentResult": false,
+            "isAvailableForCourtExtract": true,
+            "isConvictedResult": false,
+            "isDeemedServed": false,
+            "isDeleted": false,
+            "isFinancialResult": false,
+            "isNewAmendment": true,
+            "isUnscheduled": false,
+            "judicialResultId": "0c42cbdc-5508-4414-be47-cdfe1e05e2f4",
+            "judicialResultPrompts": [
+              {
+                "courtExtract": "N",
+                "isFinancialImposition": false,
+                "judicialResultPromptTypeId": "c10b4c83-1856-4ca9-9592-d8b8183a0324",
+                "label": "Reasons",
+                "promptReference": "reasons",
+                "promptSequence": 200,
+                "type": "TXT",
+                "usergroups": [
+                  "CPS",
+                  "Defence",
+                  "Judiciary",
+                  "NCES",
+                  "Probation",
+                  "Prosecuting Authorities",
+                  "YOTs"
+                ],
+                "value": "Test reasons",
+                "welshValue": "Test reasons"
+              },
+              {
+                "courtExtract": "Y",
+                "isFinancialImposition": false,
+                "judicialResultPromptTypeId": "e3764c59-4e25-4864-a3af-1c2e3390af99",
+                "label": "Date of conviction",
+                "promptReference": "dateOfConviction",
+                "promptSequence": 300,
+                "type": "DATE",
+                "usergroups": [],
+                "value": "22/08/2026",
+                "welshValue": "22/08/2026"
+              }
+            ],
+            "judicialResultTypeId": "177f29cd-49e9-41d1-aafb-5730d7414dd4",
+            "label": "Appeal against conviction allowed ",
+            "lastSharedDateTime": "2026-09-23",
+            "level": "O",
+            "lifeDuration": false,
+            "orderedDate": "2026-09-23",
+            "orderedHearingId": "691c676a-f60e-48a2-8984-f5b1a3d51364",
+            "postHearingCustodyStatus": "A",
+            "preserveActiveOrder": false,
+            "publishedAsAPrompt": false,
+            "publishedForNows": false,
+            "rank": 61700,
+            "resultText": "AACA - Appeal against conviction allowed \nDate of Conviction 22/08/2026. ",
+            "resultWording": "",
+            "rollUpPrompts": true,
+            "rootJudicialResultId": "0c42cbdc-5508-4414-be47-cdfe1e05e2f4",
+            "rootJudicialResultTypeId": "177f29cd-49e9-41d1-aafb-5730d7414dd4",
+            "sentToCC": false,
+            "terminatesOffenceProceedings": false,
+            "urgent": false,
+            "usergroups": []
+          }
+        ],
+        "respondents": [
+          {
+            "id": "c21ef204-7603-47fd-8cd5-82f7e7f00a79",
+            "notificationRequired": true,
+            "prosecutingAuthority": {
+              "address": {
+                "address1": "Bishopsgate police station",
+                "address2": "182, Bishopsgate",
+                "address5": "London",
+                "postcode": "EC2M 4NP"
+              },
+              "contact": {
+                "primaryEmail": "user5@example-prison.gov.uk"
+              },
+              "majorCreditorCode": "COLP",
+              "name": "City of London Police",
+              "prosecutionAuthorityCode": "CITYPF",
+              "prosecutionAuthorityId": "baa2ec52-296b-3f38-922a-9e641c1f94d3",
+              "prosecutionAuthorityOUCode": "0480000",
+              "welshName": "Heddlu Dinas Llundain"
+            },
+            "summonsRequired": false
+          }
+        ],
+        "subject": {
+          "id": "0ad11989-8d2c-48fe-85f8-fe9fc1029d33",
+          "masterDefendant": {
+            "defendantCase": [
+              {
+                "caseId": "de573113-4de5-47b3-b0f0-98c0ad4d0145",
+                "caseReference": "CP137534172",
+                "defendantId": "d6b66a08-0c32-4b93-846d-f047c72a80b6"
+              }
+            ],
+            "isYouth": false,
+            "masterDefendantId": "d6b66a08-0c32-4b93-846d-f047c72a80b6",
+            "personDefendant": {
+              "arrestSummonsNumber": "2391NX0000998877665B",
+              "bailConditions": "",
+              "bailStatus": {
+                "code": "A",
+                "description": "Not applicable",
+                "id": "86009c70-759d-3308-8de4-194886ff9a77"
+              },
+              "driverNumber": "VANFL002222OW9PH",
+              "personDetails": {
+                "address": {
+                  "address1": "7 Orchard Row",
+                  "address2": "Millbrook",
+                  "address3": "Sheffield",
+                  "address4": "South Yorkshire",
+                  "postcode": "S1 2AB"
+                },
+                "contact": {
+                  "home": "01140000000",
+                  "mobile": "07700900000",
+                  "primaryEmail": "user1@example-prison.gov.uk"
+                },
+                "dateOfBirth": "1990-04-12",
+                "documentationLanguageNeeds": "ENGLISH",
+                "ethnicity": {
+                  "observedEthnicityCode": "1",
+                  "observedEthnicityDescription": "1",
+                  "observedEthnicityId": "c4ca4238-a0b9-3382-8dcc-509a6f75849b",
+                  "selfDefinedEthnicityCode": "W1",
+                  "selfDefinedEthnicityDescription": "British",
+                  "selfDefinedEthnicityId": "c4ca4238-a0b9-3382-8dcc-509a6f75849b"
+                },
+                "firstName": "Daniel",
+                "gender": "MALE",
+                "hearingLanguageNeeds": "ENGLISH",
+                "lastName": "Hartley",
+                "title": "Mr"
+              },
+              "policeBailStatus": {
+                "code": "C",
+                "description": "Custody",
+                "id": "12e69486-4d01-3403-a50a-7419ca040635"
+              }
+            }
+          },
+          "notificationRequired": true,
+          "summonsRequired": false
+        },
+        "type": {
+          "appealFlag": true,
+          "applicantAppellantFlag": true,
+          "applicationWording": "Appeal against conviction by a Magistrates' Court on {1} at {2} to the Crown Court",
+          "boxworkNotifTemplate": "NOT_APPLICABLE",
+          "breachType": "NOT_APPLICABLE",
+          "categoryCode": "CR",
+          "changeDate": "2022-10-09T14:12:09",
+          "code": "MC80802",
+          "commrOfOathFlag": false,
+          "contestedFeeApplicable": false,
+          "courtExtractAvlFlag": true,
+          "courtOfAppealFlag": false,
+          "exParte": false,
+          "hearingCode": "APL",
+          "id": "3fca31f0-7b30-47e8-8f3f-90601ad26b50",
+          "initialFeeApplicable": false,
+          "jurisdiction": "CROWN",
+          "lastModified": "2025-02-24T18:19:04.990Z",
+          "legislation": "In accordance with section 108 of the Magistrates' Courts Act 1980.",
+          "legislationWelsh": "adran 108 Deddf Llysoedd Ynadon 1980",
+          "linkType": "SJP",
+          "listingNotifTemplate": "POSTAL_NOTIFICATION",
+          "offenceActiveOrder": "OFFENCE",
+          "pleaApplicableFlag": false,
+          "prosecutorThirdPartyFlag": false,
+          "pssId": 587579,
+          "sowRef": "APPS",
+          "spiOutApplicableFlag": true,
+          "summonsTemplateType": "NOT_APPLICABLE",
+          "type": "Appeal against conviction by a Magistrates' Court to the Crown Court",
+          "typeWelsh": "Apelio i Lys y Goron yn erbyn euogfarn gan Lys Ynadon",
+          "validFrom": "1980-01-01"
+        }
+      }
+    ],
+    "courtCentre": {
+      "address": {
+        "address1": "QEII Law Courts",
+        "address2": "Derby Square",
+        "address3": "Liverpool",
+        "address4": "",
+        "address5": "",
+        "postcode": "L2 1XA"
+      },
+      "code": "C05LV00",
+      "courtHearingLocation": "C05LV00",
+      "courtLocationCode": "0433",
+      "id": "9b583616-049b-30f9-a14f-028a53b7cfe8",
+      "lja": {
+        "ljaCode": "1810",
+        "ljaName": "Merseyside Magistrates' Court"
+      },
+      "name": "Liverpool Crown Court",
+      "roomId": "7cb09222-49e1-3622-a5a6-ad253d2b3c39",
+      "roomName": "Crown Court 3-1"
+    },
+    "defendantAttendance": [
+      {
+        "attendanceDays": [
+          {
+            "attendanceType": "IN_PERSON",
+            "day": "2026-09-23"
+          }
+        ],
+        "defendantId": "d6b66a08-0c32-4b93-846d-f047c72a80b6"
+      }
+    ],
+    "hasSharedResults": true,
+    "hearingDays": [
+      {
+        "courtCentreId": "9b583616-049b-30f9-a14f-028a53b7cfe8",
+        "courtRoomId": "7cb09222-49e1-3622-a5a6-ad253d2b3c39",
+        "hasSharedResults": true,
+        "isCancelled": false,
+        "listedDurationMinutes": 180,
+        "listingSequence": 0,
+        "sittingDay": "2026-09-23T15:00:00.000Z"
+      }
+    ],
+    "hearingLanguage": "ENGLISH",
+    "id": "691c676a-f60e-48a2-8984-f5b1a3d51364",
+    "jurisdictionType": "CROWN",
+    "shadowListedOffences": [],
+    "type": {
+      "description": "Appeal against Conviction",
+      "id": "ba24aa48-e919-3592-8699-f901c902c859"
+    }
+  },
+  "sharedTime": "2026-09-23T20:48:28.195Z"
+}

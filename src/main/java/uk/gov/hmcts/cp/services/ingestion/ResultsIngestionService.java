@@ -95,16 +95,16 @@ public class ResultsIngestionService {
     private void processCourtApplication(final CourtApplication application, final HearingDetail hearing, final UUID hearingId,
                                           final Instant sharedTime, final List<CPNowSubscription> subscriptions,
                                           final Set<String> alreadyProcessed) {
-        entityMapper.applicationOnlyDefendant(application)
+        entityMapper.applicationOnlyDefendants(application).stream()
                 .filter(defendant -> alreadyProcessed.add(defendant.getId()))
                 .filter(defendant -> isPcrRequired(defendant, hearing, hearingId, subscriptions))
-                .ifPresent(defendant -> persistApplicationOnlyDefendant(defendant, application, hearing, hearingId, sharedTime));
+                .forEach(defendant -> persistApplicationOnlyDefendant(defendant, application, hearing, hearingId, sharedTime));
     }
 
     private void persistApplicationOnlyDefendant(final Defendant defendant, final CourtApplication application, final HearingDetail hearing,
                                                   final UUID hearingId, final Instant sharedTime) {
-        final UUID caseHearingId = persistenceService.findOrCreateCaseHearing(application.getApplicationReference(), hearing, hearingId,
-                entityMapper.prosecutorNameOf(application), entityMapper.caseIdOf(application));
+        final UUID caseHearingId = persistenceService.findOrCreateCaseHearing(entityMapper.caseUrnOf(application), hearing, hearingId,
+                entityMapper.prosecutorNameOf(application), entityMapper.caseIdOf(application), entityMapper.relatedCaseUrnsOf(application));
         final String defendantType = entityMapper.defendantType(application, defendant.getMasterDefendantId());
         persistCPEntitySet(defendant, hearing, caseHearingId, sharedTime, defendantType);
     }
@@ -150,7 +150,7 @@ public class ResultsIngestionService {
         final Stream<LocalDate> fromProsecutionCases = Stream.ofNullable(hearing.getProsecutionCases()).flatMap(List::stream)
                 .flatMap(c -> c.getDefendants().stream())
                 .flatMap(d -> d.getOffences().stream())
-                .flatMap(o -> o.getJudicialResults().stream())
+                .flatMap(o -> Stream.ofNullable(o.getJudicialResults()).flatMap(List::stream))
                 .map(JudicialResult::getOrderedDate);
         final Stream<LocalDate> fromCourtApplications = Stream.ofNullable(hearing.getCourtApplications()).flatMap(List::stream)
                 .flatMap(this::orderedDatesOf);

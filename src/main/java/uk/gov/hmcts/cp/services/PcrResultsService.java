@@ -8,6 +8,7 @@ import uk.gov.hmcts.cp.entities.CPCaseMarkerEntity;
 import uk.gov.hmcts.cp.entities.CPCourtApplicationEntity;
 import uk.gov.hmcts.cp.entities.CPJudicialResultEntity;
 import uk.gov.hmcts.cp.entities.CPJudicialResultPromptEntity;
+import uk.gov.hmcts.cp.entities.CPRelatedCaseEntity;
 import uk.gov.hmcts.cp.entities.CPOffenceEntity;
 import uk.gov.hmcts.cp.entities.CPVersionEntity;
 import uk.gov.hmcts.cp.mappers.PcrResultsMapper;
@@ -17,6 +18,7 @@ import uk.gov.hmcts.cp.repositories.CPCaseMarkerRepository;
 import uk.gov.hmcts.cp.repositories.CPCourtApplicationRepository;
 import uk.gov.hmcts.cp.repositories.CPJudicialResultPromptRepository;
 import uk.gov.hmcts.cp.repositories.CPJudicialResultRepository;
+import uk.gov.hmcts.cp.repositories.CPRelatedCaseRepository;
 import uk.gov.hmcts.cp.repositories.CPOffenceRepository;
 import uk.gov.hmcts.cp.repositories.CPVersionRepository;
 
@@ -31,6 +33,7 @@ public class PcrResultsService {
     private final CPCaseHearingRepository caseHearingRepository;
     private final CPVersionRepository versionRepository;
     private final CPCaseMarkerRepository caseMarkerRepository;
+    private final CPRelatedCaseRepository relatedCaseRepository;
     private final CPCourtApplicationRepository courtApplicationRepository;
     private final CPOffenceRepository offenceRepository;
     private final CPJudicialResultRepository judicialResultRepository;
@@ -39,20 +42,29 @@ public class PcrResultsService {
 
     @Transactional(readOnly = true)
     public List<PcrHearingResult> getPcrHearingResults(final String caseURN, final UUID hearingId, final UUID defendantId) {
-        return caseHearingRepository.findByCaseUrnAndHearingId(caseURN, hearingId)
+        final List<PcrHearingResult> primaryResults = caseHearingRepository.findByCaseUrnAndHearingId(caseURN, hearingId)
                 .map(caseHearing -> toResults(caseHearing, defendantId))
                 .orElseGet(List::of);
+        return primaryResults.isEmpty() ? relatedCaseResults(caseURN, hearingId, defendantId) : primaryResults;
+    }
+
+    // A multi-case application is keyed on its first linked case URN only; any other linked URN resolves via cp_case_hearing_related_case.
+    private List<PcrHearingResult> relatedCaseResults(final String caseURN, final UUID hearingId, final UUID defendantId) {
+        return caseHearingRepository.findByRelatedCaseUrnAndHearingId(caseURN, hearingId).stream()
+                .flatMap(caseHearing -> toResults(caseHearing, defendantId).stream())
+                .toList();
     }
 
     private List<PcrHearingResult> toResults(final CPCaseHearingEntity caseHearing, final UUID defendantId) {
         final List<CPCaseMarkerEntity> caseMarkers = caseMarkerRepository.findByCaseHearingId(caseHearing.getId());
+        final List<CPRelatedCaseEntity> relatedCases = relatedCaseRepository.findByCaseHearingId(caseHearing.getId());
         return versionRepository.findByCaseHearingIdAndDefendantIdOrderByCreatedAtAsc(caseHearing.getId(), defendantId).stream()
-                .map(version -> toPcrHearingResult(caseHearing, version, caseMarkers))
+                .map(version -> toPcrHearingResult(caseHearing, version, caseMarkers, relatedCases))
                 .toList();
     }
 
     private PcrHearingResult toPcrHearingResult(final CPCaseHearingEntity caseHearing, final CPVersionEntity version,
-                                                 final List<CPCaseMarkerEntity> caseMarkers) {
+                                                 final List<CPCaseMarkerEntity> caseMarkers, final List<CPRelatedCaseEntity> relatedCases) {
         final List<CPCourtApplicationEntity> courtApplications = courtApplicationRepository.findByVersionPk(version.getCpVersionPk());
         final List<CPOffenceEntity> offences = allOffences(version.getCpVersionPk(), courtApplications);
         final List<CPJudicialResultEntity> judicialResults = allJudicialResults(version.getCpVersionPk(), offences, courtApplications);
@@ -63,7 +75,8 @@ public class PcrResultsService {
                 courtApplications,
                 offences,
                 judicialResults,
-                allPrompts(judicialResults));
+                allPrompts(judicialResults),
+                relatedCases);
     }
 
     private List<CPOffenceEntity> allOffences(final UUID versionPk, final List<CPCourtApplicationEntity> courtApplications) {

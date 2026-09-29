@@ -20,6 +20,7 @@ No published `api-cp-*` spec exists yet for this service — the `apiSpec` depen
 ## Documentation
 
 - [Logging Documentation](docs/Logging.md) — logging configuration and best practices.
+- [Authentication](docs/Authentication.md) — Entra JWT access-token validation (mode, claims, exempt paths).
 
 ## Ownership
 
@@ -45,6 +46,7 @@ If the push is rejected with a permissions error, check the `api-marketplace` te
 ### Contribute to This Repository
 
 Contributions are welcome! Please see the [CONTRIBUTING.md](.github/CONTRIBUTING.md) file for guidelines.
+
 
 ## License
 
