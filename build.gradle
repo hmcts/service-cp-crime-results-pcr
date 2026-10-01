@@ -39,7 +39,7 @@ dependencies {
 
   // Java core
   implementation 'net.logstash.logback:logstash-logback-encoder:9.0'
-  implementation 'org.owasp.encoder:encoder:1.4.0'
+  implementation 'org.owasp.encoder:encoder:1.4.1'
 
   compileOnly 'org.projectlombok:lombok:1.18.48'
   annotationProcessor 'org.projectlombok:lombok:1.18.48'
