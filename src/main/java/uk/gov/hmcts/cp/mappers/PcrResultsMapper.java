@@ -168,7 +168,6 @@ public class PcrResultsMapper {
         return nextHearing == null || nextHearing.getDate() == null
                 ? null
                 : NextHearing.builder()
-                        .hearingId(nextHearing.getId())
                         .court(toCourt(nextHearing.getCourtHouseId(), nextHearing.getCourtHouseCode(), nextHearing.getCourtHouseName()))
                         .dateTime(toNextHearingDateTime(nextHearing))
                         .build();

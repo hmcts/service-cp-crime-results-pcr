@@ -510,7 +510,6 @@ class CPHearingResultEntityMapperTest {
         assertThat(mapped.getCourtHouseId()).isEqualTo(UUID.fromString("f8254db1-1683-483e-afb3-b87fde5a0a26"));
         assertThat(mapped.getCourtHouseCode()).isEqualTo("B01LY00");
         assertThat(mapped.getCourtHouseName()).isEqualTo("Lavender Hill Magistrates' Court");
-        assertThat(mapped.getId()).isEqualTo(UUID.fromString("41a6176a-4304-4986-91b6-588969195c56"));
     }
 
     @Test

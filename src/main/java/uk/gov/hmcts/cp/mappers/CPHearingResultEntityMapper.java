@@ -541,7 +541,6 @@ public class CPHearingResultEntityMapper {
                 .courtHouseId(courtCentre == null || courtCentre.getId() == null ? null : UUID.fromString(courtCentre.getId()))
                 .courtHouseCode(courtCentre == null ? null : courtCentre.getCode())
                 .courtHouseName(courtCentre == null ? null : courtCentre.getName())
-                .id(nextHearing.getBookingReference() == null ? null : UUID.fromString(nextHearing.getBookingReference()))
                 .build();
     }
 

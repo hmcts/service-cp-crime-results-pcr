@@ -235,6 +235,7 @@ class PcrResultsMapperTest {
         assertThat(result.getHearing().getNextHearing().getCourt().getCourtHouseId()).isEqualTo(courtHouseId);
         assertThat(result.getHearing().getNextHearing().getCourt().getCourtHouseCode()).isEqualTo("B01LY00");
         assertThat(result.getHearing().getNextHearing().getCourt().getCourtHouseName()).isEqualTo("Lavender Hill Magistrates' Court");
+        assertThat(result.getHearing().getNextHearing().getHearingId()).isNull();
     }
 
     @Test

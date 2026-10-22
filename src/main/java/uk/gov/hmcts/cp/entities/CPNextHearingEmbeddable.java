@@ -34,7 +34,4 @@ public class CPNextHearingEmbeddable {
 
     @Column(name = "next_hearing_court_house_name")
     private String courtHouseName;
-
-    @Column(name = "next_hearing_id")
-    private UUID id;
 }
