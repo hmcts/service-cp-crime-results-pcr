@@ -606,6 +606,44 @@ class CPHearingResultEntityMapperTest {
         final CPEntitySet bundle = mapper.toWriteBundle(defendant, hearing, CASE_HEARING_ID, SHARED_TIME, CREATED_AT, EXPIRES_AT);
 
         assertThat(bundle.version().getNextHearing()).isNull();
+        assertThat(bundle.offences()).singleElement().extracting(CPOffenceEntity::getNextHearing).isNull();
+    }
+
+    @Test
+    void toWriteBundle_should_mapEachOffencesOwnNextHearing_whenOffencesAdjournToDifferentDates() {
+        final Defendant defendant = defendantWithOffences(DEFENDANT_ID,
+                offenceWithNextHearing("2026-12-01T10:00:00Z", "B01AA00"),
+                offenceWithNextHearing("2026-11-21T10:00:00Z", "B01BB00"));
+
+        final CPEntitySet bundle = mapper.toWriteBundle(defendant, hearingWith(defendant), CASE_HEARING_ID, SHARED_TIME, CREATED_AT, EXPIRES_AT);
+
+        assertThat(bundle.offences())
+                .extracting(o -> o.getNextHearing().getDate(), o -> o.getNextHearing().getCourtHouseCode())
+                .containsExactly(tuple(LocalDate.of(2026, 12, 1), "B01AA00"), tuple(LocalDate.of(2026, 11, 21), "B01BB00"));
+    }
+
+    @Test
+    void toWriteBundle_should_mapEarliestOffenceNextHearing_whenOffenceCarriesSeveral() {
+        final Offence offence = Offence.builder().judicialResults(List.of(
+                resultWithNextHearing("2026-12-01T10:00:00Z", "B01AA00"),
+                resultWithNextHearing("2026-11-21T10:00:00Z", "B01BB00"))).build();
+        final Defendant defendant = defendantWithOffences(DEFENDANT_ID, offence);
+
+        final CPEntitySet bundle = mapper.toWriteBundle(defendant, hearingWith(defendant), CASE_HEARING_ID, SHARED_TIME, CREATED_AT, EXPIRES_AT);
+
+        assertThat(bundle.offences().get(0).getNextHearing().getDate()).isEqualTo(LocalDate.of(2026, 11, 21));
+    }
+
+    @Test
+    void toWriteBundle_should_leaveOffenceNextHearingNull_whenItsResultsCarryNone() {
+        final Defendant defendant = defendantWithOffences(DEFENDANT_ID,
+                Offence.builder().judicialResults(List.of(JudicialResult.builder().judicialResultPrompts(List.of()).build())).build(),
+                offenceWithNextHearing("2026-11-21T10:00:00Z", "B01BB00"));
+
+        final CPEntitySet bundle = mapper.toWriteBundle(defendant, hearingWith(defendant), CASE_HEARING_ID, SHARED_TIME, CREATED_AT, EXPIRES_AT);
+
+        assertThat(bundle.offences().get(0).getNextHearing()).isNull();
+        assertThat(bundle.offences().get(1).getNextHearing().getDate()).isEqualTo(LocalDate.of(2026, 11, 21));
     }
 
     @Test

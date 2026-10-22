@@ -268,6 +268,7 @@ class PcrResultsMapperTest {
         assertThat(result.getOffences().get(0).getAllocationDecision()).isEqualTo("Summarily");
         assertThat(result.getOffences().get(0).getIndicatedPleaValue()).isEqualTo("GUILTY");
         assertThat(result.getOffences().get(0).getCaseURN()).isNull();
+        assertThat(result.getOffences().get(0).getNextHearing()).isNull();
         assertThat(result.getOffences().get(0).getResults()).hasSize(1);
         final var mappedResult = result.getOffences().get(0).getResults().get(0);
         assertThat(mappedResult.getResultDescription())
@@ -275,6 +276,28 @@ class PcrResultsMapperTest {
         assertThat(mappedResult.getResultTexts()).hasSize(1);
         assertThat(mappedResult.getResultTexts().get(0).getLabel()).isEqualTo("Prison organisation name");
         assertThat(mappedResult.getResultTexts().get(0).getValue()).isEqualTo("HMP Dovegate");
+    }
+
+    @Test
+    void toPcrHearingResult_should_mapOffenceNextHearing_whenRecorded() {
+        final CPCaseHearingEntity caseHearing = CPCaseHearingEntity.builder().hearingId(HEARING_ID).build();
+        final CPVersionEntity version = minimalVersion();
+        final CPOffenceEntity offence = CPOffenceEntity.builder()
+                .id(UUID.fromString("00000000-0000-0000-0000-000000000048"))
+                .versionPk(version.getCpVersionPk()).code("TH68001")
+                .nextHearing(CPNextHearingEmbeddable.builder()
+                        .date(LocalDate.of(2026, 11, 21)).time("10:00")
+                        .courtHouseCode("B01LY00").courtHouseName("Lavender Hill Magistrates' Court").build())
+                .build();
+
+        final PcrHearingResult result = mapper.toPcrHearingResult(caseHearing, version, List.of(),
+                List.of(), List.of(offence), List.of(), List.of(), List.of());
+
+        final var nextHearing = result.getOffences().get(0).getNextHearing();
+        assertThat(nextHearing.getDateTime()).isEqualTo(Instant.parse("2026-11-21T10:00:00Z"));
+        assertThat(nextHearing.getCourt().getCourtHouseCode()).isEqualTo("B01LY00");
+        assertThat(nextHearing.getCourt().getCourtHouseName()).isEqualTo("Lavender Hill Magistrates' Court");
+        assertThat(nextHearing.getHearingId()).isNull();
     }
 
     @Test

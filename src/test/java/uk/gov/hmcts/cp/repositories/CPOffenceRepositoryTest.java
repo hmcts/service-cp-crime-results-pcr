@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import uk.gov.hmcts.cp.entities.CPCaseHearingEntity;
 import uk.gov.hmcts.cp.entities.CPCourtApplicationEntity;
+import uk.gov.hmcts.cp.entities.CPNextHearingEmbeddable;
 import uk.gov.hmcts.cp.entities.CPOffenceEntity;
 import uk.gov.hmcts.cp.entities.CPVersionEntity;
 
@@ -23,6 +24,7 @@ class CPOffenceRepositoryTest extends RepositoryIntegrationTestBase {
     private static final UUID VERSION_PK = UUID.fromString("00000000-0000-0000-0000-000000000004");
     private static final UUID OFFENCE_ID = UUID.fromString("00000000-0000-0000-0000-000000000009");
     private static final UUID SOURCE_OFFENCE_ID = UUID.fromString("00000000-0000-0000-0000-000000000010");
+    private static final UUID NEXT_HEARING_COURT_HOUSE_ID = UUID.fromString("00000000-0000-0000-0000-000000000011");
 
     @Autowired
     private CPCaseHearingRepository cpCaseHearingRepository;
@@ -67,6 +69,13 @@ class CPOffenceRepositoryTest extends RepositoryIntegrationTestBase {
                 .pleaValue("GUILTY")
                 .pleaDate(LocalDate.of(2026, 7, 23))
                 .verdict("Found guilty")
+                .nextHearing(CPNextHearingEmbeddable.builder()
+                        .date(LocalDate.of(2026, 8, 1))
+                        .time("10:00")
+                        .courtHouseId(NEXT_HEARING_COURT_HOUSE_ID)
+                        .courtHouseCode("B01LY")
+                        .courtHouseName("Leeds Crown Court")
+                        .build())
                 .build();
 
         cpOffenceRepository.save(entity);
@@ -86,6 +95,11 @@ class CPOffenceRepositoryTest extends RepositoryIntegrationTestBase {
         assertThat(found.get().getPleaValue()).isEqualTo("GUILTY");
         assertThat(found.get().getPleaDate()).isEqualTo(LocalDate.of(2026, 7, 23));
         assertThat(found.get().getVerdict()).isEqualTo("Found guilty");
+        assertThat(found.get().getNextHearing().getDate()).isEqualTo(LocalDate.of(2026, 8, 1));
+        assertThat(found.get().getNextHearing().getTime()).isEqualTo("10:00");
+        assertThat(found.get().getNextHearing().getCourtHouseId()).isEqualTo(NEXT_HEARING_COURT_HOUSE_ID);
+        assertThat(found.get().getNextHearing().getCourtHouseCode()).isEqualTo("B01LY");
+        assertThat(found.get().getNextHearing().getCourtHouseName()).isEqualTo("Leeds Crown Court");
     }
 
     @Transactional

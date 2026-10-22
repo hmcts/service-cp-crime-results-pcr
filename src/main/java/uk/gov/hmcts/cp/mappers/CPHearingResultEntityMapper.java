@@ -524,6 +524,12 @@ public class CPHearingResultEntityMapper {
                 .orElse(null);
     }
 
+    private CPNextHearingEmbeddable toNextHearingEmbeddable(final Offence offence) {
+        return earliestNextHearing(Stream.ofNullable(offence.getJudicialResults()).flatMap(List::stream))
+                .map(this::buildNextHearingEmbeddable)
+                .orElse(null);
+    }
+
     // Offences can adjourn to different dates; ties keep payload order, so a given payload always maps the same way.
     private Optional<HearingDetailsResponse.NextHearing> earliestNextHearing(final Stream<JudicialResult> results) {
         return results.map(JudicialResult::getNextHearing)
@@ -557,7 +563,7 @@ public class CPHearingResultEntityMapper {
 
     private void addDirectOffence(final Offence offence, final UUID versionPk, final List<CPOffenceEntity> offences,
                                    final List<CPJudicialResultEntity> judicialResults, final List<CPJudicialResultPromptEntity> prompts) {
-        final CPOffenceEntity offenceEntity = toOffenceEntity(offence, versionPk, null, null);
+        final CPOffenceEntity offenceEntity = toOffenceEntity(offence, versionPk, null, null, toNextHearingEmbeddable(offence));
         offences.add(offenceEntity);
         excludePublishedForNows(Stream.ofNullable(offence.getJudicialResults()).flatMap(List::stream))
                 .forEach(r -> addResult(r, offenceEntity.getId(), null, judicialResults, prompts));
@@ -566,13 +572,14 @@ public class CPHearingResultEntityMapper {
     private void addLinkedOffence(final Offence offence, final UUID courtApplicationId, final String caseUrn,
                                    final List<CPOffenceEntity> offences,
                                    final List<CPJudicialResultEntity> judicialResults, final List<CPJudicialResultPromptEntity> prompts) {
-        final CPOffenceEntity offenceEntity = toOffenceEntity(offence, null, courtApplicationId, caseUrn);
+        final CPOffenceEntity offenceEntity = toOffenceEntity(offence, null, courtApplicationId, caseUrn, null);
         offences.add(offenceEntity);
         excludePublishedForNows(Stream.ofNullable(offence.getJudicialResults()).flatMap(List::stream))
                 .forEach(r -> addResult(r, offenceEntity.getId(), null, judicialResults, prompts));
     }
 
-    private CPOffenceEntity toOffenceEntity(final Offence offence, final UUID versionPk, final UUID courtApplicationId, final String caseUrn) {
+    private CPOffenceEntity toOffenceEntity(final Offence offence, final UUID versionPk, final UUID courtApplicationId, final String caseUrn,
+                                             final CPNextHearingEmbeddable nextHearing) {
         return CPOffenceEntity.builder()
                 .id(UUID.randomUUID()) // surrogate — CP's offence id can repeat across versions, kept as sourceOffenceId only
                 .versionPk(versionPk)
@@ -592,6 +599,7 @@ public class CPHearingResultEntityMapper {
                 .verdict(toVerdict(offence))
                 .allocationDecision(offence.getAllocationDecision() == null ? null : offence.getAllocationDecision().getMotReasonDescription())
                 .indicatedPleaValue(offence.getIndicatedPlea() == null ? null : offence.getIndicatedPlea().getIndicatedPleaValue())
+                .nextHearing(nextHearing)
                 .build();
     }
 

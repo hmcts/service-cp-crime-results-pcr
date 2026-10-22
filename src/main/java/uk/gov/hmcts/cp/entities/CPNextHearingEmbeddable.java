@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDate;
 import java.util.UUID;
 
-// Embedded, nullable, 1:1 with cp_version — kept per-defendant, since which offence's nextHearing wins is still unconfirmed.
+// Embedded, nullable — on cp_version the defendant's earliest next hearing, on cp_offence that offence's own.
 @Embeddable
 @Getter
 @Builder(toBuilder = true)
