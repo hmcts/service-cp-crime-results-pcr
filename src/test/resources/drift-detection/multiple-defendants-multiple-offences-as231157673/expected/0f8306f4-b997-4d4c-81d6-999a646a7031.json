@@ -47,8 +47,7 @@
           "courtHouseId": "f8254db1-1683-483e-afb3-b87fde5a0a26",
           "courtHouseName": "Lavender Hill Magistrates' Court"
         },
-        "dateTime": "2026-07-31T09:00:00Z",
-        "hearingId": "cf1f6d0c-6f9c-461f-b91a-5458a16c6342"
+        "dateTime": "2026-07-31T09:00:00Z"
       }
     },
     "offences": [
@@ -56,6 +55,14 @@
         "code": "TH68013A",
         "convictionDate": "2026-07-31",
         "listingNumber": 1,
+        "nextHearing": {
+          "court": {
+            "courtHouseCode": "B01LY00",
+            "courtHouseId": "f8254db1-1683-483e-afb3-b87fde5a0a26",
+            "courtHouseName": "Lavender Hill Magistrates' Court"
+          },
+          "dateTime": "2026-07-31T09:00:00Z"
+        },
         "offenceLegislation": "Contrary to section 1(1)    of the Criminal Attempts Act 1981.",
         "pleaDate": "2026-07-31",
         "pleaValue": "GUILTY",
@@ -120,6 +127,14 @@
         "code": "CA03012",
         "convictionDate": "2026-07-31",
         "listingNumber": 1,
+        "nextHearing": {
+          "court": {
+            "courtHouseCode": "B01LY00",
+            "courtHouseId": "f8254db1-1683-483e-afb3-b87fde5a0a26",
+            "courtHouseName": "Lavender Hill Magistrates' Court"
+          },
+          "dateTime": "2026-07-31T09:00:00Z"
+        },
         "offenceLegislation": "Contrary to section 363(3)(b) and (4) of the Communications Act 2003.",
         "pleaDate": "2026-07-31",
         "pleaValue": "GUILTY",

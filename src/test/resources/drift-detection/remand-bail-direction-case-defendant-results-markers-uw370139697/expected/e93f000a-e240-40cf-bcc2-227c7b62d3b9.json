@@ -67,8 +67,7 @@
           "courtHouseId": "c133d0de-c989-48b9-bd20-0431943e347e",
           "courtHouseName": "City of London Magistrates' Court"
         },
-        "dateTime": "2026-08-13T09:00:00Z",
-        "hearingId": "6efa4011-b3fa-45df-aca8-1a676218d218"
+        "dateTime": "2026-08-13T09:00:00Z"
       }
     },
     "offences": [
@@ -78,6 +77,14 @@
         "convictionDate": "2026-08-13",
         "indicatedPleaValue": "INDICATED_NOT_GUILTY",
         "listingNumber": 1,
+        "nextHearing": {
+          "court": {
+            "courtHouseCode": "B01DU00",
+            "courtHouseId": "c133d0de-c989-48b9-bd20-0431943e347e",
+            "courtHouseName": "City of London Magistrates' Court"
+          },
+          "dateTime": "2026-08-13T09:00:00Z"
+        },
         "offenceLegislation": "Contrary to section 1(1)    of the Criminal Attempts Act 1981.",
         "pleaDate": "2026-08-13",
         "pleaValue": "NOT_GUILTY",

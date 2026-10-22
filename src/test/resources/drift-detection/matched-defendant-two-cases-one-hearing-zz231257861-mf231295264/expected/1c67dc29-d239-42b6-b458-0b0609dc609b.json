@@ -46,8 +46,7 @@
           "courtHouseId": "f8254db1-1683-483e-afb3-b87fde5a0a26",
           "courtHouseName": "Lavender Hill Magistrates' Court"
         },
-        "dateTime": "2026-08-15T09:00:00Z",
-        "hearingId": "e2a6187c-26a0-4862-8041-beeb37e4b83a"
+        "dateTime": "2026-08-15T09:00:00Z"
       }
     },
     "sharedTime": "2026-08-14T07:52:19.997Z",
@@ -55,6 +54,14 @@
       {
         "code": "TH68001",
         "listingNumber": 1,
+        "nextHearing": {
+          "court": {
+            "courtHouseCode": "B01LY00",
+            "courtHouseId": "f8254db1-1683-483e-afb3-b87fde5a0a26",
+            "courtHouseName": "Lavender Hill Magistrates' Court"
+          },
+          "dateTime": "2026-08-15T09:00:00Z"
+        },
         "offenceLegislation": "Contrary to section 1(1) and 7 of the Theft Act 1968.",
         "pleaDate": "2026-08-15",
         "pleaValue": "NOT_GUILTY",
