@@ -36,6 +36,7 @@ import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -58,6 +59,9 @@ public class CPHearingResultEntityMapper {
     private static final String DEFENDANT_TYPE_APPELLANT = "Appellant";
     private static final String DEFENDANT_TYPE_RESPONDENT = "Respondent";
     private static final int SINGLE_DEFENDANT_CASE = 1;
+    // A next hearing with no listed start can't be ordered, so it only wins when nothing else is listed.
+    private static final Comparator<HearingDetailsResponse.NextHearing> EARLIEST_LISTED_START = Comparator.comparing(
+            HearingDetailsResponse.NextHearing::getListedStartDateTime, Comparator.nullsLast(Comparator.naturalOrder()));
 
     private final CPJudicialResultPromptParser promptParser;
 
@@ -423,7 +427,7 @@ public class CPHearingResultEntityMapper {
                 .custodyType(toCustodyType(defendant))
                 .masterDefendantId(masterDefendantId(defendant))
                 .defendantType(defendantType)
-                .nextHearing(toNextHearingEmbeddable(hearing))
+                .nextHearing(toNextHearingEmbeddable(defendant))
                 .sharedTime(sharedTime == null ? null : sharedTime.atOffset(ZoneOffset.UTC))
                 .postHearingCustodyStatus(populatePostHearingCustodyStatus(defendant))
                 .defendantAppearanceDetails(toDefendantAppearanceDetails(defendant, hearing))
@@ -512,17 +516,19 @@ public class CPHearingResultEntityMapper {
                 .postCode(address.getPostcode());
     }
 
-    private CPNextHearingEmbeddable toNextHearingEmbeddable(final HearingDetail hearing) {
-        // Provisional hearing-wide "first non-null nextHearing found" scan, not re-scoped per-defendant.
-        return Stream.ofNullable(hearing.getProsecutionCases()).flatMap(List::stream)
-                .flatMap(c -> c.getDefendants().stream())
-                .flatMap(d -> d.getOffences().stream())
-                .flatMap(o -> Stream.ofNullable(o.getJudicialResults()).flatMap(List::stream))
-                .map(JudicialResult::getNextHearing)
-                .filter(Objects::nonNull)
-                .findFirst()
+    // Only this defendant's own prosecution-case offences count — offences linked through a court application don't.
+    private CPNextHearingEmbeddable toNextHearingEmbeddable(final Defendant defendant) {
+        return earliestNextHearing(defendant.getOffences().stream()
+                .flatMap(o -> Stream.ofNullable(o.getJudicialResults()).flatMap(List::stream)))
                 .map(this::buildNextHearingEmbeddable)
                 .orElse(null);
+    }
+
+    // Offences can adjourn to different dates; ties keep payload order, so a given payload always maps the same way.
+    private Optional<HearingDetailsResponse.NextHearing> earliestNextHearing(final Stream<JudicialResult> results) {
+        return results.map(JudicialResult::getNextHearing)
+                .filter(Objects::nonNull)
+                .min(EARLIEST_LISTED_START);
     }
 
     private CPNextHearingEmbeddable buildNextHearingEmbeddable(final HearingDetailsResponse.NextHearing nextHearing) {

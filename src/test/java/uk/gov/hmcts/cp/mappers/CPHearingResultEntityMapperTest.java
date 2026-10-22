@@ -499,22 +499,9 @@ class CPHearingResultEntityMapperTest {
                 .build();
         final JudicialResult result = JudicialResult.builder()
                 .cjsCode("1200").judicialResultPrompts(List.of()).nextHearing(nextHearing).build();
-        final Offence offence = Offence.builder().judicialResults(List.of(result)).build();
-        final ProsecutionCase prosecutionCase = ProsecutionCase.builder()
-                .prosecutionCaseIdentifier(ProsecutionCaseIdentifier.builder().caseURN(CASE_URN).build())
-                .caseMarkers(List.of())
-                .defendants(List.of(Defendant.builder()
-                        .id(DEFENDANT_ID.toString())
-                        .personDefendant(PersonDefendant.builder().build())
-                        .offences(List.of(offence))
-                        .build()))
-                .build();
-        final HearingDetail hearing = HearingDetail.builder()
-                .courtApplications(List.of())
-                .prosecutionCases(List.of(prosecutionCase))
-                .build();
+        final Defendant defendant = defendantWithOffences(DEFENDANT_ID, Offence.builder().judicialResults(List.of(result)).build());
 
-        final CPEntitySet bundle = mapper.toWriteBundle(minimalDefendant(), hearing, CASE_HEARING_ID, SHARED_TIME, CREATED_AT, EXPIRES_AT);
+        final CPEntitySet bundle = mapper.toWriteBundle(defendant, hearingWith(defendant), CASE_HEARING_ID, SHARED_TIME, CREATED_AT, EXPIRES_AT);
 
         final CPNextHearingEmbeddable mapped = bundle.version().getNextHearing();
         assertThat(mapped).isNotNull();
@@ -524,6 +511,102 @@ class CPHearingResultEntityMapperTest {
         assertThat(mapped.getCourtHouseCode()).isEqualTo("B01LY00");
         assertThat(mapped.getCourtHouseName()).isEqualTo("Lavender Hill Magistrates' Court");
         assertThat(mapped.getId()).isEqualTo(UUID.fromString("41a6176a-4304-4986-91b6-588969195c56"));
+    }
+
+    @Test
+    void toWriteBundle_should_mapEarliestNextHearing_whenOffencesAdjournToDifferentDates() {
+        final Defendant defendant = defendantWithOffences(DEFENDANT_ID,
+                offenceWithNextHearing("2026-12-01T10:00:00Z", "B01AA00"),
+                offenceWithNextHearing("2026-11-21T10:00:00Z", "B01BB00"));
+
+        final CPEntitySet bundle = mapper.toWriteBundle(defendant, hearingWith(defendant), CASE_HEARING_ID, SHARED_TIME, CREATED_AT, EXPIRES_AT);
+
+        assertThat(bundle.version().getNextHearing().getDate()).isEqualTo(LocalDate.of(2026, 11, 21));
+        assertThat(bundle.version().getNextHearing().getCourtHouseCode()).isEqualTo("B01BB00");
+    }
+
+    @Test
+    void toWriteBundle_should_mapEarliestNextHearing_whenOneOffenceCarriesSeveral() {
+        final Offence offence = Offence.builder().judicialResults(List.of(
+                resultWithNextHearing("2026-12-01T10:00:00Z", "B01AA00"),
+                resultWithNextHearing("2026-11-21T10:00:00Z", "B01BB00"))).build();
+        final Defendant defendant = defendantWithOffences(DEFENDANT_ID, offence);
+
+        final CPEntitySet bundle = mapper.toWriteBundle(defendant, hearingWith(defendant), CASE_HEARING_ID, SHARED_TIME, CREATED_AT, EXPIRES_AT);
+
+        assertThat(bundle.version().getNextHearing().getDate()).isEqualTo(LocalDate.of(2026, 11, 21));
+    }
+
+    @Test
+    void toWriteBundle_should_keepFirstNextHearingInPayloadOrder_whenListedStartsAreEqual() {
+        final Defendant defendant = defendantWithOffences(DEFENDANT_ID,
+                offenceWithNextHearing("2026-11-21T10:00:00Z", "B01AA00"),
+                offenceWithNextHearing("2026-11-21T10:00:00Z", "B01BB00"));
+
+        final CPEntitySet bundle = mapper.toWriteBundle(defendant, hearingWith(defendant), CASE_HEARING_ID, SHARED_TIME, CREATED_AT, EXPIRES_AT);
+
+        assertThat(bundle.version().getNextHearing().getCourtHouseCode()).isEqualTo("B01AA00");
+    }
+
+    @Test
+    void toWriteBundle_should_preferListedNextHearing_overOneWithNoListedStart() {
+        final Defendant defendant = defendantWithOffences(DEFENDANT_ID,
+                offenceWithNextHearing(null, "B01AA00"),
+                offenceWithNextHearing("2026-12-01T10:00:00Z", "B01BB00"));
+
+        final CPEntitySet bundle = mapper.toWriteBundle(defendant, hearingWith(defendant), CASE_HEARING_ID, SHARED_TIME, CREATED_AT, EXPIRES_AT);
+
+        assertThat(bundle.version().getNextHearing().getCourtHouseCode()).isEqualTo("B01BB00");
+    }
+
+    @Test
+    void toWriteBundle_should_notMapAnotherDefendantsNextHearing_onTheSameHearing() {
+        final UUID otherDefendantId = UUID.fromString("00000000-0000-0000-0000-000000000099");
+        final Defendant defendant = defendantWithOffences(DEFENDANT_ID, offenceWithNextHearing("2026-12-01T10:00:00Z", "B01AA00"));
+        final Defendant otherDefendant = defendantWithOffences(otherDefendantId, offenceWithNextHearing("2026-11-21T10:00:00Z", "B01BB00"));
+
+        final CPEntitySet bundle = mapper.toWriteBundle(defendant, hearingWith(otherDefendant, defendant),
+                CASE_HEARING_ID, SHARED_TIME, CREATED_AT, EXPIRES_AT);
+
+        assertThat(bundle.version().getNextHearing().getDate()).isEqualTo(LocalDate.of(2026, 12, 1));
+        assertThat(bundle.version().getNextHearing().getCourtHouseCode()).isEqualTo("B01AA00");
+    }
+
+    @Test
+    void toWriteBundle_should_leaveNextHearingNull_whenDefendantHasNoOwnNextHearing() {
+        final UUID otherDefendantId = UUID.fromString("00000000-0000-0000-0000-000000000099");
+        final Defendant defendant = defendantWithOffences(DEFENDANT_ID, Offence.builder().judicialResults(List.of()).build());
+        final Defendant otherDefendant = defendantWithOffences(otherDefendantId, offenceWithNextHearing("2026-11-21T10:00:00Z", "B01BB00"));
+
+        final CPEntitySet bundle = mapper.toWriteBundle(defendant, hearingWith(otherDefendant, defendant),
+                CASE_HEARING_ID, SHARED_TIME, CREATED_AT, EXPIRES_AT);
+
+        assertThat(bundle.version().getNextHearing()).isNull();
+    }
+
+    @Test
+    void toWriteBundle_should_notMapNextHearing_fromCourtApplicationLinkedOffence() {
+        final Defendant defendant = Defendant.builder()
+                .id(DEFENDANT_ID.toString())
+                .masterDefendantId(MASTER_DEFENDANT_ID)
+                .personDefendant(PersonDefendant.builder().build())
+                .offences(List.of())
+                .build();
+        final CourtApplication application = CourtApplication.builder()
+                .id("00000000-0000-0000-0000-000000000077")
+                .subject(ApplicationParty.builder()
+                        .masterDefendant(MasterDefendant.builder().masterDefendantId(MASTER_DEFENDANT_ID).build()).build())
+                .courtApplicationCases(List.of(CourtApplicationCase.builder()
+                        .offences(List.of(offenceWithNextHearing("2026-11-21T10:00:00Z", "B01BB00"))).build()))
+                .build();
+        final HearingDetail hearing = HearingDetail.builder()
+                .courtApplications(List.of(application))
+                .prosecutionCases(List.of())
+                .build();
+
+        final CPEntitySet bundle = mapper.toWriteBundle(defendant, hearing, CASE_HEARING_ID, SHARED_TIME, CREATED_AT, EXPIRES_AT);
+
+        assertThat(bundle.version().getNextHearing()).isNull();
     }
 
     @Test
@@ -1479,6 +1562,39 @@ class CPHearingResultEntityMapperTest {
                 .prosecutionCaseIdentifier(ProsecutionCaseIdentifier.builder().caseURN(CASE_URN).build())
                 .caseMarkers(List.of())
                 .defendants(List.of())
+                .build();
+    }
+
+    private Defendant defendantWithOffences(final UUID defendantId, final Offence... offences) {
+        return Defendant.builder()
+                .id(defendantId.toString())
+                .personDefendant(PersonDefendant.builder().build())
+                .offences(List.of(offences))
+                .build();
+    }
+
+    private HearingDetail hearingWith(final Defendant... defendants) {
+        return HearingDetail.builder()
+                .courtApplications(List.of())
+                .prosecutionCases(List.of(ProsecutionCase.builder()
+                        .prosecutionCaseIdentifier(ProsecutionCaseIdentifier.builder().caseURN(CASE_URN).build())
+                        .caseMarkers(List.of())
+                        .defendants(List.of(defendants))
+                        .build()))
+                .build();
+    }
+
+    private Offence offenceWithNextHearing(final String listedStart, final String courtHouseCode) {
+        return Offence.builder().judicialResults(List.of(resultWithNextHearing(listedStart, courtHouseCode))).build();
+    }
+
+    private JudicialResult resultWithNextHearing(final String listedStart, final String courtHouseCode) {
+        return JudicialResult.builder()
+                .judicialResultPrompts(List.of())
+                .nextHearing(HearingDetailsResponse.NextHearing.builder()
+                        .listedStartDateTime(listedStart == null ? null : Instant.parse(listedStart))
+                        .courtCentre(CourtCentre.builder().code(courtHouseCode).build())
+                        .build())
                 .build();
     }
 
