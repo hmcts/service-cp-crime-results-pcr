@@ -50,8 +50,7 @@
           "courtHouseId": "7e967376-eacf-4fca-9b30-21b0c5aad427",
           "courtHouseName": "Bexley Magistrates' Court"
         },
-        "dateTime": "2026-08-17T09:00:00Z",
-        "hearingId": "2ce4e292-53e8-45e8-b47c-54365de889a6"
+        "dateTime": "2026-08-17T09:00:00Z"
       }
     },
     "offences": [
@@ -177,6 +176,14 @@
         "code": "PS90015",
         "convictionDate": "2026-08-14",
         "listingNumber": 1,
+        "nextHearing": {
+          "court": {
+            "courtHouseCode": "B01BH00",
+            "courtHouseId": "7e967376-eacf-4fca-9b30-21b0c5aad427",
+            "courtHouseName": "Bexley Magistrates' Court"
+          },
+          "dateTime": "2026-08-17T09:00:00Z"
+        },
         "offenceLegislation": "Contrary to regulation 7(2)(b)(i) of the Public Service Vehicles (Conduct of Drivers, Inspectors, Conductors and Passengers) Regulations 1990 and section 25 of the Public Passengers Vehicles Act 1981.",
         "pleaDate": "2026-08-14",
         "pleaValue": "NOT_GUILTY",

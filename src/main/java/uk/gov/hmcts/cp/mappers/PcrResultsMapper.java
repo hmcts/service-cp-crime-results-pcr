@@ -168,7 +168,6 @@ public class PcrResultsMapper {
         return nextHearing == null || nextHearing.getDate() == null
                 ? null
                 : NextHearing.builder()
-                        .hearingId(nextHearing.getId())
                         .court(toCourt(nextHearing.getCourtHouseId(), nextHearing.getCourtHouseCode(), nextHearing.getCourtHouseName()))
                         .dateTime(toNextHearingDateTime(nextHearing))
                         .build();
@@ -203,6 +202,7 @@ public class PcrResultsMapper {
                 .allocationDecision(offence.getAllocationDecision())
                 .indicatedPleaValue(offence.getIndicatedPleaValue())
                 .caseURN(offence.getCaseUrn())
+                .nextHearing(toNextHearing(offence.getNextHearing()))
                 .results(allResults.stream()
                         .filter(r -> offence.getId().equals(r.getOffenceId()))
                         .map(r -> toResultText(r, allPrompts))

@@ -22,7 +22,6 @@ class CPVersionRepositoryTest extends RepositoryIntegrationTestBase {
     private static final UUID VERSION_PK = UUID.fromString("00000000-0000-0000-0000-000000000004");
     private static final UUID DEFENDANT_ID = UUID.fromString("00000000-0000-0000-0000-000000000005");
     private static final UUID MASTER_DEFENDANT_ID = UUID.fromString("00000000-0000-0000-0000-000000000006");
-    private static final UUID NEXT_HEARING_ID = UUID.fromString("00000000-0000-0000-0000-000000000007");
     private static final UUID NEXT_HEARING_COURT_HOUSE_ID = UUID.fromString("00000000-0000-0000-0000-000000000008");
 
     @Autowired
@@ -57,7 +56,6 @@ class CPVersionRepositoryTest extends RepositoryIntegrationTestBase {
                         .courtHouseId(NEXT_HEARING_COURT_HOUSE_ID)
                         .courtHouseCode("B01LY")
                         .courtHouseName("Leeds Crown Court")
-                        .id(NEXT_HEARING_ID)
                         .build())
                 .createdAt(createdAt)
                 .expiresAt(expiresAt)
@@ -90,7 +88,6 @@ class CPVersionRepositoryTest extends RepositoryIntegrationTestBase {
         assertThat(actual.getNextHearing().getCourtHouseId()).isEqualTo(NEXT_HEARING_COURT_HOUSE_ID);
         assertThat(actual.getNextHearing().getCourtHouseCode()).isEqualTo("B01LY");
         assertThat(actual.getNextHearing().getCourtHouseName()).isEqualTo("Leeds Crown Court");
-        assertThat(actual.getNextHearing().getId()).isEqualTo(NEXT_HEARING_ID);
         assertThat(actual.getCreatedAt()).isEqualTo(createdAt);
         assertThat(actual.getExpiresAt()).isEqualTo(expiresAt);
         assertThat(actual.getTitle()).isEqualTo("Mr");
