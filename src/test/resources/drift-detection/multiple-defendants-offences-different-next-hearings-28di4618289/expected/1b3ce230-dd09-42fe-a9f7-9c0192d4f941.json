@@ -1,0 +1,186 @@
+[
+  {
+    "courtApplications": [],
+    "defendant": {
+      "address": {
+        "address1": "21",
+        "address2": "Furnburry Park Road",
+        "address3": "London",
+        "postCode": "SW11 3TQ"
+      },
+      "dateOfBirth": "2001-08-21",
+      "firstName": "Alexandrea",
+      "gender": "MALE",
+      "id": "1b3ce230-dd09-42fe-a9f7-9c0192d4f941",
+      "lastName": "Swaniawskiaus",
+      "masterDefendantId": "1b3ce230-dd09-42fe-a9f7-9c0192d4f941",
+      "postHearingCustodyStatus": "Not Applicable",
+      "results": [],
+      "title": "MR"
+    },
+    "hearing": {
+      "courtDetails": {
+        "court": {
+          "courtHouseCode": "B01BH00",
+          "courtHouseId": "7e967376-eacf-4fca-9b30-21b0c5aad427",
+          "courtHouseName": "Bexley Magistrates' Court"
+        },
+        "courtAddress": {
+          "address1": "Norwich Place",
+          "address2": "Bexleyheath",
+          "address3": "Kent",
+          "address4": "",
+          "address5": "",
+          "postCode": "DA6 7ND"
+        },
+        "ljaName": "South East London Magistrates' Court"
+      },
+      "defendantAppearanceDetails": "In person",
+      "hearingDate": "2026-10-19",
+      "hearingType": "First hearing",
+      "id": "df92e320-67cb-400a-900d-1602e7386549",
+      "jurisdiction": "MAGISTRATES"
+    },
+    "offences": [
+      {
+        "allocationDecision": "Indictable-only offence",
+        "code": "OF61102C",
+        "convictionDate": "2026-10-19",
+        "endDate": "2005-12-13",
+        "id": "b8fd3982-ed35-44bb-a596-66628673303a",
+        "listingNumber": 1,
+        "offenceLegislation": "Contrary to sections 1,1A and 3 of the Criminal Law Act 1977.",
+        "pleaDate": "2026-10-19",
+        "pleaValue": "GUILTY",
+        "results": [
+          {
+            "nextHearing": {
+              "court": {
+                "courtHouseCode": "B01BH00",
+                "courtHouseId": "7e967376-eacf-4fca-9b30-21b0c5aad427",
+                "courtHouseName": "Bexley Magistrates' Court"
+              },
+              "dateTime": "2026-10-30T10:00:00Z"
+            },
+            "resultDescription": "RI - Remanded in custody\nRemanded in custody until hearing on 30/10/2026 at 10:00 in Courtroom 01, Bexley Magistrates' Court. Basis: Before conviction. Bail exceptions: Likely to offend. Reason for applying: Made threats, Lack of community ties.",
+            "resultTexts": [
+              {
+                "label": "Next hearing in magistrates' court",
+                "value": "Date of hearing:30/10/2026\nTime of hearing:10:00\nCourthouse organisation name:Bexley Magistrates' Court\nCourthouse address line 1:Norwich Place\nCourthouse address line 2:Bexleyheath\nCourthouse address line 3:Kent\nCourthouse post code:DA6 7ND\nCourtroom:Courtroom 01\nHearing type:Trial of Issue / Newton hearing\nEstimated duration:30 MINUTES\nBooking reference:6f9b210f-ef3b-483c-a4c3-b2de1ba6f0ff"
+              },
+              {
+                "label": "Prison organisation name",
+                "value": "HMIRC The Verne"
+              },
+              {
+                "label": "Prison email address 1",
+                "value": "omu.theverne@justice.gov.uk"
+              },
+              {
+                "label": "Conveyor / custodian name organisation name",
+                "value": "Bexley Magistrates' Court: PECS"
+              },
+              {
+                "label": "Conveyor / custodian name email address 1",
+                "value": "PECSBexleyheathMags@serco.com"
+              },
+              {
+                "label": "Remand basis",
+                "value": "Before conviction"
+              },
+              {
+                "label": "Bail exception",
+                "value": "Likely to offend"
+              },
+              {
+                "label": "Bail exception reason",
+                "value": "Made threats, Lack of community ties"
+              }
+            ]
+          }
+        ],
+        "startDate": "2025-12-12",
+        "title": "Conspire to assault a person thereby occasioning them actual bodily harm",
+        "wording": "Between 12 Dec 2025 and 13 Dec 2025 at Lueilwitz Track, London, conspired together with another person to assault Dean Gulgowski, thereby occasioning him, actual bodily harm."
+      },
+      {
+        "code": "OF61131",
+        "convictionDate": "2026-10-19",
+        "id": "a746e38b-ed68-4e13-a042-a56f771c093a",
+        "listingNumber": 1,
+        "offenceLegislation": "Contrary to section 20 of the Offences Against the Person Act 1861.",
+        "pleaDate": "2026-10-19",
+        "pleaValue": "GUILTY",
+        "results": [
+          {
+            "nextHearing": {
+              "court": {
+                "courtHouseCode": "B01BH00",
+                "courtHouseId": "7e967376-eacf-4fca-9b30-21b0c5aad427",
+                "courtHouseName": "Bexley Magistrates' Court"
+              },
+              "dateTime": "2026-11-16T10:00:00Z"
+            },
+            "resultDescription": "NHMC - Next hearing in magistrates' court\nhearing on 16/11/2026 at 10:00 in Courtroom 01, Bexley Magistrates' Court",
+            "resultTexts": [
+              {
+                "label": "Date of hearing",
+                "value": "16/11/2026"
+              },
+              {
+                "label": "Time of hearing",
+                "value": "10:00"
+              },
+              {
+                "label": "Courthouse organisation name",
+                "value": "Bexley Magistrates' Court"
+              },
+              {
+                "label": "Courthouse address line 1",
+                "value": "Norwich Place"
+              },
+              {
+                "label": "Courthouse address line 2",
+                "value": "Bexleyheath"
+              },
+              {
+                "label": "Courthouse address line 3",
+                "value": "Kent"
+              },
+              {
+                "label": "Courthouse post code",
+                "value": "DA6 7ND"
+              },
+              {
+                "label": "Courtroom",
+                "value": "Courtroom 01"
+              },
+              {
+                "label": "Hearing type",
+                "value": "Trial - no witnesses"
+              },
+              {
+                "label": "Estimated duration",
+                "value": "20 MINUTES"
+              },
+              {
+                "label": "Booking reference",
+                "value": "498a6b22-ca66-41e2-ab41-157dfc599f59"
+              }
+            ]
+          }
+        ],
+        "startDate": "2025-12-12",
+        "title": "Wound / inflict grievous bodily harm without intent",
+        "wording": "On or about 12 Dec 2025 at London, unlawfully and maliciously inflicted grievous bodily harm upon a person, namely  Dean Gulgowski."
+      }
+    ],
+    "prosecutionCase": {
+      "caseMarkers": [],
+      "caseURN": "28DI4618289",
+      "prosecutor": "Derbyshire Police",
+      "results": []
+    },
+    "sharedTime": "2026-10-19T10:48:11.896Z"
+  }
+]

@@ -41,16 +41,7 @@
       "hearingDate": "2026-08-11",
       "hearingType": "First hearing",
       "id": "24b88ffb-4290-4560-9518-d6084c125c54",
-      "jurisdiction": "MAGISTRATES",
-      "nextHearing": {
-        "court": {
-          "courtHouseCode": "B01DU00",
-          "courtHouseId": "c133d0de-c989-48b9-bd20-0431943e347e",
-          "courtHouseName": "City of London Magistrates' Court"
-        },
-        "dateTime": "2026-08-11T09:00:00Z",
-        "hearingId": "69304c69-7264-46b2-ac4c-0c94b26788dc"
-      }
+      "jurisdiction": "MAGISTRATES"
     },
     "offences": [
       {
@@ -157,7 +148,15 @@
                 "label": "Pre-release bail condition: Passport - give to the court any passport held",
                 "value": ""
               }
-            ]
+            ],
+            "nextHearing": {
+              "court": {
+                "courtHouseCode": "B01DU00",
+                "courtHouseId": "c133d0de-c989-48b9-bd20-0431943e347e",
+                "courtHouseName": "City of London Magistrates' Court"
+              },
+              "dateTime": "2026-08-11T09:00:00Z"
+            }
           }
         ],
         "startDate": "2026-06-12",

@@ -1,0 +1,204 @@
+[
+  {
+    "courtApplications": [],
+    "defendant": {
+      "address": {
+        "address1": "9999A9999AAAA",
+        "address2": "Woodlane",
+        "address3": "addressline 3",
+        "address4": "Bristol",
+        "address5": "Avon",
+        "postCode": "SW11 3TQ"
+      },
+      "dateOfBirth": "2005-11-11",
+      "firstName": "Benton",
+      "gender": "MALE",
+      "id": "c9eaa3ed-8608-4752-af1d-fee215e75d94",
+      "lastName": "Lesch",
+      "masterDefendantId": "c9eaa3ed-8608-4752-af1d-fee215e75d94",
+      "postHearingCustodyStatus": "Not Applicable",
+      "results": [],
+      "title": "Mr"
+    },
+    "hearing": {
+      "courtDetails": {
+        "court": {
+          "courtHouseCode": "B01BH00",
+          "courtHouseId": "7e967376-eacf-4fca-9b30-21b0c5aad427",
+          "courtHouseName": "Bexley Magistrates' Court"
+        },
+        "courtAddress": {
+          "address1": "Norwich Place",
+          "address2": "Bexleyheath",
+          "address3": "Kent",
+          "address4": "",
+          "address5": "",
+          "postCode": "DA6 7ND"
+        },
+        "ljaName": "South East London Magistrates' Court"
+      },
+      "defendantAppearanceDetails": "In person",
+      "hearingDate": "2026-10-16",
+      "hearingType": "First hearing",
+      "id": "4235d075-9933-466d-9410-189502d14235",
+      "jurisdiction": "MAGISTRATES"
+    },
+    "offences": [
+      {
+        "allocationDecision": "Indictable-only offence",
+        "code": "OF61102C",
+        "convictionDate": "2026-10-16",
+        "id": "8d191905-7078-49fc-9587-dbff3f09ae48",
+        "listingNumber": 1,
+        "offenceLegislation": "Contrary to sections 1,1A and 3 of the Criminal Law Act 1977.",
+        "pleaDate": "2026-10-16",
+        "pleaValue": "GUILTY",
+        "results": [
+          {
+            "nextHearing": {
+              "court": {
+                "courtHouseCode": "B01BH00",
+                "courtHouseId": "7e967376-eacf-4fca-9b30-21b0c5aad427",
+                "courtHouseName": "Bexley Magistrates' Court"
+              },
+              "dateTime": "2026-12-01T10:00:00Z"
+            },
+            "resultDescription": "RI - Remanded in custody\nRemanded in custody until hearing on 01/12/2026 at 10:00 in Courtroom 01, Bexley Magistrates' Court. Basis: Before conviction. Adjournment reason: To attend or a warrant to issue, At request of the prosecution - Reason: test. Bail exceptions: Likely to offend. Reason for applying: Broken bail conditions.",
+            "resultTexts": [
+              {
+                "label": "Next hearing in magistrates' court",
+                "value": "Date of hearing:01/12/2026\nTime of hearing:10:00\nCourthouse organisation name:Bexley Magistrates' Court\nCourthouse address line 1:Norwich Place\nCourthouse address line 2:Bexleyheath\nCourthouse address line 3:Kent\nCourthouse post code:DA6 7ND\nCourtroom:Courtroom 01\nHearing type:Trial\nEstimated duration:20 MINUTES\nBooking reference:fe159bbf-5786-42cf-ae9a-1f626a02bda0"
+              },
+              {
+                "label": "Prison organisation name",
+                "value": "HMP Ashfield"
+              },
+              {
+                "label": "Prison email address 1",
+                "value": "yoiashfield.premiercustody@premier-serco.cjsm.net"
+              },
+              {
+                "label": "Prison email address 2",
+                "value": "yoiashfield.premiercustody@premier-serco.cjsm.net"
+              },
+              {
+                "label": "Conveyor / custodian name organisation name",
+                "value": "Bexley Magistrates' Court: PECS"
+              },
+              {
+                "label": "Conveyor / custodian name email address 1",
+                "value": "PECSBexleyheathMags@serco.com"
+              },
+              {
+                "label": "Remand basis",
+                "value": "Before conviction"
+              },
+              {
+                "label": "Bail exception",
+                "value": "Likely to offend"
+              },
+              {
+                "label": "Bail exception reason",
+                "value": "Broken bail conditions"
+              },
+              {
+                "label": "To attend or a warrant to issue",
+                "value": ""
+              },
+              {
+                "label": "At request of the prosecution",
+                "value": "Reason:test"
+              },
+              {
+                "label": "Adjournment reasons",
+                "value": ""
+              }
+            ]
+          }
+        ],
+        "startDate": "2022-12-12",
+        "title": "Conspire to assault a person thereby occasioning them actual bodily harm",
+        "wording": "Benton Lesch at Huel Dale, conspired together with Brett Hermann to assault Lori Kautzer, thereby occasioning actual bodily harm."
+      },
+      {
+        "allocationDecision": "Summary-only offence",
+        "code": "PS90015",
+        "convictionDate": "2026-10-16",
+        "id": "8d589a29-7c9d-4ebf-96a4-e379bf856daa",
+        "listingNumber": 1,
+        "offenceLegislation": "Contrary to regulation 7(2)(b)(i) of the Public Service Vehicles (Conduct of Drivers, Inspectors, Conductors and Passengers) Regulations 1990 and section 25 of the Public Passengers Vehicles Act 1981.",
+        "pleaDate": "2026-10-16",
+        "pleaValue": "GUILTY",
+        "results": [
+          {
+            "nextHearing": {
+              "court": {
+                "courtHouseCode": "B01BH00",
+                "courtHouseId": "7e967376-eacf-4fca-9b30-21b0c5aad427",
+                "courtHouseName": "Bexley Magistrates' Court"
+              },
+              "dateTime": "2026-11-21T10:00:00Z"
+            },
+            "resultDescription": "NHMC - Next hearing in magistrates' court\nhearing on 21/11/2026 at 10:00 in Courtroom 01, Bexley Magistrates' Court",
+            "resultTexts": [
+              {
+                "label": "Date of hearing",
+                "value": "21/11/2026"
+              },
+              {
+                "label": "Time of hearing",
+                "value": "10:00"
+              },
+              {
+                "label": "Courthouse organisation name",
+                "value": "Bexley Magistrates' Court"
+              },
+              {
+                "label": "Courthouse address line 1",
+                "value": "Norwich Place"
+              },
+              {
+                "label": "Courthouse address line 2",
+                "value": "Bexleyheath"
+              },
+              {
+                "label": "Courthouse address line 3",
+                "value": "Kent"
+              },
+              {
+                "label": "Courthouse post code",
+                "value": "DA6 7ND"
+              },
+              {
+                "label": "Courtroom",
+                "value": "Courtroom 01"
+              },
+              {
+                "label": "Hearing type",
+                "value": "Trial - no witnesses"
+              },
+              {
+                "label": "Estimated duration",
+                "value": "20 MINUTES"
+              },
+              {
+                "label": "Booking reference",
+                "value": "e2a50a53-f633-4c5a-934d-8dfbf3986265"
+              }
+            ]
+          }
+        ],
+        "startDate": "2022-11-28",
+        "title": "Public service vehicles - passenger failing to pay fare",
+        "wording": "Public service vehicles - passenger failing to pay fare"
+      }
+    ],
+    "prosecutionCase": {
+      "caseMarkers": [],
+      "caseURN": "28DI8721145",
+      "prosecutor": "Warwickshire Police",
+      "results": []
+    },
+    "sharedTime": "2026-10-16T10:23:47.527Z"
+  }
+]

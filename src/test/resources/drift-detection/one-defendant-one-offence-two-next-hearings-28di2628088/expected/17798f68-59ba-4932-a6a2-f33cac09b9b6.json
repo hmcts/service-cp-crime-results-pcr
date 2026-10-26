@@ -1,0 +1,184 @@
+[
+  {
+    "courtApplications": [],
+    "defendant": {
+      "address": {
+        "address1": "21",
+        "address2": "Furnburry Park Road",
+        "address3": "London",
+        "postCode": "SW11 3TQ"
+      },
+      "dateOfBirth": "2001-02-18",
+      "firstName": "Lucie",
+      "gender": "MALE",
+      "id": "17798f68-59ba-4932-a6a2-f33cac09b9b6",
+      "lastName": "Volkman",
+      "masterDefendantId": "17798f68-59ba-4932-a6a2-f33cac09b9b6",
+      "postHearingCustodyStatus": "Not Applicable",
+      "results": [],
+      "title": "MR"
+    },
+    "hearing": {
+      "courtDetails": {
+        "court": {
+          "courtHouseCode": "B01BH00",
+          "courtHouseId": "7e967376-eacf-4fca-9b30-21b0c5aad427",
+          "courtHouseName": "Bexley Magistrates' Court"
+        },
+        "courtAddress": {
+          "address1": "Norwich Place",
+          "address2": "Bexleyheath",
+          "address3": "Kent",
+          "address4": "",
+          "address5": "",
+          "postCode": "DA6 7ND"
+        },
+        "ljaName": "South East London Magistrates' Court"
+      },
+      "defendantAppearanceDetails": "In person",
+      "hearingDate": "2026-10-23",
+      "hearingType": "First hearing",
+      "id": "5b154170-d419-4206-8b43-7c22b88c6782",
+      "jurisdiction": "MAGISTRATES"
+    },
+    "offences": [
+      {
+        "allocationDecision": "Indictable-only offence",
+        "code": "TH68023A",
+        "convictionDate": "2026-10-23",
+        "endDate": "2025-12-13",
+        "id": "008b7bf0-0745-4bcf-8ef1-d936e4c19fb0",
+        "listingNumber": 1,
+        "offenceLegislation": "Contrary to section 1(1) of the Criminal Attempts Act 1981.",
+        "pleaDate": "2026-10-23",
+        "pleaValue": "GUILTY",
+        "results": [
+          {
+            "nextHearing": {
+              "court": {
+                "courtHouseCode": "B01BH00",
+                "courtHouseId": "7e967376-eacf-4fca-9b30-21b0c5aad427",
+                "courtHouseName": "Bexley Magistrates' Court"
+              },
+              "dateTime": "2026-11-10T10:00:00Z"
+            },
+            "resultDescription": "NHMC - Next hearing in magistrates' court\nhearing on 10/11/2026 at 10:00 in Courtroom 01, Bexley Magistrates' Court",
+            "resultTexts": [
+              {
+                "label": "Date of hearing",
+                "value": "10/11/2026"
+              },
+              {
+                "label": "Time of hearing",
+                "value": "10:00"
+              },
+              {
+                "label": "Courthouse organisation name",
+                "value": "Bexley Magistrates' Court"
+              },
+              {
+                "label": "Courthouse address line 1",
+                "value": "Norwich Place"
+              },
+              {
+                "label": "Courthouse address line 2",
+                "value": "Bexleyheath"
+              },
+              {
+                "label": "Courthouse address line 3",
+                "value": "Kent"
+              },
+              {
+                "label": "Courthouse post code",
+                "value": "DA6 7ND"
+              },
+              {
+                "label": "Courtroom",
+                "value": "Courtroom 01"
+              },
+              {
+                "label": "Hearing type",
+                "value": "Trial"
+              },
+              {
+                "label": "Estimated duration",
+                "value": "20 MINUTES"
+              },
+              {
+                "label": "Booking reference",
+                "value": "7fcd15bc-b356-4a70-b7ff-fa5deb54c88b"
+              }
+            ]
+          },
+          {
+            "nextHearing": {
+              "court": {
+                "courtHouseCode": "B01BH00",
+                "courtHouseId": "7e967376-eacf-4fca-9b30-21b0c5aad427",
+                "courtHouseName": "Bexley Magistrates' Court"
+              },
+              "dateTime": "2026-11-19T10:00:00Z"
+            },
+            "resultDescription": "RI - Remanded in custody\nRemanded in custody until hearing on 19/11/2026 at 10:00 in Courtroom 01, Bexley Magistrates' Court. Basis: Before conviction. Adjournment reason: To attend or a warrant to issue. Bail exceptions: Likely to offend. Reason for applying: Broken bail conditions, Failed to surrender.",
+            "resultTexts": [
+              {
+                "label": "Next hearing in magistrates' court",
+                "value": "Date of hearing:19/11/2026\nTime of hearing:10:00\nCourthouse organisation name:Bexley Magistrates' Court\nCourthouse address line 1:Norwich Place\nCourthouse address line 2:Bexleyheath\nCourthouse address line 3:Kent\nCourthouse post code:DA6 7ND\nCourtroom:Courtroom 01\nHearing type:Trial - no witnesses\nEstimated duration:20 MINUTES\nBooking reference:02521b54-cb4e-4519-a56d-d878ac11e221"
+              },
+              {
+                "label": "Prison organisation name",
+                "value": "HMP Ashfield"
+              },
+              {
+                "label": "Prison email address 1",
+                "value": "yoiashfield.premiercustody@premier-serco.cjsm.net"
+              },
+              {
+                "label": "Prison email address 2",
+                "value": "yoiashfield.premiercustody@premier-serco.cjsm.net"
+              },
+              {
+                "label": "Conveyor / custodian name organisation name",
+                "value": "Bexley Magistrates' Court: PECS"
+              },
+              {
+                "label": "Conveyor / custodian name email address 1",
+                "value": "PECSBexleyheathMags@serco.com"
+              },
+              {
+                "label": "Remand basis",
+                "value": "Before conviction"
+              },
+              {
+                "label": "Bail exception",
+                "value": "Likely to offend"
+              },
+              {
+                "label": "Bail exception reason",
+                "value": "Broken bail conditions, Failed to surrender"
+              },
+              {
+                "label": "To attend or a warrant to issue",
+                "value": ""
+              },
+              {
+                "label": "Adjournment reasons",
+                "value": ""
+              }
+            ]
+          }
+        ],
+        "startDate": "2025-12-12",
+        "title": "Attempt robbery",
+        "wording": "Between 12 Dec 2025 and 13 Dec 2025 at London attempted to rob Marc Dach of diamond ring  of a value unknown ."
+      }
+    ],
+    "prosecutionCase": {
+      "caseMarkers": [],
+      "caseURN": "28DI2628088",
+      "prosecutor": "Derbyshire Police",
+      "results": []
+    },
+    "sharedTime": "2026-10-23T12:02:18.947Z"
+  }
+]

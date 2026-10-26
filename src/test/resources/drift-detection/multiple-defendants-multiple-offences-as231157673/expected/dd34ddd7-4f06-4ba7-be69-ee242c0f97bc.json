@@ -39,16 +39,7 @@
       "hearingDate": "2026-07-31",
       "hearingType": "First hearing",
       "id": "f15a49db-812e-43d2-bfc5-7f3c7ee9ede1",
-      "jurisdiction": "MAGISTRATES",
-      "nextHearing": {
-        "court": {
-          "courtHouseCode": "B01LY00",
-          "courtHouseId": "f8254db1-1683-483e-afb3-b87fde5a0a26",
-          "courtHouseName": "Lavender Hill Magistrates' Court"
-        },
-        "dateTime": "2026-07-31T09:00:00Z",
-        "hearingId": "cf1f6d0c-6f9c-461f-b91a-5458a16c6342"
-      }
+      "jurisdiction": "MAGISTRATES"
     },
     "offences": [
       {
@@ -127,7 +118,15 @@
                 "label": "Adjournment reasons",
                 "value": ""
               }
-            ]
+            ],
+            "nextHearing": {
+              "court": {
+                "courtHouseCode": "B01LY00",
+                "courtHouseId": "f8254db1-1683-483e-afb3-b87fde5a0a26",
+                "courtHouseName": "Lavender Hill Magistrates' Court"
+              },
+              "dateTime": "2026-07-31T09:00:00Z"
+            }
           }
         ],
         "startDate": "2026-05-01",
