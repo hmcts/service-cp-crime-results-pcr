@@ -1,6 +1,7 @@
 package uk.gov.hmcts.cp.entities;
 
 import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
@@ -68,4 +69,7 @@ public class CPJudicialResultEntity {
 
     @Column(name = "total_custodial_period")
     private String totalCustodialPeriod;
+
+    @Embedded
+    private CPNextHearingEmbeddable nextHearing;
 }

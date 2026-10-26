@@ -13,6 +13,7 @@ import uk.gov.hmcts.cp.entities.CPNextHearingEmbeddable;
 import uk.gov.hmcts.cp.entities.CPOffenceEntity;
 import uk.gov.hmcts.cp.entities.CPVersionEntity;
 import uk.gov.hmcts.cp.openapi.model.PcrHearingResult;
+import uk.gov.hmcts.cp.openapi.model.ResultText;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -182,59 +183,36 @@ class PcrResultsMapperTest {
     }
 
     @Test
-    void toPcrHearingResult_should_leaveNextHearingNull_whenEmbeddableAbsent() {
-        final CPCaseHearingEntity caseHearing = CPCaseHearingEntity.builder().hearingId(HEARING_ID).build();
-
-        final PcrHearingResult result = mapper.toPcrHearingResult(caseHearing, minimalVersion(), List.of(), List.of(), List.of(), List.of(), List.of(), List.of());
-
-        assertThat(result.getHearing().getNextHearing()).isNull();
+    void toPcrHearingResult_should_leaveResultNextHearingNull_whenEmbeddableAbsent() {
+        assertThat(offenceResultWithNextHearing(null).getNextHearing()).isNull();
     }
 
     @Test
-    void toPcrHearingResult_should_mapNextHearingDateTime_asDateAtMidnightUtc_whenOnlyDateKnown() {
-        final CPVersionEntity version = minimalVersion().toBuilder()
-                .nextHearing(CPNextHearingEmbeddable.builder().date(LocalDate.of(2026, 8, 1)).build())
-                .build();
-        final CPCaseHearingEntity caseHearing = CPCaseHearingEntity.builder().hearingId(HEARING_ID).build();
+    void toPcrHearingResult_should_leaveResultNextHearingNull_whenNoDateRecorded() {
+        final ResultText result = offenceResultWithNextHearing(CPNextHearingEmbeddable.builder().courtHouseCode("B01LY00").build());
 
-        final PcrHearingResult result = mapper.toPcrHearingResult(caseHearing, version, List.of(), List.of(), List.of(), List.of(), List.of(), List.of());
-
-        assertThat(result.getHearing().getNextHearing()).isNotNull();
-        assertThat(result.getHearing().getNextHearing().getDateTime())
-                .isEqualTo(LocalDate.of(2026, 8, 1).atStartOfDay(ZoneOffset.UTC).toInstant());
+        assertThat(result.getNextHearing()).isNull();
     }
 
     @Test
-    void toPcrHearingResult_should_mapNextHearingDateTime_usingRealTime_whenTimeKnown() {
-        final CPVersionEntity version = minimalVersion().toBuilder()
-                .nextHearing(CPNextHearingEmbeddable.builder().date(LocalDate.of(2026, 8, 1)).time("10:00").build())
-                .build();
-        final CPCaseHearingEntity caseHearing = CPCaseHearingEntity.builder().hearingId(HEARING_ID).build();
+    void toPcrHearingResult_should_mapResultNextHearingDateTime_asDateAtMidnightUtc_whenOnlyDateKnown() {
+        final ResultText result = offenceResultWithNextHearing(CPNextHearingEmbeddable.builder().date(LocalDate.of(2026, 8, 1)).build());
 
-        final PcrHearingResult result = mapper.toPcrHearingResult(caseHearing, version, List.of(), List.of(), List.of(), List.of(), List.of(), List.of());
-
-        assertThat(result.getHearing().getNextHearing()).isNotNull();
-        assertThat(result.getHearing().getNextHearing().getDateTime()).isEqualTo(Instant.parse("2026-08-01T10:00:00Z"));
+        assertThat(result.getNextHearing().getDateTime()).isEqualTo(LocalDate.of(2026, 8, 1).atStartOfDay(ZoneOffset.UTC).toInstant());
     }
 
     @Test
-    void toPcrHearingResult_should_mapNextHearingCourtIncludingCourtHouseId() {
+    void toPcrHearingResult_should_mapResultNextHearingDateTimeAndCourt_whenRecorded() {
         final UUID courtHouseId = UUID.fromString("f8254db1-1683-483e-afb3-b87fde5a0a26");
-        final CPVersionEntity version = minimalVersion().toBuilder()
-                .nextHearing(CPNextHearingEmbeddable.builder()
-                        .date(LocalDate.of(2026, 8, 1))
-                        .courtHouseId(courtHouseId)
-                        .courtHouseCode("B01LY00")
-                        .courtHouseName("Lavender Hill Magistrates' Court")
-                        .build())
-                .build();
-        final CPCaseHearingEntity caseHearing = CPCaseHearingEntity.builder().hearingId(HEARING_ID).build();
+        final ResultText result = offenceResultWithNextHearing(CPNextHearingEmbeddable.builder()
+                .date(LocalDate.of(2026, 11, 21)).time("10:00")
+                .courtHouseId(courtHouseId).courtHouseCode("B01LY00").courtHouseName("Lavender Hill Magistrates' Court").build());
 
-        final PcrHearingResult result = mapper.toPcrHearingResult(caseHearing, version, List.of(), List.of(), List.of(), List.of(), List.of(), List.of());
-
-        assertThat(result.getHearing().getNextHearing().getCourt().getCourtHouseId()).isEqualTo(courtHouseId);
-        assertThat(result.getHearing().getNextHearing().getCourt().getCourtHouseCode()).isEqualTo("B01LY00");
-        assertThat(result.getHearing().getNextHearing().getCourt().getCourtHouseName()).isEqualTo("Lavender Hill Magistrates' Court");
+        assertThat(result.getNextHearing().getDateTime()).isEqualTo(Instant.parse("2026-11-21T10:00:00Z"));
+        assertThat(result.getNextHearing().getCourt().getCourtHouseId()).isEqualTo(courtHouseId);
+        assertThat(result.getNextHearing().getCourt().getCourtHouseCode()).isEqualTo("B01LY00");
+        assertThat(result.getNextHearing().getCourt().getCourtHouseName()).isEqualTo("Lavender Hill Magistrates' Court");
+        assertThat(result.getNextHearing().getHearingId()).isNull();
     }
 
     @Test
@@ -331,5 +309,19 @@ class PcrResultsMapperTest {
                 List.of(application), List.of(), List.of(), List.of(), List.of());
 
         assertThat(result.getCourtApplications().get(0).getDefendantType()).isEqualTo("Respondent");
+    }
+
+    private ResultText offenceResultWithNextHearing(final CPNextHearingEmbeddable nextHearing) {
+        final CPCaseHearingEntity caseHearing = CPCaseHearingEntity.builder().hearingId(HEARING_ID).build();
+        final CPVersionEntity version = minimalVersion();
+        final CPOffenceEntity offence = CPOffenceEntity.builder()
+                .id(UUID.fromString("00000000-0000-0000-0000-000000000048"))
+                .versionPk(version.getCpVersionPk()).code("TH68001").build();
+        final CPJudicialResultEntity judicialResult = CPJudicialResultEntity.builder()
+                .id(UUID.fromString("00000000-0000-0000-0000-000000000058"))
+                .offenceId(offence.getId()).nextHearing(nextHearing).build();
+
+        return mapper.toPcrHearingResult(caseHearing, version, List.of(), List.of(), List.of(offence), List.of(judicialResult),
+                List.of(), List.of()).getOffences().get(0).getResults().get(0);
     }
 }

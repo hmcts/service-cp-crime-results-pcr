@@ -423,7 +423,6 @@ public class CPHearingResultEntityMapper {
                 .custodyType(toCustodyType(defendant))
                 .masterDefendantId(masterDefendantId(defendant))
                 .defendantType(defendantType)
-                .nextHearing(toNextHearingEmbeddable(hearing))
                 .sharedTime(sharedTime == null ? null : sharedTime.atOffset(ZoneOffset.UTC))
                 .postHearingCustodyStatus(populatePostHearingCustodyStatus(defendant))
                 .defendantAppearanceDetails(toDefendantAppearanceDetails(defendant, hearing))
@@ -512,20 +511,7 @@ public class CPHearingResultEntityMapper {
                 .postCode(address.getPostcode());
     }
 
-    private CPNextHearingEmbeddable toNextHearingEmbeddable(final HearingDetail hearing) {
-        // Provisional hearing-wide "first non-null nextHearing found" scan, not re-scoped per-defendant.
-        return Stream.ofNullable(hearing.getProsecutionCases()).flatMap(List::stream)
-                .flatMap(c -> c.getDefendants().stream())
-                .flatMap(d -> d.getOffences().stream())
-                .flatMap(o -> Stream.ofNullable(o.getJudicialResults()).flatMap(List::stream))
-                .map(JudicialResult::getNextHearing)
-                .filter(Objects::nonNull)
-                .findFirst()
-                .map(this::buildNextHearingEmbeddable)
-                .orElse(null);
-    }
-
-    private CPNextHearingEmbeddable buildNextHearingEmbeddable(final HearingDetailsResponse.NextHearing nextHearing) {
+    private CPNextHearingEmbeddable toNextHearingEmbeddable(final HearingDetailsResponse.NextHearing nextHearing) {
         final OffsetDateTime listedStart = nextHearing.getListedStartDateTime() == null
                 ? null : nextHearing.getListedStartDateTime().atOffset(ZoneOffset.UTC);
         final CourtCentre courtCentre = nextHearing.getCourtCentre();
@@ -535,7 +521,6 @@ public class CPHearingResultEntityMapper {
                 .courtHouseId(courtCentre == null || courtCentre.getId() == null ? null : UUID.fromString(courtCentre.getId()))
                 .courtHouseCode(courtCentre == null ? null : courtCentre.getCode())
                 .courtHouseName(courtCentre == null ? null : courtCentre.getName())
-                .id(nextHearing.getBookingReference() == null ? null : UUID.fromString(nextHearing.getBookingReference()))
                 .build();
     }
 
@@ -630,6 +615,7 @@ public class CPHearingResultEntityMapper {
                 .fineAmount(fineAmount == null ? null : BigDecimal.valueOf(fineAmount))
                 .imprisonmentPeriod(promptParser.imprisonmentPeriod(result))
                 .totalCustodialPeriod(promptParser.totalCustodialPeriod(result))
+                .nextHearing(result.getNextHearing() == null ? null : toNextHearingEmbeddable(result.getNextHearing()))
                 .build();
     }
 

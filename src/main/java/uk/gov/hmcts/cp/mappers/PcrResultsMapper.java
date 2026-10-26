@@ -131,7 +131,6 @@ public class PcrResultsMapper {
                 .hearingType(caseHearing.getHearingType())
                 .jurisdiction(caseHearing.getJurisdiction())
                 .defendantAppearanceDetails(version.getDefendantAppearanceDetails())
-                .nextHearing(toNextHearing(version.getNextHearing()))
                 .build();
     }
 
@@ -168,7 +167,6 @@ public class PcrResultsMapper {
         return nextHearing == null || nextHearing.getDate() == null
                 ? null
                 : NextHearing.builder()
-                        .hearingId(nextHearing.getId())
                         .court(toCourt(nextHearing.getCourtHouseId(), nextHearing.getCourtHouseCode(), nextHearing.getCourtHouseName()))
                         .dateTime(toNextHearingDateTime(nextHearing))
                         .build();
@@ -217,6 +215,7 @@ public class PcrResultsMapper {
                         .filter(p -> result.getId().equals(p.getJudicialResultId()))
                         .map(this::toText)
                         .toList())
+                .nextHearing(toNextHearing(result.getNextHearing()))
                 .build();
     }
 

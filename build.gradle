@@ -34,7 +34,7 @@ configurations {
 // Sadly, dependabot does not track dependencies in the apply-from files
 dependencies {
   // Api spec
-  apiSpec 'uk.gov.hmcts.cp:api-cp-crime-results-pcr:1.1.25'
+  apiSpec 'uk.gov.hmcts.cp:api-cp-crime-results-pcr:1.1.27'
   implementation 'io.swagger.core.v3:swagger-annotations:2.2.55'
 
   // Java core

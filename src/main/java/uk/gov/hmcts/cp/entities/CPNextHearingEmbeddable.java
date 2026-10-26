@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDate;
 import java.util.UUID;
 
-// Embedded, nullable, 1:1 with cp_version — kept per-defendant, since which offence's nextHearing wins is still unconfirmed.
+// Embedded on cp_judicial_result, nullable — the next hearing CP recorded against that result.
 @Embeddable
 @Getter
 @Builder(toBuilder = true)
@@ -34,7 +34,4 @@ public class CPNextHearingEmbeddable {
 
     @Column(name = "next_hearing_court_house_name")
     private String courtHouseName;
-
-    @Column(name = "next_hearing_id")
-    private UUID id;
 }
