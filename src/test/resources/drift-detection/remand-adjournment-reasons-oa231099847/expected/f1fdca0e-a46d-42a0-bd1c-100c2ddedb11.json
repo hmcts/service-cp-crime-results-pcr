@@ -39,16 +39,7 @@
       "hearingDate": "2026-09-01",
       "hearingType": "First hearing",
       "id": "ae6de428-b738-4dd2-af4a-f8de7e96f942",
-      "jurisdiction": "MAGISTRATES",
-      "nextHearing": {
-        "court": {
-          "courtHouseCode": "B01LY00",
-          "courtHouseId": "f8254db1-1683-483e-afb3-b87fde5a0a26",
-          "courtHouseName": "Lavender Hill Magistrates' Court"
-        },
-        "dateTime": "2026-09-02T09:00:00Z",
-        "hearingId": "ea3284bb-712f-4a5b-8117-cc7cbb30c312"
-      }
+      "jurisdiction": "MAGISTRATES"
     },
     "offences": [
       {
@@ -60,6 +51,14 @@
         "pleaValue": "NOT_GUILTY",
         "results": [
           {
+            "nextHearing": {
+              "court": {
+                "courtHouseCode": "B01LY00",
+                "courtHouseId": "f8254db1-1683-483e-afb3-b87fde5a0a26",
+                "courtHouseName": "Lavender Hill Magistrates' Court"
+              },
+              "dateTime": "2026-09-02T09:00:00Z"
+            },
             "resultDescription": "RI - Remanded in custody\nRemanded in custody until hearing on 02/09/2026 at 10:00 in Courtroom 01, Lavender Hill Magistrates' Court. Basis: Before conviction. Adjournment reason: To attend or a warrant to issue. Bail exceptions: Already in custody. Reason for applying: Offended on bail.",
             "resultTexts": [
               {

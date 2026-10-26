@@ -26,9 +26,6 @@ import uk.gov.hmcts.cp.openapi.model.ProsecutionCase;
 import uk.gov.hmcts.cp.openapi.model.ResultText;
 import uk.gov.hmcts.cp.openapi.model.Text;
 
-import java.time.Instant;
-import java.time.LocalTime;
-import java.time.ZoneOffset;
 import java.util.List;
 import java.util.UUID;
 
@@ -131,7 +128,6 @@ public class PcrResultsMapper {
                 .hearingType(caseHearing.getHearingType())
                 .jurisdiction(caseHearing.getJurisdiction())
                 .defendantAppearanceDetails(version.getDefendantAppearanceDetails())
-                .nextHearing(toNextHearing(version.getNextHearing()))
                 .build();
     }
 
@@ -165,20 +161,12 @@ public class PcrResultsMapper {
     }
 
     private NextHearing toNextHearing(final CPNextHearingEmbeddable nextHearing) {
-        return nextHearing == null || nextHearing.getDate() == null
+        return nextHearing == null || nextHearing.getListedStart() == null
                 ? null
                 : NextHearing.builder()
-                        .hearingId(nextHearing.getId())
                         .court(toCourt(nextHearing.getCourtHouseId(), nextHearing.getCourtHouseCode(), nextHearing.getCourtHouseName()))
-                        .dateTime(toNextHearingDateTime(nextHearing))
+                        .dateTime(nextHearing.getListedStart())
                         .build();
-    }
-
-    // Uses the recorded time if present; midnight UTC is only a fallback for a date with no time.
-    private Instant toNextHearingDateTime(final CPNextHearingEmbeddable nextHearing) {
-        return nextHearing.getTime() == null
-                ? nextHearing.getDate().atStartOfDay(ZoneOffset.UTC).toInstant()
-                : nextHearing.getDate().atTime(LocalTime.parse(nextHearing.getTime())).atZone(ZoneOffset.UTC).toInstant();
     }
 
     private List<CPOffenceEntity> directOffences(final List<CPOffenceEntity> offences, final UUID versionPk) {
@@ -217,6 +205,7 @@ public class PcrResultsMapper {
                         .filter(p -> result.getId().equals(p.getJudicialResultId()))
                         .map(this::toText)
                         .toList())
+                .nextHearing(toNextHearing(result.getNextHearing()))
                 .build();
     }
 

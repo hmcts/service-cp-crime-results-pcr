@@ -1,7 +1,6 @@
 package uk.gov.hmcts.cp.entities;
 
 import jakarta.persistence.Column;
-import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
@@ -59,9 +58,6 @@ public class CPVersionEntity {
     // Applicant/Appellant/Respondent/Defendant — see CPHearingResultEntityMapper.defendantType.
     @Column(name = "defendant_type")
     private String defendantType;
-
-    @Embedded
-    private CPNextHearingEmbeddable nextHearing;
 
     @Column(name = "shared_time")
     private OffsetDateTime sharedTime;

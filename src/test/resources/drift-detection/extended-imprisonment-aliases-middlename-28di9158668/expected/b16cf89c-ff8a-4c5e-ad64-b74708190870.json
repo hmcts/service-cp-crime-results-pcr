@@ -43,16 +43,7 @@
       "hearingDate": "2026-08-14",
       "hearingType": "First hearing",
       "id": "9aa7c8fe-ceeb-48cd-bc3d-dbd3c63c8967",
-      "jurisdiction": "MAGISTRATES",
-      "nextHearing": {
-        "court": {
-          "courtHouseCode": "B01BH00",
-          "courtHouseId": "7e967376-eacf-4fca-9b30-21b0c5aad427",
-          "courtHouseName": "Bexley Magistrates' Court"
-        },
-        "dateTime": "2026-08-17T09:00:00Z",
-        "hearingId": "2ce4e292-53e8-45e8-b47c-54365de889a6"
-      }
+      "jurisdiction": "MAGISTRATES"
     },
     "offences": [
       {
@@ -204,7 +195,15 @@
                 "label": "Adjournment reasons",
                 "value": ""
               }
-            ]
+            ],
+            "nextHearing": {
+              "court": {
+                "courtHouseCode": "B01BH00",
+                "courtHouseId": "7e967376-eacf-4fca-9b30-21b0c5aad427",
+                "courtHouseName": "Bexley Magistrates' Court"
+              },
+              "dateTime": "2026-08-17T09:00:00Z"
+            }
           }
         ],
         "startDate": "2022-11-28",
