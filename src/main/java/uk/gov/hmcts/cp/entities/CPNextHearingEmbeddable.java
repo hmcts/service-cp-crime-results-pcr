@@ -8,7 +8,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
+import java.time.Instant;
 import java.util.UUID;
 
 // Embedded on cp_judicial_result, nullable — the next hearing CP recorded against that result.
@@ -20,11 +20,8 @@ import java.util.UUID;
 @EqualsAndHashCode
 public class CPNextHearingEmbeddable {
 
-    @Column(name = "next_hearing_date")
-    private LocalDate date;
-
-    @Column(name = "next_hearing_time")
-    private String time;
+    @Column(name = "next_hearing_listed_start")
+    private Instant listedStart;
 
     @Column(name = "next_hearing_court_house_id")
     private UUID courtHouseId;

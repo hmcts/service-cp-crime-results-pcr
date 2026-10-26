@@ -512,12 +512,9 @@ public class CPHearingResultEntityMapper {
     }
 
     private CPNextHearingEmbeddable toNextHearingEmbeddable(final HearingDetailsResponse.NextHearing nextHearing) {
-        final OffsetDateTime listedStart = nextHearing.getListedStartDateTime() == null
-                ? null : nextHearing.getListedStartDateTime().atOffset(ZoneOffset.UTC);
         final CourtCentre courtCentre = nextHearing.getCourtCentre();
         return CPNextHearingEmbeddable.builder()
-                .date(listedStart == null ? null : listedStart.toLocalDate())
-                .time(listedStart == null ? null : listedStart.toLocalTime().toString())
+                .listedStart(nextHearing.getListedStartDateTime())
                 .courtHouseId(courtCentre == null || courtCentre.getId() == null ? null : UUID.fromString(courtCentre.getId()))
                 .courtHouseCode(courtCentre == null ? null : courtCentre.getCode())
                 .courtHouseName(courtCentre == null ? null : courtCentre.getName())

@@ -18,7 +18,6 @@ import uk.gov.hmcts.cp.openapi.model.ResultText;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
 import java.util.List;
 import java.util.UUID;
 
@@ -188,24 +187,17 @@ class PcrResultsMapperTest {
     }
 
     @Test
-    void toPcrHearingResult_should_leaveResultNextHearingNull_whenNoDateRecorded() {
+    void toPcrHearingResult_should_leaveResultNextHearingNull_whenNoListedStartRecorded() {
         final ResultText result = offenceResultWithNextHearing(CPNextHearingEmbeddable.builder().courtHouseCode("B01LY00").build());
 
         assertThat(result.getNextHearing()).isNull();
     }
 
     @Test
-    void toPcrHearingResult_should_mapResultNextHearingDateTime_asDateAtMidnightUtc_whenOnlyDateKnown() {
-        final ResultText result = offenceResultWithNextHearing(CPNextHearingEmbeddable.builder().date(LocalDate.of(2026, 8, 1)).build());
-
-        assertThat(result.getNextHearing().getDateTime()).isEqualTo(LocalDate.of(2026, 8, 1).atStartOfDay(ZoneOffset.UTC).toInstant());
-    }
-
-    @Test
     void toPcrHearingResult_should_mapResultNextHearingDateTimeAndCourt_whenRecorded() {
         final UUID courtHouseId = UUID.fromString("f8254db1-1683-483e-afb3-b87fde5a0a26");
         final ResultText result = offenceResultWithNextHearing(CPNextHearingEmbeddable.builder()
-                .date(LocalDate.of(2026, 11, 21)).time("10:00")
+                .listedStart(Instant.parse("2026-11-21T10:00:00Z"))
                 .courtHouseId(courtHouseId).courtHouseCode("B01LY00").courtHouseName("Lavender Hill Magistrates' Court").build());
 
         assertThat(result.getNextHearing().getDateTime()).isEqualTo(Instant.parse("2026-11-21T10:00:00Z"));

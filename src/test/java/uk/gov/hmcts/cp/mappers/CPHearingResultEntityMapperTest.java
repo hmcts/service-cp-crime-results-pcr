@@ -505,8 +505,7 @@ class CPHearingResultEntityMapperTest {
 
         final CPNextHearingEmbeddable mapped = bundle.judicialResults().get(0).getNextHearing();
         assertThat(mapped).isNotNull();
-        assertThat(mapped.getDate()).isEqualTo(LocalDate.of(2026, 7, 31));
-        assertThat(mapped.getTime()).isEqualTo("09:00");
+        assertThat(mapped.getListedStart()).isEqualTo(Instant.parse("2026-07-31T09:00:00Z"));
         assertThat(mapped.getCourtHouseId()).isEqualTo(UUID.fromString("f8254db1-1683-483e-afb3-b87fde5a0a26"));
         assertThat(mapped.getCourtHouseCode()).isEqualTo("B01LY00");
         assertThat(mapped.getCourtHouseName()).isEqualTo("Lavender Hill Magistrates' Court");
@@ -522,8 +521,8 @@ class CPHearingResultEntityMapperTest {
         final CPEntitySet bundle = mapper.toWriteBundle(defendant, hearingWith(defendant), CASE_HEARING_ID, SHARED_TIME, CREATED_AT, EXPIRES_AT);
 
         assertThat(bundle.judicialResults())
-                .extracting(r -> r.getNextHearing().getDate(), r -> r.getNextHearing().getCourtHouseCode())
-                .containsExactly(tuple(LocalDate.of(2026, 11, 10), "B01AA00"), tuple(LocalDate.of(2026, 11, 19), "B01BB00"));
+                .extracting(r -> r.getNextHearing().getListedStart(), r -> r.getNextHearing().getCourtHouseCode())
+                .containsExactly(tuple(Instant.parse("2026-11-10T10:00:00Z"), "B01AA00"), tuple(Instant.parse("2026-11-19T10:00:00Z"), "B01BB00"));
     }
 
     @Test
@@ -543,8 +542,7 @@ class CPHearingResultEntityMapperTest {
         final CPEntitySet bundle = mapper.toWriteBundle(defendant, hearingWith(defendant), CASE_HEARING_ID, SHARED_TIME, CREATED_AT, EXPIRES_AT);
 
         final CPNextHearingEmbeddable mapped = bundle.judicialResults().get(0).getNextHearing();
-        assertThat(mapped.getDate()).isNull();
-        assertThat(mapped.getTime()).isNull();
+        assertThat(mapped.getListedStart()).isNull();
         assertThat(mapped.getCourtHouseCode()).isEqualTo("B01AA00");
     }
 
@@ -572,8 +570,8 @@ class CPHearingResultEntityMapperTest {
         final CPEntitySet bundle = mapper.toWriteBundle(defendant, hearing, CASE_HEARING_ID, SHARED_TIME, CREATED_AT, EXPIRES_AT);
 
         assertThat(bundle.judicialResults())
-                .extracting(r -> r.getCourtApplicationId() != null, r -> r.getNextHearing().getDate())
-                .containsExactlyInAnyOrder(tuple(true, LocalDate.of(2026, 11, 12)), tuple(false, LocalDate.of(2026, 11, 21)));
+                .extracting(r -> r.getCourtApplicationId() != null, r -> r.getNextHearing().getListedStart())
+                .containsExactlyInAnyOrder(tuple(true, Instant.parse("2026-11-12T10:00:00Z")), tuple(false, Instant.parse("2026-11-21T10:00:00Z")));
     }
 
     @Test

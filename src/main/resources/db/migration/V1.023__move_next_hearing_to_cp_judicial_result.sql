@@ -2,9 +2,10 @@
 -- application can carry several results each setting a different next hearing, so it is held per
 -- result rather than once per version. next_hearing_id is dropped outright: CP's nextHearing
 -- carries a booking reference, not the next hearing's identifier, so there is no source for it.
+-- CP sends the listed start as one instant, so it is held as one timestamptz rather than split
+-- into a date and a time of day.
 ALTER TABLE cp_judicial_result
-    ADD COLUMN next_hearing_date date,
-    ADD COLUMN next_hearing_time varchar,
+    ADD COLUMN next_hearing_listed_start timestamptz,
     ADD COLUMN next_hearing_court_house_id uuid,
     ADD COLUMN next_hearing_court_house_code varchar,
     ADD COLUMN next_hearing_court_house_name varchar;

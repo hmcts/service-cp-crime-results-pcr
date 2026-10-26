@@ -11,6 +11,7 @@ import uk.gov.hmcts.cp.entities.CPOffenceEntity;
 import uk.gov.hmcts.cp.entities.CPVersionEntity;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
@@ -63,8 +64,7 @@ class CPJudicialResultRepositoryTest extends RepositoryIntegrationTestBase {
                 .imprisonmentPeriod("6 months")
                 .totalCustodialPeriod("6 months")
                 .nextHearing(CPNextHearingEmbeddable.builder()
-                        .date(LocalDate.of(2026, 8, 1))
-                        .time("10:00")
+                        .listedStart(Instant.parse("2026-08-01T10:00:00Z"))
                         .courtHouseId(NEXT_HEARING_COURT_HOUSE_ID)
                         .courtHouseCode("B01LY")
                         .courtHouseName("Leeds Crown Court")
@@ -88,8 +88,7 @@ class CPJudicialResultRepositoryTest extends RepositoryIntegrationTestBase {
         assertThat(found.get().getFineAmount()).isEqualByComparingTo(new BigDecimal("250.00"));
         assertThat(found.get().getImprisonmentPeriod()).isEqualTo("6 months");
         assertThat(found.get().getTotalCustodialPeriod()).isEqualTo("6 months");
-        assertThat(found.get().getNextHearing().getDate()).isEqualTo(LocalDate.of(2026, 8, 1));
-        assertThat(found.get().getNextHearing().getTime()).isEqualTo("10:00");
+        assertThat(found.get().getNextHearing().getListedStart()).isEqualTo(Instant.parse("2026-08-01T10:00:00Z"));
         assertThat(found.get().getNextHearing().getCourtHouseId()).isEqualTo(NEXT_HEARING_COURT_HOUSE_ID);
         assertThat(found.get().getNextHearing().getCourtHouseCode()).isEqualTo("B01LY");
         assertThat(found.get().getNextHearing().getCourtHouseName()).isEqualTo("Leeds Crown Court");
