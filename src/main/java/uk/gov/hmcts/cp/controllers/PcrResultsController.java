@@ -21,8 +21,6 @@ import java.util.UUID;
 @Slf4j
 public class PcrResultsController implements PcrApi {
 
-    // Same rule as case-urn-mapper (1-36 alphanumerics, optional hyphen-numeric suffix), applied to each
-    // URN in CP's comma-joined applicationReference for a multi-case application.
     private static final String SINGLE_CASE_URN = "(?=[^,]{1,36}(?:,|$))[0-9a-zA-Z]+(?:-[0-9]+)?";
     private static final String CASE_URN_REGEX = "^(?=.{1,100}$)" + SINGLE_CASE_URN + "(?:," + SINGLE_CASE_URN + ")*$";
 
