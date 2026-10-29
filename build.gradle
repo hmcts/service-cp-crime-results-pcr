@@ -35,7 +35,7 @@ configurations {
 dependencies {
   // Api spec
   apiSpec 'uk.gov.hmcts.cp:api-cp-crime-results-pcr:1.1.27'
-  implementation 'io.swagger.core.v3:swagger-annotations:2.2.55'
+  implementation 'io.swagger.core.v3:swagger-annotations:3.0.0'
 
   // Java core
   implementation 'net.logstash.logback:logstash-logback-encoder:9.0'
