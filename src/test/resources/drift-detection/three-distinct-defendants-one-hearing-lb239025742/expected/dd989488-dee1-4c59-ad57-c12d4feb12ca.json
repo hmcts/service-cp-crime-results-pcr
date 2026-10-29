@@ -67,6 +67,7 @@
     "prosecutionCase": {
       "caseMarkers": [],
       "caseURN": "LB239025742",
+      "documentSequence": 1,
       "prosecutor": "City of London Police",
       "results": []
     },

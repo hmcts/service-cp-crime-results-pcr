@@ -196,6 +196,7 @@
     "prosecutionCase": {
       "caseMarkers": [],
       "caseURN": "28DI8721145",
+      "documentSequence": 1,
       "prosecutor": "Warwickshire Police",
       "results": []
     },

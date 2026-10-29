@@ -54,6 +54,25 @@ class PcrResultsMapperTest {
     }
 
     @Test
+    void toPcrHearingResult_should_mapThisCasesPositionInTheDocument() {
+        final CPCaseHearingEntity caseHearing = CPCaseHearingEntity.builder().caseUrn("MF231295264").hearingId(HEARING_ID).build();
+        final CPVersionEntity version = minimalVersion().toBuilder().documentCaseOrder("ZZ231257861,MF231295264").build();
+
+        final PcrHearingResult result = mapper.toPcrHearingResult(caseHearing, version, List.of(), List.of(), List.of(), List.of(), List.of(), List.of());
+
+        assertThat(result.getProsecutionCase().getDocumentSequence()).isEqualTo(2);
+    }
+
+    @Test
+    void toPcrHearingResult_should_leaveDocumentSequenceNull_whenNotRecorded() {
+        final CPCaseHearingEntity caseHearing = CPCaseHearingEntity.builder().caseUrn("ABCD1234567").hearingId(HEARING_ID).build();
+
+        final PcrHearingResult result = mapper.toPcrHearingResult(caseHearing, minimalVersion(), List.of(), List.of(), List.of(), List.of(), List.of(), List.of());
+
+        assertThat(result.getProsecutionCase().getDocumentSequence()).isNull();
+    }
+
+    @Test
     void toPcrHearingResult_should_mapDefendantIdentityAndPii() {
         final CPVersionEntity version = CPVersionEntity.builder()
                 .defendantId(DEFENDANT_ID).masterDefendantId(MASTER_DEFENDANT_ID)
