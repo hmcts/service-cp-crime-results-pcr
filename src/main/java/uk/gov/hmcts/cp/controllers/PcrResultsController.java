@@ -21,7 +21,8 @@ import java.util.UUID;
 @Slf4j
 public class PcrResultsController implements PcrApi {
 
-    private static final String CASE_URN_REGEX = "^[0-9a-zA-Z,]{1,100}$";
+    private static final String SINGLE_CASE_URN = "(?=[^,]{1,36}(?:,|$))[0-9a-zA-Z]+(?:-[0-9]+)?";
+    private static final String CASE_URN_REGEX = "^(?=.{1,100}$)" + SINGLE_CASE_URN + "(?:," + SINGLE_CASE_URN + ")*$";
 
     private final PcrResultsService pcrResultsService;
 
@@ -39,7 +40,7 @@ public class PcrResultsController implements PcrApi {
     private String validateCaseUrn(final String caseUrn) {
         if (caseUrn == null || !caseUrn.matches(CASE_URN_REGEX)) {
             log.warn("CaseUrn {} does not match expected caseRegex:{}", Encode.forJava(caseUrn), CASE_URN_REGEX);
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Case urn must be between 1 and 30 alphanumerics");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Case urn must be between 1 and 36 alphanumerics");
         }
         return caseUrn;
     }

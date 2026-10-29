@@ -1,6 +1,8 @@
 package uk.gov.hmcts.cp.integration;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import uk.gov.hmcts.cp.domain.HearingDetailsResponse.CaseMarker;
@@ -122,6 +124,38 @@ class PcrResultsControllerIntegrationTest extends ControllerRepositoryIntegratio
         mockMvc.perform(get("/cases/{caseURN}/hearings/{hearingId}/defendants/{defendantId}", "bad urn!", HEARING_ID, DEFENDANT_ID))
                 .andDo(print())
                 .andExpect(status().isBadRequest());
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"32D90374026-", "32D90374026-A", "-1", "ABC,", ",ABC", "ABC,,DEF"})
+    void getPcrHearingResults_should_return400_whenCaseUrnMalformed(final String caseUrn) throws Exception {
+        mockMvc.perform(get("/cases/{caseURN}/hearings/{hearingId}/defendants/{defendantId}", caseUrn, HEARING_ID, DEFENDANT_ID))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Case urn must be between 1 and 36 alphanumerics"));
+    }
+
+    @Test
+    void getPcrHearingResults_should_return400_whenCaseUrnLongerThan36() throws Exception {
+        mockMvc.perform(get("/cases/{caseURN}/hearings/{hearingId}/defendants/{defendantId}", "A".repeat(37), HEARING_ID, DEFENDANT_ID))
+                .andDo(print())
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void getPcrHearingResults_should_return400_whenOneOfCommaJoinedCaseUrnsLongerThan36() throws Exception {
+        mockMvc.perform(get("/cases/{caseURN}/hearings/{hearingId}/defendants/{defendantId}",
+                        "IE137532124," + "A".repeat(37), HEARING_ID, DEFENDANT_ID))
+                .andDo(print())
+                .andExpect(status().isBadRequest());
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"32D90374026-1", "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA-1", "IE137532124-1,XI137534386"})
+    void getPcrHearingResults_should_returnOk_whenCaseUrnValid(final String caseUrn) throws Exception {
+        mockMvc.perform(get("/cases/{caseURN}/hearings/{hearingId}/defendants/{defendantId}", caseUrn, HEARING_ID, DEFENDANT_ID))
+                .andDo(print())
+                .andExpect(status().isOk());
     }
 
     @Test
