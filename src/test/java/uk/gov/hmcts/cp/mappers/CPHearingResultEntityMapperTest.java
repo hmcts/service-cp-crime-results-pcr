@@ -441,6 +441,80 @@ class CPHearingResultEntityMapperTest {
     }
 
     @Test
+    void toWriteBundle_should_orderDocumentCases_byHearingThenApplicationLinkedCases() {
+        final Defendant defendant = Defendant.builder()
+                .id(DEFENDANT_ID.toString())
+                .masterDefendantId(MASTER_DEFENDANT_ID)
+                .personDefendant(PersonDefendant.builder().build())
+                .offences(List.of())
+                .build();
+        final Defendant sameDefendantOtherCase = Defendant.builder()
+                .id("00000000-0000-0000-0000-000000000044")
+                .masterDefendantId(MASTER_DEFENDANT_ID)
+                .build();
+        final Defendant otherDefendant = Defendant.builder()
+                .id("00000000-0000-0000-0000-000000000055")
+                .masterDefendantId("44444444-4444-4444-4444-444444444444")
+                .build();
+        final CourtApplication application = CourtApplication.builder()
+                .id("a9b8c7d6-e5f4-4321-9876-0a1b2c3d4e5f")
+                .subject(ApplicationParty.builder().masterDefendant(MasterDefendant.builder().masterDefendantId(MASTER_DEFENDANT_ID).build()).build())
+                .courtApplicationCases(List.of(CourtApplicationCase.builder().prosecutionCaseId("case-unrelated").build()))
+                .courtOrder(CourtOrder.builder().courtOrderOffences(List.of(
+                        CourtOrderOffence.builder().offence(Offence.builder().build()).prosecutionCaseId("case-not-in-hearing").build())).build())
+                .build();
+        final HearingDetail hearing = HearingDetail.builder()
+                .prosecutionCases(List.of(
+                        caseWith("case-unrelated", "UN0000001", otherDefendant),
+                        caseWith("case-second", "SE0000002", sameDefendantOtherCase),
+                        caseWith("case-first", "FI0000001", defendant)))
+                .courtApplications(List.of(application))
+                .build();
+
+        final CPEntitySet bundle = mapper.toWriteBundle(defendant, hearing, CASE_HEARING_ID, SHARED_TIME, CREATED_AT, EXPIRES_AT);
+
+        assertThat(bundle.version().getDocumentCaseOrder()).isEqualTo("SE0000002,FI0000001,UN0000001");
+    }
+
+    @Test
+    void toWriteBundle_should_leaveDocumentCaseOrderNull_whenHearingHasNoCaseForDefendant() {
+        final CPEntitySet bundle = mapper.toWriteBundle(minimalDefendant(), HearingDetail.builder().courtApplications(List.of()).build(),
+                CASE_HEARING_ID, SHARED_TIME, CREATED_AT, EXPIRES_AT);
+
+        assertThat(bundle.version().getDocumentCaseOrder()).isNull();
+    }
+
+    @Test
+    void toWriteBundle_should_sequenceOffences_directThenLinked_inSourceOrder() {
+        final Defendant defendant = Defendant.builder()
+                .id(DEFENDANT_ID.toString())
+                .masterDefendantId(MASTER_DEFENDANT_ID)
+                .personDefendant(PersonDefendant.builder().build())
+                .offences(List.of(Offence.builder().offenceCode("D1").build(), Offence.builder().offenceCode("D2").build()))
+                .build();
+        final CourtApplication application = CourtApplication.builder()
+                .id("a9b8c7d6-e5f4-4321-9876-0a1b2c3d4e5f")
+                .subject(ApplicationParty.builder().masterDefendant(MasterDefendant.builder().masterDefendantId(MASTER_DEFENDANT_ID).build()).build())
+                .courtApplicationCases(List.of(CourtApplicationCase.builder()
+                        .offences(List.of(Offence.builder().offenceCode("L1").build())).build()))
+                .build();
+        final HearingDetail hearing = HearingDetail.builder().courtApplications(List.of(application)).build();
+
+        final CPEntitySet bundle = mapper.toWriteBundle(defendant, hearing, CASE_HEARING_ID, SHARED_TIME, CREATED_AT, EXPIRES_AT);
+
+        assertThat(bundle.offences()).extracting(CPOffenceEntity::getCode, CPOffenceEntity::getSequence)
+                .containsExactly(tuple("D1", 0), tuple("D2", 1), tuple("L1", 2));
+    }
+
+    private ProsecutionCase caseWith(final String caseId, final String caseUrn, final Defendant defendant) {
+        return ProsecutionCase.builder()
+                .id(caseId)
+                .prosecutionCaseIdentifier(ProsecutionCaseIdentifier.builder().caseURN(caseUrn).build())
+                .defendants(List.of(defendant))
+                .build();
+    }
+
+    @Test
     void toWriteBundle_should_mapPersonDetailsAndAddress() {
         final Defendant defendant = Defendant.builder()
                 .id(DEFENDANT_ID.toString())

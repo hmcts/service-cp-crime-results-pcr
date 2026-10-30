@@ -74,4 +74,7 @@ public class CPOffenceEntity {
 
     @Column(name = "indicated_plea_value")
     private String indicatedPleaValue;
+
+    // Position in the order CP sent the offences — direct offences, then each linked application's.
+    private Integer sequence;
 }

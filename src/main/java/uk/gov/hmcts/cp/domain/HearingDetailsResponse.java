@@ -369,6 +369,7 @@ public class HearingDetailsResponse {
     @Getter
     public static class CourtOrderOffence {
         private Offence offence;
+        private String prosecutionCaseId;
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)

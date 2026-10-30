@@ -135,6 +135,7 @@
     "prosecutionCase": {
       "caseMarkers": [],
       "caseURN": "28DI5511547",
+      "documentSequence": 1,
       "prosecutor": "Derbyshire Police",
       "results": []
     },

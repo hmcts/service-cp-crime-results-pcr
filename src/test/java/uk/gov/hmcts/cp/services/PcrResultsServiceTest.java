@@ -97,7 +97,7 @@ class PcrResultsServiceTest {
         when(caseMarkerRepository.findByCaseHearingId(CASE_HEARING_ID)).thenReturn(List.of());
         when(relatedCaseRepository.findByCaseHearingId(CASE_HEARING_ID)).thenReturn(List.of());
         when(courtApplicationRepository.findByVersionPk(VERSION_PK)).thenReturn(List.of());
-        when(offenceRepository.findByVersionPk(VERSION_PK)).thenReturn(List.of());
+        when(offenceRepository.findByVersionPkOrderBySequenceAsc(VERSION_PK)).thenReturn(List.of());
         when(mapper.toPcrHearingResult(caseHearing, version, List.of(), List.of(), List.of(), List.of(), List.of(), List.of()))
                 .thenReturn(mapped);
 
@@ -162,8 +162,8 @@ class PcrResultsServiceTest {
         when(caseMarkerRepository.findByCaseHearingId(CASE_HEARING_ID)).thenReturn(List.of());
         when(relatedCaseRepository.findByCaseHearingId(CASE_HEARING_ID)).thenReturn(List.of());
         when(courtApplicationRepository.findByVersionPk(VERSION_PK)).thenReturn(List.of(application));
-        when(offenceRepository.findByVersionPk(VERSION_PK)).thenReturn(List.of(directOffence));
-        when(offenceRepository.findByCourtApplicationId(applicationId)).thenReturn(List.of(linkedOffence));
+        when(offenceRepository.findByVersionPkOrderBySequenceAsc(VERSION_PK)).thenReturn(List.of(directOffence));
+        when(offenceRepository.findByCourtApplicationIdOrderBySequenceAsc(applicationId)).thenReturn(List.of(linkedOffence));
         when(judicialResultRepository.findByOffenceId(directOffenceId)).thenReturn(List.of(directResult));
         when(judicialResultRepository.findByOffenceId(linkedOffenceId)).thenReturn(List.of(linkedResult));
         when(judicialResultRepository.findByCourtApplicationId(applicationId)).thenReturn(List.of());
@@ -187,7 +187,7 @@ class PcrResultsServiceTest {
         when(caseMarkerRepository.findByCaseHearingId(caseHearing.getId())).thenReturn(List.of());
         when(relatedCaseRepository.findByCaseHearingId(caseHearing.getId())).thenReturn(List.of());
         when(courtApplicationRepository.findByVersionPk(VERSION_PK)).thenReturn(List.of());
-        when(offenceRepository.findByVersionPk(VERSION_PK)).thenReturn(List.of());
+        when(offenceRepository.findByVersionPkOrderBySequenceAsc(VERSION_PK)).thenReturn(List.of());
         when(mapper.toPcrHearingResult(caseHearing, version, List.of(), List.of(), List.of(), List.of(), List.of(), List.of()))
                 .thenReturn(mapped);
     }
