@@ -80,9 +80,9 @@ public class PcrResultsService {
     }
 
     private List<CPOffenceEntity> allOffences(final UUID versionPk, final List<CPCourtApplicationEntity> courtApplications) {
-        final Stream<CPOffenceEntity> direct = offenceRepository.findByVersionPk(versionPk).stream();
+        final Stream<CPOffenceEntity> direct = offenceRepository.findByVersionPkOrderBySequenceAsc(versionPk).stream();
         final Stream<CPOffenceEntity> linked = courtApplications.stream()
-                .flatMap(a -> offenceRepository.findByCourtApplicationId(a.getId()).stream());
+                .flatMap(a -> offenceRepository.findByCourtApplicationIdOrderBySequenceAsc(a.getId()).stream());
         return Stream.concat(direct, linked).toList();
     }
 

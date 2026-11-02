@@ -10,7 +10,7 @@ import java.util.UUID;
 @Repository
 public interface CPOffenceRepository extends JpaRepository<CPOffenceEntity, UUID> {
 
-    List<CPOffenceEntity> findByVersionPk(UUID versionPk);
+    List<CPOffenceEntity> findByVersionPkOrderBySequenceAsc(UUID versionPk);
 
-    List<CPOffenceEntity> findByCourtApplicationId(UUID courtApplicationId);
+    List<CPOffenceEntity> findByCourtApplicationIdOrderBySequenceAsc(UUID courtApplicationId);
 }

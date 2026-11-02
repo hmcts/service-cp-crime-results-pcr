@@ -110,9 +110,39 @@ class CPOffenceRepositoryTest extends RepositoryIntegrationTestBase {
                 .versionPk(versionPk).code("TH68001").build();
         cpOffenceRepository.save(offence);
 
-        final List<CPOffenceEntity> found = cpOffenceRepository.findByVersionPk(versionPk);
+        final List<CPOffenceEntity> found = cpOffenceRepository.findByVersionPkOrderBySequenceAsc(versionPk);
 
         assertThat(found).extracting(CPOffenceEntity::getCode).containsExactly("TH68001");
+    }
+
+    @Transactional
+    @Test
+    void findByVersionPk_should_returnOffencesInSequenceOrder() {
+        cpCaseHearingRepository.save(CPCaseHearingEntity.builder()
+                .id(CASE_HEARING_ID)
+                .caseUrn("ABCD1234567")
+                .hearingId(UUID.fromString("00000000-0000-0000-0000-000000000002"))
+                .createdAt(OffsetDateTime.now(ZoneOffset.UTC))
+                .build());
+        cpVersionRepository.save(CPVersionEntity.builder()
+                .cpVersionPk(VERSION_PK)
+                .defendantId(UUID.fromString("00000000-0000-0000-0000-000000000005"))
+                .caseHearingId(CASE_HEARING_ID)
+                .createdAt(OffsetDateTime.now(ZoneOffset.UTC))
+                .expiresAt(OffsetDateTime.now(ZoneOffset.UTC).plusDays(30))
+                .build());
+        // Ids sort opposite to sequence, so an unordered read would not return sequence order by accident.
+        cpOffenceRepository.saveAll(List.of(
+                CPOffenceEntity.builder().id(UUID.fromString("00000000-0000-0000-0000-000000000091"))
+                        .versionPk(VERSION_PK).code("TH68003").sequence(2).build(),
+                CPOffenceEntity.builder().id(UUID.fromString("00000000-0000-0000-0000-000000000092"))
+                        .versionPk(VERSION_PK).code("TH68002").sequence(1).build(),
+                CPOffenceEntity.builder().id(UUID.fromString("00000000-0000-0000-0000-000000000093"))
+                        .versionPk(VERSION_PK).code("TH68001").sequence(0).build()));
+
+        final List<CPOffenceEntity> found = cpOffenceRepository.findByVersionPkOrderBySequenceAsc(VERSION_PK);
+
+        assertThat(found).extracting(CPOffenceEntity::getCode).containsExactly("TH68001", "TH68002", "TH68003");
     }
 
     @Transactional
@@ -142,7 +172,7 @@ class CPOffenceRepositoryTest extends RepositoryIntegrationTestBase {
                 .courtApplicationId(courtApplicationId).code("TH68002").build();
         cpOffenceRepository.save(offence);
 
-        final List<CPOffenceEntity> found = cpOffenceRepository.findByCourtApplicationId(courtApplicationId);
+        final List<CPOffenceEntity> found = cpOffenceRepository.findByCourtApplicationIdOrderBySequenceAsc(courtApplicationId);
 
         assertThat(found).extracting(CPOffenceEntity::getCode).containsExactly("TH68002");
     }

@@ -44,7 +44,7 @@ public class PcrResultsMapper {
                                                 final List<CPJudicialResultPromptEntity> prompts,
                                                 final List<CPRelatedCaseEntity> relatedCases) {
         return PcrHearingResult.builder()
-                .prosecutionCase(toProsecutionCase(caseHearing, caseMarkers, judicialResults, prompts, relatedCases))
+                .prosecutionCase(toProsecutionCase(caseHearing, version, caseMarkers, judicialResults, prompts, relatedCases))
                 .defendant(toDefendant(version, judicialResults, prompts))
                 .custodyLocation(toCustodyLocation(version))
                 .hearing(toHearingDetails(caseHearing, version))
@@ -58,7 +58,8 @@ public class PcrResultsMapper {
                 .build();
     }
 
-    private ProsecutionCase toProsecutionCase(final CPCaseHearingEntity caseHearing, final List<CPCaseMarkerEntity> caseMarkers,
+    private ProsecutionCase toProsecutionCase(final CPCaseHearingEntity caseHearing, final CPVersionEntity version,
+                                               final List<CPCaseMarkerEntity> caseMarkers,
                                                final List<CPJudicialResultEntity> judicialResults, final List<CPJudicialResultPromptEntity> prompts,
                                                final List<CPRelatedCaseEntity> relatedCases) {
         return ProsecutionCase.builder()
@@ -70,7 +71,16 @@ public class PcrResultsMapper {
                         .map(r -> toResultText(r, prompts))
                         .toList())
                 .relatedCases(relatedCases.isEmpty() ? null : relatedCases.stream().map(this::toRelatedCase).toList())
+                .documentSequence(documentSequence(caseHearing, version))
                 .build();
+    }
+
+    // Null on versions ingested before document order was recorded.
+    private Integer documentSequence(final CPCaseHearingEntity caseHearing, final CPVersionEntity version) {
+        final int index = version.getDocumentCaseOrder() == null
+                ? -1
+                : List.of(version.getDocumentCaseOrder().split(",")).indexOf(caseHearing.getCaseUrn());
+        return index < 0 ? null : index + 1;
     }
 
     private CaseMarker toCaseMarker(final CPCaseMarkerEntity marker) {

@@ -100,4 +100,8 @@ public class CPVersionEntity {
 
     @Column(name = "post_code")
     private String postCode;
+
+    // Comma-joined case URNs in the order CP's PCR document for this defendant lists them.
+    @Column(name = "document_case_order")
+    private String documentCaseOrder;
 }

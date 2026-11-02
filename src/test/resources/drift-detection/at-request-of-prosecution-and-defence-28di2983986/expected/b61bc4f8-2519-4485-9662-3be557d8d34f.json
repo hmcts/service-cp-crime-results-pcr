@@ -150,6 +150,7 @@
     "prosecutionCase": {
       "caseMarkers": [],
       "caseURN": "28DI2983986",
+      "documentSequence": 1,
       "prosecutor": "British Transport Police",
       "results": []
     },
