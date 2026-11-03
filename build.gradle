@@ -35,7 +35,7 @@ configurations {
 dependencies {
   // Api spec
   apiSpec 'uk.gov.hmcts.cp:api-cp-crime-results-pcr:1.1.28'
-  implementation 'io.swagger.core.v3:swagger-annotations:2.2.55'
+  implementation 'io.swagger.core.v3:swagger-annotations:3.0.0'
 
   // Java core
   implementation 'net.logstash.logback:logstash-logback-encoder:9.0'
@@ -71,7 +71,7 @@ dependencies {
   implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 
   implementation 'com.azure:azure-messaging-servicebus:7.18.1'
-  implementation 'com.azure:azure-identity:1.18.7'
+  implementation 'com.azure:azure-identity:1.19.0'
   implementation 'org.awaitility:awaitility:4.3.0'
 
   implementation 'com.nimbusds:nimbus-jose-jwt:10.10' // Entra access token validation
