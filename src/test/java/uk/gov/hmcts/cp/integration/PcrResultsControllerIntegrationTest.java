@@ -168,9 +168,27 @@ class PcrResultsControllerIntegrationTest extends ControllerRepositoryIntegratio
                 .andExpect(jsonPath("$").isEmpty());
     }
 
+    @Transactional
+    @Test
+    void getPcrHearingResults_should_returnRecord_whenCaseUrnIs36Alphanumerics() throws Exception {
+        final String caseUrn = "CFUAD1SVKN8T7GMI3962RO0Q4PELJW5ZXHYB";
+        seedOneVersion(caseUrn);
+
+        mockMvc.perform(get("/cases/{caseURN}/hearings/{hearingId}/defendants/{defendantId}", caseUrn, HEARING_ID, DEFENDANT_ID))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(1))
+                .andExpect(jsonPath("$[0].prosecutionCase.caseURN").value(caseUrn))
+                .andExpect(jsonPath("$[0].offences[0].code").value("TH68001"));
+    }
+
     private UUID seedOneVersion() {
+        return seedOneVersion(CASE_URN);
+    }
+
+    private UUID seedOneVersion(final String caseUrn) {
         final ProsecutionCase prosecutionCase = ProsecutionCase.builder()
-                .prosecutionCaseIdentifier(ProsecutionCaseIdentifier.builder().caseURN(CASE_URN).build())
+                .prosecutionCaseIdentifier(ProsecutionCaseIdentifier.builder().caseURN(caseUrn).build())
                 .caseMarkers(List.of(CaseMarker.builder().markerTypeCode("DomesticViolence").markerTypeDescription("Domestic Violence").build()))
                 .defendants(List.of())
                 .build();
