@@ -26,6 +26,8 @@
         <exclude name="LongVariable"/>
         <exclude name="ShortVariable"/>
         <exclude name="TooManyStaticImports"/>
+        <!-- New in PMD 7.29; declare-at-top-of-block conflicts with declaring variables where first used -->
+        <exclude name="LocalVariableDeclarationShouldBeAtStartOfBlock"/>
     </rule>
     <rule ref="category/java/errorprone.xml">
         <exclude name="InvalidLogMessageFormat"/>
