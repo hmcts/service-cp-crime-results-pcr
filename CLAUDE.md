@@ -72,7 +72,8 @@ that looks arbitrary; it likely isn't.
 ## Source Structure
 
 - `controllers/PcrResultsController` — implements generated `PcrApi`; validates `caseURN`
-  against `CASE_URN_REGEX` (`^[0-9a-zA-Z]{1,30}$`) before delegating
+  against `CASE_URN_REGEX` before delegating: one or more comma-joined URNs (100 chars max overall),
+  each 1-36 letters, digits or hyphens - the same per-URN rule as case-urn-mapper
 - `services/PcrResultsService` — reads `cp_case_hearing`/`cp_version` and children via the
   repository layer for a given `(caseURN, hearingId, defendantId)` and maps each recorded version
   to a `PcrHearingResult`; always returns `200` with an empty array when nothing is found — no

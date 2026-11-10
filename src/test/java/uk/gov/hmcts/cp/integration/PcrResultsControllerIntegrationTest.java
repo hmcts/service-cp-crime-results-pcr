@@ -127,7 +127,7 @@ class PcrResultsControllerIntegrationTest extends ControllerRepositoryIntegratio
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"32D90374026-", "32D90374026-A", "-1", "ABC,", ",ABC", "ABC,,DEF"})
+    @ValueSource(strings = {"ABC,", ",ABC", "ABC,,DEF", "ABC_123", "ABC DEF", "ABC.123"})
     void getPcrHearingResults_should_return400_whenCaseUrnMalformed(final String caseUrn) throws Exception {
         mockMvc.perform(get("/cases/{caseURN}/hearings/{hearingId}/defendants/{defendantId}", caseUrn, HEARING_ID, DEFENDANT_ID))
                 .andDo(print())
@@ -151,7 +151,8 @@ class PcrResultsControllerIntegrationTest extends ControllerRepositoryIntegratio
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"32D90374026-1", "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA-1", "IE137532124-1,XI137534386"})
+    @ValueSource(strings = {"32D90374026-1", "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA-1", "IE137532124-1,XI137534386",
+        "32D90374026-A", "ABC-DEF-123", "APP-REF-1", "-1", "32D90374026-", "IE137532124,APP-REF-1"})
     void getPcrHearingResults_should_returnOk_whenCaseUrnValid(final String caseUrn) throws Exception {
         mockMvc.perform(get("/cases/{caseURN}/hearings/{hearingId}/defendants/{defendantId}", caseUrn, HEARING_ID, DEFENDANT_ID))
                 .andDo(print())
@@ -180,6 +181,19 @@ class PcrResultsControllerIntegrationTest extends ControllerRepositoryIntegratio
                 .andExpect(jsonPath("$.length()").value(1))
                 .andExpect(jsonPath("$[0].prosecutionCase.caseURN").value(caseUrn))
                 .andExpect(jsonPath("$[0].offences[0].code").value("TH68001"));
+    }
+
+    @Transactional
+    @Test
+    void getPcrHearingResults_should_returnRecord_whenCaseUrnIs36CharactersWithHyphens() throws Exception {
+        final String caseUrn = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA-BCD";
+        seedOneVersion(caseUrn);
+
+        mockMvc.perform(get("/cases/{caseURN}/hearings/{hearingId}/defendants/{defendantId}", caseUrn, HEARING_ID, DEFENDANT_ID))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(1))
+                .andExpect(jsonPath("$[0].prosecutionCase.caseURN").value(caseUrn));
     }
 
     private UUID seedOneVersion() {
