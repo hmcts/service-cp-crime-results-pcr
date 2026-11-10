@@ -5,7 +5,7 @@ plugins {
   id 'io.spring.dependency-management' version '1.1.7'
   id 'jacoco'
   id 'maven-publish'
-  id 'com.github.ben-manes.versions' version '0.66.0'
+  id 'com.github.ben-manes.versions' version '0.67.0'
   id 'org.cyclonedx.bom' version '3.5.1'
   id 'com.gorylenko.gradle-git-properties' version '4.0.1'
   id 'com.avast.gradle.docker-compose' version '0.17.21'
@@ -35,7 +35,7 @@ configurations {
 dependencies {
   // Api spec
   apiSpec 'uk.gov.hmcts.cp:api-cp-crime-results-pcr:1.1.28'
-  implementation 'io.swagger.core.v3:swagger-annotations:2.2.55'
+  implementation 'io.swagger.core.v3:swagger-annotations:3.0.0'
 
   // Java core
   implementation 'net.logstash.logback:logstash-logback-encoder:9.0'
@@ -70,8 +70,8 @@ dependencies {
   // read-only from this service's side, no new cache write path introduced
   implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 
-  implementation 'com.azure:azure-messaging-servicebus:7.18.1'
-  implementation 'com.azure:azure-identity:1.18.7'
+  implementation 'com.azure:azure-messaging-servicebus:7.19.1'
+  implementation 'com.azure:azure-identity:1.19.0'
   implementation 'org.awaitility:awaitility:4.3.0'
 
   implementation 'com.nimbusds:nimbus-jose-jwt:10.10' // Entra access token validation
